@@ -1,0 +1,207 @@
+/* SCR-50A Uzmanım (#/uzman): Gastro profil başı + bölümler. Referans: tasks/referanslar.md Uzmanım ve sağlık.
+ * Durum: uzman-randevu (sonrakiRandevu şekli; null = iptal, uzman-profil de yazar), uzman-hazirlik {gorevId:true},
+ * uzman-talep {slug, paket, tarih, saat, tur, paylasim} (uzman-profil yazar), uzman-sohbet (eklenen mesajlar), uzman-okundu (son okunan mesaj id).
+ * #/uzman?hal=bos diyetisyeni olmayan kullanıcı, ?hal=hata bağlantı hatası, ?hal=seans görüşme saati gelmiş hal. */
+(() => {
+  const KAPAK = 'assets/gorsel/hero/uzman-masa.webp';
+  const B = () => DDV.benimDiyetisyenim;
+  const bul = slug => DDV.diyetisyenler.find(d => d.slug === slug);
+  const benim = () => bul(B().diyetisyen);
+  const hal = () => new URLSearchParams(location.hash.split('?')[1] || '').get('hal');
+  const randevuOku = () => DD.durum.oku('uzman-randevu', B().sonrakiRandevu);
+  const talepOku = () => DD.durum.oku('uzman-talep', null);
+  // ai-tahlil gönderimi kendi bayrağını yazar; sohbette gönderilen tahlil olarak görünür.
+  const aiTahlil = () => { if (!DD.durum.oku('ai-tahlil-gonderildi', false)) return []; const t = DDV.saglik.kanTahlilleri.find(x => x.id === DDV.ai.tahlil.tahlil); return [{id: 11, kim: 'ben', saat: `Bugün ${DDV.bugun.simdi}`, metin: 'Tahlil sonucumu gönderiyorum.', ek: {tur: 'tahlil', ad: `Kan tahlili · ${t.tarihMetin}`}}]; };
+  const mesajlar = () => [...B().sohbet.mesajlar, ...aiTahlil(), ...DD.durum.oku('uzman-sohbet', [])];
+  const buyukBas = s => s.charAt(0).toLocaleUpperCase('tr') + s.slice(1);
+  const ilkCumleVurgulu = m => m.replace(/^([^.;]+[.;])/, '**$1**');
+
+  // ---------- Tarih ve geri sayım ----------
+  const gunAy = iso => { const d = new Date(`${iso}T12:00:00`); return {gun: d.getDate(), ay: d.toLocaleDateString('tr-TR', {month: 'short'})}; };
+  const acilis = Date.now();   // Ekran yeniden çizilince sayaç başa dönmesin diye geçen süre buradan sayılır.
+  const SEANS_SN = 6 * 60;
+  const kalanSn = r => (hal() === 'seans' ? SEANS_SN : Math.round((new Date(`${r.tarih}T${r.saat}:00`) - DD.simdi()) / 1000)) - Math.floor((Date.now() - acilis) / 1000);
+  const katilAcik = r => kalanSn(r) <= r.katilAcilisDk * 60;
+  const acilisSaat = r => DD.saatMetin(DD.saatDk(r.saat) - r.katilAcilisDk);
+
+  // ---------- Hazırlık görevleri: randevunun konusundan gelir ----------
+  const GOREVLER = [
+    {id: 'olcum', baslik: 'Kilo ve bel ölçünü gir', alt: 'Sağlık dosyana eklenir'},
+    {id: 'su', baslik: 'Su kayıtlarına göz at', alt: 'Görüşmede su hedefini konuşacaksınız'},
+    {id: 'menu', baslik: 'Bu haftanın menüsünü oku', alt: 'Zorlandığın öğünü not et'}
+  ];
+  const hazirlik = () => ({olcum: DD.durum.oku('saglik-olcumler', []).length > 0, ...DD.durum.oku('uzman-hazirlik', {})});
+  const gorevler = () => { const h = hazirlik(); return `<div class="dd-yigin-12">${GOREVLER.map(g => DD.gorevSatir({...g, id: `gorev-${g.id}`, tamam: !!h[g.id]})).join('')}</div>`; };
+
+  // ---------- Randevu ----------
+  const randevuKart = r => {
+    const {gun, ay} = gunAy(r.tarih), acik = katilAcik(r);
+    return `<div class="dd-yigin">
+      ${DD.randevuSatir({gun, ay, baslik: r.baslik, saat: `${r.tarihMetin} ${r.saat}`, durum: r.tur})}
+      ${DD.geriSayim({saniye: Math.max(0, kalanSn(r))})}
+      <div class="dd-yigin-8">
+        ${DD.btn({metin: 'Seansa katıl', ikon: 'video', tam: true, pasif: !acik, veri: {eylem: 'seans'}})}
+        <small class="dd-yardim dd-orta-metin">${DD.esc(acik ? 'Diyetisyenin görüşmede seni bekliyor' : `Görüşme günü ${acilisSaat(r)} itibarıyla açılır`)}</small>
+      </div>
+      ${DD.btn({metin: 'Görüşme detayı', tur: 'tonal', tam: true, veri: {eylem: 'detay'}})}
+    </div>`;
+  };
+  const randevuYok = () => DD.bos({ikon: 'takvim', baslik: 'Planlı görüşmen yok', metin: `**${B().paket.kalanSeans} görüşme hakkın** duruyor. Takvimden sana uyan saati seçebilirsin.`, eylem: {metin: 'Görüşme planla', ikon: 'takvim', git: `#/uzman/profil/${B().diyetisyen}?ertele=1`}});
+  const gecmisListe = () => `<div class="dd-yigin-12">${B().gecmisRandevular.map(x => { const {gun, ay} = gunAy(x.tarih); return DD.randevuSatir({gun, ay, baslik: 'Haftalık takip görüşmesi', saat: x.saat, alt: x.tur, durum: x.durum}); }).join('')}</div>`;
+  const randevuPanel = sekme => { const r = randevuOku(); return sekme === 'gecmis' ? gecmisListe() : r ? randevuKart(r) : randevuYok(); };
+
+  // ---------- Haftalık menü ----------
+  const H = () => B().haftalikMenu;
+  const kalemAd = k => k.match(/^[^\d½¼¾(]+/)[0].trim();
+  const menuPanel = gun => {
+    const g = H().gunler.find(x => x.gun === gun);
+    const satirlar = g.ogunler.map((o, i) => ({ikon: 'ogun', baslik: `${o.ad} · ${o.saat}`, alt: o.kalemler.slice(0, 2).map(kalemAd).join(', '), deger: `${DD.sayi(o.kcal)} kcal`, veri: {eylem: 'menu-ogun', id: `${g.gun}.${i}`}}));
+    return `<div class="dd-yigin-12"><div class="dd-ara"><span class="dd-t-card">${DD.esc(buyukBas(g.baslik))}</span><span class="dd-t-meta dd-ton-ikincil">${DD.sayi(g.kcal)} kcal</span></div>${DD.yuzey(DD.satirlar(satirlar))}</div>`;
+  };
+  const menuBolum = () => {
+    const bugun = H().gunler.find(x => x.bugun) || H().gunler[0];
+    return `<div class="dd-yigin-12">${DD.gunSekme({ad: 'menu-gun', secili: String(bugun.gun), ogeler: H().gunler.map(x => ({etiket: x.etiket, deger: String(x.gun)}))})}<div data-yuva="menu">${menuPanel(bugun.gun)}</div></div>`;
+  };
+  const ogunSheet = (gun, i) => {
+    const o = H().gunler.find(x => x.gun === gun).ogunler[i];
+    const parca = k => k.match(/^(.*?)\s+((?:\d|[½¼¾⅓⅔]|yarım\s|çeyrek\s).*)$/i) || [null, k, ''];
+    DD.sheet({
+      baslik: o.ad,
+      html: `<div class="dd-yigin">${DD.p(`Bu öğün **${o.saat}** için planlandı ve **${DD.sayi(o.kcal)} kcal** tutuyor.`, {ton: 'ikincil'})}${DD.satirlar(o.kalemler.map(k => { const [, ad, miktar] = parca(k); return {baslik: ad, alt: miktar || null, ok: false}; }))}</div>`,
+      altBar: DD.btn({metin: 'Programı aç', ikon: 'program', tur: 'secondary', tam: true, git: `#/program/${H().program}`})
+    });
+  };
+
+  // ---------- Mesajlar, notlar, paket ----------
+  const okunmamis = l => { const son = DD.durum.oku('uzman-okundu', B().sohbet.mesajlar[B().sohbet.mesajlar.length - 2].id); return l.filter(m => m.kim !== 'ben' && m.id > son).length; };
+  const saatParca = s => s.slice(s.lastIndexOf(' ') + 1);
+  const mesajBolum = () => {
+    const l = mesajlar(), d = benim(), yeni = okunmamis(l);
+    const baloncuklar = l.slice(-2).map(m => DD.balon({kim: m.kim === 'ben' ? 'ben' : 'o', harf: d.harf, metin: m.metin, saat: saatParca(m.saat), ek: m.ek?.ad})).join('');
+    return `<div class="dd-yigin-12">${DD.kart({html: `<div class="dd-yigin-12">${baloncuklar}</div>`})}${DD.eylemKart({ikon: 'sifreli', baslik: 'Şifreli sohbet', alt: B().sohbet.sifreMetni, rozet: yeni ? `${yeni} yeni` : null, git: '#/uzman/sohbet'})}</div>`;
+  };
+  const notlarBolum = () => DD.yuzey(DD.satirlar(B().notlar.map((n, i) => ({ikon: 'duzenle', baslik: n.baslik, alt: n.tarihMetin, veri: {eylem: 'not', id: i}}))));
+  const notSheet = i => {
+    const n = B().notlar[i];
+    DD.sheet({baslik: n.baslik, html: `<div class="dd-yigin">${DD.bilgi({etiket: n.tarihMetin, metin: ilkCumleVurgulu(n.metin)})}</div>`, altBar: DD.btn({metin: 'Yanıt yaz', ikon: 'sohbet', tur: 'secondary', tam: true, git: '#/uzman/sohbet'})});
+  };
+  const paketBolum = d => {
+    const p = B().paket, tanim = d.paketler.find(x => x.id === p.id), biten = tanim.seans - p.kalanSeans;
+    return DD.kart({html: `<div class="dd-yigin">${DD.ilerleme({n: biten, hedef: tanim.seans, etiket: `${biten} görüşme tamamlandı`, deger: `${p.kalanSeans} kaldı`})}${DD.kunye([{ikon: 'program', etiket: 'Paket', deger: `${p.ad} · ${tanim.seans} görüşme`}, {ikon: 'takvim', etiket: 'Bitiş', deger: DD.tarihUzun(p.bitis)}])}${DD.btn({metin: 'Paketi yenile', ikon: 'yenile', tur: 'tonal', tam: true, git: `#/uzman/profil/${d.slug}?paket=${p.id}`})}</div>`});
+  };
+
+  // ---------- Bekleyen talep ----------
+  const talepKart = t => {
+    const d = bul(t.slug), p = d.paketler.find(x => x.id === t.paket), {gun, ay} = gunAy(t.tarih);
+    return `<div class="dd-yigin-12">${DD.randevuSatir({gun, ay, baslik: d.kisaAd, saat: t.saat, alt: p.ad, durum: 'Onay bekliyor'})}${DD.p('Diyetisyen **onayladığında** bildirim alırsın. Bu adımda ödeme alınmaz.', {ton: 'ikincil'})}${DD.btn({metin: 'Talebi geri çek', tur: 'text', tam: true, veri: {eylem: 'talep-iptal'}})}</div>`;
+  };
+
+  // ---------- Görüşme ----------
+  const seansSheet = d => DD.sheet({
+    baslik: 'Görüşme', tam: true,
+    html: `<div class="dd-yigin">${DD.gulucuk({gorsel: KAPAK, etiket: 'Görüşmedesin', baslik: d.ad, alt: B().sohbet.sifreMetni, rol: 'page'})}${DD.p('Kameran ve mikrofonun **görüşme boyunca** senin kontrolünde.', {ton: 'ikincil'})}</div>`,
+    altBar: DD.altEylem({
+      ikonlar: [{ikon: 'mikrofon', ad: 'Mikrofon', sayi: 'Açık', basili: false, veri: {eylem: 'seans-anahtar'}}, {ikon: 'video', ad: 'Kamera', sayi: 'Açık', basili: false, veri: {eylem: 'seans-anahtar'}}],
+      dugmeler: [{metin: 'Görüşmeyi bitir', ikon: 'phone-slash', tur: 'yikici', veri: {eylem: 'seans-bitir'}}]
+    }),
+    sonra: s => {
+      const c = [
+        DD.eylem(s, 'seans-anahtar', el => { const kapali = el.getAttribute('aria-pressed') !== 'true'; el.setAttribute('aria-pressed', kapali); el.querySelector('small').textContent = kapali ? 'Kapalı' : 'Açık'; }),
+        DD.eylem(s, 'seans-bitir', () => { s.kapat(); DD.toast('Görüşme **tamamlandı**', {tur: 'basari', ikon: 'onay'}); })
+      ];
+      return () => c.forEach(f => f());
+    }
+  });
+
+  // ---------- Randevu detayı ----------
+  const detaySheet = () => {
+    const r = randevuOku(), slug = B().diyetisyen;
+    DD.sheet({
+      baslik: r.baslik,
+      html: `<div class="dd-yigin">${DD.kunye([{ikon: 'takvim', etiket: 'Tarih', deger: r.tarihMetin}, {ikon: 'saat', etiket: 'Saat', deger: `${r.saat} · ${r.sureDk} dk`}, {ikon: 'video', etiket: 'Görüşme', deger: r.tur}])}${DD.p(`Bu görüşmede **${r.konu.toLocaleLowerCase('tr')}** konuşulacak.`)}<div class="dd-yigin-12"><h3 class="dd-t-card">Hazırlık</h3>${gorevler()}</div>${DD.btn({metin: 'Ölçüm ekle', ikon: 'ekle', tur: 'tonal', tam: true, git: '#/saglik?olcum=1'})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'İptal et', tur: 'yikici', veri: {eylem: 'randevu-iptal'}})}${DD.btn({metin: 'Saati değiştir', ikon: 'takvim', tur: 'secondary', git: `#/uzman/profil/${slug}?ertele=1`})}</div>`,
+      sonra: s => {
+        const c = [
+          ...GOREVLER.map(g => DD.on(s, `gorev-${g.id}`, v => DD.durum.yaz('uzman-hazirlik', {...hazirlik(), [g.id]: v}))),
+          DD.eylem(s, 'randevu-iptal', async () => {
+            const evet = await DD.dialog({baslik: 'Görüşmeyi iptal et', metin: `**${r.tarihMetin} ${r.saat}** görüşmen iptal edilecek. Görüşme hakkın **paketinde kalır**.`, eylem: 'İptal et', iptal: 'Vazgeç', yikici: true});
+            if (!evet) return;
+            s.kapat();
+            DD.durum.yaz('uzman-randevu', null);
+            DD.tazele();
+            DD.toast('Görüşme iptal edildi', {eylem: 'Geri al', onEylem: () => { DD.durum.yaz('uzman-randevu', r); DD.tazele(); }});
+          })
+        ];
+        return () => c.forEach(f => f());
+      }
+    });
+  };
+
+  // ---------- Ekran gövdesi ----------
+  const kisayollar = () => DD.parcali([
+    {ikon: 'tahlil', baslik: 'Sağlık dosyam', alt: 'Ölçümler, tahliller, notlar', git: '#/saglik'},
+    {ikon: 'ara_', baslik: 'Diyetisyenleri incele', alt: 'Uzmanlık ve paketler', git: '#/uzman/bul'}
+  ], {aria: 'Kısayollar'});
+  const dolu = () => {
+    const d = benim(), p = B().paket, tanim = d.paketler.find(x => x.id === p.id), t = talepOku();
+    return DD.profilBas({
+      ad: d.kisaAd, alt: `${d.unvan} · ${d.sehir}`, kapak: KAPAK, ust: true,
+      eylem: DD.btn({metin: 'Profili gör', tur: 'tonal', boyut: 'sm', git: `#/uzman/profil/${d.slug}`}),
+      sayaclar: [{deger: String(p.kalanSeans), etiket: 'Kalan görüşme'}, {deger: String(tanim.seans - p.kalanSeans), etiket: 'Tamamlanan'}, {deger: p.ad, etiket: 'Paket'}]
+    }) + DD.bolumler([
+      t && {baslik: 'Bekleyen talebin', html: talepKart(t)},
+      {baslik: 'Görüşmelerin', html: `<div class="dd-yigin-12">${DD.segment({ad: 'randevu', etiket: 'Görüşmeler', secili: 'yaklasan', ogeler: [{ad: 'Yaklaşan', deger: 'yaklasan'}, {ad: 'Geçmiş', deger: 'gecmis'}]})}<div data-yuva="randevu">${randevuPanel('yaklasan')}</div></div>`},
+      {baslik: 'Bu haftanın menüsü', eylem: 'Program', git: `#/program/${H().program}`, html: menuBolum()},
+      {baslik: 'Mesajlar', eylem: 'Tümü', git: '#/uzman/sohbet', html: mesajBolum()},
+      {baslik: 'Diyetisyen notları', html: notlarBolum()},
+      {baslik: 'Paketin', html: paketBolum(d)},
+      {baslik: 'Daha fazlası', html: kisayollar()}
+    ]);
+  };
+  const bos = () => {
+    const t = talepOku();
+    return DD.gulucuk({gorsel: KAPAK, etiket: 'Uzmanım', baslik: 'Yanında bir diyetisyen', alt: 'Görüşme, menü ve mesaj tek yerde', ust: true}) + DD.bolumler([
+      t && {baslik: 'Bekleyen talebin', html: talepKart(t)},
+      DD.bos({ikon: 'uzman', baslik: 'Henüz diyetisyenin yok', metin: 'Üç soruyla **sana uygun uzmanı** bulabilir ya da listeden kendin seçebilirsin.', eylem: {metin: 'Uzman bul', ikon: 'wand-magic-sparkles', git: '#/uzman/bul?adim=1'}, ikincil: {metin: 'Tüm diyetisyenler', git: '#/uzman/bul'}}),
+      {baslik: 'Diyetisyeninle neler yaparsın', html: `<div class="dd-yigin-12">${['**Haftalık menü** sana göre hazırlanır', '**Şifreli mesajla** sorularını sorarsın', '**Sağlık dosyanı** izin verirsen görür'].map(metin => DD.madde({metin})).join('')}</div>`}
+    ]);
+  };
+
+  let hazir = false, hataGosterildi = false;
+
+  DD.ekran('uzman', {
+    tur: 'banner',
+    nav: 'uzman',
+    dock: true,
+    baslik: 'Uzmanım',
+    yenile: true,
+    iskelet: 'profil',
+    ustBar: () => ({geri: false, saydam: hazir}),   // iskelet ve hata fotoğrafsızdır; beyaz logo solid barda kalır
+    yukle: () => {
+      if (hal() === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
+      if (hazir) return Promise.resolve();
+      return new Promise(tamam => setTimeout(() => { hazir = true; tamam(); }, DD.azHareket() ? 0 : DD.TK.motion.reveal));
+    },
+    ciz: () => (hal() === 'bos' ? bos() : dolu()),
+    cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
+    sonra: kok => {
+      const yuva = (ad, html) => { const el = kok.querySelector(`[data-yuva="${ad}"]`); if (el) el.innerHTML = html; };
+      const c = [
+        DD.on(kok, 'randevu', v => yuva('randevu', randevuPanel(v))),
+        DD.on(kok, 'menu-gun', v => yuva('menu', menuPanel(+v))),
+        DD.eylem(kok, 'detay', detaySheet),
+        DD.eylem(kok, 'seans', () => seansSheet(benim())),
+        DD.eylem(kok, 'menu-ogun', el => { const [g, i] = el.dataset.id.split('.').map(Number); ogunSheet(g, i); }),
+        DD.eylem(kok, 'not', el => notSheet(+el.dataset.id)),
+        DD.eylem(kok, 'talep-iptal', async () => {
+          const t = talepOku(), evet = await DD.dialog({baslik: 'Talebi geri çek', metin: `**${bul(t.slug).ad}** için gönderdiğin talep kaldırılacak.`, eylem: 'Geri çek', iptal: 'Vazgeç', yikici: true});
+          if (!evet) return;
+          DD.durum.sil('uzman-talep');
+          DD.tazele();
+          DD.toast('Talep geri çekildi', {eylem: 'Geri al', onEylem: () => { DD.durum.yaz('uzman-talep', t); DD.tazele(); }});
+        })
+      ];
+      return () => c.forEach(f => f());
+    }
+  });
+})();
