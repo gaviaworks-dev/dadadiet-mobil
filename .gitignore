@@ -1,0 +1,4 @@
+tasks/
+docs/screenshots/
+.DS_Store
+node_modules/

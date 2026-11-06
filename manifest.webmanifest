@@ -1,0 +1,15 @@
+{
+  "name": "Dada Diet",
+  "short_name": "Dada Diet",
+  "lang": "tr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#009A44",
+  "icons": [
+    {"src": "assets/marka/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "assets/marka/apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}
+  ]
+}
