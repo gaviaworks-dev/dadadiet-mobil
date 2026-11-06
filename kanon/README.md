@@ -68,7 +68,7 @@ Türkçe heceleme: `dd-metin.js` görünen metne yumuşak tire ekler ve DOM değ
 | `dd-arama` | `DD.aramaKur`: `{q, sonuc}` |
 | `gec` (`data-eylem`) | `DD.acilis` tam ekran dokunuş |
 | `DD.cikis()` | Hesaptan çıkış: Tabağım'ı ve tüm durumu siler, `#/karsilama` ile uygulamayı baştan yükler. Çıkış eylemi başka yol yazmaz |
-| `dd-tabagim`, `dd-tabagim-kaydet` | `document`: `{liste, toplam}` |
+| `dd-tabagim`, `dd-tabagim-kaydet` | `document`: `{liste, toplam}`. Kaydet ayrıca `{meta, foto, not, kaynak, guven}` taşır. Tabağa ait tek meta `DD.tabagim.meta({foto, not, kaynak, guven})`; argümansız okur, `ekle` bu alanları görürse boş olanları doldurur (ilk kaynak kalır), kayıt ya da temizlikte silinir |
 | `dd-bildirim` | `document`: okuma ya da silmeden sonra atılır, zil rozeti tazelenir. Sayı `DD.bildirimSayi()`: `okundu` olmayanlardan `DD.durum` `bildirim-okundu` ve `bildirim-silinen` id listeleri düşer. Elle tazeleme `DD.zilTazele()`; ekran dönüşünde kendiliğinden çalışır |
 
 Standart `data-eylem` adları: `ogun-ekle`, `plan-uygula`, `plan-degistir`, `plan-atla` · `duzelt` · `zaman-duzenle` · `jeton-sil` · `soru` (`dataset.soru`) · `kaydet` (kart, kendi çalışır) · `ek` · `filtre` · `neden`. Mesaj formu `[data-mesaj]` submit.
@@ -243,7 +243,11 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.icerikKart({gorsel, kategori, baslik, meta, git})` | Gastro püf kartı |
 | `DD.diyetisyenKart(d, {tur, eylem, ikincil, sayaclar, git})` | kart (96), tam, satir |
 | `DD.metrikKart({etiket, deger, birim, ikon, ton, degisim, degisimTon, degisimIkon, seri, git})` | `deger:null` tire |
-| `DD.ogunListe(l, o)`, `DD.ogunKart(x, {git, hedef, gunlukHedef, durumlar})` | durum dolu, planli, degisti, atlandi, bos |
+| `DD.ogunListe(l, o)`, `DD.ogunKart(x, {git, hedef, gunlukHedef, durumlar})` | durum dolu, planli, degisti, atlandi, bos. `x.foto` varsa mini halka yerine aynı hücrede tabak fotoğrafı |
+| `DD.tabakIzgara({gunler:[{baslik, ozet, kayitlar}], git})` | Gün başlıklı 2 sütun fotoğraf ızgarası. Kayıt `{id, foto, ad, kcal, ogun, saat}`. `git` işlev ya da `':id'` kalıbı, varsayılan `#/kayit/:id`. Boş halde ekran `DD.bos` çizer |
+| `DD.tabakSerit(kayitlar, {git, tumu, tumuMetin})` | Bugün şeridi; sonda Tümü, varsayılan `#/tabaklarim`. Tek kart `DD.tabakKart(k, {git, kucuk})` |
+| `DD.kayitKaynak(kaynak, guven)` | kamera, galeri, ses, arama, barkod. "Fotoğraftan · Güven %92"; güven yoksa yalnız kaynak |
+| `DD.oneriNot({ad, etiket, yer, deger, oneriler, secili})` | Girdi + öneri çipleri. `DD.on(k, ad, (not, {oneriler, serbest}) => {})`: `not` birleşik metin, `oneriler` seçili çipler |
 | `DD.besinSatir(b, {swipe, eylemler, git, veri, sag, alt, ok})` | |
 | `DD.suKart({icilen, hedef, adimlar, bardak, ad})`, `DD.duygu({soru, secenekler, secili, ad})`, `DD.paketler({ad, ogeler, secili})` | `DDV.bugun.su`, `.duygu`, `d.paketler` |
 | `DD.bildirimSatir(b, {git})`, `DD.yorum({ad, metin, meta})`, `DD.yorumBolumu({baslik, yorumlar, ozet, bos})`, `DD.paylas({baslik, url, alt})` | |
@@ -331,3 +335,4 @@ Gerçekten yeni olanlar (`tasks/gastro-esleme.md` §4) `dd-yeni.css`, `dd-goster
 18. Düz renk açılış kaldırıldı, `DD.acilis` Gastro kolajıdır. Neden: Beyar kuralı düz koyu zemine izin vermez.
 19. Sohbet balonu da başlık kümesi gibi davranır: kısa mesajdır, `start` hizalanır, hecelenmez.
 20. Ortalı kısa metin (`.dd-durum`, sahne, izin, boş liste, profil kimliği, `DD.p({orta})`) `text-align:center` + `text-wrap:balance` alır, hecelenmez. Neden: ölçüldü, justify ile balance birlikte ilk satırı daha çok geriyor ("Beklenmedik    bir    hata    oluştu."); mimari §2'deki ortalı blok kuralından bilinçli sapmadır.
+21. Tabak kartı yeni aile değildir: DDCard tile'ın kare medyalı halidir, perde ve kcal metası aynı kurallarla gelir. Fotoğraf yargı aracı olmadığı için puan ve renkli işaret taşımaz; `DD.kayitKaynak` nötr rozettir.

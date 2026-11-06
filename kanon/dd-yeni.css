@@ -490,3 +490,18 @@
 .dd-icerik-uyari>.dd-satir-ikon{width:var(--dd-size-box-sm);height:var(--dd-size-box-sm);border-radius:var(--dd-r-control);background:var(--dd-bg);color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
 .dd-icerik-uyari.is-dikkat>.dd-satir-ikon{background:var(--dd-uyari-bg);color:var(--dd-uyari-fg)}
 .dd-icerik-uyari.is-iyi>.dd-satir-ikon{background:var(--dd-basari-bg);color:var(--dd-basari-fg)}
+/* Öğün kartında tabak fotoğrafı: mini halkayla aynı hücre, satır yüksekliği değişmez */
+.dd-ogun .dd-kucuk-foto{width:var(--dd-size-ring-mini);height:var(--dd-size-ring-mini);flex:0 0 var(--dd-size-ring-mini)}
+/* Tabak kartı: DDCard tile, kare medya */
+.dd-tabak .dd-tile__media{display:block;aspect-ratio:1;border-radius:var(--dd-r-media);color:inherit}
+.dd-tabak .dd-meta{max-width:calc(100% - var(--dd-pair-inset) * 2)}
+.dd-tabak .dd-card__title{-webkit-line-clamp:1}
+.dd-tabak .dd-photo.image-failed{background-color:var(--dd-primary-tint);color:var(--dd-primary-deep);font-size:var(--dd-size-icon-lg)}
+.dd-tabak.is-kucuk .dd-tile__info{padding:var(--dd-s-8)}
+.dd-tabak-gunler{display:grid;gap:var(--dd-s-32);min-width:0}
+.dd-tabak-gun{display:grid;gap:var(--dd-s-12);min-width:0}
+.dd-tabak-ozet{flex:none;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-tabak-izgara{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dd-s-12)}
+.dd-strip-oge.dd-tabak-tumu{align-items:center;justify-content:center;height:var(--dd-serit-medya);border:calc(var(--dd-size-border) * 2) dashed var(--dd-line);border-radius:var(--dd-r-media);color:var(--dd-primary-dark);font-size:var(--dd-t-meta-size);text-decoration:none}
+.dd-tabak-tumu .icon{font-size:var(--dd-size-icon-md)}
+.dd-oneri-not{display:grid;gap:var(--dd-s-12);min-width:0}

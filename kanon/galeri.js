@@ -177,6 +177,15 @@
   const menuBelge = DD.belge({baslik: 'Lokanta Deniz', alt: 'Akşam menüsü', gruplar: [{ad: 'Izgaralar', satirlar: [{ad: 'Yoğurtlu Tavuk Şiş', fiyat: '320'}, {ad: 'Dana Bonfile', fiyat: '540'}]}, {ad: 'Fırından', satirlar: [{ad: 'Karidesli Güveç', fiyat: '420'}, {ad: 'Sebzeli Levrek', fiyat: '460'}]}]});
   const tahlilBelge = DD.belge({tur: 'tahlil', baslik: 'Laboratuvar Sonuç Raporu', alt: '18 Eylül 2026', satirlar: tahlil.slice(0, 7).map(x => ({ad: x.kisaAd, deger: `${x.deger} ${x.birim}`, referans: x.referans}))});
   const besinG = b => ({...b, gorsel: V.besinler.find(x => x.slug === b.slug)?.gorsel ?? null});
+  const kayit = (i, ogun, saat, ad, kcal, foto) => ({id: `g${i}`, ogun, saat, ad, kcal, foto});
+  const tabaklar = [kayit(1, 'Öğle Yemeği', '13:05', 'Izgara tavuklu kase', 584, T.gorsel), kayit(2, 'Kahvaltı', '08:40', 'Yumurtalı tabak', 426, P[2].kapak), kayit(3, 'Ara Öğün', '16:30', 'Yoğurtlu kase', 171, P[5].kapak), kayit(4, 'Akşam Yemeği', '19:30', 'Sebzeli makarna', 512, P[3].kapak)];
+  bolum('tabak', 'Tabaklarım', [
+    oge('DD.ogunKart foto', 'fotoğraflı ve fotoğrafsız', DD.ogunListe([{...ogunler[0], foto: T.gorsel}, ogunler[1]], {git: '#/x'})),
+    oge('DD.tabakSerit', 'küçük kart, sonda Tümü', `<div class="dd-ic">${DD.tabakSerit(tabaklar, {git: '#/x'})}</div>`, {sifir: true}),
+    oge('DD.tabakIzgara', 'gün başlıklı, cam kcal, öğün etiketi', DD.tabakIzgara({git: '#/x', gunler: [{baslik: 'Bugün', ozet: '3 tabak · 1.181 kcal', kayitlar: tabaklar.slice(0, 3)}, {baslik: 'Dün', ozet: '2 tabak · 938 kcal', kayitlar: [tabaklar[3], {...tabaklar[1], id: 'g5', foto: null}]}]})),
+    oge('DD.oneriNot / DD.kayitKaynak', 'çip seçimi dd-degisim atar', `<div class="dd-yigin">${DD.oneriNot({ad: 'g-not', oneriler: ['Yağsız pişti', 'Yarım porsiyon', 'Az tuzlu', 'Ev yapımı', 'Dışarıda yedim'], yer: 'Örn. zeytinyağıyla pişti'})}<div class="dd-sira">${DD.kayitKaynak('kamera', 92)}${DD.kayitKaynak('barkod')}${DD.kayitKaynak('ses', 74)}</div></div>`)
+  ]);
+
   bolum('ai', 'Dada AI', [
     oge('DD.kamera', 'tabak', DD.kamera({ornek: true, baslik: 'Dada AI', gorsel: T.gorsel, modlar: kam.modlar, mod: 'tabak', baglam: 'Akşam Yemeği', ipucu: {baslik: 'Tabağı ortala', metin: 'Yukarıdan çek, gölgeyi azalt.'}}), {sifir: true}),
     oge('DD.kamera + DD.belge', 'menü, tahlil, barkod: mod değiştir', DD.kamera({ornek: true, gorsel: 'assets/gorsel/hero/restoran-masa.webp', belgeler: {menu: menuBelge, tahlil: tahlilBelge, barkod: DD.belge({tur: 'barkod'})}, modlar: kam.modlar, mod: 'menu'}), {sifir: true}),

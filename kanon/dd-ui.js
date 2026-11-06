@@ -426,20 +426,22 @@
   };
 
   // ---------- Tabağım: fotoğraf, barkod, ses ve aramadan gelenler aynı taslakta birikir ----------
-  const tKey = 'tabagim';
+  const tKey = 'tabagim', mKey = 'tabagim-meta', META = ['foto', 'not', 'kaynak', 'guven'];
   DD.tabagim = {
     liste: () => DD.durum.oku(tKey, []),
     toplam() { const l = this.liste(); return {adet: l.length, kcal: l.reduce((a, x) => a + (x.kcal || 0), 0), P: l.reduce((a, x) => a + (x.P || 0), 0), K: l.reduce((a, x) => a + (x.K || 0), 0), Y: l.reduce((a, x) => a + (x.Y || 0), 0), Lif: l.reduce((a, x) => a + (x.Lif || 0), 0)}; },
-    ekle(oge) { const l = this.liste(); l.push({id: `t${Date.now()}${l.length}`, ...oge}); DD.durum.yaz(tKey, l); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
-    cikar(id) { const l = this.liste().filter(x => x.id !== id); DD.durum.yaz(tKey, l); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
-    temizle() { DD.durum.sil(tKey); this._bar(); yay(belge, 'dd-tabagim', {liste: []}); },
+    // Tabağa ait tek meta. Argümansız okur, verilen alanları yazar; kayıt ya da temizlikte silinir.
+    meta(m) { if (m === undefined) return DD.durum.oku(mKey, {}); return DD.durum.yaz(mKey, {...this.meta(), ...m}); },
+    ekle(oge) { const m = Object.fromEntries(META.filter(k => oge[k] != null).map(k => [k, oge[k]])); if (Object.keys(m).length) this.meta({...m, ...this.meta()}); const l = this.liste(); l.push({id: `t${Date.now()}${l.length}`, ...oge}); DD.durum.yaz(tKey, l); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
+    cikar(id) { const l = this.liste().filter(x => x.id !== id); DD.durum.yaz(tKey, l); if (!l.length) DD.durum.sil(mKey); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
+    temizle() { DD.durum.sil(tKey); DD.durum.sil(mKey); this._bar(); yay(belge, 'dd-tabagim', {liste: []}); },
     ac(o = {}) {
       const ciz_ = () => DD.tabagimListe(this.liste());
       return DD.sheet({baslik: 'Tabağım', html: ciz_(), altBar: DD.btn({metin: o.eylem || 'Öğüne ekle', ikon: 'onay', tam: true, veri: {'tabagim-kaydet': 1}}), sonra: (k, h) => {
         k.addEventListener('click', ev => {
           const sil = ev.target.closest('[data-tabagim-cikar]');
           if (sil) { this.cikar(sil.dataset.tabagimCikar); k.querySelector('.dd-sheet-govde').innerHTML = ciz_(); if (!this.liste().length) h.kapat(); }
-          if (ev.target.closest('[data-tabagim-kaydet]')) { const l = this.liste(), t = this.toplam(); yay(belge, 'dd-tabagim-kaydet', {liste: l, toplam: t}); this.temizle(); h.kapat(); DD.toast(`Öğüne eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari'}); }
+          if (ev.target.closest('[data-tabagim-kaydet]')) { const l = this.liste(), t = this.toplam(), m = this.meta(); yay(belge, 'dd-tabagim-kaydet', {liste: l, toplam: t, meta: m, ...m}); this.temizle(); h.kapat(); DD.toast(`Öğüne eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari', eylem: 'Tabaklarım', onEylem: () => DD.git('#/tabaklarim')}); }
         });
       }});
     },

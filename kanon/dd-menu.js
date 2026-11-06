@@ -16,6 +16,7 @@
       {id: 'hub', label: 'Diyetisyenim', icon: 'user-doctor', git: '#/uzman'},
       {id: 'bul2', label: 'Diyetisyen bul', icon: 'magnifying-glass', git: '#/uzman/bul'},
       {id: 'sohbet', label: 'Mesajlar', icon: 'comment-dots', git: '#/uzman/sohbet'}]},
+    {id: 'tabaklar', label: 'Tabaklarım', icon: 'images', git: '#/tabaklarim'},
     {id: 'saglik', label: 'Sağlık dosyam', icon: 'file-medical', git: '#/saglik'},
     {id: 'etiket', label: 'Etiket okuma', icon: 'barcode', git: '#/etiket'},
     {id: 'bildirim', label: 'Bildirimler', icon: 'bell', git: '#/bildirimler'},
