@@ -18,7 +18,7 @@
     return su < son ? {d: 'pencere', bas: ilk} : {d: 'oruc', bas: son};
   };
   const durum = () => {
-    const p = planOku(), ham = DD.durum.oku('ritim-kayit', null), uyumlu = (ham?.planImza ?? null) === (p ? `${p.x.id}@${p.ilk}` : null), taze = uyumlu && ham && (!ham.capa || Date.now() - ham.capa < GUN_MS);
+    const p = planOku(), pl = DD.durum.oku('plan', null), ham = DD.durum.oku('ritim-kayit', null), uyumlu = (ham?.planImza ?? null) === (pl ? `${pl.orucProtokolu ?? 'atlandi'}@${pl.ilkOgunSaati}` : null), taze = uyumlu && ham && (!ham.capa || Date.now() - ham.capa < GUN_MS);
     const k = {protokol: p?.x.id ?? DDV.ritim.aktifProtokol, ...(taze ? ham : {})}, v = varsayilan(p);
     return {k, d: taze ? DD.durum.oku('ritim-durum', v.d) : v.d, bas: k.bas ?? v.bas};
   };
@@ -37,10 +37,10 @@
   };
 
   const ciz = () => {
-    const R = DDV.ritim, z = durum(), plan = R.protokoller.find(p => p.id === z.k.protokol), oruc = z.d === 'oruc' && !plan.haftalik, s = oruc ? gecenDk(z) / 60 : null;
+    const R = DDV.ritim, z = durum(), plan = R.protokoller.find(p => p.id === z.k.protokol), pl = DD.durum.oku('plan', null), engel = (pl?.hassasiyetler || []).some(h => ['gebelik', 'yeme-bozuklugu'].includes(h)), kapali = engel || (pl?.orucProtokolu === 'yok' && !z.k.bas), oruc = z.d === 'oruc' && !plan.haftalik && !kapali, s = oruc ? gecenDk(z) / 60 : null;
     const etkin = oruc ? R.fazlar.find(f => s >= f.baslangicSaat && (f.bitisSaat == null || s < f.bitisSaat))?.id : null;
     return DD.bolumler([
-      `<div class="dd-yigin">${DD.metinBlok({baslik: 'Oruç saatlerinde neler olur?', metin: oruc ? 'Aşağıdaki aşamalar **tahminidir**; bedenin kendi temposunda ilerler.' : 'Orucu başlattığında **bulunduğun aşama** burada işaretlenir.'})}${plan.haftalik ? '' : durumPil(z, plan)}${DD.bant({metin: R.fazNotu.replace('genel bilgidir', '**genel bilgidir**')})}</div>`,
+      `<div class="dd-yigin">${DD.metinBlok({baslik: 'Oruç saatlerinde neler olur?', metin: engel ? 'Bu bilgiler **genel amaçlıdır**; sağlık bilgilerine göre oruç sana önerilmiyor.' : kapali ? 'Bu bilgiler **genel amaçlıdır**; bir oruç planı seçmedin.' : oruc ? 'Aşağıdaki aşamalar **tahminidir**; bedenin kendi temposunda ilerler.' : 'Orucu başlattığında **bulunduğun aşama** burada işaretlenir.'})}${plan.haftalik || kapali ? '' : durumPil(z, plan)}${DD.bant({metin: R.fazNotu.replace('genel bilgidir', '**genel bilgidir**')})}</div>`,
       {baslik: 'Tahmini aşamalar', html: DD.fazCizelge({fazlar: fazlar(plan), etkin})},
       {baslik: 'İzinli sıvılar', html: `<div class="dd-yigin-12">${DD.p('Oruç saatlerinde **kalorisiz içecekler** serbest; şeker ve süt eklenmez.', {ton: 'ikincil'})}${DD.parcali(R.izinliSiviler.map(x => ({ikon: x.ikon, baslik: x.ad, bilgi: true})), {kutu: 'izgara', aria: 'İzinli sıvılar'})}</div>`},
       {baslik: 'Bilmen gerekenler', html: `<div class="dd-yigin-12">${DD.ako({baslik: 'Orucu bozan içecekler', html: DD.satirlar(R.izinsizler.map(x => ({ikon: x.ikon, baslik: x.ad, ok: false})))})}${DD.ako({baslik: 'Kimler için uygun değil?', html: `<div class="dd-yigin-12">${DD.p('Aralıklı açlık **herkese uygun değildir**. Aşağıdaki durumlarda başlamadan hekimine danış.', {ton: 'ikincil'})}${DD.satirlar(R.uygunDegil.map(x => ({ikon: 'bilgi', baslik: x, ok: false})))}</div>`})}${DD.bant({ikon: 'bilgi', metin: R.sorumlulukNotu.replace('genel bilgi amaçlıdır', '**genel bilgi amaçlıdır**')})}</div>`}

@@ -89,19 +89,29 @@
   };
 
   // ---------- Bölümler ----------
-  // Ritim hesabının aynısı (ekranlar/ritim.js): şimdi = sabit an + capa'dan beri geçen süre; bir günden eski oturum yok sayılır.
+  // Ritim hesabının aynısı (ekranlar/ritim.js): şimdi = sabit an + capa'dan beri geçen süre; bir günden eski ya da eski plana ait kayıt yok sayılır.
+  const ORUC_ENGEL = ['gebelik', 'yeme-bozuklugu'];
+  const planEvre = (x, ilkSaat) => {
+    const su = DD.simdi().getTime(), ilk = new Date(su).setHours(0, 0, 0, 0) + DD.saatDk(ilkSaat) * 6e4, son = ilk + x.pencereSaat * 36e5;
+    if (su < ilk) return {tur: 'oruc', bas: ilk - x.orucSaat * 36e5};
+    return su < son ? {tur: 'pencere', bas: ilk} : {tur: 'oruc', bas: son};
+  };
   const pencere = () => {
     const R = DDV.ritim, p = plan();
-    if (p && (!p.orucProtokolu || p.orucProtokolu === 'yok')) return '';
-    const k = DD.durum.oku('ritim-kayit', null), taze = k?.capa && Date.now() - k.capa < 864e5;
-    const protokol = R.protokoller.find(x => x.id === (k?.protokol ?? R.aktifProtokol));
+    if ((p?.hassasiyetler || []).some(h => ORUC_ENGEL.includes(h))) return '';
+    const ham = DD.durum.oku('ritim-kayit', null), imza = p ? `${p.orucProtokolu ?? 'atlandi'}@${p.ilkOgunSaati}` : null;
+    const k = (ham?.planImza ?? null) === imza ? ham : null, taze = k?.capa && Date.now() - k.capa < 864e5;
+    if (p?.orucProtokolu === 'yok' && !k?.protokol) return '';
+    const planli = R.protokoller.find(x => x.id === p?.orucProtokolu?.replace(':', '-') && !x.haftalik);
+    const protokol = R.protokoller.find(x => x.id === (k?.protokol ?? planli?.id ?? R.aktifProtokol));
     if (protokol.haftalik) {
       const kisitli = k?.kisitli ?? ['Pzt', 'Per'], bugun = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'][DD.simdi().getDay()];
       return DD.eylemKart({ikon: 'takvim', baslik: kisitli.includes(bugun) ? 'Bugün kısıtlı gün' : 'Bugün olağan gün', alt: `${protokol.ad} planı · ${kisitli.join(', ')} kısıtlı`, git: '#/ritim'});
     }
-    const tur = taze ? DD.durum.oku('ritim-durum', R.aktifDurum) : R.aktifDurum, d = R.durumlar[tur];
+    const taban = planli ? planEvre(planli, p.ilkOgunSaati) : {tur: R.aktifDurum, bas: new Date(R.durumlar.pencere.baslangic.slice(0, 16)).getTime()};
+    const tur = taze ? DD.durum.oku('ritim-durum', taban.tur) : taban.tur, d = R.durumlar[tur];
     const an = DD.simdi().getTime() + (taze ? Date.now() - k.capa : 0);
-    const bas = (taze ? k.bas : null) ?? (tur === 'oruc' ? an : new Date(d.baslangic.slice(0, 16)).getTime());
+    const bas = (taze ? k.bas : null) ?? (tur === taban.tur ? taban.bas : an);
     const hedefDk = (tur === 'oruc' ? protokol.orucSaat : protokol.pencereSaat) * 60, gecenDk = (an - bas) / 6e4, kalan = Math.ceil(hedefDk - gecenDk);
     const alt = kalan > 0 ? `${DD.sure(kalan)} kaldı` : tur === 'oruc' ? 'Hedefine ulaştın' : 'Pencere süresi doldu';
     const bit = bas + hedefDk * 6e4, saat = ms => new Date(ms).toTimeString().slice(0, 5), gun = ms => new Date(ms).toDateString();

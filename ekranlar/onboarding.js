@@ -42,7 +42,7 @@
   const tutar = (k, c) => !k || k.deger.includes(c[k.alan]);
   const gorunen = c => O().adimlar.filter(a => tutar(a.kosul, c));
   const rota = a => (a.id === 'beslenme' ? 'tarz' : a.id);
-  const yanitli = (a, c) => (a.tur === 'sonuc' ? true : a.tur === 'onay' ? c.kvkk != null : c[a.alan] != null);
+  const yanitli = (a, c) => (a.tur === 'sonuc' || (a.tur === 'protokol' && c.ritimAtlandi) ? true : a.tur === 'onay' ? c.kvkk != null : c[a.alan] != null);
   // Adres ileri bir adımı gösterse de yanıtlanmamış ilk adımda durulur; düzenlemede istenen adım açılır.
   const konum = (ctx, c) => {
     const l = gorunen(c), id = ctx.param.adim === 'tarz' ? 'beslenme' : ctx.param.adim;
@@ -70,6 +70,8 @@
   };
   const orucEngel = c => (c.hassasiyet || []).some(h => ORUC_ENGEL.includes(h));
   const protokol = c => (orucEngel(c) ? 'yok' : c.orucProtokolu);
+  // plan.orucProtokolu: '16:8' gibi protokol, 'yok' (oruç istemiyor ya da sağlık engeli), null (adım atlandı).
+  const orucVar = p => !!p.orucProtokolu && p.orucProtokolu !== 'yok';
   const pencereSaat = p => (p && p !== 'yok' ? +p.split('-')[1] : 0);
 
   const hafta = (c, acik) => Math.round((kilo(c) - hedefKilo(c)) * KCAL_KG / (acik * 7));
@@ -87,14 +89,14 @@
       hedefKiloKg: kiloHedefli(c) ? hedefKilo(c) : null, tempo: te?.id ?? null, tempoAd: te ? `${te.ad} · ${te.alt.toLocaleLowerCase('tr')}` : null,
       aktivite: ak.id, aktiviteAd: ak.ad, beslenmeTarzi: tarz, beslenmeTarziAd: tarz.map(t => secenek('beslenme', t).ad), hassasiyetler: c.hassasiyet || [],
       hedefKcal, bazalKcal: Math.round(bazal), gunlukEnerjiKcal: Math.round(gunluk), makro: {P, K: K_, Y, Lif: orantili('Lif')}, suMl: Math.round(kilo(c) * SU_ML_KG / 100) * 100,
-      orucProtokolu: p && p !== 'yok' ? p.replace('-', ':') : null, ilkOgunSaati: c.ilkOgunSaati || adim('ritim').saatAlani.varsayilan,
+      orucProtokolu: p ? p.replace('-', ':') : null, ilkOgunSaati: c.ilkOgunSaati || adim('ritim').saatAlani.varsayilan,
       tabanda, tahminiHafta: acik > 0 ? hafta(c, acik) : null
     };
   };
 
   // Hedef, tarz ve ritim puanlanır; DDV.onboarding sonuç listesi yalnız eşitlik bozar. Elenenler: oruç engeli, tarz eleyicileri.
   const oneriler = (c, p) => {
-    const hedefler = HEDEF_PROGRAM[c.hedef] || [], tarz = c.beslenmeTarzi || [], secili = adim('sonuc').sonuc.programlar, oruc = !!p.orucProtokolu, seker = (c.hassasiyet || []).some(h => ['diyabet', 'insulin-direnci'].includes(h));
+    const hedefler = HEDEF_PROGRAM[c.hedef] || [], tarz = c.beslenmeTarzi || [], secili = adim('sonuc').sonuc.programlar, oruc = orucVar(p), seker = (c.hassasiyet || []).some(h => ['diyabet', 'insulin-direnci'].includes(h));
     const uyar = x => !(orucEngel(c) && ['oruc', 'detoks'].includes(x.hedef)) && Object.entries(TARZ_ELEYICI).every(([t, l]) => !tarz.includes(t) || l.some(d => x.tercih.includes(d)));
     const puan = x => (hedefler.includes(x.hedef) ? 4 : 0) + (oruc && x.hedef === 'oruc' ? 4 : 0) + (seker && x.hedef === 'seker' ? 3 : 0) + (p.hedefKcal >= x.kcalMin - 100 && p.hedefKcal <= x.kcalMax + 100 ? 2 : 0) + tarz.filter(t => x.tercih.includes(t)).length + (secili.includes(x.slug) ? 1 : 0);
     return DDV.programlar.filter(uyar).map(x => ({x, n: puan(x)})).sort((a, b) => b.n - a.n).slice(0, 3).map(s => s.x);
@@ -197,7 +199,7 @@
     const m = p.makro;
     return DD.kart({html: `<div class="dd-yigin">${DD.halka({hedef: p.hedefKcal, planli: p.hedefKcal, boyut: 'md', etiket: 'Günlük hedef', alt: 'kcal'})}${DD.ozetSerit([{etiket: 'Protein', deger: DD.sayi(m.P), birim: 'g'}, {etiket: 'Karb.', deger: DD.sayi(m.K), birim: 'g'}, {etiket: 'Yağ', deger: DD.sayi(m.Y), birim: 'g'}, {etiket: 'Lif', deger: DD.sayi(m.Lif), birim: 'g'}])}</div>`});
   };
-  const ritimSatir = p => (p.orucProtokolu ? {ikon: 'hourglass-half', etiket: 'Ritim', deger: p.orucProtokolu} : {ikon: 'utensils', etiket: 'İlk öğün', deger: p.ilkOgunSaati});
+  const ritimSatir = p => (orucVar(p) ? {ikon: 'hourglass-half', etiket: 'Ritim', deger: p.orucProtokolu} : {ikon: 'utensils', etiket: 'İlk öğün', deger: p.ilkOgunSaati});
   const sonucGovde = (c, p) => {
     const S = adim('sonuc').sonuc, l = oneriler(c, p), hassas = p.hassasiyetler.filter(h => h !== 'yok').length;
     const bantlar = [
@@ -220,7 +222,7 @@
     const a = adim('sonuc');
     if (ctx.sorgu.hal === 'hata' && !ctx.tekrar) return DD.hataEkran({tur: 'baglanti', eylem: {metin: 'Tekrar dene', ikon: 'yenile', veri: {eylem: 'tekrar'}}, ikinciller: []});
     if (!ctx.hazir) return DD.onbSablon({adim: n, toplam, baslik: 'Planın hazırlanıyor', alt: 'Yanıtlarını **Mifflin-St Jeor** formülüyle hesaplıyoruz.', devam: false, html: `<div data-yuva="analiz">${DD.analizAdimlari({adimlar: ANALIZ, etkin: ctx.analiz || 0})}</div>`});
-    return DD.onbSablon({adim: n, toplam, baslik: a.baslik, alt: vurgula(a.altMetin, VURGU.sonuc), devam: {metin: 'Başla', veri: {eylem: 'basla'}}, html: sonucGovde(c, hesapla(c))});
+    return DD.onbSablon({adim: n, toplam, baslik: a.baslik, alt: vurgula(a.altMetin, VURGU.sonuc), devam: {metin: 'Bugün’e geç', veri: {eylem: 'basla'}}, html: sonucGovde(c, hesapla(c))});
   };
 
   // ---------- Sheet'ler ----------
@@ -239,7 +241,7 @@
     sonra: (kok, ctx) => {
       const c0 = cevaplar(), {a, i, l} = konum(ctx, c0), offs = [], duzen = !!ctx.sorgu.duzenle;
       const hazirla = () => { const b = kok.querySelector('[data-eylem="devam"]'); if (b) b.disabled = !gecerli(a, cevaplar()); };
-      const planYaz = c => DD.durum.yaz('plan', hesapla(c));
+      const planYaz = c => { DD.durum.yaz('plan', hesapla(c)); document.dispatchEvent(new CustomEvent('dd-plan')); };
       const ileri = () => {
         if (!duzen) { DD.git(`#/onboarding/${rota(l[i + 1])}`); return; }
         planYaz(cevaplar());
@@ -272,12 +274,12 @@
       offs.push(DD.eylem(kok, 'devam', () => {
         if (a.tur === 'slider') guncelle({[a.alan]: deger(a.id, cevaplar()), ...(a.id === 'kilo' && kiloHedefli(cevaplar()) ? {hedefKiloKg: hedefKilo(cevaplar())} : {})});
         if (a.tur === 'onay') guncelle({kvkk: 'onay'});
-        if (a.tur === 'protokol') guncelle({orucProtokolu: protokol(cevaplar())});
+        if (a.tur === 'protokol') guncelle({orucProtokolu: protokol(cevaplar()), ritimAtlandi: false});
         ileri();
       }));
       offs.push(DD.eylem(kok, 'atla', () => {
         if (a.id === 'beslenme') { guncelle({beslenmeTarzi: []}); ileri(); return; }
-        if (a.id === 'ritim') { guncelle({orucProtokolu: 'yok'}); ileri(); return; }
+        if (a.id === 'ritim') { guncelle({orucProtokolu: null, ritimAtlandi: true}); ileri(); return; }
         DD.dialog({baslik: 'Rıza vermeden devam et', metin: 'Planın **yalnız bu cihazda** hesaplanır, sağlık bilgilerin kaydedilmez ve diyetisyeninle paylaşılmaz.', eylem: 'Devam et', iptal: 'Vazgeç'}).then(ok => {
           if (ok) { guncelle({kvkk: 'sonra', riza: false, aydinlatma: false, hassasiyet: []}); ileri(); }
         });

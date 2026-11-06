@@ -1,6 +1,7 @@
 /* SCR-20 Ritim (#/ritim): canlı oruç sayacı. Referans: Fastic, Zero, Yazio, Tiimo (tasks/referanslar.md Ritim, §2.4).
  * Durum: 'ritim-durum' = 'pencere'|'oruc' (Bugün okur). 'ritim-kayit' {protokol, bas (ms), capa (ms), gecmis[], son, kisitli[], planImza}.
- * Onboarding 'plan' {orucProtokolu '16:8', ilkOgunSaati} varsa protokol ve saatler ondan gelir; protokol seçilmemişse DDV. Plan değişince plan kazanır, 'planImza' bunu izler.
+ * Onboarding 'plan': orucProtokolu '16:8' protokol ve saatleri belirler, null (adım atlandı) DDV'ye düşer, 'yok' sayacı kapatır. Sağlık engelinde başlatma tamamen kapalıdır.
+ * Plan değişince plan kazanır ('planImza'). Bugün Ritim açılmadan planı görsün diye dosya yüklenirken ve document 'dd-plan' olayında tohumla() kaydı yazar.
  * Uygulama saati sabittir (DD.simdi); sayaç gerçek saniye ilerlesin diye şimdi = sabit an + capa'dan beri geçen gerçek süre.
  * #/ritim?hal=bos ilk kullanım, #/ritim?hal=hata bağlantı hatası. 5:2 planında günlük sayaç yerine kısıtlı gün seçimi çizilir.
  */
@@ -16,16 +17,21 @@
   const ham = () => DD.durum.oku('ritim-kayit', null);
   const yerel = s => new Date(s.slice(0, 16)).getTime();
   const gunBasi = ms => new Date(ms).setHours(0, 0, 0, 0);
-  const planOku = () => { const p = DD.durum.oku('plan', null), id = p?.orucProtokolu?.replace(':', '-'), x = DDV.ritim.protokoller.find(r => r.id === id); return x && !x.haftalik ? {x, ilk: p.ilkOgunSaati} : null; };
-  const planImzasi = () => { const p = planOku(); return p ? `${p.x.id}@${p.ilk}` : null; };
+  const planHam = () => DD.durum.oku('plan', null);
+  const planOku = () => { const p = planHam(), id = p?.orucProtokolu?.replace(':', '-'), x = DDV.ritim.protokoller.find(r => r.id === id); return x && !x.haftalik ? {x, ilk: p.ilkOgunSaati} : null; };
+  const planImzasi = () => { const p = planHam(); return p ? `${p.orucProtokolu ?? 'atlandi'}@${p.ilkOgunSaati}` : null; };
+  // Bu hassasiyetlerde oruç önerilmez (kararlar 12); başlatma da plan seçme de kapanır.
+  const ORUC_ENGEL = ['gebelik', 'yeme-bozuklugu'];
+  const engelli = () => (planHam()?.hassasiyetler || []).some(h => ORUC_ENGEL.includes(h));
+  const orucYok = () => planHam()?.orucProtokolu === 'yok';
+  const kapali = () => orucYok() && !ham()?.protokol;   // "oruç istemiyorum" seçip sonradan plan seçen kişide sayaç açılır
   // İlk öğün saati ve pencere uzunluğu şu anın hangi evrede olduğunu belirler; plan yoksa DDV'nin 12:05 penceresi.
-  const varsayilan = () => {
-    const p = planOku();
-    if (!p) return {d: DDV.ritim.aktifDurum, bas: yerel(DDV.ritim.durumlar.pencere.baslangic)};
-    const su = DD.simdi().getTime(), ilk = gunBasi(su) + DD.saatDk(p.ilk) * 6e4, son = ilk + p.x.pencereSaat * 36e5;
-    if (su < ilk) return {d: 'oruc', bas: ilk - p.x.orucSaat * 36e5};
+  const evre = (x, ilkSaat) => {
+    const su = DD.simdi().getTime(), ilk = gunBasi(su) + DD.saatDk(ilkSaat) * 6e4, son = ilk + x.pencereSaat * 36e5;
+    if (su < ilk) return {d: 'oruc', bas: ilk - x.orucSaat * 36e5};
     return su < son ? {d: 'pencere', bas: ilk} : {d: 'oruc', bas: son};
   };
+  const varsayilan = () => { const p = planOku(); return p ? evre(p.x, p.ilk) : {d: DDV.ritim.aktifDurum, bas: yerel(DDV.ritim.durumlar.pencere.baslangic)}; };
   const durumOku = () => DD.durum.oku('ritim-durum', varsayilan().d);
   // Saat her gün 17:10'a döner; bir gün sonra açan kişi önceki oturumun sayacını görmez.
   const bayatTemizle = () => {
@@ -35,21 +41,24 @@
     DD.durum.yaz('ritim-kayit', kalan);
     DD.durum.sil('ritim-durum');
   };
-  // Plan değiştiyse o güne ait sayaç ve protokol bırakılır; geçmiş ve kısıtlı günler kalır.
-  const planEsle = () => {
-    const k = ham(), imza = planImzasi();
-    if ((k?.planImza ?? null) === imza) return;
+  // Plan değiştiyse o güne ait sayaç ve protokol bırakılır; geçmiş ve kısıtlı günler kalır. Ekran çiziminden bağımsızdır.
+  const tohumla = () => {
+    bayatTemizle();
+    const k = ham(), imza = planImzasi(), kapanik = orucYok() || engelli();
+    if ((k?.planImza ?? null) === imza && (!imza || k.bas != null || kapanik)) return;
     const {bas, son, protokol, ...kalan} = k || {};
-    DD.durum.yaz('ritim-kayit', {...kalan, planImza: imza});
-    if (imza) DD.durum.yaz('ritim-durum', varsayilan().d); else DD.durum.sil('ritim-durum');
+    if (!imza) { DD.durum.yaz('ritim-kayit', {...kalan, planImza: null}); DD.durum.sil('ritim-durum'); return; }
+    const v = varsayilan();
+    DD.durum.yaz('ritim-kayit', {...kalan, capa: kalan.capa ?? Date.now(), planImza: imza, ...(kapanik ? {} : {protokol: planOku()?.x.id ?? DDV.ritim.aktifProtokol, bas: v.bas})});
+    DD.durum.yaz('ritim-durum', kapanik ? 'pencere' : v.d);
   };
-  const kayit = () => { bayatTemizle(); planEsle(); return {protokol: planOku()?.x.id ?? DDV.ritim.aktifProtokol, gecmis: [], kisitli: ['Pzt', 'Per'], ...ham()}; };
+  const kayit = () => { tohumla(); return {protokol: planOku()?.x.id ?? DDV.ritim.aktifProtokol, gecmis: [], kisitli: ['Pzt', 'Per'], ...ham()}; };
   const yaz = k => DD.durum.yaz('ritim-kayit', {...k, capa: k.capa ?? acilis, planImza: planImzasi()});
   const anlik = () => ({k: ham(), d: DD.durum.oku('ritim-durum', null)});
   const geriYukle = s => { if (s.k) DD.durum.yaz('ritim-kayit', s.k); else DD.durum.sil('ritim-kayit'); if (s.d) DD.durum.yaz('ritim-durum', s.d); else DD.durum.sil('ritim-durum'); DD.tazele(); };
   const bosMu = () => hal() === 'bos' && !bosGecildi;
   const planBul = k => DDV.ritim.protokoller.find(p => p.id === k.protokol);
-  const imza = () => JSON.stringify([hal(), durumOku(), ham(), planImzasi(), DD.durum.oku('bugun-ogun', null), DD.durum.oku('bugun-ek', null)]);
+  const imza = () => JSON.stringify([hal(), durumOku(), ham(), planImzasi(), engelli(), DD.durum.oku('bugun-ogun', null), DD.durum.oku('bugun-ek', null)]);
 
   // ---------- Zaman ----------
   const an = k => DD.simdi().getTime() + Date.now() - (k.capa ?? acilis);
@@ -75,11 +84,10 @@
   };
 
   // ---------- Parçalar ----------
-  // Onboarding bu durumlarda protokol yazmaz; DDV planına düşülse de kişiye oruç önerilmediği söylenir (kararlar 12).
-  const ORUC_ENGEL = ['gebelik', 'yeme-bozuklugu'];
-  const engelBant = () => ((DD.durum.oku('plan', null)?.hassasiyetler || []).some(h => ORUC_ENGEL.includes(h))
-    ? DD.bant({ton: 'uyari', metin: 'Paylaştığın sağlık bilgilerine göre **oruç sana önerilmiyor**. Başlamadan diyetisyeninle konuş.', eylem: {metin: 'Diyetisyenime sor', git: '#/uzman/sohbet'}})
-    : '');
+  const diyetisyenDugme = () => DD.btn({metin: 'Diyetisyenime sor', ikon: 'mesaj', tur: 'tonal', tam: true, git: '#/uzman'});
+  const kapaliGovde = engel => DD.bolumler([`<div class="dd-yigin">${engel
+    ? DD.bant({baslik: 'Oruç takibi kapalı', metin: 'Paylaştığın sağlık bilgilerine göre **oruç sana önerilmiyor**. Öğün düzenini diyetisyeninle birlikte planlayabilirsin.'})
+    : DD.bant({baslik: 'Oruç planı seçilmedi', metin: 'Öğünlerin **olağan düzeninde** ilerliyor. Denemek istersen bir plan seçebilirsin.', eylem: {metin: 'Plan seç', veri: {eylem: 'protokol'}}})}${diyetisyenDugme()}</div>`]);
   const planHapi = k => `<div class="dd-sira">${DD.btn({metin: `Planım ${planBul(k).ad}`, ikon: 'duzenle', tur: 'cam', boyut: 'sm', veri: {eylem: 'protokol'}})}</div>`;
   const sayac = (k, d) => (d === 'bos'
     ? DD.orucSayac({durum: 'bos', hedefSaat: planBul(k).orucSaat, altMetin: `${planBul(k).ad} planın hazır`})
@@ -160,12 +168,13 @@
         const c1 = DD.on(d, 'protokol', v => { sec = v; d.querySelector('[data-yuva="plan-not"]').innerHTML = planNot(R.protokoller.find(p => p.id === v)); });
         const c2 = DD.eylem(d, 'plan-kaydet', () => {
           d.kapat();
-          if (sec === k.protokol) return;
+          const acilacak = kapali();
+          if (sec === k.protokol && !acilacak) return;
           const eski = anlik(), yeni = R.protokoller.find(p => p.id === sec);
           if (yeni.haftalik && durumOku() === 'oruc') orucuKapat(kayit());
-          const g = kayit(), d = durumOku();
-          yaz({...g, protokol: sec, bas: basMs(g, d), son: yeni.haftalik ? null : g.son});
-          DD.durum.yaz('ritim-durum', d);   // plan varsayılanı yeni protokolle evreyi değiştirmesin
+          const g = kayit(), v = acilacak && !yeni.haftalik ? evre(yeni, planHam().ilkOgunSaati) : {d: durumOku(), bas: basMs(g, durumOku())};
+          yaz({...g, protokol: sec, bas: v.bas, son: yeni.haftalik ? null : g.son});
+          DD.durum.yaz('ritim-durum', v.d);   // plan varsayılanı yeni protokolle evreyi değiştirmesin
           DD.tazele();
           DD.toast(`Planın artık **${yeni.ad}**`, {tur: 'basari', eylem: 'Geri al', onEylem: () => geriYukle(eski)});
         });
@@ -250,19 +259,27 @@
   };
 
   const govde = () => {
+    const engel = engelli();
+    if (engel || (tohumla(), kapali())) {
+      if (engel && durumOku() === 'oruc') DD.durum.yaz('ritim-durum', 'pencere');   // engelden önce başlamış oruç sürmesin
+      return DD.gulucuk({gorsel: 'assets/gorsel/hero/ritim-sakin.webp', baslik: 'Ritim', alt: 'Öğün düzenin', ust: true, perde: 'tam'}) + kapaliGovde(engel);
+    }
     const k = kayit(), p = planBul(k), son = !bosMu() && k.son, d = bosMu() ? 'bos' : durumOku();
     const gorsel = `assets/gorsel/hero/${{oruc: 'ritim-su', pencere: 'ritim-sofra', bos: 'ritim-sakin'}[d]}.webp`;
     const hero = DD.gulucuk({gorsel, baslik: 'Ritim', alt: p.haftalik ? 'Haftalık plan' : `${p.orucSaat} saat oruç, ${p.pencereSaat} saat pencere`, ust: true, perde: 'tam', icerik: planHapi(k)});
     if (p.haftalik) return hero + DD.bolumler([haftalikGovde(k), DD.bant({metin: baslamadanNotu()})]);
     const ust = son
       ? bittiGovde(son)
-      : `<div class="dd-yigin">${engelBant()}${sayac(k, d)}${eylemler(k, d)}${DD.bilgi({metin: bilgi(k, d)})}${d === 'bos' ? '' : zamanlar(k, d)}</div>`;
+      : `<div class="dd-yigin">${sayac(k, d)}${eylemler(k, d)}${DD.bilgi({metin: bilgi(k, d)})}${d === 'bos' ? '' : zamanlar(k, d)}</div>`;
     return hero + DD.bolumler([
       ust,
       hafta(k),
       {baslik: 'Oruçta neler olur?', html: `<div class="dd-yigin">${fazKart(k, d)}${DD.bant({metin: baslamadanNotu()})}</div>`}
     ]);
   };
+
+  tohumla();
+  document.addEventListener('dd-plan', tohumla);
 
   DD.ekran('ritim', {
     tur: 'sekme',

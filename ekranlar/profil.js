@@ -1,9 +1,14 @@
 /* Profil (#/profil): DD.profilBas + bölümler. Referans: tasks/referanslar.md Profil satırları (zayıf kanıt; Gastro profil başı çıta).
- * Kullanıcı DDV.kullanici, onboarding planı varsa onun üstüne ('plan'). Hedef satırları tek adımı açar: #/onboarding/<id>?duzenle=1.
+ * Kullanıcı DDV.kullanici, onboarding planı varsa onun üstüne ('plan'), kilo ve BKİ son ölçümden ('saglik-olcumler'). Hedef satırları tek adımı açar: #/onboarding/<id>?duzenle=1.
  * Durum: bildirim-ayar {tur:boolean}, veri-izinleri {riza}. Diyetisyenle paylaşım izinleri Sağlık dosyam'dadır (saglik-paylasim). #/profil?hal=hata bağlantı hatası. */
 (() => {
   const BILDIRIM = [['oruc', 'hourglass-half', 'Oruç ve pencere'], ['su', 'droplet', 'Su hatırlatıcısı'], ['randevu', 'calendar-check', 'Randevular'], ['mesaj', 'comment-dots', 'Diyetisyen mesajları'], ['program', 'clipboard-list', 'Program günü']];
-  const K = () => ({...DDV.kullanici, ...(DD.durum.oku('plan', null) || {})});
+  // Güncel kilo Sağlık dosyam'daki son ölçümdür; ölçüm yoksa plan, o da yoksa DDV.
+  const sonKilo = () => DD.durum.oku('saglik-olcumler', []).filter(o => o.kiloKg != null).sort((x, y) => x.tarih.localeCompare(y.tarih)).pop()?.kiloKg;
+  const K = () => {
+    const k = {...DDV.kullanici, ...(DD.durum.oku('plan', null) || {})}, olculen = sonKilo();
+    return olculen == null ? k : {...k, kiloKg: olculen, bmi: olculen / (k.boyCm / 100) ** 2};
+  };
   const aktifProgram = () => DD.durum.oku('aktifProgram', DDV.kullanici.aktifProgram);
   const ayarlar = () => ({...Object.fromEntries(BILDIRIM.map(([t]) => [t, true])), ...DD.durum.oku('bildirim-ayar', {})});
   const izinler = () => DD.durum.oku('veri-izinleri', {riza: DD.durum.oku('onboarding')?.kvkk !== 'sonra'});
@@ -20,7 +25,7 @@
       k.tempoAd && {ikon: 'gauge-high', baslik: 'Tempo', alt: k.tempoAd, git: duzenle('tempo')},
       {ikon: 'person-walking', baslik: 'Aktivite', alt: k.aktiviteAd, git: duzenle('aktivite')},
       {ikon: 'utensils', baslik: 'Beslenme tarzı', alt: k.beslenmeTarziAd.join(', ') || 'Seçim yok', git: duzenle('tarz')},
-      {ikon: 'clock', baslik: 'Öğün ritmi', alt: k.orucProtokolu ? `${k.orucProtokolu} · ilk öğün ${k.ilkOgunSaati}` : `Oruç yok · ilk öğün ${k.ilkOgunSaati}`, git: duzenle('ritim')}
+      {ikon: 'clock', baslik: 'Öğün ritmi', alt: `${k.orucProtokolu === 'yok' ? 'Oruç yok' : k.orucProtokolu || 'Seçilmedi'} · ilk öğün ${k.ilkOgunSaati}`, git: duzenle('ritim')}
     ].filter(Boolean);
     return `<div class="dd-yigin">${DD.ozetSerit([{ikon: 'kalori', etiket: 'Kalori', deger: DD.sayi(k.hedefKcal), birim: 'kcal'}, {ikon: 'egg', etiket: 'Protein', deger: DD.sayi(m.P), birim: 'g'}, {ikon: 'droplet', etiket: 'Su', deger: DD.ondalik(suMl / 1000, 1), birim: 'L'}])}${DD.yuzey(DD.satirlar(satirlar))}</div>`;
   };
@@ -78,10 +83,7 @@
       }));
       offs.push(DD.eylem(kok, 'izinler', izinSheet));
       offs.push(DD.eylem(kok, 'cikis', () => DD.dialog({baslik: 'Çıkış yap', metin: 'Bu cihazdaki **kayıtların ve tercihlerin** silinir.', eylem: 'Çıkış yap', iptal: 'Vazgeç', yikici: true}).then(ok => {
-        if (!ok) return;
-        DD.tabagim.temizle();
-        DD.durum.sifirla();
-        DD.yerine('#/karsilama');
+        if (ok) DD.cikis();
       })));
       return () => offs.forEach(f => f());
     }
