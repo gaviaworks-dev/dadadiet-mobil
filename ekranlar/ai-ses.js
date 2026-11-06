@@ -145,7 +145,7 @@
         DD.eylem(kok, 'ekle', () => {
           const l = ctx.kalem.map(gorselli);
           DD.durum.yaz('tabagim-ogun', sonuc(ctx).ogun);
-          l.forEach(b => DD.tabagim.ekle({ad: b.ad, slug: b.slug, gorsel: b.gorsel, miktar: b.miktar, birim: b.birim, gram: Math.round(b.gram), kcal: Math.round(b.kcal), P: b.P, K: b.K, Y: b.Y, Lif: b.Lif, kaynak: 'ai-ses'}));
+          l.forEach(b => DD.tabagim.ekle({ad: b.ad, slug: b.slug, gorsel: b.gorsel, miktar: b.miktar, birim: b.birim, gram: Math.round(b.gram), kcal: Math.round(b.kcal), P: b.P, K: b.K, Y: b.Y, Lif: b.Lif, kaynak: 'ses'}));
           DD.geri();
           DD.toast(`Tabağına eklendi: **${sayi(toplam(l, 'kcal'))} kcal**`, {tur: 'basari'});
         })

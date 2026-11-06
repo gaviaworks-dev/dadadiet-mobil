@@ -12,7 +12,7 @@
   };
   const vurgu = s => s.replace(/(\d+(?:,\d+)? (?:kcal|g))/, '**$1**');
 
-  const eklendi = slug => DD.tabagim.liste().some(x => x.slug === slug && x.kaynak === 'ai-menu');
+  const eklendi = slug => DD.tabagim.liste().some(x => x.slug === slug && x.taslak === 'ai-menu');
   // Tabağa eklenen tabak kendi kalorisiyle yeniden yargılanmaz: kalan, o tabak eklenmemiş gibi okunur.
   const kalanIcin = (t, kalan) => kalan + (eklendi(t.slug) ? t.kcal : 0);
   const sigar = (t, kalan) => t.kcal <= kalanIcin(t, kalan);
@@ -51,7 +51,7 @@
 
   const tabagaEkle = slug => {
     const t = D().tabaklar.find(x => x.slug === slug), y = DDV.yemekler.find(x => x.slug === slug);
-    DD.tabagim.ekle({ad: t.ad, slug, gorsel: t.gorsel, miktar: 1, birim: 'porsiyon', kcal: t.kcal, P: t.P, K: t.K, Y: t.Y, Lif: y?.Lif || 0, kaynak: 'ai-menu'});
+    DD.tabagim.ekle({ad: t.ad, slug, gorsel: t.gorsel, miktar: 1, birim: 'porsiyon', kcal: t.kcal, P: t.P, K: t.K, Y: t.Y, Lif: y?.Lif || 0, taslak: 'ai-menu', kaynak: 'kamera'});
     DD.tazele();
     DD.toast(`Tabağına eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari'});
   };

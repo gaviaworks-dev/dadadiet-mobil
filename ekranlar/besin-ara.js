@@ -40,6 +40,8 @@
   const siradaki = () => { const d = DD.durum.oku('bugun-ogun', {}); return DDV.bugun.ogunler.find(o => o.durum === 'planli' && !d[o.id])?.id || 'ara'; };
 
   // ---------- Parçalar ----------
+  // Kaynak ilk ekleyenindir: fotoğraftan gelen tabağa aramayla eklemek kaynağı değiştirmez.
+  const tabagaEkle = kalem => { if (!Object.keys(DD.tabagim.meta()).length) DD.tabagim.meta({kaynak: 'arama'}); DD.tabagim.ekle(kalem); };
   const tabakta = k => DD.tabagim.liste().find(t => t.anahtar === k);
   const arti = k => { const t = tabakta(k), ad = kisaAd(bul(k).ad); return DD.ikonBtn({ikon: t ? 'onay' : 'ekle', tur: t ? 'dolu' : 'tint', etiket: t ? `${ad} Tabağım'dan çıkar` : `${ad} Tabağım'a ekle`, veri: {eylem: 'hizli', id: k}}); };
   const satir = (k, q) => { const x = bul(k); return DD.satirKap(DD.satir({sol: DD.gorsel({src: x.gorsel, ad: x.ad, ton: DD.makroTon(x)}), baslik: x.ad, baslikHtml: q ? DD.vurguluEsles(x.ad, q) : undefined, alt: altMetin(k), veri: {eylem: 'porsiyon', id: k}, ok: false}), arti(k)); };
@@ -87,7 +89,7 @@
         DD.on(d, 'porsiyon', p => { kalem = besinKalem(k, x, p); tazele(); d.querySelector('[data-yuva="not"]').innerHTML = olcuNot(x, p.birim); });
         DD.on(d, 'kesir', f => { kalem = yemekKalem(k, x, +f); tazele(); d.querySelector('[data-yuva="kcal"]').textContent = `${sayi(kalem.kcal)} kcal`; });
         DD.eylem(d, 'favori', el => { const on = favoriler().includes(k); DD.durum.yaz('besin-favori', on ? favoriler().filter(y => y !== k) : [k, ...favoriler()]); el.outerHTML = DD.ikonBtn(kalpAyar(k)); DD.toast(on ? 'Favorilerden çıkarıldı' : '**Favorilere** eklendi', {ikon: 'kaydet'}); degisti(); });
-        DD.eylem(d, 'ekle', () => { DD.tabagim.ekle(kalem); sonaYaz(k); d.kapat(); DD.toast(`**${kisaAd(x.ad)}** Tabağına eklendi`, {ikon: 'tabak'}); });
+        DD.eylem(d, 'ekle', () => { tabagaEkle(kalem); sonaYaz(k); d.kapat(); DD.toast(`**${kisaAd(x.ad)}** Tabağına eklendi`, {ikon: 'tabak'}); });
       }
     });
   };
@@ -128,7 +130,7 @@
         DD.on(kok, 'ogun', id => { s.ogun = id; DD.durum.yaz('tabagim-ogun', id); if (!s.q) ciz(); }),
         DD.on(kok, 'sekme', v => { s.sekme = v; listeCiz(); }),
         DD.eylem(kok, 'porsiyon', el => porsiyonAc(el.dataset.id, listeCiz)),
-        DD.eylem(kok, 'hizli', el => { const k = el.dataset.id, t = tabakta(k); if (t) DD.tabagim.cikar(t.id); else { DD.tabagim.ekle(ilkKalem(k)); sonaYaz(k); DD.titres(8); } })
+        DD.eylem(kok, 'hizli', el => { const k = el.dataset.id, t = tabakta(k); if (t) DD.tabagim.cikar(t.id); else { tabagaEkle(ilkKalem(k)); sonaYaz(k); DD.titres(8); } })
       ];
       const dis = ctx.sorgu.besin || (ctx.sorgu.yemek && `y:${ctx.sorgu.yemek}`);
       if (dis && !ctx.acildi && bul(dis)) { ctx.acildi = true; porsiyonAc(dis, listeCiz); }

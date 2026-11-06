@@ -2,6 +2,7 @@
  * Günün kayıtları DD.durum'da: bugun-su {icilenMl, kayitlar}, bugun-duygu (id), bugun-ogun {ogunId:{durum, besinler?}}, bugun-ek {ogunId:[besin]}.
  * Aktif program DD.durum 'aktifProgram' {slug, ad, gun, toplamGun, baslangic} ya da null (program-detay yazar; gun:0 ileri tarihli başlangıç).
  * Görüşme slaytı DD.durum 'uzman-randevu' okur (uzman.js, uzman-profil.js yazar); null iptaldir, slayt çizilmez.
+ * Fotoğraflı kayıtlar DDKayit'tan (ekranlar/kayit.js) okunur, dosya yoksa bu parçalar çizilmez. Yeni kipte hazır kayıtlar sayılmaz.
  * #/bugun?hal=bos hiç kaydı olmayan gün (aynı anahtarlar 'yeni-' önekiyle), #/bugun?hal=hata bağlantı hatası.
  */
 (() => {
@@ -58,7 +59,14 @@
   const suYaz = s => DD.durum.yaz(anahtar('su'), {...s, icilenMl: toplam(s.kayitlar, 'ml')});
   const duyguOku = () => DD.durum.oku(anahtar('duygu'), yeniMi() ? null : DDV.bugun.duygu.secili);
   const aktifProgram = () => DD.durum.oku('aktifProgram', DDV.kullanici.aktifProgram);
-  const imza = () => JSON.stringify([hal(), secili, aktifProgram(), plan(), DD.durum.oku('ritim-kayit', null), DD.durum.oku('ritim-durum', null), DD.durum.oku('uzman-randevu', 'kayit-yok'), ...['ogun', 'ek', 'su', 'duygu'].map(a => DD.durum.oku(anahtar(a), null))]);
+  const kayitDefteri = () => (typeof DDKayit === 'undefined' ? null : DDKayit);
+  const bugunKayitlari = () => {
+    const l = kayitDefteri()?.gunun(DD.bugunIso()) ?? [];
+    if (!yeniMi()) return l;
+    const hazirKayit = new Set((DDV.ogunKayitlari || []).map(k => k.id));
+    return l.filter(k => !hazirKayit.has(k.id));
+  };
+  const imza = () => JSON.stringify([hal(), secili, aktifProgram(), plan(), bugunKayitlari().map(k => [k.id, k.ogun, k.ad, k.kcal, k.foto?.length]), DD.durum.oku('ritim-kayit', null), DD.durum.oku('ritim-durum', null), DD.durum.oku('uzman-randevu', 'kayit-yok'), ...['ogun', 'ek', 'su', 'duygu'].map(a => DD.durum.oku(anahtar(a), null))]);
 
   // ---------- Takvim ve program günü ----------
   const programGunu = iso => { const p = aktifProgram(); if (!p) return null; const n = Math.round((Date.parse(`${iso}T12:00:00`) - Date.parse(`${p.baslangic}T12:00:00`)) / 864e5) + 1; return n >= 1 && n <= p.toplamGun ? n : null; };
@@ -122,7 +130,14 @@
   const pencereYuva = () => { const h = pencere(); return h ? `<div data-yuva="pencere">${h}</div>` : ''; };
   const makro = z => DD.makroCubuk(z.makro, {veri: {eylem: 'makro'}});
   // Değişti rozeti ad satırına sığsın diye bu halde saat yazılmaz.
-  const ogunBlok = z => DD.ogunListe(z.ogunler.map(x => (x.durum === 'degisti' ? {...x, saat: null} : x)), {gunlukHedef: z.hedef});
+  const ogunBlok = z => {
+    const kayitlar = bugunKayitlari().filter(k => k.foto);
+    return DD.ogunListe(z.ogunler.map(x => ({...x, saat: x.durum === 'degisti' ? null : x.saat, foto: x.durum === 'atlandi' ? null : kayitlar.find(k => k.ogun === x.id)?.foto})), {gunlukHedef: z.hedef});
+  };
+  const tabaklarBolum = () => {
+    const l = bugunKayitlari().filter(k => k.foto).map(k => ({...k, ogun: DDV.bugun.ogunler.find(o => o.id === k.ogun)?.ad ?? k.ogun}));
+    return l.length > 0 && {baslik: 'Tabakların', html: DD.tabakSerit(l)};
+  };
   const suSatir = () => {
     const s = suOku(), h = suHedef(), son = s.kayitlar[s.kayitlar.length - 1];
     return DD.yuzey(DD.satir({sol: DD.halkaMini({oran: s.icilenMl / h, ikon: 'droplet', ton: 'bilgi'}), baslik: 'Su kayıtların', alt: son ? `%${Math.round(s.icilenMl / h * 100)} · ${s.kayitlar.length} kayıt · son ${son.saat}` : 'Bugün için henüz kayıt yok', veri: {eylem: 'su-kayit'}}));
@@ -148,6 +163,7 @@
     `<div class="dd-yigin"><div data-yuva="takvim">${takvim(z)}</div>${z.kayitVar ? `<div data-yuva="makro">${makro(z)}</div>` : ''}</div>`,
     !z.kayitVar && DD.bos({ikon: 'utensils', baslik: 'Günün henüz boş', metin: 'İlk öğününü eklediğinde **halkan ve makroların** burada dolmaya başlar.', eylem: {metin: 'Öğün ekle', ikon: 'ekle', git: '#/besin-ara'}, ikincil: {metin: 'Tabağını tara', ikon: 'camera', git: '#/ai/kamera'}}),
     {baslik: 'Öğünlerin', html: `<div class="dd-yigin"><div data-yuva="ogun">${ogunBlok(z)}</div>${pencereYuva()}</div>`},
+    tabaklarBolum(),
     {baslik: 'Gün içinde', html: `<div class="dd-yigin"><div class="dd-yigin-12"><div data-yuva="su">${suKart()}</div><div data-yuva="su-satir">${suSatir()}</div></div>${DD.kart({html: DD.duygu({...DDV.bugun.duygu, secili: duyguOku()})})}</div>`},
     programBolum(),
     {baslik: 'Sana önerilenler', html: oneriler()}
@@ -269,16 +285,27 @@
     });
   };
 
+  let kayitYaziliyor = false;   // ekle kendi dd-kayit olayını yayar; ek kalemler yazılmadan ekran tazelenmesin
   // Bugün hiç çizilmemiş olsa da kayıt kaybolmasın: dinleyici ekrandan bağımsızdır. 'tabagim-ogun' #/ogun/:id üzerinden gelen hedeftir.
   document.addEventListener('dd-tabagim-kaydet', e => {
     const ek = (e.detail.liste || []).filter(b => b.ad), l = DD.durum.oku(anahtar('ek'), {});
     const id = DD.durum.oku('tabagim-ogun', null) || hedefOgun || ogunler().find(x => x.durum === 'planli')?.id || 'ara';
-    DD.durum.yaz(anahtar('ek'), {...l, [id]: [...(l[id] || []), ...ek]});
+    const {foto, not, kaynak, guven} = e.detail, adlar = ek.map(b => b.ad.split(' (')[0]);
+    kayitYaziliyor = true;
+    const kayitId = !ek.length ? undefined : kayitDefteri()?.ekle({
+      tarih: DD.bugunIso(), saat: DD.simdi().toTimeString().slice(0, 5), ogun: id, foto: foto ?? null, not: not ?? null, kaynak: kaynak ?? 'arama', guven: guven ?? null,
+      ad: `${adlar.slice(0, 2).join(' ve ')}${adlar.length > 2 ? ` +${adlar.length - 2}` : ''}`,
+      kcal: Math.round(toplam(ek, 'kcal')), protein: toplam(ek, 'P'), karb: toplam(ek, 'K'), yag: toplam(ek, 'Y'), lif: toplam(ek, 'Lif'),
+      bilesenler: ek.map(b => ({ad: b.ad, gram: b.gram ?? null, kcal: b.kcal})), ekIdleri: ek.map(b => b.id)
+    });
+    kayitYaziliyor = false;
+    DD.durum.yaz(anahtar('ek'), {...l, [id]: [...(l[id] || []), ...ek.map(b => ({...b, kayitId}))]});
     DD.durum.sil('tabagim-ogun');
     hedefOgun = null;
-    const g = DD.aktif();
-    if (g?.ad === 'bugun' && hazir) parcalar(g.el);
+    // Tabakların bölümü ilk kayıtla ortaya çıkabilir; parça değil ekran yenilenir.
+    if (DD.aktif()?.ad === 'bugun' && hazir) DD.tazele();
   });
+  document.addEventListener('dd-kayit', () => { if (!kayitYaziliyor && DD.aktif()?.ad === 'bugun' && hazir) DD.tazele(); });
 
   DD.ekran('bugun', {
     tur: 'sekme',

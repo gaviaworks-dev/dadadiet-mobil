@@ -1,6 +1,7 @@
 /* SCR-11 Öğün detay (#/ogun/:id). Referans: tasks/referanslar.md Öğün detay (Lifesum sıra, Lose It! satır, Cronometer özet, MyFitnessPal alt bar).
  * Kayıt Bugün ile ortaktır: <kip>-ogun {ogunId:{durum, besinler?}}, <kip>-ek {ogunId:[besin]}; kip 'bugun-kip' ('bugun'|'yeni'). Birleştirme kuralı bugun.js ogunler() ile aynıdır.
  * Plan besini silinince durum 'degisti' olur; miktarı değişen plan besini aynı sırayla (sira) ek kaydına geçer.
+ * Değişiklikler öğüne bağlı kayda yansır (DDKayit): plan kaydı id = öğün id'si, Tabağım kaydı kalemdeki kayitId ile (eski kalemde ekIdleri).
  * tabagim-ogun: ekran yığındayken Tabağım kaydı bu öğüne düşsün diye yazılır; Bugün kayıttan sonra siler.
  * #/ogun/:id?hal=hata bağlantı hatası.
  */
@@ -39,7 +40,25 @@
     if (deger) l[id] = deger; else delete l[id];
     if (ek?.length) e[id] = ek; else delete e[id];
     DD.durum.yaz(anahtar('ogun'), l); DD.durum.yaz(anahtar('ek'), e);
+    kaydaYansit(id);
     DD.tazele();
+  };
+  // Öğüne bağlı kayıt (id = öğün id'si) aynı besinleri gösterir. Tabağım'dan gelen ekler kendi kaydındadır; miktarı düzeltilen plan besini (m-) bu kayda aittir.
+  // Öğün boşalınca düşen kayıtlar: geri alınca dönerler. Kullanıcının sildiği kayıt burada olmadığı için geri gelmez.
+  const dusen = new Map();
+  const degerler = l => ({kcal: toplam(l, 'kcal'), protein: bir(toplam(l, 'P')), karb: bir(toplam(l, 'K')), yag: bir(toplam(l, 'Y')), lif: bir(toplam(l, 'Lif')), bilesenler: l.map(b => ({ad: b.ad, gram: b.gram ?? null, kcal: b.kcal}))});
+  const kayitEsle = (rid, l, k) => {
+    if (!l.length) { const k = DDKayit.bul(rid); if (k) { dusen.set(rid, k); DDKayit.sil(rid, {yalnizKayit: true}); } return; }
+    if (!DDKayit.bul(rid)) { if (!dusen.delete(rid)) return; DDKayit.geriAl(rid); }
+    const d = degerler(l);
+    // Tek kalemli tabağın ayrıntılı bileşenleri korunur, kalemle aynı oranda ölçeklenir.
+    if (l.length === 1 && k?.bilesenler.length > 1) { const o = k.kcal ? d.kcal / k.kcal : 1; d.bilesenler = k.bilesenler.map(b => ({...b, gram: b.gram && Math.round(b.gram * o), kcal: Math.round(b.kcal * o)})); }
+    DDKayit.guncelle(rid, d);
+  };
+  const kaydaYansit = id => {
+    const x = kayit(id);
+    if (!yeni() && DDV.ogunKayitlari?.some(y => y.id === id)) kayitEsle(id, x.besinler.filter(b => !b.ek || String(b.id).startsWith('m-')));
+    [...DDKayit.ogunun(DD.bugunIso(), id), ...dusen.values()].filter(k => k.ogun === id && k.ekIdleri?.length).forEach(k => kayitEsle(k.id, x.besinler.filter(b => b.ek && (b.kayitId === k.id || k.ekIdleri.includes(b.id))), k));
   };
   const anlik = id => [oku('ogun')[id] ?? null, oku('ek')[id] ?? []];
   const geriAl = (id, [d, e]) => ({eylem: 'Geri al', onEylem: () => yaz(id, d, e)});
@@ -141,6 +160,10 @@
     const satirlar = [{ad: 'Kalori', a: o.kcal, b: x.kcal, birim: 'kcal'}, ...MAKRO.map(([m, ad]) => ({ad, a: o[m], b: bir(x[m]), birim: 'g'}))];
     return {baslik: 'Planla karşılaştır', html: `<div class="dd-yigin-12">${DD.p(planCumle(x, o), {ton: 'ikincil'})}${DD.kiyasTablo({a: {ad: 'Plan', gorsel: 'assets/gorsel/hero/tabak-duzeni.webp'}, b: {ad: 'Bu öğün', gorsel: 'assets/gorsel/hero/kamera-tabak.webp'}, satirlar})}${maddeler.length ? `<div class="dd-yigin-8">${maddeler.join('')}</div>` : ''}</div>`};
   };
+  // Kayıtlı fotoğraf: en yeni fotoğraflı kayıt. Boş gün kipinde yalnız o gün çekilenler sayılır.
+  const fotoKayit = x => DDKayit.ogunun(DD.bugunIso(), x.id).find(k => k.foto && (!yeni() || /^k\d/.test(k.id)));
+  const fotoBanner = k => DD.banner({gorsel: k.foto, etiket: k.saat, baslik: k.ad, git: `#/kayit/${k.id}`});
+  const tabaklarGiris = () => DD.eylemKart({ikon: 'galeri', baslik: 'Tabaklarım', alt: 'Çektiğin tabaklar gün gün', git: '#/tabaklarim'});
   const bosHal = x => (x.durum === 'atlandi'
     ? DD.bos({ikon: 'forward', tam: true, baslik: 'Bu öğünü atladın', metin: 'Yediklerini **dilediğin an** ekleyebilirsin.', eylem: {metin: 'Besin ekle', ikon: 'ekle', git: ekleRota(x.id)}, ikincil: {metin: 'Plana dön', ikon: 'yenile', veri: {eylem: 'plana-don'}}})
     : DD.bos({ikon: x.ikon, tam: true, baslik: x.degisik ? 'Bu öğünde besin kalmadı' : `${x.ad} henüz boş`, metin: 'Eklediğinde **kalori ve makro** burada görünür.', eylem: {metin: 'Besin ekle', ikon: 'ekle', git: ekleRota(x.id)}, ikincil: x.degisik && !yeni() ? {metin: 'Plana dön', ikon: 'yenile', veri: {eylem: 'plana-don'}} : undefined}));
@@ -161,9 +184,10 @@
       if (!tanim(ctx.param.id)) return DD.hataEkran({tur: 'bulunamadi', eylem: {metin: 'Bugün’e dön', yerine: '#/bugun'}});
       const x = kayit(ctx.param.id);
       if (!x.besinler.length) return bosHal(x);
+      const foto = fotoKayit(x);
       return DD.bolumler([
-        `<div class="dd-yigin">${halka(x)}${x.durum === 'planli' ? planEylem() : ''}</div>`,
-        besinBolum(x), makroBolum(x), planBolum(x)
+        `<div class="dd-yigin">${foto ? fotoBanner(foto) : ''}${halka(x)}${x.durum === 'planli' ? planEylem() : ''}</div>`,
+        besinBolum(x), makroBolum(x), planBolum(x), tabaklarGiris()
       ]);
     },
     altBar: ctx => (tanim(ctx.param.id) ? DD.altEylem({dugmeler: [{metin: 'Tabağı fotoğrafla', tur: 'secondary', git: '#/ai/kamera?mod=tabak'}, {metin: 'Barkod tara', tur: 'secondary', git: '#/ai/kamera?mod=barkod'}]}) : ''),

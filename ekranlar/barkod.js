@@ -68,7 +68,7 @@
         const c1 = DD.on(h, 'urun-porsiyon', v => { sec = v; });
         const c2 = DD.eylem(h, 'urun-ekle', () => {
           const kat = sec.gram / 100, d = u.deger100;
-          DD.tabagim.ekle({ad: u.ad, slug: u.ean, gorsel: null, miktar: sec.miktar, birim: sec.birim, gram: Math.round(sec.gram), kcal: Math.round(sec.kcal), P: d.P * kat, K: d.K * kat, Y: d.Y * kat, Lif: d.Lif * kat, kaynak: 'barkod'});
+          DD.tabagim.ekle({ad: u.ad, slug: u.ean, gorsel: null, miktar: sec.miktar, birim: sec.birim, gram: Math.round(sec.gram), kcal: Math.round(sec.kcal), P: d.P * kat, K: d.K * kat, Y: d.Y * kat, Lif: d.Lif * kat, kaynak: 'barkod', foto: null});
           h.kapat();
           DD.toast(`Tabağına eklendi: **${sayi(sec.kcal)} kcal**`, {tur: 'basari', eylem: 'Tabağı aç', onEylem: () => DD.tabagim.ac()});
         });

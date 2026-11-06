@@ -1,6 +1,7 @@
 /* SCR-50A Uzmanım (#/uzman): Gastro profil başı + bölümler. Referans: tasks/referanslar.md Uzmanım ve sağlık.
  * Durum: uzman-randevu (sonrakiRandevu şekli; null = iptal, uzman-profil de yazar), uzman-hazirlik {gorevId:true},
  * uzman-talep {slug, paket, tarih, saat, tur, paylasim} (uzman-profil yazar), uzman-sohbet (eklenen mesajlar), uzman-okundu (son okunan mesaj id).
+ * Tabak şeridi saglik-paylasim.tabaklar iznine bağlıdır; kayıtlar DDKayit (ekranlar/kayit.js) yüklenmemişse DDV.ogunKayitlari'ndan okunur.
  * #/uzman?hal=bos diyetisyeni olmayan kullanıcı, ?hal=hata bağlantı hatası, ?hal=seans görüşme saati gelmiş hal. */
 (() => {
   const KAPAK = 'assets/gorsel/hero/uzman-masa.webp';
@@ -90,6 +91,18 @@
     return DD.kart({html: `<div class="dd-yigin">${DD.ilerleme({n: biten, hedef: tanim.seans, etiket: `${biten} görüşme tamamlandı`, deger: `${p.kalanSeans} kaldı`})}${DD.kunye([{ikon: 'program', etiket: 'Paket', deger: `${p.ad} · ${tanim.seans} görüşme`}, {ikon: 'takvim', etiket: 'Bitiş', deger: DD.tarihUzun(p.bitis)}])}${DD.btn({metin: 'Paketi yenile', ikon: 'yenile', tur: 'tonal', tam: true, git: `#/uzman/profil/${d.slug}?paket=${p.id}`})}</div>`});
   };
 
+  // ---------- Tabaklar: izin kapalıysa fotoğraf çizilmez, izin yolu gösterilir ----------
+  const tabakIzni = () => DD.durum.oku('saglik-paylasim', {}).tabaklar !== false;
+  const kayitlar = () => [...(window.DDKayit?.liste() ?? DDV.ogunKayitlari ?? [])].sort((a, b) => `${b.tarih}${b.saat}`.localeCompare(`${a.tarih}${a.saat}`));
+  const ogunAd = id => DDV.bugun.ogunler.find(o => o.id === id)?.ad || id;
+  const tabakBolum = () => {
+    if (!tabakIzni()) return DD.eylemKart({ikon: 'gizlilik', baslik: 'Tabak paylaşımın kapalı', alt: 'Sağlık dosyamdan açabilirsin', git: '#/saglik?izin=1'});
+    const l = kayitlar(), paylasilan = l.filter(k => k.foto && k.diyetisyenGorsun !== false).slice(0, 6), notlu = l.filter(k => k.diyetisyenNotu);
+    if (!paylasilan.length && !notlu.length) return DD.eylemKart({ikon: 'kamera', baslik: 'İlk tabağını çek', alt: 'Diyetisyenin burada görür', git: '#/ai/kamera?mod=tabak'});
+    const not = notlu.length ? DD.eylemKart({ikon: 'duzenle', baslik: `Diyetisyenin ${notlu.length} tabağına not bıraktı`, alt: `Son not ${DD.tarihKisa(notlu[0].diyetisyenNotu.tarih || notlu[0].tarih)}`, git: notlu.length === 1 ? `#/kayit/${notlu[0].id}` : '#/tabaklarim'}) : '';
+    return `<div class="dd-yigin-12">${paylasilan.length ? DD.tabakSerit(paylasilan.map(k => ({...k, ogun: ogunAd(k.ogun)}))) : ''}${not}</div>`;
+  };
+
   // ---------- Bekleyen talep ----------
   const talepKart = t => {
     const d = bul(t.slug), p = d.paketler.find(x => x.id === t.paket), {gun, ay} = gunAy(t.tarih);
@@ -140,6 +153,7 @@
   // ---------- Ekran gövdesi ----------
   const kisayollar = () => DD.parcali([
     {ikon: 'tahlil', baslik: 'Sağlık dosyam', alt: 'Ölçümler, tahliller, notlar', git: '#/saglik'},
+    {ikon: 'tabak', baslik: 'Tabaklarım', alt: 'Fotoğraflı öğün kayıtların', git: '#/tabaklarim'},
     {ikon: 'ara_', baslik: 'Diyetisyenleri incele', alt: 'Uzmanlık ve paketler', git: '#/uzman/bul'}
   ], {aria: 'Kısayollar'});
   const dolu = () => {
@@ -153,6 +167,7 @@
       {baslik: 'Görüşmelerin', html: `<div class="dd-yigin-12">${DD.segment({ad: 'randevu', etiket: 'Görüşmeler', secili: 'yaklasan', ogeler: [{ad: 'Yaklaşan', deger: 'yaklasan'}, {ad: 'Geçmiş', deger: 'gecmis'}]})}<div data-yuva="randevu">${randevuPanel('yaklasan')}</div></div>`},
       {baslik: 'Bu haftanın menüsü', eylem: 'Program', git: `#/program/${H().program}`, html: menuBolum()},
       {baslik: 'Mesajlar', eylem: 'Tümü', git: '#/uzman/sohbet', html: mesajBolum()},
+      {baslik: 'Tabakların', html: tabakBolum()},
       {baslik: 'Diyetisyen notları', html: notlarBolum()},
       {baslik: 'Paketin', html: paketBolum(d)},
       {baslik: 'Daha fazlası', html: kisayollar()}

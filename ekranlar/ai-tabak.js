@@ -1,6 +1,7 @@
 /* SCR-31 Tabak sonucu (#/ai/tabak). Referans: tasks/referanslar.md Tabak tanıma, §2.6 (Zero ve Cal AI hap etiket, MyFitnessPal güven rozeti).
- * Sonuç taslaktır: düzeltmeler DD.durum 'ai-tabak' {ogun, cekim, oran, kalem:{id:{gram, ad, kcalGram}}, silinen:[id]} içinde durur, kamera yeni çekimde sıfırlar.
+ * Sonuç taslaktır: düzeltmeler DD.durum 'ai-tabak' {ogun, cekim, kaynak, oran, kalem:{id:{gram, ad, kcalGram}}, silinen:[id], oneriler:[], serbest, not} içinde durur, kamera yeni çekimde sıfırlar.
  * Günlüğe yazmaz; bileşenleri Tabağım'a ekler ve hedef öğünü 'tabagim-ogun' anahtarına yazar (sözleşme), kayıt Bugün'de olur.
+ * Fotoğraf, kaynak, ortalama güven ve not DD.tabagim.meta ile kayda geçer. Hazır notlar tahmini değiştirir (ETKI), serbest metin yalnız not olarak kalır.
  * ?hal=bos bileşen bulunamadı, ?hal=hata bağlantı hatası.
  */
 (() => {
@@ -12,12 +13,23 @@
   const ogunAd = id => DDV.bugun.ogunler.find(o => o.id === id)?.ad;
   const hedefOgun = () => durum().ogun || DDV.bugun.ogunler.find(o => o.durum === 'planli')?.id || T().ogunOnerisi;
 
-  // Bileşen = veri + kullanıcının düzeltmesi. Alternatif besinde yalnız gram başına kcal var; makrolar kcal oranıyla taşınır.
-  const kalemler = () => {
-    const d = durum(), oran = d.oran || 1, sil = d.silinen || [];
+  // Hazır notların tahmine etkisi. Yağsız pişti: yağın %40'ı düşer, kcal 9 kcal/g ile iner (varsayım). Sos yok: bileşenlerde sos sayılmadığı için tahmin değişmez.
+  const YAG_PAY = .4, YAG_KCAL = 9;
+  const olcek = (b, k) => ({...b, gram: b.gram * k, kcal: b.kcal * k, ...Object.fromEntries(MAKRO.map(m => [m, b[m] * k]))});
+  const ETKI = {
+    'Yarım porsiyon': b => olcek(b, .5),
+    'Yağsız pişti': b => ({...b, Y: b.Y * (1 - YAG_PAY), kcal: b.kcal - b.Y * YAG_PAY * YAG_KCAL}),
+    'Ekstra sebze': b => (DDV.besinBul(b.slug)?.kategori === 'Sebzeler' ? olcek(b, 1.5) : b)
+  };
+  const ONERILER = ['Yarım porsiyon', 'Yağsız pişti', 'Sos yok', 'Ekstra sebze'];
+
+  // Bileşen = veri + kullanıcının düzeltmesi + hazır notlar. Alternatif besinde yalnız gram başına kcal var; makrolar kcal oranıyla taşınır.
+  const kalemler = (etkili = true) => {
+    const d = durum(), oran = d.oran || 1, sil = d.silinen || [], etkiler = etkili ? Object.keys(ETKI).filter(k => d.oneriler?.includes(k)) : [];
     return T().bilesenler.filter(b => !sil.includes(b.id)).map(b => {
       const k = d.kalem?.[b.id], gram = (k?.gram ?? b.gram) * oran, kcalGram = k?.kcalGram ?? b.kcal / b.gram, kat = gram * kcalGram / b.kcal;
-      return {...b, ad: k?.ad ?? b.ad, gram, kcal: gram * kcalGram, guven: k ? 100 : b.guven, slug: k?.ad ? null : b.slug, gorsel: k?.ad ? null : DDV.besinBul(b.slug)?.gorsel ?? null, ...Object.fromEntries(MAKRO.map(m => [m, b[m] * kat]))};
+      const x = {...b, ad: k?.ad ?? b.ad, gram, kcal: gram * kcalGram, guven: k ? 100 : b.guven, slug: k?.ad ? null : b.slug, gorsel: k?.ad ? null : DDV.besinBul(b.slug)?.gorsel ?? null, ...Object.fromEntries(MAKRO.map(m => [m, b[m] * kat]))};
+      return etkiler.reduce((y, e) => ETKI[e](y), x);
     });
   };
   const toplam = (l, a) => l.reduce((t, x) => t + (x[a] || 0), 0);
@@ -27,9 +39,15 @@
     const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
     return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal');
   };
-  const buCekim = x => x.kaynak === K && x.cekim === durum().cekim;
+  const buCekim = x => x.taslak === K && x.cekim === durum().cekim;
   const tabagimda = () => DD.tabagim.liste().some(buCekim);
-  const tabagaYaz = () => { const {cekim} = durum(); DD.durum.yaz('tabagim-ogun', hedefOgun()); kalemler().forEach(b => DD.tabagim.ekle({ad: b.ad, slug: b.slug, gorsel: b.gorsel, gram: Math.round(b.gram), kcal: Math.round(b.kcal), P: b.P, K: b.K, Y: b.Y, Lif: b.Lif, kaynak: K, cekim})); };
+  const metaYaz = l => { const d = durum(); DD.tabagim.meta({foto: T().gorsel, kaynak: d.kaynak || 'kamera', guven: Math.round(toplam(l, 'guven') / l.length), not: d.not || ''}); };
+  const tabagaYaz = () => {
+    const {cekim} = durum(), l = kalemler();
+    DD.durum.yaz('tabagim-ogun', hedefOgun());
+    l.forEach(b => DD.tabagim.ekle({ad: b.ad, slug: b.slug, gorsel: b.gorsel, gram: Math.round(b.gram), kcal: Math.round(b.kcal), P: b.P, K: b.K, Y: b.Y, Lif: b.Lif, taslak: K, cekim}));
+    if (l.length) metaYaz(l);
+  };
   // Tabağa geçmiş taslak düzeltilirse Tabağım da aynı kalır.
   const guncelle = d => {
     const varmis = tabagimda();
@@ -56,6 +74,15 @@
     return DD.varsayim({metin: `Bunu **${b.ad}** olarak okudum${alt ? `; ${alt.toLocaleLowerCase('tr')} da olabilir` : ''}.`, eylem: 'Değiştir', veri: {eylem: 'duzelt', id: b.id}});
   };
 
+  // Yalnız gerçekten değişen tahmin için "güncellendi" denir; serbest metin ve Sos yok not olarak kalır.
+  const notBilgi = l => {
+    const d = durum(), ham = Math.round(toplam(kalemler(false), 'kcal')), yeni = Math.round(toplam(l, 'kcal')), sos = d.oneriler?.includes('Sos yok');
+    if (yeni !== ham) return DD.p(`Tahmin güncellendi: **${sayi(ham)} → ${sayi(yeni)} kcal**.${sos ? ' Bileşenlerde sos saymamıştık.' : ''}`, {ton: 'ikincil', meta: true});
+    if (sos) return DD.p('Bileşenlerde sos saymamıştık, **tahmin aynı kaldı**. Notun kayda geçer.', {ton: 'ikincil', meta: true});
+    return d.not ? DD.p('Notun **kayda geçer**, tahmini değiştirmez.', {ton: 'ikincil', meta: true}) : '';
+  };
+  const notHtml = l => { const d = durum(); return `<div class="dd-yigin-8">${DD.oneriNot({ad: 'ai-not', deger: d.serbest || '', oneriler: ONERILER, secili: d.oneriler || []})}<div data-yuva="not">${notBilgi(l)}</div></div>`; };
+
   const govde = (ctx, l) => {
     const baslik = T().baslik.replace(/\d+/, l.length), ort = Math.round(toplam(l, 'guven') / l.length);
     const secili = l.find(b => b.id === ctx.secili);
@@ -69,6 +96,7 @@
         ${ozetHtml(l)}
         ${kalanBant(l)}
       </div>
+      ${DD.bolum({html: notHtml(l)})}
       ${DD.bolum({baslik: 'Bileşenler', html: `<div class="dd-yigin-12">${varsayimHtml(l)}${DD.satirlar(l.map(b => DD.aiSatir(b)))}</div>`})}
       ${DD.bolum({html: DD.p('Bu sonuç bir **taslaktır**. Sen onaylayana kadar günlüğüne yazılmaz; bileşenleri değiştirebilir ya da çıkarabilirsin.', {ton: 'ikincil', meta: true})})}`;
   };
@@ -79,14 +107,16 @@
     return l.some(x => x.birim === 'gram') ? l : [...l, {birim: 'gram', gram: 1}];
   };
   const duzeltSheet = id => {
-    const ana = T().bilesenler.find(b => b.id === id), b = kalemler().find(x => x.id === id), oran = durum().oran || 1, alt = ana.alternatif?.[0];
+    const ana = T().bilesenler.find(b => b.id === id), b = kalemler().find(x => x.id === id), ham = kalemler(false).find(x => x.id === id), oran = durum().oran || 1, alt = ana.alternatif?.[0];
+    // Sheet tahminin görünen halini gösterir; hazır not çarpanları kayıtta geri alınır, yoksa iki kez uygulanır.
+    const gramKat = b.gram / ham.gram, kcalKat = (b.kcal / b.gram) / (ham.kcal / ham.gram);
     let gram = Math.round(b.gram), secilen = b.ad === ana.ad ? '' : b.ad;
-    const kcalGram = () => (secilen ? alt.gramKcal : ana.kcal / ana.gram);
+    const kcalGram = () => (secilen ? alt.gramKcal : ana.kcal / ana.gram), gorunen = () => kcalGram() * kcalKat;
     DD.sheet({
       baslik: b.ad,
       html: `<div class="dd-yigin">
         ${alt ? `<div class="dd-yigin-8"><span class="dd-t-card">Bu ne?</span>${DD.cipler({ad: 'ai-tur', tur: 'tek', secili: secilen, ogeler: [{metin: ana.ad, deger: ''}, {metin: alt.ad, deger: alt.ad}]})}</div>` : ''}
-        <div class="dd-yigin-8"><span class="dd-t-card">Porsiyon</span>${DD.porsiyon({ad: 'ai-porsiyon', birimler: birimler(ana), secili: 'gram', miktar: gram, kcal100: kcalGram() * 100})}</div>
+        <div class="dd-yigin-8"><span class="dd-t-card">Porsiyon</span>${DD.porsiyon({ad: 'ai-porsiyon', birimler: birimler(ana), secili: 'gram', miktar: gram, kcal100: gorunen() * 100})}</div>
       </div>`,
       altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', veri: {eylem: 'cikar'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'kaydet-kalem'}})}</div>`,
       sonra: h => {
@@ -94,13 +124,13 @@
           DD.on(h, 'ai-porsiyon', v => { gram = v.gram; }),
           DD.on(h, 'ai-tur', v => {
             secilen = v; const p = h.querySelector('.dd-porsiyon');
-            p.dataset.kcal100 = kcalGram() * 100;
-            h.querySelector('[data-p-kcal]').textContent = sayi(gram * kcalGram());
+            p.dataset.kcal100 = gorunen() * 100;
+            h.querySelector('[data-p-kcal]').textContent = sayi(gram * gorunen());
           }),
           DD.eylem(h, 'kaydet-kalem', () => {
             const d = durum();
             h.kapat();
-            guncelle({...d, kalem: {...d.kalem, [id]: {gram: gram / oran, kcalGram: kcalGram(), ...(secilen ? {ad: secilen} : {})}}});
+            guncelle({...d, kalem: {...d.kalem, [id]: {gram: gram / oran / gramKat, kcalGram: kcalGram(), ...(secilen ? {ad: secilen} : {})}}});
             DD.toast(`**${secilen || ana.ad}** güncellendi`, {tur: 'basari'});
           }),
           DD.eylem(h, 'cikar', () => {
@@ -160,6 +190,14 @@
       const kaydedildi = () => { DD.durum.sil(K); setTimeout(() => DD.git('#/bugun')); };
       document.addEventListener('dd-tabagim-kaydet', kaydedildi);
       const c = [
+        DD.on(kok, 'ai-not', (not, {oneriler, serbest}) => {
+          const d = durum(), degisti = JSON.stringify(oneriler) !== JSON.stringify(d.oneriler || []), yeni = {...d, not, oneriler, serbest};
+          // Yazarken yeniden çizim odağı keser: serbest metin yalnız notu yazar.
+          if (degisti) { guncelle(yeni); return; }
+          yaz(yeni);
+          if (tabagimda()) DD.tabagim.meta({not});
+          const y = kok.querySelector('[data-yuva="not"]'); if (y) y.innerHTML = notBilgi(kalemler());
+        }),
         DD.on(kok, 'bilesen', id => { ctx.secili = ctx.secili === id ? null : id; DD.tazele(); }),
         DD.eylem(kok, 'duzelt', el => duzeltSheet(el.dataset.id)),
         DD.eylem(kok, 'porsiyon', porsiyonSheet),

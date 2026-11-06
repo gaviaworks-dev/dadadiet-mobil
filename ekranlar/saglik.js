@@ -1,7 +1,7 @@
 /* SCR-51 Sağlık dosyam (#/saglik): Gastro profil başı. Referans: tasks/referanslar.md Sağlık dosyam, §2.8.
- * Durum: saglik-olcumler [{tarih, kiloKg, belCm, yagYuzde}], saglik-tahliller (ai-tahlil ekler; kanTahlilleri şekli), saglik-paylasim {olcum, tahlil, analiz}.
+ * Durum: saglik-olcumler [{tarih, kiloKg, belCm, yagYuzde}], saglik-tahliller (ai-tahlil ekler; kanTahlilleri şekli), saglik-paylasim {olcum, tahlil, analiz, tabaklar}; eski kayıtta olmayan alan varsayılan açık sayılır.
  * 2 haftalık dönem DDV.gecmis'ten gelir: soluk çizgi ham tartı, kalın çizgi üç günlük ortalama (veride ayrı eğilim yok, türetildi).
- * #/saglik?hal=bos hiç kaydı olmayan dosya (ölçümler 'yeni-' önekiyle), ?hal=hata bağlantı hatası, ?olcum=1 ölçüm sheet'i açık gelir. */
+ * #/saglik?hal=bos hiç kaydı olmayan dosya (ölçümler 'yeni-' önekiyle), ?hal=hata bağlantı hatası, ?olcum=1 ölçüm sheet'i açık gelir, ?izin=1 paylaşım iznine iner. */
 (() => {
   const S = () => DDV.saglik, K = () => DDV.kullanici;
   const hal = () => new URLSearchParams(location.hash.split('?')[1] || '').get('hal');
@@ -15,7 +15,8 @@
   const PAYLASIM = [
     {id: 'olcum', etiket: 'Ölçümlerim', alt: 'Kilo, bel ve yağ oranı', ikon: 'kilo'},
     {id: 'tahlil', etiket: 'Kan tahlillerim', alt: 'Yüklediğin tahlil sonuçları', ikon: 'tahlil'},
-    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Dada AI okuma notları', ikon: 'wand-magic-sparkles'}
+    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Dada AI okuma notları', ikon: 'wand-magic-sparkles'},
+    {id: 'tabaklar', etiket: 'Tabak fotoğraflarım', alt: 'Fotoğraf, öğün, kalori ve notun', ikon: 'tabak'}
   ];
 
   // ---------- Kayıtlar ----------
@@ -25,7 +26,7 @@
   const tahliller = () => { if (bosMu()) return []; const e = DD.durum.oku('saglik-tahliller', []); return [...e, ...S().kanTahlilleri.filter(t => !e.some(x => x.id === t.id))]; };
   const analizler = () => (bosMu() ? [] : S().aiAnalizleri);
   const notlar = () => (bosMu() ? [] : S().diyetisyenNotlari);
-  const paylasim = () => DD.durum.oku('saglik-paylasim', {olcum: true, tahlil: true, analiz: true});
+  const paylasim = () => ({olcum: true, tahlil: true, analiz: true, tabaklar: true, ...DD.durum.oku('saglik-paylasim', {})});
   const birlestir = (seri, alan) => {
     const m = new Map(seri.map(x => [x.tarih, x]));
     olcumler().filter(o => o[alan] != null).forEach(o => m.set(o.tarih, {tarih: o.tarih, etiket: DD.tarihKisa(o.tarih), deger: o[alan]}));
@@ -111,8 +112,10 @@
   const notBolum = () => DD.akordiyon(notlar().map(n => ({baslik: n.baslik, alt: n.tarihMetin, ikon: 'duzenle', icerik: DD.p(n.metin.replace(/^([^.;]+[.;])/, '**$1**'))})));
   const paylasimBolum = () => {
     const p = paylasim(), d = DDV.diyetisyenler.find(x => x.slug === K().diyetisyen);
-    return `<div class="dd-yigin-12">${DD.p(`Bu bilgileri **${d.ad}** görebilir. İstediğin zaman kapatabilirsin.`, {ton: 'ikincil'})}${DD.yuzey(`<div class="dd-satirlar">${PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]})).join('')}</div>`)}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
+    return `<div class="dd-yigin-12">${DD.p(`Bu bilgileri **${d.ad}** görebilir. Tabakta “Diyetisyenim görsün” anahtarını kapattığın kayıt **paylaşılmaz**.`, {ton: 'ikincil'})}${DD.yuzey(`<div class="dd-satirlar">${PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]})).join('')}</div>`)}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
   };
+
+  const tabakGiris = () => { const n = bosMu() ? 0 : (window.DDKayit?.liste() ?? DDV.ogunKayitlari ?? []).filter(k => k.foto).length; return DD.eylemKart({ikon: 'tabak', baslik: 'Tabaklarım', alt: n ? `${DD.sayi(n)} fotoğraflı öğün kaydı` : 'Fotoğraflı öğün kayıtların', git: '#/tabaklarim'}); };
 
   // ---------- Ölçüm ekle ----------
   const olcumSheet = kok => {
@@ -150,7 +153,8 @@
       {baslik: 'Kan tahlilleri', html: belgeBolum()},
       analizler().length && {baslik: 'AI analiz geçmişi', html: analizBolum()},
       notlar().length && {baslik: 'Diyetisyen notları', html: notBolum()},
-      !bos && {baslik: 'Paylaşım izni', html: paylasimBolum()}
+      {baslik: 'Tabakların', html: tabakGiris()},
+      !bos && {id: 'paylasim-izni', baslik: 'Paylaşım izni', html: paylasimBolum()}
     ]);
   };
 
@@ -175,6 +179,10 @@
       const s = ctx.saglik, yuva = kok.querySelector('[data-yuva="grafik"]');
       const grafik = () => { yuva.innerHTML = grafikKart(s); };
       if (ctx.sorgu.olcum && !ctx.olcumAcildi) { ctx.olcumAcildi = true; olcumSheet(kok); }
+      if (ctx.sorgu.izin && !ctx.izinIndi) {
+        ctx.izinIndi = true;
+        requestAnimationFrame(() => { const k = kok.querySelector('.dd-kaydir'), h = kok.querySelector('#paylasim-izni'); if (h) k.scrollTop += h.getBoundingClientRect().top - k.getBoundingClientRect().top - kok.querySelector('.dd-header').offsetHeight; });
+      }
       const c = [
         DD.on(kok, 'metrik', v => { s.metrik = v; grafik(); }),
         DD.on(kok, 'donem', v => { s.donem = v; grafik(); }),
