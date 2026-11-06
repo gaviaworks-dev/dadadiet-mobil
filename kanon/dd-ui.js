@@ -141,6 +141,7 @@
       return;
     }
     if (e.sonra) { try { g.temizle = e.sonra(el, ctx) || null; } catch (hata) { console.error(`[ekran ${g.ad}]`, hata); } }
+    DD.tabagim._bar();
   };
 
   // Üst bar alfası Gastro bannerHeader, panel yapışması kubbeYapis ile aynı kural; kaydırıcı ekrana özeldir.
@@ -148,7 +149,7 @@
     const k = g.el.querySelector('.dd-kaydir'), bar = g.el.querySelector('.dd-header'), panel = g.el.querySelector('.dd-panel');
     const altbar = g.el.querySelector('.dd-altbar');
     if (altbar) {
-      const olc = () => g.el.style.setProperty('--dd-altbar-h', `${altbar.offsetHeight}px`);
+      const olc = () => { g.el.style.setProperty('--dd-altbar-h', `${altbar.offsetHeight}px`); if (ust() === g) DD.tabagim._bar(); };
       olc(); new ResizeObserver(olc).observe(altbar);
     }
     const foto = bar?.classList.contains('is-photo');
@@ -232,7 +233,7 @@
     g = giris(r); R.sekmeler[r.ad] = g; return g;
   };
 
-  const donus = g => { const geldi = g.gizli; g.gizli = false; if (g.e.yenile) { const k = g.el.querySelector('.dd-kaydir'), y = k?.scrollTop || 0; ciz(g); const k2 = g.el.querySelector('.dd-kaydir'); if (k2) k2.scrollTop = y; } if (geldi) g.e.donus?.(g.el, g.ctx); };
+  const donus = g => { const geldi = g.gizli; g.gizli = false; DD.zilTazele?.(); if (g.e.yenile) { const k = g.el.querySelector('.dd-kaydir'), y = k?.scrollTop || 0; ciz(g); const k2 = g.el.querySelector('.dd-kaydir'); if (k2) k2.scrollTop = y; } if (geldi) g.e.donus?.(g.el, g.ctx); };
 
   const goruntule = (r, yon, degistir) => {
     bitir();
@@ -452,6 +453,9 @@
       if (g) kat.style.setProperty('--dd-tabagim-alt', `${g.el.querySelector('.dd-altbar')?.offsetHeight || 0}px`);
     }
   };
+
+  // Çıkış: DOM'da kalan sekmeler eski çizimi taşımasın diye uygulama baştan yüklenir. replaceState hashchange atmaz, router yarışmaz.
+  DD.cikis = () => { DD.tabagim.temizle(); DD.durum.sifirla(); history.replaceState(null, '', '#/karsilama'); location.reload(); };
 
   // ---------- Çekerek yenile ----------
   const cekYenileBagla = (g, k) => {

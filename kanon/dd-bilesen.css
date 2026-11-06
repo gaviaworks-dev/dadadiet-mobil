@@ -314,8 +314,6 @@ body.dd .dd-app.has-bar ~ .dd-snack{--pageEnd:calc(var(--dd-size-control-lg) + v
 .dd-banner.is-karsilama h1{margin-top:auto}
 .dd-eylem.is-bilgi{min-height:auto;grid-template-columns:var(--dd-size-action-icon) minmax(0,1fr)}
 .dd-eylem.is-bilgi > span:last-child{display:none}
-.dd-acilis{position:fixed;inset:0;display:grid;place-items:center;background:var(--dd-header-solid)}
-.dd-acilis img{width:calc(var(--dd-s-48) * 3);height:auto}
 
 /* ---------- Pişirme / tam ekran ---------- */
 .dd-tamekran{min-height:var(--dd-ekran-h);display:flex;flex-direction:column;background:var(--dd-paper)}

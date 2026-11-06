@@ -33,7 +33,7 @@
   // en az 6 harfli sözcük, satır sonunda ve başında en az 3 harf (hyphenate-limit-chars: 6 3 3).
   const BUYUK = 20;
   // Başlık kümesi hizalanmaz ve hecelenmez (dd-metin.css). Paragraf dışındaki kalın metin de ad ya da başlıktır; paragraf içi vurgu hecelenir.
-  const BASLIK_KUME = 'h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat,.dd-btn,.dd-kok-chip,.dd-chip,.dd-hbtn,.dd-seg';
+  const BASLIK_KUME = 'h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat,.dd-btn,.dd-kok-chip,.dd-chip,.dd-hbtn,.dd-seg,.dd-balon,.dd-durum>p,.dd-sahne-metin>p,.dd-liste-empty>p,.dd-rozet-detay>p,.dd-profil-kimlik>p,.review-empty>p,.dd-izin-metin,.dd-orta-metin,.dd-kamera-yonerge';
   const PARAGRAF = 'p,blockquote,.dd-metin,[class*=govde],[class*=aciklama]';
   // Kısa mutfak etiketi (bayrakla birlikte millet adı: “Türk”, “Amerikan” — Beyar V4 A3): hecelenmez, tek satır + “…” (dd-metin.css).
   const MUTFAK = '.dd-bayrak-metin b,.v3-cuisine .v3-cuisine-text b,.dd-uz-feature .dd-uz-flag ~ span,.dd-mark--flag ~ span,.dd-mutfak-ad';

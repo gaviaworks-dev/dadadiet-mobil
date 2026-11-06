@@ -73,6 +73,19 @@
   DD.bilgiSerit = l => `<div class="dd-bilgi-rail">${l.map(c => `<button type="button" class="dd-bilgi-kart"${at(c)}><span class="dd-bilgi-bas">${DD.ikonKutu({ikon: c.ikon, boyut: 'md'})}<span class="dd-bilgi-baslik">${esc(c.baslik)}</span></span><span class="dd-bilgi-govde">${vurgu(c.metin)}</span></button>`).join('')}</div>`;
   DD.kunye = l => `<ul class="dd-kunye">${l.map(x => `<li>${ik(x.ikon)}<span>${esc(x.etiket)}</span><b>${esc(x.deger)}</b></li>`).join('')}</ul>`;
 
+  // ---------- Açılış ve karşılama (Gastro acilis.css .ac-s2, .ac-k3) ----------
+  const LOGO = 'assets/marka/dadadiet-beyaz.svg';
+  // Eğik üç sütun kolaj; dokunuş data-eylem="gec". Az görsel verilirse sütunları dolduracak kadar yinelenir.
+  DD.acilis = (o = {}) => {
+    const G = o.gorseller || [], K = G.length ? Array.from({length: 15}, (_, i) => G[i % G.length]) : [];
+    const sutun = k => `<div class="dd-ac-sutun">${K.map((g, i) => (i % 3 === k ? `<div class="dd-ac-karo"${bg(g)} data-i="${i % 5}"></div>` : '')).join('')}</div>`;
+    return `<div class="dd-ac" data-c="kalip" data-kalip="acilis"><div class="dd-ac-kolaj" aria-hidden="true">${sutun(0)}${sutun(1)}${sutun(2)}</div><div class="dd-ac-perde"></div><div class="dd-ac-isik" aria-hidden="true"></div><div class="dd-ac-orta"><img class="dd-ac-logo" src="${esc(o.logo || LOGO)}" alt="Dada Diet"></div><span class="dd-ac-hilal" aria-hidden="true"></span><button class="dd-ac-dokun" type="button" data-eylem="gec" aria-label="Geç"></button></div>`;
+  };
+  // Çıkış: kolaj düzleşip dağılır, sonra fn. Bir kez çalışır; dokunuş ve zamanlayıcı birlikte çağırabilir.
+  DD.acilisCik = (kok, fn) => { const e = kok.querySelector('.dd-ac'); if (!e || e.dataset.cikti) return; e.dataset.cikti = 1; if (DD.azHareket()) { fn?.(); return; } e.classList.add('is-cikis'); setTimeout(() => fn?.(), M.base); };
+  // Gülücük kapak kalan yüksekliği doldurur: logo üstte, başlık ve metin altta, html beyaz alanda. Alt düğmeler altBar'dadır.
+  DD.karsilamaKabuk = (o = {}) => `<div class="dd-ac-k3">${DD.gulucuk({gorsel: o.gorsel, sinif: 'dd-ac-kapak', icerik: `<img class="dd-ac-logo" src="${esc(o.logo || LOGO)}" alt="Dada Diet"><div class="dd-ac-metin" data-dd-veil-from><h1 class="dd-t-display">${esc(o.baslik)}</h1>${o.metin ? `<p class="dd-t-body">${vurgu(o.metin)}</p>` : ''}</div>`})}${o.html ? `<div class="dd-ac-alt">${o.html}</div>` : ''}</div>`;
+
   // ---------- Davranış ----------
   document.addEventListener('click', ev => {
     const b = ev.target.closest?.('.dd-devam'); if (!b) return;
@@ -93,7 +106,15 @@
   // Detay yükseklik: blok + alt boşluk + header + 152, en az 320 (Gastro sizeHero); perde üst ve alt kenar eğrisi.
   const detayKur = h => { const c = h.querySelector('.dd-banner-metin'), e = c.firstElementChild, y = Math.round(Math.max(TK.size.banner, c.offsetHeight + TK.spaceAlias.panelOverlap + TK.space[24] + TK.size.header + TK.space[48] * 3 + TK.space[8])); h.style.height = `${y}px`; requestAnimationFrame(() => { const t = DDCard.tokens(), tt = e.getBoundingClientRect().top - h.getBoundingClientRect().top, len = TK.size.header + TK.space[48]; h.dataset.perde = 1; h.style.setProperty('--dd-veil', DDCard.gradient(y, v => Math.max(DDCard.edgeTop(v, len, t), DDCard.edgeBottom(v, tt, t)), [len, tt - t.lead, tt + t.tail])); }); };
   const aciklamaKur = k => { const m = k.querySelector('.dd-aciklama-metin'), lh = parseFloat(getComputedStyle(m).lineHeight) || TK.typography.body.size * TK.typography.body.line, kapali = `${Math.round(lh * +k.dataset.satir)}px`; if (m.scrollHeight > lh * +k.dataset.satir + 2) { k.dataset.kapali = kapali; k.style.setProperty('--dd-aciklama-kapali', kapali); k.classList.add('is-kirpik'); k.querySelector('.dd-devam').hidden = false; } };
-  DD._kalipKur = el => ({hero: heroKur, slider: sliderKur, detay: detayKur, aciklama: aciklamaKur}[el.dataset.kalip]?.(el));
+  const smoother = t => { t = Math.max(0, Math.min(1, t)); return t * t * t * (t * (6 * t - 15) + 10); };
+  // Perde logo çevresinde sabit, alt kenara doğru koyulaşır (Gastro acilis.js boya).
+  const acilisKur = e => {
+    e.querySelectorAll('.dd-ac-karo').forEach(k => k.style.setProperty('--i', k.dataset.i));
+    const p = e.querySelector('.dd-ac-perde'), l = e.querySelector('.dd-ac-logo');
+    const boya = () => { const h = p.offsetHeight; if (!h) return; const t = p.getBoundingClientRect().top, r = l.getBoundingClientRect(), s = TK.space[48], d = [[0, .35], [Math.max(h * .32, TK.space[64]), .3], [r.top - t - s, .55], [r.bottom - t + s, .55], [h - s * 2, .8], [h, .9]].sort((a, b) => a[0] - b[0]); p.style.backgroundImage = DDCard.gradient(h, y => { for (let i = 1; i < d.length; i++) { const [y0, a0] = d[i - 1], [y1, a1] = d[i]; if (y <= y1) return a0 + (a1 - a0) * smoother((y - y0) / Math.max(1, y1 - y0)); } return d.at(-1)[1]; }); };
+    boya(); l.addEventListener('load', boya); new ResizeObserver(boya).observe(p);
+  };
+  DD._kalipKur = el => ({hero: heroKur, slider: sliderKur, detay: detayKur, aciklama: aciklamaKur, acilis: acilisKur}[el.dataset.kalip]?.(el));
   // Ekran kaydırması: sahne daralması, foto parallax, yapışan panel başı ve sekme, panel altına giren satırın gizlenmesi.
   DD._kalipKaydir = (g, k, bar) => {
     const y = k.scrollTop, r0 = k.getBoundingClientRect().top, H = bar ? bar.offsetHeight : 0, h = g.el.querySelector('.dd-hero');

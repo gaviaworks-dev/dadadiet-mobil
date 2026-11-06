@@ -46,7 +46,7 @@
   const BT = {secondary: 'ikincil', tonal: 'tonlu', text: 'metin', yikici: 'yikici', cam: 'cam', ikincil: 'ikincil', tonlu: 'tonlu', metin: 'metin'};
   DD.donen = () => '<span class="dd-kamera-yukleniyor is-satir" aria-hidden="true"></span>';
   // tur primary | secondary | tonal | text | yikici | cam; boyut sm; tam, pasif, yukleniyor (is-mesgul), ikon
-  DD.btn = (o = {}) => { const c = liste('dd-btn', BT[o.tur] && `dd-btn--${BT[o.tur]}`, o.boyut === 'sm' && 'dd-btn--sm', o.tam && 'dd-btn--tam', o.yukleniyor && 'is-mesgul', o.basili && 'is-basili', o.sinif), ic = `${o.ikon ? ik(o.ikon) : ''}<span>${esc(o.metin)}</span>`; return `<button class="${c}" type="${o.tip || 'button'}"${o.pasif || o.yukleniyor ? ' disabled' : ''}${o.yukleniyor ? ' aria-busy="true"' : ''}${at(o)}>${ic}</button>`; };
+  DD.btn = (o = {}) => { const c = liste('dd-btn', BT[o.tur] && `dd-btn--${BT[o.tur]}`, o.boyut === 'sm' && 'dd-btn--sm', o.tam && 'dd-btn--tam', o.yukleniyor && 'is-mesgul', o.basili && 'is-basili', o.sinif), ic = `${o.marka ? `<i class="icon fa-brands fa-${esc(o.marka)}" aria-hidden="true"></i>` : o.gorsel ? `<img class="dd-btn-marka" src="${esc(o.gorsel)}" alt="">` : o.ikon ? ik(o.ikon) : ''}<span>${esc(o.metin)}</span>`; return `<button class="${c}" type="${o.tip || 'button'}"${o.pasif || o.yukleniyor ? ' disabled' : ''}${o.yukleniyor ? ' aria-busy="true"' : ''}${at(o)}>${ic}</button>`; };
   // tur duz | kutu (sheet kapat zemini) | tint (girdi sesi) | dolu | cam
   DD.ikonBtn = (o = {}) => `<button class="${liste('dd-ibtn', o.tur && o.tur !== 'duz' && `is-${o.tur}`, o.sinif)}" type="${o.tip || 'button'}"${o.secili != null ? ` aria-pressed="${!!o.secili}"` : ''}${o.pasif ? ' disabled' : ''}${at(o)}>${ik(o.ikon)}</button>`;
   DD.fab = (o = {}) => `<button class="${liste('dd-fab is-ekran', o.sinif)}" type="button"${o.pasif ? ' disabled' : ''}${at(o)}>${ik(o.ikon || 'ekle')}</button>`;
@@ -86,8 +86,12 @@
   // ---------- Üst bar, alt menü ----------
   const logo = () => `<a class="dd-logo" href="#/bugun" aria-label="Dada Diet ana sayfa"><img src="assets/marka/dadadiet-beyaz.svg" alt="Dada Diet"></a>`;
   DD.ustBtn = (o = {}) => (typeof o === 'string' ? o : `<button class="dd-hbtn${o.ara ? ' dd-hara' : ''}" type="button" aria-label="${esc(o.etiket || '')}"${at({...o, etiket: undefined})}>${ik(o.ikon)}${o.sayi ? DD.sayacRozet(o.sayi) : ''}</button>`);
-  const MENU = {ikon: 'bars', etiket: 'Menü', attrs: 'data-menu'}, ZIL = () => ({ikon: 'bildirim', etiket: 'Bildirimler', git: '#/bildirimler', sayi: (window.DDV?.bildirimler || []).filter(b => !b.okundu).length || undefined}), ARA = {ikon: 'ara_', etiket: 'Ara', git: '#/ara', ara: true};
+  const MENU = {ikon: 'bars', etiket: 'Menü', attrs: 'data-menu'}, ZIL = () => ({ikon: 'bildirim', etiket: 'Bildirimler', git: '#/bildirimler', attrs: 'data-zil', sayi: DD.bildirimSayi() || undefined}), ARA = {ikon: 'ara_', etiket: 'Ara', git: '#/ara', ara: true};
   DD.ustVarsayilan = () => [ARA, ZIL(), MENU];
+  // Okunmamış sayısı: veri + kullanıcının okuduğu ve sildiği id'ler. Yığındaki bütün üst barlar birlikte tazelenir.
+  DD.bildirimSayi = () => { const dus = new Set([...DD.durum.oku('bildirim-okundu', []), ...DD.durum.oku('bildirim-silinen', [])].map(String)); return (window.DDV?.bildirimler || []).filter(b => !b.okundu && !dus.has(String(b.id))).length; };
+  DD.zilTazele = () => { const n = DD.bildirimSayi(); document.querySelectorAll('[data-zil]').forEach(b => { const r = b.querySelector('.dd-sayac'); if (!n) r?.remove(); else if (r) r.textContent = n; else b.insertAdjacentHTML('beforeend', DD.sayacRozet(n)); }); };
+  document.addEventListener('dd-bildirim', DD.zilTazele);
   // tur sekme | alt | banner | modal; saydam: görsel üstünde başlar. sekme: logo · ara · zil · menü. alt: geri · başlık · eylem · menü.
   DD.ustBar = (o = {}) => {
     const tur = o.tur || 'alt', foto = o.saydam ?? tur === 'banner', kok = tur === 'sekme' || (tur === 'banner' && o.geri === false);

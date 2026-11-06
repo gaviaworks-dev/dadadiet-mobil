@@ -227,7 +227,7 @@
 .dd-kadran-cizgi{stroke:var(--dd-line);stroke-width:var(--dd-size-border2);stroke-linecap:round}
 .dd-kadran-cizgi.is-buyuk{stroke:var(--dd-muted)}
 .dd-kadran-et{position:absolute;inset:0;transform:rotate(var(--a));pointer-events:none}
-.dd-kadran-et span{position:absolute;top:17%;left:50%;width:var(--dd-s-24);margin-left:calc(-1 * var(--dd-s-12));transform:rotate(calc(-1 * var(--a)));text-align:center;color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1;font-variant-numeric:tabular-nums}
+.dd-kadran-et span{position:absolute;top:19%;left:50%;width:var(--dd-s-24);margin-left:calc(-1 * var(--dd-s-12));transform:rotate(calc(-1 * var(--a)));text-align:center;text-align-last:center;color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1;font-variant-numeric:tabular-nums}
 .dd-kadran-tut,.dd-kadran-uc{position:absolute;inset:0;transform:rotate(var(--a,0deg));pointer-events:none}
 .dd-kadran-uc{transform:rotate(var(--b,0deg))}
 .dd-kadran-tut i,.dd-kadran-uc i{position:absolute;top:7.86%;left:50%;width:var(--dd-size-slider-knob);height:var(--dd-size-slider-knob);margin:calc(-.5 * var(--dd-size-slider-knob)) 0 0 calc(-.5 * var(--dd-size-slider-knob));border-radius:var(--dd-r-round);background:var(--dd-paper);box-shadow:var(--dd-sh-md),inset 0 0 0 var(--dd-s-4) var(--dd-primary-dark);transition:transform var(--dd-m-fast) var(--dd-e-standard)}
@@ -333,7 +333,8 @@
 .dd-balon-ek{display:inline-flex;align-items:center;gap:var(--dd-s-4);padding:var(--dd-s-4) var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:color-mix(in srgb,var(--dd-ink) 8%,transparent);font-size:var(--dd-t-meta-size)}
 .dd-balon-kap.is-ben .dd-balon-ek{background:color-mix(in srgb,var(--dd-paper) 18%,transparent)}
 .dd-gun-ayrac{display:grid;place-items:center}
-.dd-mesaj{align-items:center;gap:var(--dd-s-4)}
+.dd-mesaj{align-items:center;gap:var(--dd-s-8)}
+.dd-mesaj>.dd-ibtn{flex:none;width:var(--dd-size-touch);height:var(--dd-size-touch)}
 .dd-mesaj .dd-girdi{flex:1;min-width:0;min-height:var(--dd-size-touch);padding-inline-end:var(--dd-s-12)}
 
 /* Sayısal roller */
@@ -483,3 +484,9 @@
 /* Fotoğraf rengi bilinmez: hedef üstü etiketi kendi zeminini taşır, kontrast fotoğraftan bağımsızdır. */
 .dd-halka.is-foto.is-ustunde .dd-halka-dolu{stroke:var(--dd-uyari)}
 .dd-halka.is-foto.is-ustunde .dd-halka-orta small{padding:0 var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:var(--dd-uyari-bg);color:var(--dd-uyari-fg);text-shadow:none}
+/* Sohbet balonu kısa mesajdır, paragraf değil: yaslanmaz, hecelenmez. */
+.dd-balon p{text-align:start;text-align-last:start;-webkit-hyphens:manual;hyphens:manual}
+/* İçerik uyarısı: ton yalnız ikon kutusunda; yargısız, kırmızı yok */
+.dd-icerik-uyari>.dd-satir-ikon{width:var(--dd-size-box-sm);height:var(--dd-size-box-sm);border-radius:var(--dd-r-control);background:var(--dd-bg);color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
+.dd-icerik-uyari.is-dikkat>.dd-satir-ikon{background:var(--dd-uyari-bg);color:var(--dd-uyari-fg)}
+.dd-icerik-uyari.is-iyi>.dd-satir-ikon{background:var(--dd-basari-bg);color:var(--dd-basari-fg)}

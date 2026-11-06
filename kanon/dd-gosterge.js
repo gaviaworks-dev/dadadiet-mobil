@@ -132,11 +132,14 @@
 
   // ---------- Dairesel saat seçici: 24 saat kadranı, oruç penceresi yayı ----------
   // {ad, deger:'12:00', pencereSaat, etiket, adim}
+  // Aralık dışındaki değer sınırda durur. Hangi sınır: sürüklemede önceki değere, dokunuşta parmağa yakın olan. min > max gece yarısını geçen aralıktır.
+  const kadranSinir = (a, b, v, yakin) => { if (a <= b ? v >= a && v <= b : v >= a || v <= b) return v; const d = (x, y) => { const k = Math.abs(x - y) % 1440; return Math.min(k, 1440 - k); }; return d(yakin, a) <= d(yakin, b) ? a : b; };
   DD.saatKadran = (o = {}) => {
-    const dk = DD.saatDk(o.deger || '12:00'), c = 140, r = 118;
+    const saat = x => (typeof x === 'number' ? x : DD.saatDk(x)), sinirli = o.min != null && o.max != null, mn = sinirli ? saat(o.min) : null, mx = sinirli ? saat(o.max) : null;
+    const ham = saat(o.deger || '12:00'), dk = sinirli ? kadranSinir(mn, mx, ham, ham) : ham, c = 140, r = 118;
     const cizgi = Array.from({length: 24}, (_, h) => { const a = h / 24 * 2 * Math.PI, s = Math.sin(a), n = -Math.cos(a), b = h % 6 === 0; return `<line class="dd-kadran-cizgi${b ? ' is-buyuk' : ''}" x1="${yuvarla(c + 102 * s)}" y1="${yuvarla(c + 102 * n)}" x2="${yuvarla(c + (b ? 94 : 98) * s)}" y2="${yuvarla(c + (b ? 94 : 98) * n)}"/>`; }).join('');
-    return `<div class="dd-kadran" data-c="kadran" data-ad="${esc(o.ad || 'saat')}" data-deger="${dk}" data-pencere="${(o.pencereSaat || 0) * 60}" data-adim="${o.adim || 15}">
-      <div class="dd-kadran-alan" role="slider" tabindex="0" aria-label="${esc(o.etiket || 'Saat')}" aria-valuemin="0" aria-valuemax="1439" aria-valuenow="${dk}" aria-valuetext="${esc(DD.saatMetin(dk))}" data-yatay>
+    return `<div class="dd-kadran" data-c="kadran" data-ad="${esc(o.ad || 'saat')}" data-deger="${dk}" data-pencere="${(o.pencereSaat || 0) * 60}" data-adim="${o.adim || 15}"${sinirli ? ` data-min="${mn}" data-max="${mx}"` : ''}>
+      <div class="dd-kadran-alan" role="slider" tabindex="0" aria-label="${esc(o.etiket || 'Saat')}" aria-valuemin="${sinirli ? mn : 0}" aria-valuemax="${sinirli ? mx : 1439}" aria-valuenow="${dk}" aria-valuetext="${esc(DD.saatMetin(dk))}" data-yatay>
         <svg viewBox="0 0 280 280" aria-hidden="true"><circle class="dd-kadran-iz" cx="${c}" cy="${c}" r="${r}"/><circle class="dd-kadran-yay" cx="${c}" cy="${c}" r="${r}" pathLength="100" transform="rotate(-90 ${c} ${c})"/>${cizgi}</svg>
         ${[[0, '00'], [6, '06'], [12, '12'], [18, '18']].map(([h, m]) => `<span class="dd-kadran-et" style="--a:${h * 15}deg"><span>${m}</span></span>`).join('')}
         ${o.pencereSaat ? '<span class="dd-kadran-uc"><i></i></span>' : ''}<span class="dd-kadran-tut"><i></i></span>
@@ -153,10 +156,11 @@
     const b = el.querySelector('[data-kadran-bitis]'); if (b) b.textContent = `${DD.saatMetin((v + p) % g)}’e kadar`;
     a.setAttribute('aria-valuenow', v); a.setAttribute('aria-valuetext', DD.saatMetin(v));
   };
-  const kadranYaz = (el, v) => { const adim = +el.dataset.adim; v = ((Math.round(v / adim) * adim) % 1440 + 1440) % 1440; if (v !== +el.dataset.deger) { el.dataset.deger = v; DD._kadranCiz(el); DD.titres(2); DD.degisim(el, el.dataset.ad, DD.saatMetin(v), {dakika: v}); } };
+  const kadranYaz = (el, v, dokunus) => { const adim = +el.dataset.adim; v = ((Math.round(v / adim) * adim) % 1440 + 1440) % 1440; if (el.dataset.min != null) v = kadranSinir(+el.dataset.min, +el.dataset.max, v, dokunus ? v : +el.dataset.deger); if (v !== +el.dataset.deger) { el.dataset.deger = v; DD._kadranCiz(el); DD.titres(2); DD.degisim(el, el.dataset.ad, DD.saatMetin(v), {dakika: v}); } };
   DD._kadranBasla = (ev, el) => {
     const a = el.querySelector('.dd-kadran-alan');
-    const hesap = e => { const r = a.getBoundingClientRect(), x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2; kadranYaz(el, ((Math.atan2(x, -y) / (2 * Math.PI)) * 1440 + 1440) % 1440); };
+    let ilk = true;
+    const hesap = e => { const r = a.getBoundingClientRect(), x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2; kadranYaz(el, ((Math.atan2(x, -y) / (2 * Math.PI)) * 1440 + 1440) % 1440, ilk); ilk = false; };
     a.setPointerCapture(ev.pointerId); el.classList.add('is-surukleniyor'); hesap(ev);
     const son = () => { el.classList.remove('is-surukleniyor'); a.removeEventListener('pointermove', hesap); a.removeEventListener('pointerup', son); a.removeEventListener('pointercancel', son); };
     a.addEventListener('pointermove', hesap); a.addEventListener('pointerup', son); a.addEventListener('pointercancel', son);

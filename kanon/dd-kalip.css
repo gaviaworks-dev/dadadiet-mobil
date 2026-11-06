@@ -116,3 +116,35 @@
 .dd-liste-scope .dd-seg button{font-size:var(--dd-t-meta-size)}
 body.dd .dd-liste-scope .dd-seg.has-gosterge::before{top:0;bottom:0}
 .dd-liste-icerik>.dd-eylem+.dd-liste-themes{margin-top:var(--dd-s-24)}
+/* Marka ikonlu düğme (Google görseli; Apple fa-brands) */
+.dd-btn-marka{display:block;flex:none;width:var(--dd-size-icon-md);height:var(--dd-size-icon-md)}
+
+/* Açılış (Gastro .ac-s2): eğik üç sütun gerçek fotoğraf, perde, sol üst ışık, logo, dolan hilal */
+.dd-ac{position:relative;min-height:var(--dd-ekran-h);overflow:hidden;isolation:isolate;background:var(--dd-overlay);color:var(--dd-paper)}
+.dd-ac-kolaj{position:absolute;inset:calc(var(--dd-s-48) * -2) calc(var(--dd-s-48) * -1);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dd-s-8);transform:rotate(-6deg);transition:transform var(--dd-m-reveal) var(--dd-ease),opacity var(--dd-m-reveal) var(--dd-ease)}
+.dd-ac-sutun{display:grid;align-content:start;gap:var(--dd-s-8);animation:dd-ac-yukari calc(var(--dd-m-reveal) * 8) linear both}
+.dd-ac-sutun:nth-child(2){animation-name:dd-ac-asagi}
+.dd-ac-karo{aspect-ratio:4/5;border-radius:var(--dd-r-media);background-color:var(--dd-slate);background-size:cover;background-position:center;animation:dd-ac-sol var(--dd-m-reveal) var(--dd-ease) both;animation-delay:calc(var(--i,0) * var(--dd-m-fast) / 3)}
+.dd-ac-perde{position:absolute;inset:0;z-index:1;pointer-events:none}
+.dd-ac-isik{position:absolute;inset:0 0 auto;z-index:2;height:calc(var(--dd-ust-h) + var(--dd-s-48) * 3);pointer-events:none;background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--dd-primary) 25%,transparent) 0%,transparent 65%);mix-blend-mode:screen;animation:dd-ac-sol var(--dd-m-reveal) var(--dd-ease) var(--dd-m-reveal) both}
+.dd-ac-orta{position:absolute;inset:0;z-index:4;display:grid;place-items:center;pointer-events:none}
+.dd-ac-orta .dd-ac-logo{width:calc(var(--dd-s-48) * 3);height:auto;animation:dd-ac-belir var(--dd-m-reveal) var(--dd-ease) var(--dd-m-base) both}
+.dd-ac-hilal{position:absolute;left:0;right:0;bottom:0;z-index:5;height:var(--dd-s-4);background:var(--dd-primary);transform-origin:0 50%;animation:dd-ac-dolu calc(var(--dd-m-reveal) * 4) var(--dd-ease) var(--dd-m-reveal) both}
+.dd-ac-dokun{position:absolute;inset:0;z-index:7;width:100%;padding:0;border:0;background:transparent}
+.dd-ac-dokun:focus-visible{outline:var(--dd-size-focus) solid var(--dd-paper);outline-offset:calc(-1 * var(--dd-s-4))}
+.dd-ac.is-cikis .dd-ac-kolaj{transform:rotate(0deg) scale(1.08);opacity:0}
+.dd-ac.is-cikis .dd-ac-orta .dd-ac-logo{opacity:0;transition:opacity var(--dd-m-base) var(--dd-ease)}
+@keyframes dd-ac-yukari{from{transform:translateY(0)}to{transform:translateY(calc(var(--dd-s-48) * -3))}}
+@keyframes dd-ac-asagi{from{transform:translateY(calc(var(--dd-s-48) * -3))}to{transform:translateY(0)}}
+@keyframes dd-ac-sol{from{opacity:0}to{opacity:1}}
+@keyframes dd-ac-belir{from{opacity:0;transform:translateY(var(--dd-s-8))}to{opacity:1;transform:none}}
+@keyframes dd-ac-dolu{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* Karşılama (Gastro .ac-k3): gülücük kapak kalan yüksekliği doldurur, logo üstte, metin altta */
+.dd-ac-k3{display:flex;flex-direction:column;min-height:calc(var(--dd-ekran-h) - var(--dd-altbar-h,0px) - var(--dd-s-16) - env(safe-area-inset-bottom,0px))}
+.dd-ac-k3 .dd-ac-kapak{display:flex;flex:1 0 auto}
+.dd-ac-k3 .dd-ac-kapak .dd-gkapak{flex:1;justify-content:space-between;gap:var(--dd-s-24);min-height:calc(var(--dd-s-48) * 7 + var(--dd-s-24));padding-top:calc(var(--dd-s-20) + env(safe-area-inset-top,0px))}
+.dd-ac-kapak .dd-ac-logo{width:calc(var(--dd-s-48) + var(--dd-s-16));height:auto}
+.dd-ac-metin{display:grid;gap:var(--dd-s-12);color:var(--dd-paper)}
+.dd-ac-metin :is(h1,p){color:var(--dd-paper);text-shadow:var(--dd-photo-shadow)}
+.dd-ac-alt{display:grid;gap:var(--dd-s-16);padding:var(--dd-s-24) var(--dd-gutter) var(--dd-s-8)}
+@media (prefers-reduced-motion:reduce){.dd-ac,.dd-ac *{animation:none!important;transition:none!important}}

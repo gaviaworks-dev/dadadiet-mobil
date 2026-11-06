@@ -42,7 +42,7 @@
       const t = e.target.closest('.dd-menu-toggle');
       if (t) { const g = t.closest('.dd-menu-group'), on = !g.classList.contains('is-open'); k.querySelectorAll('.dd-menu-group').forEach(x => { const a = x === g && on; x.classList.toggle('is-open', a); x.querySelector('.dd-menu-toggle').setAttribute('aria-expanded', a); x.querySelector('.dd-menu-sub').inert = !a; }); return; }
       const a = e.target.closest('[data-menu-git]');
-      if (a) { e.preventDefault(); e.stopPropagation(); kapat(); if (a.dataset.menuEylem === 'cikis') { DD.durum.sil('oturum'); DD.yerine('#/karsilama'); } else if (a.dataset.menuGit) DD.git(a.dataset.menuGit); }
+      if (a) { e.preventDefault(); e.stopPropagation(); kapat(); if (a.dataset.menuEylem === 'cikis') DD.cikis(); else if (a.dataset.menuGit) DD.git(a.dataset.menuGit); }
     });
   };
   DD.menu = {ac, kapat};

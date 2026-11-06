@@ -66,7 +66,10 @@ Türkçe heceleme: `dd-metin.js` görünen metne yumuşak tire ekler ve DOM değ
 | `dd-kamera` | Kamera düğmesi: `e.detail.eylem` = cek, galeri, mikrofon, flas, cevir, baglam, kapat |
 | `dd-uzun` | `data-uzun="ad"` uzun basış |
 | `dd-arama` | `DD.aramaKur`: `{q, sonuc}` |
+| `gec` (`data-eylem`) | `DD.acilis` tam ekran dokunuş |
+| `DD.cikis()` | Hesaptan çıkış: Tabağım'ı ve tüm durumu siler, `#/karsilama` ile uygulamayı baştan yükler. Çıkış eylemi başka yol yazmaz |
 | `dd-tabagim`, `dd-tabagim-kaydet` | `document`: `{liste, toplam}` |
+| `dd-bildirim` | `document`: okuma ya da silmeden sonra atılır, zil rozeti tazelenir. Sayı `DD.bildirimSayi()`: `okundu` olmayanlardan `DD.durum` `bildirim-okundu` ve `bildirim-silinen` id listeleri düşer. Elle tazeleme `DD.zilTazele()`; ekran dönüşünde kendiliğinden çalışır |
 
 Standart `data-eylem` adları: `ogun-ekle`, `plan-uygula`, `plan-degistir`, `plan-atla` · `duzelt` · `zaman-duzenle` · `jeton-sil` · `soru` (`dataset.soru`) · `kaydet` (kart, kendi çalışır) · `ek` · `filtre` · `neden`. Mesaj formu `[data-mesaj]` submit.
 
@@ -147,7 +150,11 @@ altBar: () => DD.altEylem({ikonlar:[{ikon:'kaydet', ad:'Kaydet', sayi:12}, {ikon
 - `DD.detaySekmeler` panelleri kendisi değiştirir; ekranın dinleyici yazması gerekmez. Sekme çubuğu üst barın altına yapışır. Sekme yoksa `sekmeler` yerine `govde`.
 - `DD.aciklama` metin 3 satırı aşarsa "Devamını oku" çıkar; kısaysa düğme görünmez.
 
-**Karşılama ve onboarding.** `tur:'tam'`. `DD.onbSablon` + `DD.secimler` (`duzen:'tek'|'iki'|'uc'|'orta'`). Tempo, aktivite: 5 çubuklu ölçek `olcek:1-5`.
+**Açılış.** `tur:'tam'`: `DD.acilis({gorseller:[url], logo})`. Gastro kolajı; en iyi 15 görsel, azsa yinelenir. Tam ekran dokunuş `data-eylem="gec"`. Geçiş `DD.acilisCik(kok, () => DD.yerine(hedef))`: çıkış hareketini oynatır, bir kez çalışır; zamanlayıcı ekranda (`DD.TK.motion.reveal * 5`).
+
+**Karşılama.** `tur:'tam'`: `DD.karsilamaKabuk({gorsel, logo, baslik, metin, html})`, düğmeler `altBar`da. Kapak altBar üstüne kadar uzar; `html` kapağın altında beyaz alanda. `logo` verilmezse beyaz Dada Diet logosu.
+
+**Onboarding.** `tur:'tam'`. `DD.onbSablon` + `DD.secimler` (`duzen:'tek'|'iki'|'uc'|'orta'`). Tempo, aktivite: 5 çubuklu ölçek `olcek:1-5`.
 
 **Kamera.** `tur:'tam'`, `tabagim:'ust'`: `DD.kamera({...})`. İzin: `DD.izinIstemi()` (`{html, bar}`), reddedildi `DD.kameraIzinSahne()`.
 
@@ -182,7 +189,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 ### Düğmeler
 | API | Seçenek |
 |---|---|
-| `DD.btn({metin, tur, boyut:'sm', ikon, tam, pasif, yukleniyor, basili, tip})` | tur primary, secondary, tonal, text, yikici, cam |
+| `DD.btn({metin, tur, boyut:'sm', ikon, marka, gorsel, tam, pasif, yukleniyor, basili, tip})` | tur primary, secondary, tonal, text, yikici, cam. Marka ikonu: `marka:'apple'` (fa-brands) ya da `gorsel:'assets/marka/sosyal/google.svg'` |
 | `DD.ikonBtn({ikon, etiket, tur, secili, pasif, tip})` | duz, kutu, tint, dolu, cam; `etiket` zorunlu |
 | `DD.fab({ikon, etiket})` | Ekran içi; alt menü FAB çekirdekte, dokununca `#/ai/kamera`, uzun basınca hızlı işlem |
 | `DD.uzunBas({ad, metin, ikon, tur, yardim, sure, onayBaslik, onayMetin, onayEylem, pasif})` | `dd-onay`; klavye ve ekran okuyucuda otomatik onay |
@@ -199,7 +206,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.toggle({ad, etiket, alt, ikon, secili, pasif})`, `DD.anahtar(o)`, `DD.checkbox({ad, etiket, alt, secili})`, `DD.radio({ad, deger, etiket, secili})` | | boolean; değer |
 | `DD.porsiyon({ad, birimler, secili, miktar, kcal100})`, `DD.kesirIzgara({ad, secili})` | `besin.porsiyonlar` verilebilir | `{birim,miktar,gram,kcal}` |
 | `DD.puan({ad, deger, etiket})` | | radyo |
-| `DD.saatKadran({ad, deger, pencereSaat, etiket, adim})` | | `'12:15'` |
+| `DD.saatKadran({ad, deger, pencereSaat, etiket, adim, min, max})` | `min`, `max` `'HH:MM'` ya da dakika: kadran sınırda durur; `min > max` gece yarısını geçer | `'12:15'` |
 | `DD.takvim({ad, gorunum, mod, secili, aralik, noktalar:{iso:['uyari','gecti']}, halkalar:{iso:oran}, min, max, gorunumSec, gecis})`, `DD.takvimSheet(o)`, `DD.takvimAlan({ad, etiket, deger, hizli})` | Gastro takvim | iso |
 | `DD.secimKart({k, ad, alt, ikon, olcek, gorsel, secili, tek})`, `DD.secimler({ad, ogeler, secili, coklu, duzen})` | duzen tek, iki, uc, orta | değer ya da dizi |
 
@@ -287,6 +294,7 @@ Sınıf çevirisi: `dgu-x` → `dd-x`, `dg-x` → `dd-x`, `dv2-x` → `dd-uz-x`,
 | `DG.kamera`, `.dgu-kamera*`, izin sahnesi | `DD.kamera`, `DD.kameraIzinSahne` | + mod şeridi, bağlam hapı, kâğıt önizleme, ağ; kamera katmanı yerine ekran; barkod da görsel + perde |
 | `.dgu-banner`, `.dgu-panel`, `DG.kubbeBoya`, `.dgu-kubbe-*`, `.dgu-gulucuk`, `DG.profilBas` | `DD.kubbe`, `DD.kubbeBoya`, `DD.gulucuk`, `DD.profilBas` | aynı; `is-detay` boy (detay-v2) |
 | `.dgu-bar`, `.dgu-kayan`, `.cook-bar`, `.engagement-icon` | `DD.altEylem({ikonlar})`, `DD.kayanBar` | ekran içi |
+| `acilis.css` `.ac-s2`, `.ac-k3` | `DD.acilis`, `DD.acilisCik`, `DD.karsilamaKabuk` | `dd-kalip.css`; düz `.dgu-acilis` taşınmadı |
 | `ana-v3`: `.x-hero`, `.v3-hero-track`, `.v3-content`, `.v3-surface`, `.v3-strip`, `DGCard.slider` | `DD.heroAna`, `DD.bolumler`, `DD.yuzey`, `DD.seritKartlar`, `DD.oneCikan`, `DD.kesikKart` | `dd-kalip.css`; hero içine `icerik` yuvası eklendi (halka) |
 | `liste-v2.css`, `.list-tools`, `.dg-chip-rail`, `.dg-mark`, `.dg-facet`, `.dg-choice`, `.dg-page`, `.view-toggle` | `dd-liste.css`, `DD.listeArac`, `DD.cipSerit`, `DD.listeDurum`, `DD.listeSonuc`, `DD.listeTema`, `DD.listeBos`, `DD.sayfalama`, `DD.filtreSheet`, `DD.siralaSheet` | ad çevirisi; `.dg-slider` `.dd-kslider` oldu (biyometrik `.dd-slider` ile çakışır) |
 | `detay-v2`: `.detail-hero`, `.dv2-cap`, `.dv2-facts`, `.dv2-feature*`, `.dv2-desc`, `.dv2-tabs-bar`, `.dv2-pane`, `.dv2-info-*`, `.dv2-meta-list` | `DD.detay`, `DD.ozetSerit`, `DD.ozellikSerit`, `DD.aciklama`, `DD.detaySekmeler`, `DD.bilgiSerit`, `DD.kunye` | `dd-kalip.css`; özet şeridi detayın kendi kalıbı, `DD.ozet` kart içi kullanım için kalır |
@@ -320,3 +328,6 @@ Gerçekten yeni olanlar (`tasks/gastro-esleme.md` §4) `dd-yeni.css`, `dd-goster
 15. Sekme ekranı DOM'da kaldığı için `sonra` temizlemesi sekme değişiminde çalışmaz; `gizlen` ve `donus` kancaları süre tutan döngüler içindir.
 16. Metin kuralı Gastro'dan ayrılır (lead kararı, mimari §2): yalnız paragraf, `.dd-metin` ve kart açıklaması justify ve hecelidir. Başlık kümesi (`h1-h6`, kart ve sheet başlıkları, ad, etiket, buton) `start` ya da `--dd-baslik-hiza` alır, hecelenmez. Neden: dar sütunda iki satırlı yaslı başlıkta sözcük arası 4,91em'e kadar açılıyordu. Fark `dd-metin.css` ve `dd-metin.js` içindedir.
 17. Fotoğraf üstü halkada "Hedefin üstünde" etiketi kendi zemininde hap olur: fotoğraf rengi bilinmediği için kontrast ancak böyle garanti edilir.
+18. Düz renk açılış kaldırıldı, `DD.acilis` Gastro kolajıdır. Neden: Beyar kuralı düz koyu zemine izin vermez.
+19. Sohbet balonu da başlık kümesi gibi davranır: kısa mesajdır, `start` hizalanır, hecelenmez.
+20. Ortalı kısa metin (`.dd-durum`, sahne, izin, boş liste, profil kimliği, `DD.p({orta})`) `text-align:center` + `text-wrap:balance` alır, hecelenmez. Neden: ölçüldü, justify ile balance birlikte ilk satırı daha çok geriyor ("Beklenmedik    bir    hata    oluştu."); mimari §2'deki ortalı blok kuralından bilinçli sapmadır.
