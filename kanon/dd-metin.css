@@ -1,5 +1,5 @@
 /* Gastro ortak/dg-metin.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
-/* METİN KANONU (Beyar, 12 Ekim — istisnasız): her yazı iki yana yaslıdır; kural yalnız buradan gelir, sayfada ezilmez (docs/50 §13, docs/55 §2g).
+/* METİN KANONU (Diet, mimari §2): paragraf iki yana yaslıdır; başlık, ad, etiket ve buton yaslanmaz, hecelenmez; kural yalnız buradan gelir, sayfada ezilmez (docs/50 §13, docs/55 §2g).
    Sola dayalı blokta son satır sola, ortalı blokta (boş durum, karşılama…) son satır ortaya: sayfa CSS'leri yalnız text-align-last verir.
    Heceleme Türkçe (html lang="tr" her sayfada). Sayı sütunlarının sağa hizası (miktar) korunur. Bold vurgular kaynaktaki gibi kalır.
    Bütün sayfalarda en son yüklenir (kök ekranlar: dd-duzeltme'den sonra; uygulama sayfaları: üretici). */
@@ -15,14 +15,14 @@ body{text-align:justify;text-align-last:left;-webkit-hyphens:auto;hyphens:auto}
 /* İstisna (Beyar EK “metin kuralı”: başlık, buton, etiket ve tek satırlık kısa metinler hariç): başlık/ad/etiket rolleri iki yana
    gerilmez — kısa iki satırlık başlıkta kelime arası açılır (ör. kart başlığı). Bulunduğu bloğun hizasını alır: --dd-baslik-hiza
    (ortalı blokta center, aksi hâlde start). Satır içi strong/b'ye etkisi yoktur (text-align yalnız bloklarda çalışır). */
-body :is(h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,strong,b,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat){text-align:justify!important;text-align-last:var(--dd-baslik-hiza,start)!important}
-body :is(.dd-btn,.button,.dd-chip,.dd-kok-chip,.chip,.dd-hbtn,.icon-button,.dd-uzman-ol,.dd-uzman-ol>span){text-align:justify!important;text-align-last:center!important;--dd-baslik-hiza:center}
+body :is(h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,strong,b,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat){text-align:var(--dd-baslik-hiza,start)!important;text-align-last:var(--dd-baslik-hiza,start)!important}
+body :is(h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat,.dd-btn,.dd-kok-chip,.dd-chip){-webkit-hyphens:manual!important;hyphens:manual!important}
+body :is(.dd-btn,.button,.dd-chip,.dd-kok-chip,.chip,.dd-hbtn,.icon-button,.dd-uzman-ol,.dd-uzman-ol>span){text-align:center!important;text-align-last:center!important;--dd-baslik-hiza:center}
 /* Dar sütun açıklaması (bildirim kanal tablosu): ~150px sütunda iki yana yaslama nehir oluşturur; başlık istisnasıyla aynı hiza. */
-body :is(.dd-kanal-metin small,.dd-rozet-ad,.dd-bayrak-metin b,.dd-mod-ad span,.dd-stats>span){text-align:justify!important;text-align-last:var(--dd-baslik-hiza,start)!important}
+body :is(.dd-kanal-metin small,.dd-rozet-ad,.dd-bayrak-metin b,.dd-mod-ad span,.dd-stats>span){text-align:var(--dd-baslik-hiza,start)!important;text-align-last:var(--dd-baslik-hiza,start)!important}
 /* Bölüm başlığı (akordiyon düğmesi) bir başlıktır: düğme ortalaması değil, başa yaslı. */
-body :is(.dd-bolum-bas,.dd-bolum-bas *){text-align:justify!important;text-align-last:start!important;--dd-baslik-hiza:start}
-/* İSTİSNASIZ JUSTIFY (Beyar, 13 Ekim — önceki B1 “kısa/ortalı metin justify dışı” istisnası iptal): bütün metinler iki yana yaslı;
-   hiza farkı yalnız son satırla verilir (text-align-last: başa / ortaya / sona). Kelime arası boşluk Türkçe hecelemeyle çözülür:
+body :is(.dd-bolum-bas,.dd-bolum-bas *){text-align:start!important;text-align-last:start!important;--dd-baslik-hiza:start}
+/* Paragraflarda hiza farkı yalnız son satırla verilir (text-align-last: başa / ortaya / sona). Kelime arası boşluk Türkçe hecelemeyle çözülür:
    ortak/dd-metin.js görünen metne Türkçe hece kurallarıyla yumuşak tire ekler (tarayıcıların Türkçe hyphens:auto sözlüğü yok — ölçüldü).
    Kelime boşluğu genişlemesi word-spacing ile sınırlanamaz (iki yana yaslama satırı her durumda doldurur); dar sütunlarda genişlik /
    yazı rolü kanon içinde ayarlanır ya da metin kısaltılır. */

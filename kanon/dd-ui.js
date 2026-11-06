@@ -126,7 +126,7 @@
       if (!bekliyor && e.altBar) alt = e.altBar(ctx) || '';
     } catch (hata) {
       console.error(`[ekran ${g.ad}]`, hata);
-      icerik = DD.hataEkran({tur: 'genel', eylem: {metin: 'Bugün’e dön', yerine: '#/bugun'}});
+      icerik = DD.hataEkran({tur: 'genel', eylem: {metin: 'Bugün’e dön', yerine: '#/bugun'}, ikinciller: []});
     }
     el.innerHTML = `${bar}<div class="dd-kaydir"><div class="dd-icerik">${icerik}</div></div>${alt ? `<div class="dd-altbar">${alt}</div>` : ''}`;
     if (window.DDMetin) DDMetin.isle(el);
@@ -221,7 +221,10 @@
 
   // Yeniden eklemek kaydırma konumunu sıfırlar: sekme ekranı DOM'da kalır, üste z-index ile gelir.
   const sok = g => { if (g.el.parentNode !== R.yiginEl) R.yiginEl.append(g.el); };
-  const kaldir = g => { g.temizle?.(); g.temizle = null; if (g.e.tur !== 'sekme') g.el.remove(); else { gizle(g.el); } };
+  // Sekme ekranı DOM'da kalır: sonra bağları ve temizleme yaşar, yalnız görünümden çekilir. Temizleme ekran kapanınca ya da yeniden çizilince çalışır.
+  const kaldir = g => { if (g.e.tur === 'sekme') { if (!R.yigin.includes(g)) gizle(g.el); return; } g.temizle?.(); g.temizle = null; g.el.remove(); };
+  // Üstten çekilme: üstüne ekran açıldı, sekme değişti ya da kapanıyor. donus ile çifttir.
+  const gizlendi = g => { if (!g || g.gizli) return; g.gizli = true; try { g.e.gizlen?.(g.el, g.ctx); } catch (hata) { console.error(`[ekran ${g.ad}]`, hata); } };
 
   const sekmeGiris = r => {
     let g = R.sekmeler[r.ad];
@@ -229,7 +232,7 @@
     g = giris(r); R.sekmeler[r.ad] = g; return g;
   };
 
-  const donus = g => { if (g.e.yenile) { const k = g.el.querySelector('.dd-kaydir'), y = k?.scrollTop || 0; ciz(g); const k2 = g.el.querySelector('.dd-kaydir'); if (k2) k2.scrollTop = y; } g.e.donus?.(g.el, g.ctx); };
+  const donus = g => { const geldi = g.gizli; g.gizli = false; if (g.e.yenile) { const k = g.el.querySelector('.dd-kaydir'), y = k?.scrollTop || 0; ciz(g); const k2 = g.el.querySelector('.dd-kaydir'); if (k2) k2.scrollTop = y; } if (geldi) g.e.donus?.(g.el, g.ctx); };
 
   const goruntule = (r, yon, degistir) => {
     bitir();
@@ -237,15 +240,17 @@
     const eski = ust();
     if (e.tur === 'sekme') {
       const g = sekmeGiris(r), ilk = !g.el.childElementCount;
+      if (eski !== g) gizlendi(eski);
       const atilacak = R.yigin.filter(x => x !== g);
       R.yigin = [g];
       sok(g); goster(g.el); g.el.style.zIndex = 3;
       if (ilk) ciz(g); else donus(g);
       dockGuncelle(g);
-      gecis(g.el, eski?.el, 'solma').then(() => { g.el.style.zIndex = ''; atilacak.forEach(x => { kaldir(x); if (x.e.tur === 'sekme') gizle(x.el); x.el.style.zIndex = ''; }); });
+      gecis(g.el, eski?.el, 'solma').then(() => { g.el.style.zIndex = ''; atilacak.forEach(x => { kaldir(x); x.el.style.zIndex = ''; }); });
       return;
     }
     const g = giris(r);
+    gizlendi(eski);
     if (degistir && eski) R.yigin.pop();
     if (yon === 'yeni') { const atilacak = R.yigin.splice(0); gecisSonuTemizle(atilacak); }
     R.yigin.push(g);
@@ -262,6 +267,7 @@
   const geriDon = hedefI => {
     bitir();
     const eski = ust();
+    gizlendi(eski);
     let n = R.yigin.findIndex(x => x.i === hedefI);
     const atilan = R.yigin.splice(n + 1);
     const g = ust();
@@ -468,15 +474,17 @@
 
   // ---------- Canlandırma: yeni çizilen bileşenleri otomatik uyandırır ----------
   const sayaclar = new Set();
-  setInterval(() => { sayaclar.forEach(el => { if (!el.isConnected) { sayaclar.delete(el); return; } if (!el.closest('.is-gizli')) sayacAdim(el); }); }, 1000);
+  setInterval(() => { sayaclar.forEach(el => { if (!el.isConnected) { sayaclar.delete(el); return; } sayacAdim(el, !!el.closest('.is-gizli')); }); }, 1000);
 
   const sayacMetin = s => { s = Math.max(0, Math.round(s)); return `${iki(Math.floor(s / 3600))}:${iki(Math.floor(s / 60) % 60)}:${iki(s % 60)}`; };
   DD.sayacMetin = sayacMetin;
   const rakamlar = m => [...m].map(c => (c === ':' ? '<span class="dd-rakam-ayrac">:</span>' : `<span class="dd-rakam">${c}</span>`)).join('');
   DD.rakamlar = rakamlar;
-  const sayacAdim = el => {
+  // Gizli sekmede sayım sürer, yalnız çizim atlanır: dönüşte geçen süre kaybolmaz.
+  const sayacAdim = (el, sessiz) => {
     const yon = +(el.dataset.yon || 1), s = (+el.dataset.saniye) + yon;
     el.dataset.saniye = s;
+    if (sessiz) return;
     if (el.dataset.c === 'geri') { DD._geriSayimCiz?.(el, s); return; }
     el.innerHTML = DD.sayacHtml(s);
   };

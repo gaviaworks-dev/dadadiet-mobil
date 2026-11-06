@@ -480,3 +480,6 @@
 .dd-halka.is-foto .dd-halka-dolu{stroke:var(--dd-paper)}
 .dd-halka.is-foto .dd-halka-kesit{stroke:var(--dd-overlay)}
 .dd-halka.is-foto small,.dd-halka-kap.is-foto small{color:var(--dd-paper)}
+/* Fotoğraf rengi bilinmez: hedef üstü etiketi kendi zeminini taşır, kontrast fotoğraftan bağımsızdır. */
+.dd-halka.is-foto.is-ustunde .dd-halka-dolu{stroke:var(--dd-uyari)}
+.dd-halka.is-foto.is-ustunde .dd-halka-orta small{padding:0 var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:var(--dd-uyari-bg);color:var(--dd-uyari-fg);text-shadow:none}

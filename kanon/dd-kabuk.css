@@ -79,7 +79,7 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 .dd-parcali-oge.is-yikici b{color:var(--dd-danger)}
 .dd-sayac,.dd-tk-gun.is-secili .dd-tk-sayi,.dd-tk-ay.is-secili{background:var(--dd-primary-dark)}
 .dd-header .dd-sayac{background:var(--dd-accent-yellow);color:var(--dd-ink)}
-.dd-tk-gun.is-bugun .dd-tk-sayi{color:var(--dd-primary-deep)}
+.dd-tk-gun.is-bugun:not(.is-secili) .dd-tk-sayi{color:var(--dd-primary-deep)}
 .dd-kayan-btn[aria-pressed=true],.dd-ibtn[aria-pressed=true]{color:var(--dd-primary-dark)}
 .dd-btn--tonlu:active,.dd-btn--tonlu.is-basili{background:var(--dd-primary-line)}
 .dd-btn--metin.is-basili{background:var(--dd-primary-tint)}

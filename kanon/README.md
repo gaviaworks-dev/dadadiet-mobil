@@ -40,9 +40,10 @@ DD.ekran('ogun', {
 | `ustBar` | `ctx => ({sol, sag:[{ikon, etiket, git, veri, attrs, sayi}|html], saydam, menu:false, geri:false})`. Sekme varsayılanı logo · ara · zil · menü (`DD.ustVarsayilan()`). Ara düğmesi şeffaf halde gizlidir, solid olunca gelir. `saydam:true`: sekme ekranında fotoğraflı hero |
 | `ciz` | `ctx => html`. `ctx = {ad, param, sorgu, hash, durum}` |
 | `altBar` | `ctx => html`; sabit alt alan: `DD.altEylem`, `DD.kayanBar`, `DD.mesajGiris`, `DD.izinIstemi().bar`. İçerik altına boşluk otomatik |
-| `sonra` | `(kok, ctx) => temizleFn` |
+| `sonra` | `(kok, ctx) => temizleFn`. Temizleme ekran kapanınca ya da yeniden çizilince çalışır. Sekme ekranı kapanmaz: sekme değişince bağlar yaşar, temizleme çalışmaz |
 | `yukle`, `iskelet` | `ctx => Promise`; bitene dek `DD.iskelet` kalıbı (varsayılan `ekran`) |
-| `yenile` | `true`: geri dönüşte kaydırmayı koruyarak yeniden çizer. `donus: (kok, ctx)`: hafif güncelleme |
+| `yenile` | `true`: geri dönüşte kaydırmayı koruyarak yeniden çizer. `donus: (kok, ctx)`: hafif güncelleme, üste her dönüşte |
+| `gizlen` | `(kok, ctx)`: ekran üstten çekilince (sekme değişti, üstüne ekran açıldı, kapanıyor). Süre tutan döngü burada durur, `donus`ta başlar; `gizlen` ve `donus` çifttir. `DD.orucSayac` gibi `data-c="sayac"` gizliyken saymayı sürdürür, yalnız çizmez; kanca gerekmez |
 | `cekYenile` | `ctx => Promise`: aşağı çekip yenile |
 | `dock` | `true`: alt/banner ekranda alt menü de görünür |
 | `tabagim` | `true` tam ekranda da, `'ust'` üstte (kamera), `false` gizle |
@@ -52,7 +53,7 @@ Yönlendirme: `DD.git('#/x')`, `DD.geri()`, `DD.yerine('#/x')`, `DD.tazele()`, `
 
 Veri `window.DDV` (`veri/README.md`). `DD.yukleVeri('program-gunleri')` yalnız program detayında. Sabit an: `DD.simdi()` (6 Kasım 2026 17:10), `DD.bugunIso()`; canlı saat yok.
 
-Türkçe heceleme: `dd-metin.js` görünen metne yumuşak tire ekler ve DOM değişimini izler; ekran bir şey yapmaz. Paragraf `<p>` yeter; `dd-metin.css` justify'ı verir. Heceleme istemeyen öğede `data-dd-hece="yok"`.
+Türkçe heceleme: `dd-metin.js` görünen metne yumuşak tire ekler ve DOM değişimini izler; ekran bir şey yapmaz. Paragraf `<p>` yeter; `dd-metin.css` justify'ı verir. Heceleme istemeyen öğede `data-dd-hece="yok"`. Başlık, ad, etiket ve buton hecelenmez, justify almaz.
 
 ### Olaylar
 
@@ -316,3 +317,6 @@ Gerçekten yeni olanlar (`tasks/gastro-esleme.md` §4) `dd-yeni.css`, `dd-goster
 12. Hero içine `icerik` yuvası eklendi: Gastro hero'su arama taşır, Bugün halka taşır (esleme §1). Halka fotoğraf üstünde okunsun diye `perde:'tam'` ile birlikte kullanılır.
 13. Liste kapsam segmenti ve detay sekmesi Gastro'daki ekran halleriyle aynıdır: seçili olmayan normal ağırlık; liste halinde 13 yazı, dolgusuz, açık zemin. Katalog segmenti `dd-kontrol.css` değerlerindedir.
 14. Hero sabitleri (`motion.sahne`, `size.heroMin`, `size.heroMax`) token oldu; değerler Gastro `ana-v3` ile aynı.
+15. Sekme ekranı DOM'da kaldığı için `sonra` temizlemesi sekme değişiminde çalışmaz; `gizlen` ve `donus` kancaları süre tutan döngüler içindir.
+16. Metin kuralı Gastro'dan ayrılır (lead kararı, mimari §2): yalnız paragraf, `.dd-metin` ve kart açıklaması justify ve hecelidir. Başlık kümesi (`h1-h6`, kart ve sheet başlıkları, ad, etiket, buton) `start` ya da `--dd-baslik-hiza` alır, hecelenmez. Neden: dar sütunda iki satırlı yaslı başlıkta sözcük arası 4,91em'e kadar açılıyordu. Fark `dd-metin.css` ve `dd-metin.js` içindedir.
+17. Fotoğraf üstü halkada "Hedefin üstünde" etiketi kendi zemininde hap olur: fotoğraf rengi bilinmediği için kontrast ancak böyle garanti edilir.

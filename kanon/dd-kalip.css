@@ -65,7 +65,7 @@
 .dd-detay-icerik{position:relative;padding:0 var(--dd-gutter) var(--dd-s-24);background:var(--dd-paper)}
 .dd-facts{padding:0 0 var(--dd-s-16);border-bottom:var(--dd-size-border) solid var(--dd-line)}
 .dd-facts dl{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));margin:0}
-.dd-facts dl>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-width:0;padding:var(--dd-s-4) var(--dd-s-8);text-align:justify;text-align-last:center}
+.dd-facts dl>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-width:0;padding:var(--dd-s-4) var(--dd-s-8);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
 .dd-facts dl>div+div{border-left:var(--dd-size-border) solid var(--dd-line)}
 .dd-facts dt{display:flex;align-items:center;gap:var(--dd-s-4);white-space:nowrap;color:var(--dd-muted);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
 .dd-facts dt .icon{font-size:var(--dd-size-icon-sm);color:var(--dd-primary-dark)}

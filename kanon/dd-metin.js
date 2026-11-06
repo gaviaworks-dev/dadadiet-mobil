@@ -4,7 +4,7 @@
    tarayıcı yalnız gerektiğinde satır sonunda böler ve tireyi gösterir, aksi hâlde görünmez. Justify kuralı dd-metin.css'tedir.
    Hece kuralı (Türkçe yazım): iki ünlü arasında ünsüz yoksa ünlüler arasından, bir ünsüz varsa ünsüzden önce, iki ünsüz varsa
    aralarından, üç ve daha fazlaysa son ünsüzden önce bölünür. Sözcük başında ve sonunda en az 2 harf kalır; 5 harften kısa sözcük,
-   rakam/@/nokta içeren parça (adres, ölçü) bölünmez; 20px ve üstü başlıkta en az 6 harf ve parçalar 3/3. Girdi, düzenlenen metin, kod ve [data-dg-hece="yok"] içi atlanır.
+   rakam/@/nokta içeren parça (adres, ölçü) bölünmez; 20px ve üstü metinde en az 6 harf ve parçalar 3/3. Başlık, ad, etiket ve buton hecelenmez (dd-metin.css başlık kümesi). Girdi, düzenlenen metin, kod ve [data-dd-hece="yok"] içi atlanır.
    Sayfa ya da içerik değişince yeni metin işlenir. Kök ekranlar dd-baglanti.js üzerinden, uygulama sayfaları üreticiden yükler.
    Kutu genişliği daraltılmaz (Beyar, 13 Ekim revize eki: daraltılmış blok sütunun sağ kenarına ulaşmaz, ekranda sola dayalı görünür);
    2+ satırlı her blokta son satır dışındaki satırlar sütunun iki kenarına dayanır. */
@@ -32,12 +32,15 @@
   // Büyük başlık (20px ve üstü: bölüm, sayfa, hero) de hecelenir (Beyar EK 13 Ekim: justify boşluğu açılmasın) ama kısa parça bırakmadan:
   // en az 6 harfli sözcük, satır sonunda ve başında en az 3 harf (hyphenate-limit-chars: 6 3 3).
   const BUYUK = 20;
+  // Başlık kümesi hizalanmaz ve hecelenmez (dd-metin.css). Paragraf dışındaki kalın metin de ad ya da başlıktır; paragraf içi vurgu hecelenir.
+  const BASLIK_KUME = 'h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat,.dd-btn,.dd-kok-chip,.dd-chip,.dd-hbtn,.dd-seg';
+  const PARAGRAF = 'p,blockquote,.dd-metin,[class*=govde],[class*=aciklama]';
   // Kısa mutfak etiketi (bayrakla birlikte millet adı: “Türk”, “Amerikan” — Beyar V4 A3): hecelenmez, tek satır + “…” (dd-metin.css).
   const MUTFAK = '.dd-bayrak-metin b,.v3-cuisine .v3-cuisine-text b,.dd-uz-feature .dd-uz-flag ~ span,.dd-mark--flag ~ span,.dd-mutfak-ad';
-  const ATLA = 'script,style,textarea,input,select,option,code,pre,svg,[contenteditable],[data-dg-hece="yok"],.dd-girdi,' + MUTFAK;
+  const ATLA = 'script,style,textarea,input,select,option,code,pre,svg,[contenteditable],[data-dd-hece="yok"],.dd-girdi,' + BASLIK_KUME + ',' + MUTFAK;
   function isle(kok = document.body) {
     if (!kok) return;
-    const w = document.createTreeWalker(kok, NodeFilter.SHOW_TEXT, {acceptNode: n => !n.nodeValue || n.nodeValue.length < 5 || n.nodeValue.includes(SHY) || !n.parentElement || n.parentElement.closest(ATLA) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+    const w = document.createTreeWalker(kok, NodeFilter.SHOW_TEXT, {acceptNode: n => !n.nodeValue || n.nodeValue.length < 5 || n.nodeValue.includes(SHY) || !n.parentElement || n.parentElement.closest(ATLA) || (n.parentElement.matches('b,strong') && !n.parentElement.closest(PARAGRAF)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
     const L = []; while (w.nextNode()) L.push(w.currentNode);
     for (const n of L) { const y = metinHecele(n.nodeValue, parseFloat(getComputedStyle(n.parentElement).fontSize) >= BUYUK ? BASLIK : undefined); if (y !== n.nodeValue) n.nodeValue = y; }
   }
@@ -47,7 +50,7 @@
   // + ayar miktarı kadar küçük ceza; en düşük puan uygulanır. Kutu genişliği değişmez (satırlar iki kenara dayanır). Genişlik değişince yeniden.
   const BASLIK_SEC = 'h1,h2,h3,.dd-t-page,.dd-t-section,.dd-t-display,.dd-t-featured,.dd-t-sheet';
   let gozcu = null; const ACIK = new Set(), ESIK_BASLIK = .35;   // 2px küçültmeyle de kapanmayan başlıklar (DDMetin.acik)
-  const ATLA_B = ATLA.replace(',[data-dg-hece="yok"]', '');   // başlığın kendi “hecesiz” seçimi yeniden ölçümü engellemez
+  const ATLA_B = ATLA.replace(',[data-dd-hece="yok"]', '');   // başlığın kendi “hecesiz” seçimi yeniden ölçümü engellemez
   // Başlığın kendi yazı tipinde normal sözcük arası (ayarsız): gizli ölçü kutusu.
   const B0 = new WeakMap();
   function bosluk0(el) { if (B0.has(el)) return B0.get(el); const cs = getComputedStyle(el), k = document.createElement('span'); k.style.cssText = `position:absolute;visibility:hidden;white-space:pre;font:${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily};letter-spacing:0;word-spacing:0`; k.textContent = 'a a'; document.body.append(k); const a = k.getBoundingClientRect().width; k.textContent = 'aa'; const g = a - k.getBoundingClientRect().width; k.remove(); B0.set(el, g); return g; }
@@ -87,7 +90,7 @@
       for (const d of [0, 1, 2]) { if (d) el.style.setProperty('font-size', (fsS - d) + 'px'); const o = ara(); if (o) { en = o; kucuk = d; } if (o && o.ac <= ESIK_BASLIK) break; }
       if (en && en.ac > ESIK_BASLIK) { el.style.removeProperty('font-size'); kucuk = 0; en = ara() || en; el.dataset.ddBaslikAcik = en.ac.toFixed(2); ACIK.add(el); }
       metinler.forEach(([t, v]) => { const y = en.hy ? v : v.split(SHY).join(''); if (t.nodeValue !== y) t.nodeValue = y; });
-      if (en.hy) el.removeAttribute('data-dg-hece'); else el.setAttribute('data-dg-hece', 'yok');
+      if (en.hy) el.removeAttribute('data-dd-hece'); else el.setAttribute('data-dd-hece', 'yok');
       if (en.ws) el.style.setProperty('word-spacing', en.ws + 'em'); else el.style.removeProperty('word-spacing');
       if (en.ls) el.style.setProperty('letter-spacing', en.ls + 'em'); else el.style.removeProperty('letter-spacing');
       if (kucuk) el.style.setProperty('font-size', (fsS - kucuk) + 'px'); else el.style.removeProperty('font-size');
