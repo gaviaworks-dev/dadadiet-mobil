@@ -351,6 +351,11 @@ DDV.onboarding = {
       "ikon": "shield-halved"
      },
      {
+      "id": "yeme-bozuklugu",
+      "ad": "Yeme bozukluğu öyküsü",
+      "ikon": "hand-holding-heart"
+     },
+     {
       "id": "yok",
       "ad": "Yok",
       "ikon": "circle-check"
