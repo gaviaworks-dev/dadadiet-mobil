@@ -1,6 +1,6 @@
 /* SCR-30 Kamera (#/ai/kamera?mod=tabak|menu|tahlil|barkod&ogun=id). Tarayıcı kamerası kullanılmaz; DD.kamera vizörü görsel üstünde çalışır.
  * Referans: tasks/referanslar.md Kamera, §2.5 (Cal AI kabuk, SnapCalorie mod şeridi ve öğün seçici, Noom yönerge, Foodvisor barkod özet kartı).
- * Durum: kamera-izin 'verildi'|'reddedildi', kamera-ipucu (kapatıldı), ai-tabak {ogun, cekim} (yeni çekimde sıfırlanır, ai-tabak.js okur), barkod-son [ean].
+ * Durum: kamera-izin 'verildi'|'reddedildi', kamera-ipucu (kapatıldı), ai-tabak {ogun, cekim, kaynak} (yeni çekimde sıfırlanır, ai-tabak.js okur), barkod-son [ean].
  * ?izin=sor|red izin halleri, ?hal=bulanik net olmayan görüntü.
  */
 (() => {
@@ -61,7 +61,7 @@
 
   // ---------- Çekim: analiz adımları, sonra sonuç ----------
   const sonucaGit = ctx => {
-    if (ctx.mod === 'tabak') DD.durum.yaz('ai-tabak', {ogun: ctx.ogun, cekim: Date.now()});
+    if (ctx.mod === 'tabak') DD.durum.yaz('ai-tabak', {ogun: ctx.ogun, cekim: Date.now(), kaynak: ctx.kaynak || 'kamera'});
     DD.git(MOD[ctx.mod].hedef);
   };
   const analiz = (kok, ctx) => {
@@ -120,6 +120,7 @@
       sonra: d => {
         const c1 = DD.eylem(d, 'galeri-sec', el => {
           d.kapat();
+          ctx.kaynak = 'galeri';
           if (el.dataset.id === 'bulanik') { ctx.bulanik = true; DD.tazele(); return; }
           if (izinHal(ctx)) { sonucaGit(ctx); return; }
           analiz(kok, ctx);
@@ -160,7 +161,7 @@
     sonra: (kok, ctx) => {
       const kamera = ev => {
         const a = ev.detail.eylem;
-        if (a === 'cek') { if (ctx.mod === 'barkod') barkodOzet(kok, ctx); else analiz(kok, ctx); }
+        if (a === 'cek') { ctx.kaynak = 'kamera'; if (ctx.mod === 'barkod') barkodOzet(kok, ctx); else analiz(kok, ctx); }
         else if (a === 'galeri') galeri(kok, ctx);
         else if (a === 'mikrofon') DD.git('#/ai/ses');
         else if (a === 'baglam') baglamSheet(kok, ctx);
