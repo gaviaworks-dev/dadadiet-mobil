@@ -5,7 +5,7 @@
  *   paketler:[{ id ('tek'|'1ay'|'3ay'), ad, seans, sure, fiyat (TL), kapsam[], rozet? }] }
  * DDV.diyetisyenFiltreleri: { uzmanlik[], gorusme[], sehir[], siralama[] } (canlıdaki liste)
  * DDV.benimDiyetisyenim: { diyetisyen (slug), paket, sonrakiRandevu:{tarih,tarihMetin,saat,iso,sureDk,tur,baslik,konu,katilAcilisDk}, gecmisRandevular[],
- *   haftalikMenu:{program,programAd,hafta,gunler:[{gun,etiket,baslik,kcal,bugun,ogunler[]}]}, sohbet:{sifreli,sifreMetni,cevrimici,mesajlar:[{id,kim ('ben'|'diyetisyen'),saat,metin,ek?}]}, notlar:[{tarih,tarihMetin,baslik,metin}] }
+ *   haftalikMenu:{program,programAd,hafta,gunler:[{gun,etiket,baslik,kcal,bugun,ogunler[]}]} (bugun:true olan gün DDV.bugun ile aynıdır), sohbet:{sifreli,sifreMetni,cevrimici,mesajlar:[{id,kim ('ben'|'diyetisyen'),saat,metin,ek?}]}, notlar:[{tarih,tarihMetin,baslik,metin}] }
  * DDV.eslesmeSorulari: { baslik, altMetin, sorular:[{no,ad,alt,alan,soru,altMetin,secenekler:[{deger,ad,alt,ikon}]}], kural, gevsetmeNotu, not } — canlı /diyetisyen-bul.
  */
 window.DDV = window.DDV || {};
@@ -729,48 +729,62 @@ DDV.benimDiyetisyenim = {
     "gun": 12,
     "etiket": "Cum",
     "baslik": "barbunya ve hindi, ıspanak",
-    "kcal": 1772,
+    "kcal": 1592,
     "bugun": true,
     "ogunler": [
      {
       "ad": "Kahvaltı",
-      "saat": "12:00",
-      "kcal": 603,
+      "saat": "12:05",
+      "kcal": 426,
+      "durum": "dolu",
       "kalemler": [
-       "Yumurta (haşlanmış) 1 küçük boy (50 g)",
+       "Yumurta (haşlanmış) 1 adet (50 g)",
        "Beyaz Peynir (yarım yağlı) 2 kibrit kutusu (60 g)",
        "Tam Buğday Ekmeği 2 ince dilim (50 g)",
        "Domates ½ orta boy (75 g)",
-       "Salatalık ½ kupa, doğranmış (75 g)",
-       "Üzüm (renkli) 1 küçük kase (150 g)",
-       "Ceviz (iç) 5-7 yarım (15 g)",
+       "Salatalık ½ bardak (75 g)",
+       "Siyah Zeytin (salamura) 5 adet (20 g)",
+       "Zeytinyağı 1 tatlı kaşığı (5 g)"
+      ]
+     },
+     {
+      "ad": "Öğle Yemeği",
+      "saat": "14:30",
+      "kcal": 444,
+      "durum": "dolu",
+      "kalemler": [
+       "Tavuk Göğsü (ızgara) 1 porsiyon (120 g)",
+       "Bulgur (pişmiş) 1 silme kepçe (90 g)",
+       "Tam Buğday Ekmeği 1 ince dilim (25 g)",
+       "Marul (kıvırcık) ½ büyük kâse (37,5 g)",
+       "Domates ½ orta boy (75 g)",
+       "Yoğurt (yarım yağlı) ½ kupa (120 g)",
        "Zeytinyağı 1 tatlı kaşığı (5 g)"
       ]
      },
      {
       "ad": "Ara Öğün",
-      "saat": "15:30",
-      "kcal": 296,
+      "saat": "16:30",
+      "kcal": 171,
+      "durum": "dolu",
       "kalemler": [
-       "Yoğurt (yarım yağlı) 1 kupa (240 g)",
-       "Yulaf (beyaz) ¼ kupa (30 g)",
-       "Şeftali 75 g",
-       "Elma (Fuji) 75 g"
+       "Elma (Fuji) 1 orta boy (150 g)",
+       "Badem 13 adet (15 g)"
       ]
      },
      {
       "ad": "Akşam Yemeği",
       "saat": "19:30",
-      "kcal": 874,
+      "kcal": 551,
+      "durum": "planli",
       "kalemler": [
        "Barbunya (kuru · haşlanmış) ¾ kupa (130 g)",
-       "Hindi Göğsü (fırında · derili) 1 el ayası kadar (80 g)",
+       "Hindi Göğsü (fırında · derili) 1 el ayası (80 g)",
        "Ispanak (haşlanmış) 1 kupa (150 g)",
-       "Roka ½ büyük kase (37,5 g)",
-       "Bulgur (pişmiş) 1 silme orta kepçe (90 g)",
-       "Yoğurt (yarım yağlı) 1 kupa (240 g)",
-       "Tam Buğday Ekmeği 2 ince dilim (50 g)",
-       "Zeytinyağı 4 tatlı kaşığı (20 g)"
+       "Roka ½ büyük kâse (37,5 g)",
+       "Bulgur (pişmiş) 1 silme kepçe (90 g)",
+       "Yoğurt (yarım yağlı) ½ kupa (120 g)",
+       "Zeytinyağı 1 tatlı kaşığı (5 g)"
       ]
      }
     ]
