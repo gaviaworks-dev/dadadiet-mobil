@@ -661,13 +661,12 @@
   const suEkle = (k, ml) => {
     const hedef = +k.dataset.hedef, yeni = +k.dataset.deger + ml;
     k.dataset.deger = yeni;
-    const n = k.querySelectorAll('.dd-bardak').length, adimMl = +k.dataset.bardak;
-    k.querySelectorAll('.dd-bardak').forEach((b, i) => b.style.setProperty('--oran', kisit((yeni - i * adimMl) / adimMl, 0, 1).toFixed(3)));
+    k.style.setProperty('--oran', kisit(yeni / hedef, 0, 1).toFixed(3));
     DD.say(k.querySelector('[data-su-deger]'), yeni, {bas: yeni - ml, sure: M.counter});
     const kalan = k.querySelector('[data-su-kalan]');
     if (kalan) kalan.textContent = yeni >= hedef ? 'Hedefe ulaştın' : `${sayi(hedef - yeni)} ml kaldı`;
     DD.titres(6);
-    degisim(k, k.dataset.ad || 'su', yeni, {eklenen: ml, n});
+    degisim(k, k.dataset.ad || 'su', yeni, {eklenen: ml});
   };
 
   // ---------- İşaretçi tabanlı etkileşimler ----------

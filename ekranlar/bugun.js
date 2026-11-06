@@ -138,11 +138,7 @@
     const l = bugunKayitlari().filter(k => k.foto).map(k => ({...k, ogun: DDV.bugun.ogunler.find(o => o.id === k.ogun)?.ad ?? k.ogun}));
     return l.length > 0 && {baslik: 'Tabakların', html: DD.tabakSerit(l)};
   };
-  const suSatir = () => {
-    const s = suOku(), h = suHedef(), son = s.kayitlar[s.kayitlar.length - 1];
-    return DD.yuzey(DD.satir({sol: DD.halkaMini({oran: s.icilenMl / h, ikon: 'droplet', ton: 'bilgi'}), baslik: 'Su kayıtların', alt: son ? `%${Math.round(s.icilenMl / h * 100)} · ${s.kayitlar.length} kayıt · son ${son.saat}` : 'Bugün için henüz kayıt yok', veri: {eylem: 'su-kayit'}}));
-  };
-  const suKart = () => DD.suKart({icilen: suOku().icilenMl, hedef: suHedef(), adimlar: DDV.bugun.su.adimlar});
+  const suKart = () => DD.suKart({icilen: suOku().icilenMl, hedef: suHedef(), adimlar: DDV.bugun.su.adimlar, kayitEylem: 'su-kayit'});
   const ilkCumleVurgulu = m => m.replace(/^([^.]+\.)/, '**$1**');
   const icerikler = () => { const eksik = suOku().icilenMl < suHedef(); return [...DDV.icerikler].sort((a, b) => (eksik ? (b.kategori === 'Su') - (a.kategori === 'Su') : 0)).slice(0, 4); };
   const oneriler = () => {
@@ -164,7 +160,7 @@
     !z.kayitVar && DD.bos({ikon: 'utensils', baslik: 'Günün henüz boş', metin: 'İlk öğününü eklediğinde **halkan ve makroların** burada dolmaya başlar.', eylem: {metin: 'Öğün ekle', ikon: 'ekle', git: '#/besin-ara'}, ikincil: {metin: 'Tabağını tara', ikon: 'camera', git: '#/ai/kamera'}}),
     {baslik: 'Öğünlerin', html: `<div class="dd-yigin"><div data-yuva="ogun">${ogunBlok(z)}</div>${pencereYuva()}</div>`},
     tabaklarBolum(),
-    {baslik: 'Gün içinde', html: `<div class="dd-yigin"><div class="dd-yigin-12"><div data-yuva="su">${suKart()}</div><div data-yuva="su-satir">${suSatir()}</div></div>${DD.kart({html: DD.duygu({...DDV.bugun.duygu, secili: duyguOku()})})}</div>`},
+    {baslik: 'Gün içinde', html: `<div class="dd-yigin"><div data-yuva="su">${suKart()}</div>${DD.kart({html: DD.duygu({...DDV.bugun.duygu, secili: duyguOku()})})}</div>`},
     programBolum(),
     {baslik: 'Sana önerilenler', html: oneriler()}
   ]);
@@ -229,18 +225,29 @@
     const cumle = plan ? `${plan.ad} planınla protein **${sayi(z.makro.P.alinan + plan.P)} g**, lif **${sayi(z.makro.Lif.alinan + plan.Lif)} g** olur.` : `Bugün **${z.yenen.length} öğün** kaydettin; toplamlar buna göre.`;
     DD.sheet({baslik: 'Makroların', html: `<div class="dd-yigin">${DD.makroCubuk(z.makro, {tur: 'liste', kart: false})}${DD.p(cumle, {ton: 'ikincil'})}</div>`});
   };
+  const SU_MIKTAR = [{ml: 200, ad: 'Bardak', ikon: 'su'}, {ml: 300, ad: 'Büyük bardak', ikon: 'su'}, {ml: 500, ad: 'Şişe', ikon: 'bottle-water'}];
+  const suHaftaBlok = (s, h) => {
+    const g = DDV.gecmis.slice(-7), onceki = g.slice(0, -1), ort = Math.round(toplam(onceki, 'suMl') / onceki.length / 10) * 10;
+    return `<div class="dd-yigin-12"><span class="dd-t-card">Son 7 gün</span>${DD.suHafta({gunler: g.map((x, i) => ({etiket: x.gun, ml: i === g.length - 1 ? s.icilenMl : x.suMl, bugun: i === g.length - 1})), hedef: h})}${DD.p(`Önceki 6 günün ortalaması **${sayi(ort)} ml**.`, {ton: 'ikincil', meta: true})}</div>`;
+  };
   const suGovde = () => {
     const s = suOku(), h = suHedef();
-    const kayitlar = [...s.kayitlar].map((k, i) => [k, i]).reverse().map(([k, i]) => DD.satirKap({ikon: 'droplet', baslik: `${sayi(k.ml)} ml`, alt: k.saat}, DD.ikonBtn({ikon: 'sil', etiket: `${k.saat} kaydını sil`, veri: {eylem: 'su-sil', id: i}})));
-    return `<div class="dd-yigin">${DD.ilerleme({n: s.icilenMl, hedef: h, etiket: `${sayi(s.icilenMl)} ml`, deger: `${sayi(h)} ml`})}<div class="dd-ara"><span class="dd-t-card">Miktar</span>${DD.stepper({ad: 'su-miktar', deger: 200, min: 50, max: 1000, adim: 50, birim: 'ml', aria: 'Su miktarı'})}</div>${kayitlar.length ? DD.satirlar(kayitlar) : DD.veriYok('Bugün için **henüz su kaydı** yok.')}</div>`;
+    const kayitlar = [...s.kayitlar].map((k, i) => [k, i]).reverse().map(([k, i]) => DD.satirKap({sol: DD.ikonKutu({ikon: 'su', boyut: 'sm', ton: 'bilgi'}), baslik: `${sayi(k.ml)} ml`, alt: k.saat}, DD.ikonBtn({ikon: 'sil', etiket: `${k.saat} kaydını sil`, veri: {eylem: 'su-sil', id: i}})));
+    return `<div class="dd-yigin">
+      ${DD.ozetSerit([{etiket: 'İçilen', deger: sayi(s.icilenMl), birim: 'ml'}, {etiket: 'Hedef', deger: sayi(h), birim: 'ml'}, {etiket: 'Kalan', deger: sayi(Math.max(h - s.icilenMl, 0)), birim: 'ml'}])}
+      <div class="dd-yigin-12"><span class="dd-t-card">Ne kadar içtin?</span>${DD.suMiktarlar({ogeler: SU_MIKTAR, eylem: 'su-hizli'})}<div class="dd-su-ozel">${DD.stepper({ad: 'su-miktar', deger: 250, min: 50, max: 1000, adim: 50, birim: 'ml', aria: 'Su miktarı'})}${DD.btn({metin: 'Ekle', tur: 'tonal', boyut: 'sm', veri: {eylem: 'su-ozel'}})}</div></div>
+      ${yeniMi() ? '' : suHaftaBlok(s, h)}
+      <div class="dd-yigin-8"><span class="dd-t-card">Bugünün kayıtları</span>${kayitlar.length ? DD.satirlar(kayitlar) : DD.veriYok('Bugün için **henüz su kaydı** yok.')}</div>
+    </div>`;
   };
-  const suGuncelle = kok => { yuva(kok, 'su', suKart()); yuva(kok, 'su-satir', suSatir()); cizilen = imza(); };
+  const suGuncelle = kok => { yuva(kok, 'su', suKart()); cizilen = imza(); };
   const suSheet = kok => DD.sheet({
-    baslik: 'Su kayıtların', html: suGovde(),
-    altBar: DD.btn({metin: 'Su ekle', ikon: 'ekle', tam: true, veri: {eylem: 'su-ozel'}}),
+    baslik: 'Su', html: suGovde(),
     sonra: d => {
       const ciz = () => { d.querySelector('.dd-sheet-govde').innerHTML = suGovde(); suGuncelle(kok); };
-      DD.eylem(d, 'su-ozel', () => { const ml = +d.querySelector('input[name="su-miktar"]').value, s = suOku(); suYaz({...s, kayitlar: [...s.kayitlar, {saat: DDV.bugun.simdi, ml}]}); ciz(); DD.toast(`**+${sayi(ml)} ml** eklendi`, {ikon: 'droplet'}); });
+      const ekle = ml => { const s = suOku(); suYaz({...s, kayitlar: [...s.kayitlar, {saat: DDV.bugun.simdi, ml}]}); ciz(); DD.toast(`**+${sayi(ml)} ml** eklendi`, {ikon: 'droplet'}); };
+      DD.eylem(d, 'su-hizli', el => ekle(+el.dataset.id));
+      DD.eylem(d, 'su-ozel', () => ekle(+d.querySelector('input[name="su-miktar"]').value));
       DD.eylem(d, 'su-sil', el => { const s = suOku(); suYaz({...s, kayitlar: s.kayitlar.filter((_, i) => i !== +el.dataset.id)}); ciz(); });
     }
   });
@@ -275,7 +282,7 @@
     DD.on(kok, 'su', (_, d) => {
       const s = suOku();
       suYaz({...s, kayitlar: [...s.kayitlar, {saat: DDV.bugun.simdi, ml: d.eklenen}]});
-      yuva(kok, 'su-satir', suSatir()); cizilen = imza();
+      cizilen = imza();
       suBirikim += 1; clearTimeout(suSaat); suSaat = setTimeout(() => suToast(kok), DD.TK.motion.reveal);
     });
     DD.eylem(kok, 'su-kayit', () => suSheet(kok));
