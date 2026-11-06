@@ -21,7 +21,8 @@
   // ---------- Kayıtlar ----------
   const anahtar = () => `${bosMu() ? 'yeni-' : ''}saglik-olcumler`;
   const olcumler = () => DD.durum.oku(anahtar(), []);
-  const tahliller = () => (bosMu() ? [] : [...DD.durum.oku('saglik-tahliller', []), ...S().kanTahlilleri]);
+  // ai-tahlil kaydı DDV'deki tahlille aynı id'yi taşır (analiz bağı kopmasın diye); aynı kayıt iki kez listelenmez.
+  const tahliller = () => { if (bosMu()) return []; const e = DD.durum.oku('saglik-tahliller', []); return [...e, ...S().kanTahlilleri.filter(t => !e.some(x => x.id === t.id))]; };
   const analizler = () => (bosMu() ? [] : S().aiAnalizleri);
   const notlar = () => (bosMu() ? [] : S().diyetisyenNotlari);
   const paylasim = () => DD.durum.oku('saglik-paylasim', {olcum: true, tahlil: true, analiz: true});
