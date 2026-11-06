@@ -17,6 +17,7 @@ Yükleme: düz `<script>`, modül değil. Her dosya `window.DDV` altına yazar. 
 | denge.js | DDV.denge.{tabak, muadiller, kurtarma, kiyasla} | Denge & Tabak ekranları |
 | onboarding.js | DDV.onboarding | giris + 11 adım, koşullar, kalori formülü |
 | bildirimler.js | DDV.bildirimler (10), DDV.icerikler (8) | Bildirimler ve ipucu kartları |
+| kayitlar.js | DDV.ogunKayitlari (33) | Tabaklarım: son 14 günün fotoğraflı öğün kayıtları; bugünkü 3 kayıt DDV.bugun ile aynı |
 
 ## Sabit an
 
@@ -29,6 +30,7 @@ Bugünün değerleri: hedef 1650, tüketilen 1041, kalan 609, planlı akşam 551
 - Canlıdan: besin değerleri, yemek değerleri, 82 program ve menüleri, filtre üyelikleri, sihirbaz soruları, diyetisyenlerde ünvan/uzmanlık/şehir/görüşme dağılımı, ipuçları.
 - Kurgusal: 7 diyetisyenin adı, soyadı, slug'ı ve deneyim yılı (gerçek kişi değil), sohbet ve notlar.
 - Canlıda yok, makul değer: paket fiyatları, porsiyonlarda `kaynak:'varsayılan'` olanlar, kan tahlili referans aralıkları, barkod ürünlerinin besin değerleri, Denge Skoru kırılımı, tüm kullanıcı kayıtları.
+- Kayıtlar: kcal ve makrolar DDV.yemekler ve DDV.besinler değerlerinden; yemek gramları tahmin, kullanıcı ve diyetisyen notları kurgu. Geçmiş günlerin kayıt toplamı DDV.gecmis değerini aşmaz, kalan kayda geçmemiş öğünlerdir.
 - Canlıda yok, boş bırakıldı: diyetisyen `puan`, `yorumSayisi`, `cinsiyet`.
 
 ## Tabak tanıma
