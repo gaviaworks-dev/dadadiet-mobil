@@ -321,7 +321,7 @@ Gerçekten yeni olanlar (`tasks/gastro-esleme.md` §4) `dd-yeni.css`, `dd-goster
 4. Orta düğme doğrudan `#/ai/kamera` açar (lead kararı). Neden: Mimari §4 böyle der ve Yasin Bey'in bilgi mimarisinde modlar SCR-30'un içindedir; araya panel koymak bir dokunuş ekler. `tasks/gastro-esleme.md` §2'deki panel satırı kaldırıldı. 2×2 parçalı bileşen (`DD.parcali`) kanonda kalır.
 5. Gilroy'da tabular rakam yok (rakam genişliği 19-30). Canlı sayaç rakamları sabit hücrede (`DD.rakamlar`).
 6. Üç veri görseli biçimden ayrılır: halka 270 açık yay, oruç tam daire, Denge Skoru yarım kadran. Denge kadranı bileşen segmentlidir.
-7. bbox: varsayılan hap etiket + nokta, çerçeve yalnız seçili halde; etiket kenara itilir, en çok 4.
+7. bbox: varsayılan hap etiket + nokta, çerçeve yalnız seçili halde; etiket kenara itilir, en çok 4. Etikette ad her kelimesi büyük harfle, kcal `--dd-primary-dark` ve bold.
 8. Sosyal paylaşım marka renkleri `dd-bilesen.css`te hex kalır (üçüncü taraf markaları).
 9. Karanlık desen yok; `DD.geriSayim` yalnız randevu.
 10. Ekran kalıpları `DD.heroAna`, `DD.detay`, `DD.kubbe({arac})` ve kardeşleri bileşen sayılır. Neden: Bugün, Programlar ve Program detay Gastro'nun `ana-v3`, `liste-v2`, `detay-v2` ekranlarıdır; bu CSS kanon dışında kalsaydı ekran yazarları ekrana özel stil yazmak zorunda kalırdı.

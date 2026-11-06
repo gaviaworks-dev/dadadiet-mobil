@@ -61,7 +61,7 @@ DDV.ai = {
   "bilesenler": [
    {
     "id": "tavuk",
-    "ad": "Izgara tavuk",
+    "ad": "Izgara Tavuk",
     "slug": "tavuk-gogsu-izgara",
     "gram": 110,
     "kcal": 166,
@@ -78,14 +78,14 @@ DDV.ai = {
     },
     "alternatif": [
      {
-      "ad": "Baharatlı tofu",
+      "ad": "Baharatlı Tofu",
       "gramKcal": 1.44
      }
     ]
    },
    {
     "id": "misir",
-    "ad": "Haşlanmış mısır",
+    "ad": "Haşlanmış Mısır",
     "slug": "tatli-misir-konserve",
     "gram": 60,
     "kcal": 38,
@@ -121,7 +121,7 @@ DDV.ai = {
    },
    {
     "id": "yumurta",
-    "ad": "Haşlanmış yumurta",
+    "ad": "Haşlanmış Yumurta",
     "slug": "yumurta-haslanmis",
     "gram": 50,
     "kcal": 78,
@@ -157,7 +157,7 @@ DDV.ai = {
    },
    {
     "id": "lahana",
-    "ad": "Mor lahana",
+    "ad": "Mor Lahana",
     "slug": "lahana-kirmizi-cig",
     "gram": 50,
     "kcal": 18,
@@ -193,7 +193,7 @@ DDV.ai = {
    },
    {
     "id": "marul",
-    "ad": "Kıvırcık marul",
+    "ad": "Kıvırcık Marul",
     "slug": "marul-kivircik",
     "gram": 30,
     "kcal": 5,
