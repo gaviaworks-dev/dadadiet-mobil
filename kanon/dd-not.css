@@ -1,0 +1,18 @@
+/* Gastro ortak/dg-not.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak bilgi notu (DG.ipucu) ve durum rozeti (DG.durumRozet) — yalnız ana ajan yazar. Uygulama sayfaları ve Tabaktan taslak detayı (tabaktan-taslak.html) aynı dosyayı yükler. */
+.dd-ipucu{display:flex;align-items:flex-start;gap:var(--dd-s-12);padding:var(--dd-s-16);border-radius:var(--dd-r-control);background:var(--dd-primary-tint)}
+.dd-ipucu-ikon{display:grid;place-items:center;width:var(--dd-s-32);height:var(--dd-s-32);flex-shrink:0;border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-primary-deep)}
+.dd-ipucu-ikon .icon{font-size:var(--dd-size-icon-sm)}
+.dd-ipucu h4{margin:0 0 var(--dd-s-4);font-family:var(--dd-font-bold);font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line)}
+.dd-ipucu p{margin:0;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-ink)}
+
+/* === Durum rozeti (yönetici, 12 Ekim) — tek satır, ikon + metin yan yana; yükseklik 24, köşe küçük rozet kademesi (6; 24/6 = ana düğme
+   48/12 sertliği). Tonlar tokens.json color.status (kontrast ≥4.5 ölçüldü). === */
+.dd-durum-rozet{display:inline-flex;align-items:center;gap:var(--dd-s-4);height:var(--dd-s-24);padding:0 var(--dd-s-8);border-radius:var(--dd-r-badge-sm);font-family:var(--dd-font-bold);font-size:var(--dd-t-label-size);font-weight:var(--dd-weight-bold);line-height:1;letter-spacing:0;white-space:nowrap;vertical-align:middle;flex-shrink:0}
+.dd-durum-rozet .icon{font-size:var(--dd-t-label-size)}
+.dd-durum-rozet.is-notr{background:var(--dd-notr-bg);color:var(--dd-notr-fg);box-shadow:inset 0 0 0 var(--dd-size-border) var(--dd-line)}
+.dd-durum-rozet.is-uyari{background:var(--dd-uyari-bg);color:var(--dd-uyari-fg)}
+.dd-durum-rozet.is-basari{background:var(--dd-basari-bg);color:var(--dd-basari-fg)}
+.dd-durum-rozet.is-bugun{background:var(--dd-primary-dark);color:var(--dd-paper)}   /* Dolabım: son gün bugün (primary) */
+.dd-durum-rozet.is-gecti{background:var(--dd-primary-deep);color:var(--dd-paper)}   /* Dolabım: süresi geçti (koyu domates) */
+.dd-durum-rozet.is-hata{background:var(--dd-hata-bg);color:var(--dd-hata-fg)}

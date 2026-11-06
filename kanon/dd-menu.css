@@ -1,0 +1,77 @@
+/* Gastro ortak-menu.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak yan menü (ortak-menu.js). Kanon: sağdan çekmece, %86 / en çok var(--dd-size-menu-w), düz sol kenar, 48px satır,
+   24px ikon sütunu + 12px metin boşluğu, tek açık akordeon; tokenlar tokens.css'ten. Sayfa CSS'inden bağımsız. */
+/* docs/46 · Header solid rengi üç ekranda tek token (Beyar kararı): canlı site ve logo rengi var(--dd-primary) (PANTONE 173 C).
+   Beyaz logo/ikon kontrastı 4.45:1 (grafik eşiği 3:1 geçer; 4.5:1 küçük metin eşiğinin hemen altında). tokens.css değişmez. */
+html.dd-menu-locked{overflow:hidden}
+.dd-menu{position:fixed;inset:0 0 0 auto;width:min(86%,var(--dd-size-menu-w));max-width:none;height:var(--dd-ekran-h);max-height:none;margin:0 0 0 auto;padding:0;border:0;border-radius:0;background:var(--dd-paper);color:var(--dd-ink);font-family:var(--dd-font);transform:translateX(100%);transition:transform 250ms var(--dd-ease)}
+.dd-menu.is-in{transform:none}
+.dd-menu-panel{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px)}
+.dd-menu-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.dd-menu-scroll::-webkit-scrollbar{display:none}
+
+/* Head: official colour logo at the header logo's scale (64px), close on the same line. */
+.dd-menu-head{display:flex;align-items:center;justify-content:space-between;gap:var(--dd-s-12);min-height:calc(var(--dd-s-48) + var(--dd-s-16));padding:var(--dd-s-12) var(--dd-s-8) var(--dd-s-12) var(--dd-gutter)}
+.dd-menu-logo{display:flex;align-items:center;min-height:var(--dd-size-touch)}
+.dd-menu-logo img{display:block;width:calc(var(--dd-s-48) + var(--dd-s-16));height:auto}
+.dd-menu-close{display:grid;place-items:center;width:var(--dd-size-touch);height:var(--dd-size-touch);padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-ink);cursor:pointer}
+.dd-menu-close .icon{font-size:var(--dd-size-icon-md)}
+
+/* Account area */
+.dd-menu-user{display:grid;gap:var(--dd-s-12);margin:0 var(--dd-s-8);padding:var(--dd-s-16) var(--dd-s-12);border-radius:var(--dd-r-surface);background:var(--dd-bg)}
+.dd-menu-hello{display:grid;gap:var(--dd-s-4);margin:0}
+.dd-menu-hello b{font-family:var(--dd-font-bold);font-size:var(--dd-t-card-size);line-height:var(--dd-t-card-line)}
+.dd-menu-hello span{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-menu-auth{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dd-s-8)}
+.dd-menu-auth .button{width:100%;min-height:var(--dd-size-touch)}
+.dd-menu-profile{display:flex;align-items:center;gap:var(--dd-s-12);min-height:var(--dd-size-touch);color:var(--dd-ink);text-decoration:none}
+.dd-menu-avatar{display:grid;place-items:center;width:var(--dd-size-avatar-md);height:var(--dd-size-avatar-md);min-width:var(--dd-size-avatar-md);aspect-ratio:1;flex-shrink:0;border-radius:var(--dd-r-round);background:var(--dd-line);color:var(--dd-primary-deep);font-family:var(--dd-font-bold);font-size:var(--dd-t-card-size)}
+.dd-menu-who{display:grid;gap:var(--dd-s-4);min-width:0;flex:1}
+.dd-menu-who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--dd-font-bold);font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line)}
+.dd-menu-who small{display:flex;align-items:center;gap:var(--dd-s-4);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-primary-deep)}
+.dd-menu-who small .icon{font-size:var(--dd-size-icon-sm)}
+.dd-menu-go{display:flex;align-items:center;gap:var(--dd-s-4);flex-shrink:0;font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
+.dd-menu-go .icon{font-size:var(--dd-size-icon-sm)}
+.dd-menu-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dd-s-8)}
+.dd-menu-short{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-height:calc(var(--dd-s-48) + var(--dd-s-16));padding:var(--dd-s-8) var(--dd-s-4);border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-ink);text-decoration:none;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
+.dd-menu-short .icon{font-size:var(--dd-size-icon-md);color:var(--dd-primary-deep)}
+
+/* Navigation rows: 48px, 24px icon column, 12px gap, body role; dividers only between items. */
+.dd-menu-nav{display:grid;padding:var(--dd-s-12) var(--dd-s-8) var(--dd-s-16)}
+.dd-menu-item{position:relative}
+.dd-menu-item+.dd-menu-item:before{content:'';position:absolute;top:0;left:var(--dd-s-12);right:var(--dd-s-12);border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-menu-row{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-s-48);padding:0 var(--dd-s-12);border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-ink);text-decoration:none;text-align:justify;text-align-last:left;font-family:var(--dd-font);font-size:var(--dd-t-body-size);font-weight:var(--dd-t-body-weight);line-height:var(--dd-t-body-line);cursor:pointer}
+.dd-menu-ic{display:grid;place-items:center;width:var(--dd-s-24);flex-shrink:0;color:var(--dd-slate)}
+.dd-menu-ic .icon{font-size:var(--dd-size-icon-md)}
+.dd-menu-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-menu-row.is-active{background:var(--dd-primary-tint);color:var(--dd-primary-deep);font-family:var(--dd-font-bold)}
+.dd-menu-row.is-active .dd-menu-ic{color:var(--dd-primary-deep)}
+.dd-menu-badge{display:inline-flex;align-items:center;gap:var(--dd-s-4);flex-shrink:0;padding:0 var(--dd-s-8);border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-deep);font-family:var(--dd-font-bold);font-size:var(--dd-t-label-size);line-height:var(--dd-s-24)}
+.dd-menu-badge .icon{font-size:var(--dd-t-label-size)}
+.dd-menu-chev{display:grid;place-items:center;width:var(--dd-s-24);flex-shrink:0;color:var(--dd-slate);transition:transform var(--dd-m-base) var(--dd-ease)}
+.dd-menu-chev .icon{font-size:var(--dd-size-icon-sm)}
+.dd-menu-group.is-open>.dd-menu-toggle .dd-menu-chev{transform:rotate(180deg)}
+.dd-menu-group.is-open>.dd-menu-toggle{font-family:var(--dd-font-bold)}
+/* Smooth height without layout jumps: 0fr → 1fr. */
+.dd-menu-sub{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dd-m-base) var(--dd-ease)}
+.dd-menu-group.is-open>.dd-menu-sub{grid-template-rows:1fr}
+.dd-menu-sub-in{min-height:0;overflow:hidden}
+.dd-menu-subrow{padding-left:calc(var(--dd-s-12) + var(--dd-s-24) + var(--dd-s-12))}
+.dd-menu-subrow .dd-menu-ic .icon{font-size:var(--dd-size-icon-sm)}
+.dd-menu-group.is-open>.dd-menu-sub .dd-menu-sub-in{padding-bottom:var(--dd-s-8)}
+
+/* Foot (end of the scroll area, so an open language list never covers rows): compact language selector,
+   then quiet social and legal links. */
+.dd-menu-foot{margin:0 var(--dd-s-8);padding:var(--dd-s-8) 0 calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-menu-lang .dd-menu-label b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-menu-lang-opt[aria-checked=true]{color:var(--dd-primary-deep);font-family:var(--dd-font-bold)}
+.dd-menu-lang-opt[aria-checked=true] .dd-menu-ic{color:var(--dd-primary-deep)}
+.dd-menu-meta{display:grid;gap:var(--dd-s-4);padding:var(--dd-s-8) var(--dd-s-12) 0}
+.dd-menu-social{display:flex;gap:var(--dd-s-4);margin-left:calc(-1 * var(--dd-s-12))}
+.dd-menu-social a{display:grid;place-items:center;width:var(--dd-size-touch);height:var(--dd-size-touch);color:var(--dd-slate)}
+.dd-menu-brand{font-family:'Font Awesome 6 Brands';font-weight:400;font-style:normal;line-height:1;font-size:var(--dd-size-icon-md)}
+.dd-menu-legal{display:flex;flex-wrap:wrap;column-gap:var(--dd-s-16)}
+.dd-menu-legal a{display:inline-flex;align-items:center;min-height:var(--dd-size-touch);color:var(--dd-slate);font-size:var(--dd-t-meta-size);text-decoration:none;white-space:nowrap}
+
+.dd-menu :is(a,button):focus-visible{outline:2px solid var(--dd-primary);outline-offset:-2px}
+@media (prefers-reduced-motion:reduce){.dd-menu,.dd-menu-sub,.dd-menu-chev{transition:none}}

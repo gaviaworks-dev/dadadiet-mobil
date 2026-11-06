@@ -1,0 +1,66 @@
+/* Gastro ortak/dg-takvim.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* ORTAK TAKVİM (DGTakvim; yalnız ana ajan yazar). Görünüm: iOS / Material 3 tarih seçici sadeliği (Beyar, 13 Ekim — “takvim yeniden”).
+   Aile: segment (ay/hafta), ikon düğmesi (geçiş), çip (hızlı seçim), girdi kutusu (tarih alanı). Gün: 44 dokunma hücresi içinde 40 daire
+   (--dd-size-calendar-day, --dd-r-day); seçili = primary dolu + beyaz kalın rakam; bugün = primary kalın rakam + ince primary halka
+   (seçiliyse seçili baskın); aralık = uçlar primary daire, arası primary çok açık tonunda kesintisiz hap bandı (satır başı/sonunda yuvarlak
+   kapanır, kartın kenarına taşmaz); seçilemeyen = soluk gri rakam; ay dışı = daha soluk gri; zemin artığı / hover zemini yok.
+   Nokta: rakamın altında 4px, en çok 3; geçti = danger, bugün/yaklaşıyor = uyarı sarısı, taze = başarı yeşili (tokens.json color.status
+   _indicatorNote). Yalnız token. */
+.dd-takvim{--tk-gun:var(--dd-size-calendar-day);--tk-bant:var(--dd-primary-tint);display:grid;gap:var(--dd-s-8);min-width:0}
+.dd-tk-gorunum{margin-bottom:var(--dd-s-4)}
+.dd-tk-bas{display:flex;align-items:center;justify-content:space-between;gap:var(--dd-s-8)}
+.dd-tk-baslik{display:inline-flex;align-items:center;gap:var(--dd-s-8);min-height:var(--dd-size-touch);padding:0 var(--dd-s-12);border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-subheading-size);line-height:var(--dd-t-subheading-line);cursor:pointer}
+.dd-tk-baslik .icon{font-size:var(--dd-size-icon-sm);color:var(--dd-muted)}
+.dd-tk-baslik span{white-space:nowrap}
+.dd-tk-gunadlari,.dd-tk-satir{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dd-tk-gunadlari span{display:grid;place-items:center;min-height:var(--dd-s-24);color:var(--dd-muted);font-family:var(--dd-font);font-weight:var(--dd-t-label-weight);font-size:var(--dd-t-label-size);line-height:var(--dd-t-label-line);letter-spacing:var(--dd-t-label-track);text-transform:uppercase;text-align:justify;text-align-last:center}
+.dd-tk-izgara{display:grid;gap:0}
+/* Hücre: 44 hedef, zeminsiz. Bant sözde öğede; rakam + noktalar 40 dairenin içinde ortalı. */
+.dd-tk-gun{position:relative;display:grid;place-items:center;min-width:0;height:var(--dd-size-touch);padding:0;border:0;background:transparent;color:var(--dd-ink);font:inherit;font-size:var(--dd-t-body-size);line-height:1;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dd-tk-gun::before{content:"";position:absolute;top:50%;left:0;right:0;height:var(--tk-gun);transform:translateY(-50%);background:transparent}
+.dd-tk-sayi{position:relative;display:grid;place-items:center;width:var(--tk-gun);height:var(--tk-gun);border-radius:var(--dd-r-day);transition:background-color var(--dd-m-base) var(--dd-ease),color var(--dd-m-base) var(--dd-ease),box-shadow var(--dd-m-base) var(--dd-ease)}
+.dd-tk-gun.is-disari{color:color-mix(in srgb,var(--dd-muted) 38%,transparent)}
+.dd-tk-gun.is-kapali{color:color-mix(in srgb,var(--dd-muted) 55%,transparent);cursor:default}
+.dd-tk-gun.is-bugun .dd-tk-sayi{box-shadow:inset 0 0 0 var(--dd-size-border) var(--dd-primary);color:var(--dd-primary);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+/* Aralık bandı: arası tam hücre; başlangıç sağ yarı, bitiş sol yarı; satır başı/sonunda dairenin kenarında yuvarlak kapanır. */
+.dd-tk-gun.is-aralik{color:var(--dd-ink)}
+.dd-tk-gun.is-aralik::before{background:var(--tk-bant)}
+.dd-tk-gun.is-bas::before{left:50%;background:var(--tk-bant)}
+.dd-tk-gun.is-son::before{right:50%;background:var(--tk-bant)}
+.dd-tk-gun.is-aralik:first-child::before{left:calc(50% - var(--tk-gun) / 2);border-top-left-radius:var(--dd-r-day-band);border-bottom-left-radius:var(--dd-r-day-band)}
+.dd-tk-gun.is-aralik:last-child::before{right:calc(50% - var(--tk-gun) / 2);border-top-right-radius:var(--dd-r-day-band);border-bottom-right-radius:var(--dd-r-day-band)}
+.dd-tk-gun.is-bas:last-child::before,.dd-tk-gun.is-son:first-child::before{background:transparent}
+/* Seçili (tek gün ya da aralık ucu): primary dolu daire, beyaz kalın rakam; bugün halkasından baskın. */
+.dd-tk-gun.is-secili .dd-tk-sayi{background:var(--dd-primary);color:var(--dd-paper);box-shadow:none;font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-tk-gun:active:not(.is-kapali):not(.is-secili) .dd-tk-sayi{background:var(--tk-bant)}
+.dd-tk-gun:focus-visible{outline:0}
+.dd-tk-gun:focus-visible .dd-tk-sayi{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary);outline-offset:var(--dd-size-border)}
+/* Durum noktaları: rakamın altında, dairenin içinde; en çok 3. */
+.dd-tk-noktalar{position:absolute;left:0;right:0;bottom:calc(var(--dd-s-4) + var(--dd-size-border) * 2);display:flex;justify-content:center;gap:var(--dd-size-border)}
+.dd-tk-noktalar i{width:var(--dd-size-calendar-dot);height:var(--dd-size-calendar-dot);border-radius:var(--dd-r-day);background:var(--dd-muted)}
+.dd-tk-noktalar i.is-basari{background:var(--dd-accent-green)}
+.dd-tk-noktalar i.is-uyari,.dd-tk-noktalar i.is-bugun{background:var(--dd-accent-yellow)}
+.dd-tk-noktalar i.is-gecti{background:var(--dd-danger)}
+.dd-tk-gun.is-secili .dd-tk-noktalar i{background:var(--dd-paper)}
+.dd-tk-gun.is-disari .dd-tk-noktalar,.dd-tk-gun.is-kapali .dd-tk-noktalar{opacity:.5}
+/* Ay / yıl paneli (başlığa dokununca): 3 sütun 12 ay; seçili ay primary dolu. */
+.dd-tk-aylar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dd-s-8)}
+.dd-tk-ay{min-height:var(--dd-size-touch);border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-ink);font:inherit;font-size:var(--dd-t-body-size);cursor:pointer}
+.dd-tk-ay.is-secili{background:var(--dd-primary);color:var(--dd-paper);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-tk-ay:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary);outline-offset:var(--dd-size-border)}
+/* Sheet tarih seçici: hızlı seçim çipleri tek satır şerit. */
+.dd-tk-hizli{gap:var(--dd-s-8)}
+.dd-tk-ozet{margin:0;text-align:justify;text-align-last:center}
+/* Sabit hafta (tarihsiz şablon, ör. haftalık menü): geçiş okları yok, başlık ortada ve düğme değil. Yükleniyor: etkileşimsiz, soluk. */
+.dd-takvim.is-sabit .dd-tk-bas{justify-content:center}
+.dd-takvim.is-sabit .dd-tk-baslik{cursor:default}
+.dd-takvim.is-sabit .dd-tk-baslik .icon{display:none}
+.dd-takvim.is-yukleniyor{opacity:.5;pointer-events:none}
+/* Tarih alanı (form): ortak girdi kutusu görünümünde düğme. */
+.dd-girdi.dd-tk-alan{width:100%;justify-content:flex-start;gap:var(--dd-s-12);color:var(--dd-ink);font:inherit;font-size:var(--dd-t-body-size);cursor:pointer}
+.dd-girdi.dd-tk-alan>.icon:first-child{color:var(--dd-slate)}
+.dd-girdi.dd-tk-alan>.icon:last-child{margin-left:auto;color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
+.dd-girdi.dd-tk-alan:disabled{background:var(--dd-bg);color:var(--dd-slate);cursor:default}
+.dd-tk-deger{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:justify;text-align-last:start}
+.dd-tk-deger.is-bos{color:var(--dd-slate)}
+@media (prefers-reduced-motion:reduce){.dd-tk-sayi{transition:none}}

@@ -1,0 +1,112 @@
+/* Gastro ortak/dg-sahne.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak durum sahnesi — yalnız ana ajan yazar (docs/55 §2a). Kullananlar: DG.durumSahne / DG.hata(tam) ve Tabaktan Tarif hata/kenar ekranları. */
+   Koyu: overlay zemin + primary ışık; kullanıcının fotoğrafı tarama çerçevesi köşeleriyle (Tabaktan analiz dili) + ortada durum işareti
+   (soru, bulanıklık, bağlantı…); güvence notu. Açık: büyük ikon rozeti. Beyaz panel kubbe ile biner; başlık + açıklama (bold), tek ana
+   eylem + ikincil seçenekler (12 arayla), “Adını yaz” satır içi arama, ipuçları (ikonlu kartlar) ya da yatay öneriler. Alt boş kalmaz. */
+.dd-sahne{display:grid;min-height:calc(var(--dd-ekran-h) - var(--dd-ust-h));background:var(--dd-paper)}
+.dd-sahne-ust{position:relative;display:grid;place-items:center;padding:var(--dd-s-32) var(--dd-gutter) calc(var(--dd-panel-overlap) + var(--dd-s-24))}
+.dd-sahne-ust.is-koyu{background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--dd-primary) 25%,transparent) 0%,transparent 65%),var(--dd-overlay);color:var(--dd-paper);gap:var(--dd-s-12)}
+.dd-sahne-cerceve{position:relative;width:min(70%,calc(var(--dd-s-48) * 5));aspect-ratio:1;border-radius:var(--dd-r-surface)}
+.dd-sahne-foto{position:absolute;inset:var(--dd-s-12);border-radius:var(--dd-card-r);background:color-mix(in srgb,var(--dd-paper) 10%,transparent) center/cover;opacity:.72}
+.dd-sahne-cerceve.is-bulanik .dd-sahne-foto{filter:blur(var(--dd-s-4))}
+.dd-kose{position:absolute;width:var(--dd-s-32);height:var(--dd-s-32);border:calc(var(--dd-size-border) * 3) solid var(--dd-paper);opacity:.9}
+.dd-kose.is-ust-sol{top:0;left:0;border-right:0;border-bottom:0;border-top-left-radius:var(--dd-r-control)}
+.dd-kose.is-ust-sag{top:0;right:0;border-left:0;border-bottom:0;border-top-right-radius:var(--dd-r-control)}
+.dd-kose.is-alt-sol{bottom:0;left:0;border-right:0;border-top:0;border-bottom-left-radius:var(--dd-r-control)}
+.dd-kose.is-alt-sag{bottom:0;right:0;border-left:0;border-top:0;border-bottom-right-radius:var(--dd-r-control)}
+.dd-sahne-isaret{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:calc(var(--dd-s-48) + var(--dd-s-16));height:calc(var(--dd-s-48) + var(--dd-s-16));border-radius:var(--dd-r-surface);background:color-mix(in srgb,var(--dd-overlay) 56%,transparent);color:var(--dd-paper);-webkit-backdrop-filter:blur(var(--dd-s-12));backdrop-filter:blur(var(--dd-s-12))}
+.dd-sahne-isaret .icon{font-size:var(--dd-size-icon-badge)}
+.dd-sahne-not{display:flex;align-items:center;gap:var(--dd-s-8);margin:0;font-size:var(--dd-t-meta-size);color:color-mix(in srgb,var(--dd-paper) 86%,transparent)}
+.dd-sahne-not .icon{font-size:var(--dd-size-icon-sm)}
+.dd-sahne-rozet{display:grid;place-items:center;width:calc(var(--dd-s-48) + var(--dd-s-24));height:calc(var(--dd-s-48) + var(--dd-s-24));border-radius:var(--dd-r-surface);background:var(--dd-primary-tint);color:var(--dd-primary-deep)}
+.dd-sahne-rozet .icon{font-size:var(--dd-size-icon-badge)}
+.dd-sahne-panel{position:relative;display:grid;align-content:start;gap:var(--dd-s-24);margin-top:calc(-1 * var(--dd-panel-overlap));padding:var(--dd-s-24) var(--dd-gutter) calc(var(--dd-s-48) * 2 + env(safe-area-inset-bottom,0px));border-radius:var(--dd-r-sheet) var(--dd-r-sheet) 0 0;background:var(--dd-paper)}
+.dd-sahne-metin{display:grid;gap:var(--dd-s-8);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
+.dd-sahne-metin h1,.dd-sahne-metin p{margin:0}
+.dd-sahne-metin p{color:var(--dd-slate);max-width:calc(var(--dd-s-48) * 7);justify-self:center}
+.dd-sahne-eylem{display:grid;gap:var(--dd-s-12)}
+.dd-sahne-ara>summary{justify-self:center;list-style:none;width:100%;justify-content:center}
+.dd-sahne-ara>summary::-webkit-details-marker{display:none}
+.dd-sahne-ara[open]>summary{display:none}
+.dd-sahne-ek{display:grid;gap:var(--dd-s-12)}
+.dd-sahne-ek h2{margin:0}
+.dd-sahne-ipuclari{display:grid;gap:var(--dd-s-8);margin:0;padding:0;list-style:none}
+.dd-sahne-ipuclari li{display:flex;align-items:center;gap:var(--dd-s-12);padding:var(--dd-s-12);border-radius:var(--dd-r-control);background:var(--dd-bg)}
+.dd-sahne-ipucu-ikon{display:grid;place-items:center;width:var(--dd-s-40);height:var(--dd-s-40);flex-shrink:0;border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-deep)}
+.dd-sahne-ipucu-ikon .icon{font-size:var(--dd-size-icon-md)}
+.dd-sahne-ipuclari b{display:block;font-family:var(--dd-font-bold);font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line)}
+.dd-sahne-ipuclari small{display:block;margin-top:var(--dd-s-4);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-sahne-oneriler>*{flex:0 0 calc(var(--dd-s-48) * 3)}
+.dd-app.has-nav .dd-sahne{min-height:calc(var(--dd-ekran-h) - var(--dd-ust-h) - var(--dd-size-nav-bar))}
+/* Açık sahne (sayfa içi hata/boş): ikon + metin + eylem tek grup, dikeyde ortalı; renkli üst alan olmadığı için panel bindirmesi yok. Koyu sahnede panel kalan yüksekliği doldurur. */
+.dd-sahne.is-koyu{grid-template-rows:auto 1fr}
+.dd-sahne:not(.is-koyu){align-content:center;padding-block:var(--dd-s-32)}
+.dd-sahne:not(.is-koyu) .dd-sahne-ust{padding-bottom:var(--dd-s-24)}
+.dd-sahne:not(.is-koyu) .dd-sahne-panel{margin-top:0;padding-top:0;padding-bottom:var(--dd-s-32)}
+.dd-panel .dd-sahne:not(.is-koyu){min-height:0;padding-block:var(--dd-s-48)}
+/* Öneri şeridi: sahne kendi başına yüklendiğinde de (Tabaktan) yatay kaydırma; ilk kart gutter hizasında, sağa taşar. */
+.dd-sahne-oneriler{display:flex;gap:var(--dd-s-12);margin-inline:calc(-1 * var(--dd-gutter));padding-inline:var(--dd-gutter);overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:var(--dd-gutter);scrollbar-width:none}
+.dd-sahne-oneriler::-webkit-scrollbar{display:none}
+.dd-sahne-oneriler>*{scroll-snap-align:start}
+/* Kamera vizörü (DG.vizor; durum sahnesinin üst parçası): tarama çizgisi isteğe bağlı; kompakt = sheet içinde (bindirme payı yok, kart radius'u). */
+.dd-vizor.is-kompakt{padding:var(--dd-s-24) var(--dd-gutter);border-radius:var(--dd-r-surface)}
+.dd-vizor.is-kompakt .dd-sahne-cerceve{width:min(80%,calc(var(--dd-s-48) * 4))}
+.dd-vizor-tarama{position:absolute;left:var(--dd-s-12);right:var(--dd-s-12);top:var(--dd-s-12);height:calc(var(--dd-size-border) * 2);border-radius:var(--dd-r-choice);background:var(--dd-primary);box-shadow:0 0 var(--dd-s-12) var(--dd-primary);animation:dd-tarama var(--dd-m-skeleton,1.6s) var(--dd-ease) infinite alternate}
+@keyframes dd-tarama{from{top:var(--dd-s-12)}to{top:calc(100% - var(--dd-s-12))}}
+@media (prefers-reduced-motion:reduce){.dd-vizor-tarama{animation:none;top:50%}}
+
+/* Tam ekran kamera (DG.kamera; docs/51 DgFullScreenCamera; Beyar 15 Ekim — tek kamera akışı: Tabaktan Tarif, Dolaptan Tarife, Dolabım barkod).
+   Tabaktan Tarif kamerasından türetildi (runtime.js camera(), app.css .dd-photo-camera ve .camera-* kuralları, tabaktan.css kamera ikon düğmeleri); görünüm
+   birebir aynı. Foto: Kapat · başlık (+ Pro) · Flaş; vizör; yönerge · ipucu kartı · galeri · deklanşör · çevir. Barkod: vizör aynı genişlikte,
+   yüksekliği genişliğin yarısı, merkezi aynı; ortada sabit tarama çizgisi; deklanşör yok; yönerge + “Listeden seç”. Yükleniyor: vizörün ortasında
+   dönen halka. İzin reddedildi: katmanda ortak header + koyu durum sahnesi (Tabaktan izin sahnesi). .is-ornek: galeride satır içi önizleme. */
+.dd-kamera-katman{position:fixed;inset:0;z-index:80;overflow-y:auto;overscroll-behavior:contain;background:var(--dd-overlay)}
+.dd-kamera-katman.is-izin{background:var(--dd-paper)}
+.dd-kamera-katman:focus{outline:0}
+html.dd-kamera-acik,html.dd-kamera-acik body{overflow:hidden}
+.dd-kamera{position:relative;height:var(--dd-ekran-h);min-height:var(--dd-ekran-h);overflow:hidden;isolation:isolate;background:var(--dd-overlay);color:var(--dd-paper);font-family:var(--dd-font);font-size:var(--dd-t-body-size);font-weight:var(--dd-t-body-weight);line-height:var(--dd-lh-body);text-align:justify}
+.dd-kamera.is-ornek{height:calc(var(--dd-s-48) * 15);min-height:0;border-radius:var(--dd-r-surface)}
+.dd-kamera-foto{position:absolute;inset:0;z-index:-2;border-radius:var(--dd-r-surface);background:var(--dd-line) center/cover}
+.dd-kamera::after{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,transparent 0%,transparent 45%,color-mix(in srgb,var(--dd-overlay) 16%,transparent) 55%,color-mix(in srgb,var(--dd-overlay) 44%,transparent) 65%,color-mix(in srgb,var(--dd-overlay) 80%,transparent) 80%,var(--dd-overlay) 100%)}
+.dd-kamera-bas{position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:var(--dd-s-8);padding:calc(var(--dd-s-12) + env(safe-area-inset-top,var(--dd-s-0))) var(--dd-gutter) var(--dd-s-12)}
+.dd-kamera.is-ornek .dd-kamera-bas{padding-top:var(--dd-s-12)}
+.dd-kamera-bas>div{display:grid;justify-items:center;gap:var(--dd-s-4)}
+.dd-kamera-bas b{font-family:var(--dd-font-bold);font-size:var(--dd-t-card-size);font-weight:var(--dd-weight-bold)}
+.dd-kamera-bas .dd-rozet{height:auto;color:var(--dd-primary-dark);padding:var(--dd-s-4) var(--dd-s-12);border-radius:var(--dd-r-badge-sm);line-height:var(--dd-lh-body)}
+.dd-kamera-bas .dd-rozet .icon{font-size:var(--dd-size-icon-sm)}
+.dd-kamera-ibtn{display:inline-flex;justify-content:center;align-items:center;min-width:var(--dd-size-touch);height:var(--dd-size-touch);padding:0;border:0;border-radius:var(--dd-r-control);background:var(--dd-floating-icon-bg);-webkit-backdrop-filter:blur(var(--dd-s-16));backdrop-filter:blur(var(--dd-s-16));color:var(--dd-paper);font-size:var(--dd-t-card-size);cursor:pointer}
+.dd-kamera-ibtn .icon{font-size:var(--dd-size-icon-md);color:var(--dd-paper)}
+.dd-kamera-galeri .icon{filter:drop-shadow(0 var(--dd-size-border) calc(var(--dd-size-border) * 2) var(--dd-overlay))}
+.dd-kamera-vizor{position:absolute;left:var(--dd-gutter);right:var(--dd-gutter);top:22%;height:35%;pointer-events:none}
+/* Barkod vizörü: yükseklik = genişliğin yarısı (EAN oranı; 390 genişlikte 350 × 175), merkezi tabak vizörünün merkezinde (%22 + %35 / 2). */
+.dd-kamera.is-barkod .dd-kamera-vizor{top:39.5%;height:auto;aspect-ratio:2/1;transform:translateY(-50%)}
+.dd-kamera-vizor>span{position:absolute;width:var(--dd-s-40);height:var(--dd-s-40);border:calc(var(--dd-size-border) * 2) solid var(--dd-paper);border-radius:var(--dd-r-control);animation:dd-kamera-nabiz calc(var(--dd-m-page) * 6) var(--dd-ease) infinite}
+.dd-kamera-vizor>span:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+.dd-kamera-vizor>span:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+.dd-kamera-vizor>span:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+.dd-kamera-vizor>span:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+.dd-kamera-tarama{position:absolute;left:0;right:0;top:50%;height:calc(var(--dd-size-border) * 2);margin-top:calc(-1 * var(--dd-size-border));background:var(--dd-paper);box-shadow:var(--dd-sh-sm)}
+.dd-kamera-yukleniyor{position:absolute;left:50%;top:39.5%;width:var(--dd-size-icon-lg);height:var(--dd-size-icon-lg);margin:calc(-1 * var(--dd-size-icon-lg) / 2) 0 0 calc(-1 * var(--dd-size-icon-lg) / 2);border:calc(var(--dd-size-border) * 2) solid var(--dd-paper);border-right-color:transparent;border-radius:var(--dd-r-round);animation:dd-don calc(var(--dd-m-skeleton) * .7) linear infinite}
+.dd-kamera-alt{position:absolute;left:var(--dd-gutter);right:var(--dd-gutter);bottom:calc(var(--dd-s-24) + env(safe-area-inset-bottom,var(--dd-s-0)));display:grid;gap:var(--dd-s-16)}
+.dd-kamera.is-ornek .dd-kamera-alt{bottom:var(--dd-s-24)}
+/* Alt alan aralığı yalnız ızgara boşluğu (16; Tabaktan): metin → etkileşim payı (dd-bilesen.css, 0,3,0) burada uygulanmaz. */
+.dd-kamera .dd-kamera-alt>:is(.dd-kamera-yonerge,.dd-kamera-ipucu,.dd-kamera-kontrol,.dd-btn){margin:0}
+.dd-kamera-yonerge{line-height:var(--dd-t-body-line);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
+.dd-kamera-ipucu{padding:var(--dd-s-16);border-radius:var(--dd-r-media);background:color-mix(in srgb,var(--dd-overlay) 75%,transparent)}
+.dd-kamera-ipucu>div{display:flex;align-items:center;justify-content:space-between;gap:var(--dd-s-8)}
+.dd-kamera-ipucu b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-kamera-ipucu p{margin:var(--dd-s-4) 0 0;line-height:var(--dd-t-body-line)}
+.dd-kamera-kontrol{display:flex;align-items:center;justify-content:space-around;gap:var(--dd-s-16)}
+.dd-kamera-deklansor{display:flex;justify-content:center;align-items:center;width:var(--dd-size-shutter);height:var(--dd-size-shutter);padding:0;border:var(--dd-s-4) solid var(--dd-paper);border-radius:var(--dd-r-control);background:var(--dd-primary-dark);box-shadow:var(--dd-sh-md);color:var(--dd-paper);cursor:pointer}
+.dd-kamera-deklansor .icon{font-size:var(--dd-size-icon-lg);color:var(--dd-paper)}
+.dd-kamera-izin{padding-top:var(--dd-ust-h);background:var(--dd-paper)}
+@keyframes dd-kamera-nabiz{50%{opacity:.6}}
+@media (prefers-reduced-motion:reduce){.dd-kamera-vizor>span,.dd-kamera-yukleniyor{animation:none}}
+.dd-kamera-izin.is-ornek{padding-top:0;overflow:hidden;border-radius:var(--dd-r-surface)}
+/* Kamera izin sahnesi: ana ve ikincil düğme arası yalnız eylem ızgarasının 12'si (Tabaktan izin sahnesi gibi); genel “tam düğme + tam düğme”
+   payı burada eklenmez. Diğer durum sahneleri değişmez (lider kararı, 15 Ekim). */
+.dd-kamera-izin .dd-sahne-eylem>.dd-btn+.dd-btn{margin-top:0}
+/* Kamera izin sahnesi düğme kutuları Tabaktan izin sahnesiyle birebir (lider kararı B, 15 Ekim; Flutter ortak kamera izin sahnesi aynı ölçüde):
+   düğme 48 yükseklik; açıklama paragrafı 2 px daha uzun (Tabaktan'da kalın vurgunun satır kutusu). Yalnız kamera kapsamı; diğer sahneler değişmez. */
+.dd-kamera-izin .dd-sahne-eylem>.dd-btn{min-height:var(--dd-s-48)}
+.dd-kamera-izin .dd-sahne-metin>p{padding-bottom:calc(var(--dd-size-border) * 2)}

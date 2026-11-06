@@ -1,0 +1,97 @@
+/* Uygulama kabuğu: Gastro çok sayfalı belge kaydırması yerine ekran yığını. Bileşenler Gastro CSS'inden gelir; burada yalnız kök değişkenler, ekran yığını ve fixed katmanların kolon içine alınması vardır. */
+:root{--dd-ust-h:calc(var(--dd-size-header) + env(safe-area-inset-top,0px));--dd-choice-border-color:color-mix(in srgb,var(--dd-muted) 55%,var(--dd-paper));--dd-ekran-h:100dvh;--dd-ekran-w:100vw;--dd-fa-solid-weight:900;--dd-rail-w:calc(min(var(--dd-ekran-w),var(--dd-size-app-max)) * .59);--dd-save-inset:calc((var(--dd-size-touch) - var(--dd-size-save-visible)) / 2);--dd-size-avatar-md:var(--dd-size-avatar-row)}
+@media (min-width:520px){:root{--dd-ekran-h:min(calc(100dvh - var(--dd-s-32)),var(--dd-size-app-max-h));--dd-ekran-w:var(--dd-size-app-max)}}
+html,body{height:100%}
+body.dd{overscroll-behavior:none}
+body.dd.dd-uygulama{position:fixed;inset:0;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.dd.dd-uygulama :is(input,textarea){-webkit-user-select:text;user-select:text}
+.dd-orta-metin{text-align:justify;text-align-last:center}
+button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;text-align:justify;text-align-last:left}
+.dd-secim small{display:block}
+.dd-tabagim .dd-satir-metin{text-align:justify;text-align-last:left}
+.dd-yigin-4{display:grid;gap:var(--dd-s-4)}
+.dd-yigin-24{display:grid;gap:var(--dd-s-24)}
+
+.dd-kok{position:fixed;inset:0;overflow:hidden;isolation:isolate;background:var(--dd-paper)}
+@media (min-width:520px){.dd-kok{inset:auto;top:50%;left:50%;width:var(--dd-size-app-max);height:var(--dd-ekran-h);transform:translate(-50%,-50%);border-radius:var(--dd-r-surface);box-shadow:var(--dd-sh-lg)}}
+.dd-ekranlar{position:absolute;inset:0;overflow:hidden}
+.dd-ekran{position:absolute;inset:0;overflow:hidden;background:var(--dd-paper);will-change:transform}
+.dd-ekran.is-gizli{visibility:hidden;pointer-events:none}
+.dd-kaydir{position:absolute;inset:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y}
+.dd-kaydir::-webkit-scrollbar{display:none}
+.dd-icerik{min-height:100%;padding-bottom:env(safe-area-inset-bottom,0px)}
+.dd-ekran.has-ust:not(.has-saydam) .dd-kaydir{padding-top:var(--dd-ust-h)}
+.dd-ekran--sekme .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) + var(--dd-s-40) + env(safe-area-inset-bottom,0px))}
+.dd-ekran.has-altbar .dd-icerik{padding-bottom:calc(var(--dd-altbar-h,var(--dd-size-control-lg)) + var(--dd-s-16))}
+.dd-kok.has-tabagim .dd-ekran:not(.is-gizli):not(.dd-ekran--tam) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) * 2 + var(--dd-s-48))}
+.dd-ekran--tam .dd-icerik{height:100%;padding-bottom:0}
+.dd-altbar{position:absolute;left:0;right:0;bottom:0;z-index:32}
+
+/* Gastro fixed katmanları kolon içinde */
+.dd-header{position:absolute;left:0;width:100%;transform:none;z-index:30}
+.dd-header .dd-logo img{width:var(--dd-size-logo)}
+.dd-dock{position:absolute;left:0;width:100%;height:calc(var(--dd-size-nav-bar) + var(--dd-s-16) + env(safe-area-inset-bottom,0px));transform:translateY(100%);opacity:0;z-index:40;background:transparent;transition:transform var(--dd-m-page) var(--dd-e-emphasized-decel),opacity var(--dd-m-base) var(--dd-e-standard)}
+.dd-kok.has-dock .dd-dock{transform:none;opacity:1}
+.dd-nav{background:color-mix(in srgb,var(--dd-paper) 92%,transparent)}
+.dd-nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.dd-bar{position:relative;left:auto;width:100%;transform:none;z-index:auto}
+.dd-bar.dd-kayan{position:absolute;bottom:0;transform:translateY(calc(100% + var(--dd-s-16)))}
+.dd-bar.dd-kayan.is-gorunur{transform:none}
+.dd-bar-sol{display:grid;gap:var(--dd-s-4);flex:none!important;align-content:center;padding-inline:var(--dd-s-8)}
+.dd-katman{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.dd-katman>*{pointer-events:auto}
+.dd-katman.is-serbest{position:fixed;left:50%;right:auto;width:min(100%,var(--dd-size-app-max));transform:translateX(-50%)}
+.dd-sheet-kap,.dd-dialog-kap,.dd-menu-kap{position:absolute;inset:0}
+.dd-perde{position:absolute;inset:0;background:var(--dd-sheet-scrim);animation:dd-perde-gir var(--dd-m-page) var(--dd-e-standard)}
+.dd-perde.is-cikis{opacity:0;transition:opacity var(--dd-m-page-exit) var(--dd-e-standard)}
+.dd-sheet{position:absolute;inset:auto 0 0;width:100%;outline:0;display:none}
+.dd-sheet.is-tam{height:calc(var(--dd-ekran-h) * .85)}
+.dd-dialog-kap{display:grid;place-items:center}
+.dd-diyalog{position:relative;outline:0}
+.dd-snack{position:absolute;bottom:calc(var(--dd-snack-alt,var(--dd-s-16)) + env(safe-area-inset-bottom,0px));width:calc(100% - var(--dd-gutter) * 2)}
+.dd-menu{position:absolute;display:block;outline:0}
+.dd-yenile{position:absolute}
+.dd-kamera{height:100%;min-height:100%}
+.dd-kamera.is-ornek{height:calc(var(--dd-s-48) * 15);min-height:0}
+.dd-izin{min-height:100%}
+.dd-acilis{position:absolute}
+.dd-panel{min-height:calc(var(--dd-ekran-h) - var(--dd-ust-h))}
+.dd-banner.is-detay{height:calc(var(--dd-size-banner) + var(--dd-s-48) * 2)}
+.dd-banner-metin .dd-t-label{color:var(--dd-paper)}
+.dd-foto-metin{display:grid;gap:var(--dd-s-8);color:var(--dd-paper);text-shadow:var(--dd-photo-shadow)}
+.dd-menu-logo img{width:var(--dd-size-logo)}
+.dd-menu-panel{height:100%}
+
+/* Onboarding şablonu: Gastro tam ekran; adım göstergesi ve geri aynı satırda */
+.dd-onb{display:flex;flex-direction:column;height:100%}
+.dd-onb-ust{display:flex;align-items:center;gap:var(--dd-s-8);flex:none;padding:calc(env(safe-area-inset-top,0px) + var(--dd-s-8)) var(--dd-s-8) 0}
+.dd-onb-ust .dd-adim{flex:1;min-width:0}
+.dd-onb-bos{flex:none;width:var(--dd-size-touch)}
+.dd-onb-govde{flex:1;min-height:0;overflow-y:auto;align-content:start;padding:var(--dd-s-24) var(--dd-gutter) var(--dd-s-16);scrollbar-width:none;overscroll-behavior:contain}
+.dd-onb-govde::-webkit-scrollbar{display:none}
+.dd-onb-neden{justify-self:start;padding-inline:0}
+.dd-onb-alt{display:grid;justify-items:center;gap:var(--dd-s-8);flex:none;padding:var(--dd-s-8) var(--dd-gutter) calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px));background:var(--dd-paper)}
+
+/* Marka düzeltmeleri: domates hem primary hem hata anlamı taşıyordu. Diet'te primary yeşil olduğundan hata tonları kırmızıya, primary üstü küçük metin primaryDark'a alındı. */
+.dd-hata{color:var(--dd-hata-fg)}
+.dd-alan.is-hata .dd-girdi{border-color:var(--dd-danger)}
+.dd-parcali-oge.is-yikici .dd-parcali-ikon{background:var(--dd-hata-bg);color:var(--dd-hata-fg)}
+.dd-parcali-oge.is-yikici b{color:var(--dd-danger)}
+.dd-sayac,.dd-tk-gun.is-secili .dd-tk-sayi,.dd-tk-ay.is-secili{background:var(--dd-primary-dark)}
+.dd-header .dd-sayac{background:var(--dd-accent-yellow);color:var(--dd-ink)}
+.dd-tk-gun.is-bugun .dd-tk-sayi{color:var(--dd-primary-deep)}
+.dd-kayan-btn[aria-pressed=true],.dd-ibtn[aria-pressed=true]{color:var(--dd-primary-dark)}
+.dd-btn--tonlu:active,.dd-btn--tonlu.is-basili{background:var(--dd-primary-line)}
+.dd-btn--metin.is-basili{background:var(--dd-primary-tint)}
+.dd-arama{display:grid;gap:var(--dd-s-8)}
+.dd-arama-sonuc:empty{display:none}
+.dd-arama-sonuc mark{background:var(--dd-primary-tint);color:var(--dd-primary-deep);border-radius:var(--dd-r-dot);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-satir-deger{flex:none;font-size:var(--dd-t-meta-size)}
+
+/* Halkalı hero: fotoğraf üstü gösterge için düz perde; Gastro gülücük kabuğu aynı */
+.dd-gulucuk.is-perdeli .dd-gkapak-golge{background:color-mix(in srgb,var(--dd-overlay) 58%,transparent)}
+.dd-gulucuk.is-perdeli{gap:var(--dd-s-16)}
+.dd-seg .dd-seg-sayi{font-weight:var(--dd-weight-body)}
+.dd-diyalog{width:calc(100% - var(--dd-gutter) * 2)}
+/* Sayfa başlığı fotoğraf üstünde gizli, üst bar dolunca görünür (detay-v2 .compact-title). */
+.dd-header.is-saydam .dd-htitle{visibility:hidden}

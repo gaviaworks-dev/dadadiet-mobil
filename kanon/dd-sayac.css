@@ -1,0 +1,41 @@
+/* Gastro ortak/dg-sayac.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* ORTAK SAYAÇ BANDI (yalnız ana ajan yazar; Beyar düzeltmesi 13 Ekim — “sayaç satırı dikeyde ortalı”). Tek bileşen: giriş/kayıt üyelik kartı,
+   profil başı, şef profili, şef kartı (tarif/püf detayı, şefler), Hakkımızda bandı, Dolabım özeti. Uygulama sayfaları üreticiden, kök ekranlar
+   dd-baglanti.js (şef kartıyla birlikte) yükler.
+   Ölçü: iç boşluk bantta değil HÜCREDE ve üst = alt (--dd-sayac-ic) → sayı + etiket hücrede yatayda ortalı dikey yığın, hücreler arası ayırıcı
+   bandın tam yüksekliğinde. Sabit yükseklik / margin yok. Sayı: sheet rolü (18 bold, tabular), etiket: meta rolü.
+   Bağlam: bağımsız bant = üst + alt ince çizgi, iç 12 · kartın son öğesi = alt çizgi yok, kartın alt iç boşluğunu bant taşır (çiftlenmez):
+   iç 16 = kart iç boşluğu → ayırıcı çizgi ile kartın alt kenarı arasında tam ortada · .is-yalin = dış çizgisiz (şef kartı), iç 0.
+   <dl> varsayılan boşluğu :where() ile sıfırlanır (özgüllük 0): sayfadaki [data-mt] (bölüm başlığı → içerik 16) ezilmez
+   (15 Ekim: Hakkımızda "Sayılarla" başlığı ile bant çizgisi arası 0'dı). */
+:where(.dd-istatistik){margin:0}
+.dd-istatistik{--dd-sayac-ic:var(--dd-s-12);display:grid;width:100%;grid-template-columns:repeat(var(--sutun,3),minmax(0,1fr));padding:0;border-top:var(--dd-size-border) solid var(--dd-line);border-bottom:var(--dd-size-border) solid var(--dd-line)}
+.dd-istatistik[data-sutun="2"]{--sutun:2}.dd-istatistik[data-sutun="3"]{--sutun:3}.dd-istatistik[data-sutun="4"]{--sutun:4}.dd-istatistik[data-sutun="5"]{--sutun:5}
+.dd-istatistik>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-width:0;padding:var(--dd-sayac-ic) var(--dd-s-4);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
+.dd-istatistik>div+div{border-left:var(--dd-size-border) solid var(--dd-line)}
+/* Birden çok satır: satır başındaki hücrede sol ayırıcı yok; satırlar arasında yatay ayırıcı (hücrenin tam genişliğinde). */
+.dd-istatistik[data-sutun="2"]>div:nth-child(2n+1),.dd-istatistik[data-sutun="3"]>div:nth-child(3n+1),.dd-istatistik[data-sutun="4"]>div:nth-child(4n+1){border-left:0}
+.dd-istatistik[data-sutun="2"]>div:nth-child(n+3),.dd-istatistik[data-sutun="3"]>div:nth-child(n+4),.dd-istatistik[data-sutun="4"]>div:nth-child(n+5){border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-istatistik dd{order:1;margin:0;color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-sheet-size);line-height:var(--dd-t-sheet-line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dd-istatistik dt{order:2;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
+.dd-istatistik.is-yalin{--dd-sayac-ic:0;border:0}
+.dd-kart:has(>.dd-istatistik:last-child:not(.is-yalin)){padding-bottom:0}
+.dd-kart>.dd-istatistik:last-child:not(.is-yalin){--dd-sayac-ic:var(--dd-s-16);border-bottom:0}
+/* ADIMLAYICI (porsiyon / adet — DG.adimlayici; Beyar düzeltmesi 13 Ekim “− 6 kişilik +”). Tarif detayının porsiyon sayacından türetildi; kökte
+   detay-v2 sayacı da bu sınıflara bağlanır (tek görünüm). Beyaz kutu + ince çizgi + kontrol radius'u, 44 hedefli − / + (koyu domates ikon),
+   orta alan: görünür değer ile görünmez “en geniş değer” izi aynı ızgara hücresinde → genişlik sabit, değer tam ortada, düğmeler simetrik ve
+   değer değişince kaymaz. Değer tek satır: sayı alt başlık rolü kalın, birim meta. */
+.dd-adimlayici.dd-adimlayici{display:inline-flex;align-items:center;flex:none;justify-self:start;align-self:center;gap:0;width:auto;height:auto;min-height:0;padding:0;overflow:visible;border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-control);background:var(--dd-paper)}
+.dd-adimlayici.dd-adimlayici>button{display:grid;place-items:center;flex:0 0 var(--dd-size-touch);width:var(--dd-size-touch);height:var(--dd-size-touch);padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-primary-dark);cursor:pointer;transition:background-color var(--dd-m-base) var(--dd-ease)}
+.dd-adimlayici.dd-adimlayici>button .icon{font-size:var(--dd-size-icon-sm)}
+.dd-adimlayici.dd-adimlayici>button:active:not(:disabled){background:var(--dd-bg)}
+.dd-adimlayici.dd-adimlayici>button:disabled{color:var(--dd-line);cursor:default}
+.dd-adimlayici.dd-adimlayici>button:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(-2 * var(--dd-size-border))}
+.dd-adim-deger{display:grid;justify-items:center;align-items:center;padding:0 var(--dd-s-4)}
+.dd-adimlayici .dd-adim-deger>output,.dd-adimlayici .dd-adim-deger>.dd-adim-iz{grid-area:1/1;width:auto;min-width:0;flex:none;display:inline-flex;align-items:baseline;gap:var(--dd-s-4);white-space:nowrap;text-align:justify;text-align-last:center}
+.dd-adim-iz{visibility:hidden}
+.dd-adimlayici .dd-adim-deger b{color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-subheading-size);line-height:1;font-variant-numeric:tabular-nums}
+.dd-adimlayici .dd-adim-deger span:not(.dd-adim-iz){color:var(--dd-slate);font-family:var(--dd-font);font-weight:var(--dd-t-meta-weight);font-size:var(--dd-t-meta-size);line-height:1}
+.dd-adimlayici.is-yukleniyor{opacity:.6;pointer-events:none}
+.dd-adimlayici.is-hata{border-color:var(--dd-hata-fg, var(--dd-primary-deep))}
+@media (prefers-reduced-motion:reduce){.dd-adimlayici.dd-adimlayici>button{transition:none}}

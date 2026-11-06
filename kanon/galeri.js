@@ -1,0 +1,224 @@
+/* Kanon galerisi: tüm bileşenler gerçek halleriyle. Bu dosya yalnız sergiler; bileşen tanımı dd-* içindedir. */
+(() => {
+  const V = window.DDV, TK = DD.TK, esc = DD.esc;
+  // Galeri uygulama yığınında değil: yönlendirme bildirime döner.
+  DD.git = h => DD.toast(`Rota: **${h}**`);
+  DD.geri = () => DD.toast('Geri');
+  DD.yerine = h => DD.toast(`Yerine: **${h}**`);
+
+  const bolumler = [];
+  const bolum = (id, ad, ogeler, kolon) => bolumler.push({id, ad, ogeler, kolon});
+  const oge = (kod, not, html, o = {}) => `<article class="g-oge"><header><code>${esc(kod)}</code><span>${esc(not || '')}</span></header><div class="g-cerceve${o.sifir ? ' is-sifir' : ''}">${html}</div></article>`;
+  const d = (ad, html) => `<div class="g-durum"><small>${esc(ad)}</small>${html}</div>`;
+  const s = (...x) => `<div class="g-sira">${x.join('')}</div>`;
+
+  // Token'lar
+  const renkler = (grup, ad) => `<div class="g-durum"><small>${ad}</small><div class="g-renkler">${Object.entries(TK.color[grup]).map(([k, v]) => `<div class="g-renk"><i style="background:${v.value}"></i><span>${k}</span><small>${v.value}</small></div>`).join('')}</div></div>`;
+  bolum('renk', 'Renk', [oge('color.*', 'tokens.json', renkler('primary', 'Primary') + renkler('neutral', 'Nötr') + renkler('makro', 'Makro') + renkler('durum', 'Durum'))], '100%');
+  bolum('tipografi', 'Tipografi', [oge('.dd-t-*', 'iki kalınlık', `<div class="g-tip">${Object.entries(TK.typography).map(([k, r]) => { const a = k.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), cls = a === 'subheading' ? 'sub' : a; return `<div><span class="dd-t-${cls}">${k === 'label' ? 'ÜST ETİKET' : /numeral/.test(k) ? '1.650' : 'Akşam tabağın hazır'}</span><small>${k} ${r.size}/${r.weight}</small></div>`; }).join('')}</div>`), oge('.dd-p', 'justify + bold vurgu', DD.p('Öğünlerini aynı saatlerde tuttuğunda **tokluk hissi** daha dengeli olur. Bugünkü planında akşam yemeği 19:30 için ayrılmış; penceren kapanmadan **rahatça** tamamlayabilirsin.') + DD.p('Ortalı blokta da aynı kural geçerli, son satır **ortaya** gelir.', {orta: true, ton: 'ikincil'}))]);
+  bolum('olcu', 'Boşluk, radius, gölge, hareket', [
+    oge('--dd-s-*', 'boşluk', `<div class="g-olcu">${Object.entries(TK.space).filter(([k]) => +k).map(([k, v]) => `<div><i class="g-kutu" style="width:var(--dd-s-${k});height:var(--dd-s-${k})"></i>${k}</div>`).join('')}</div>`),
+    oge('--dd-r-*', 'radius', `<div class="g-olcu">${Object.entries(TK.radius).filter(([k, v]) => typeof v === 'number' && v && v < 99).map(([k, v]) => `<div><i class="g-kutu" style="width:var(--dd-s-48);height:var(--dd-s-48);border-radius:${v}px"></i>${k} ${v}</div>`).join('')}</div>`),
+    oge('--dd-sh-*', 'gölge', `<div class="g-olcu">${['sm', 'md', 'lg'].map(k => `<div><i class="g-golge" style="box-shadow:var(--dd-sh-${k})"></i>${k}</div>`).join('')}</div>`),
+    oge('--dd-m-* --dd-e-* --dd-spring-*', 'hareket', `<div class="g-hareket">${[['standard', 'var(--dd-e-standard)'], ['emphasized', 'var(--dd-e-emphasized-decel)'], ['yay', 'var(--dd-spring-varsayilan)'], ['yaylanma', 'var(--dd-spring-yaylanma)'], ['yumuşak', 'var(--dd-spring-yumusak)']].map(([a, e]) => `<div><span>${a}</span><i style="animation-timing-function:${e}"></i></div>`).join('')}</div>`)
+  ]);
+
+  // Temel
+  const tonlar = ['primary', 'notr', 'protein', 'karb', 'yag', 'lif', 'bilgi', 'basari', 'uyari', 'hata'];
+  bolum('temel', 'Temel öğeler', [
+    oge('DD.ikonKutu', 'boyut, ton', d('Boyut', s(...['sm', 'md', 'lg'].map(b => DD.ikonKutu({ikon: 'tabak', boyut: b})))) + d('Ton', s(...tonlar.map(t => DD.ikonKutu({ikon: 'su', ton: t}))))),
+    oge('DD.avatar', '20, 40, 56, 96', s(...[20, 40, 56, 96].map(b => DD.avatar({ad: 'Ayça', boyut: b}))) + s(DD.avatar({gorsel: 'assets/gorsel/hero/uzman-masa.webp', boyut: 56}))),
+    oge('DD.gorsel / DD.kucukFoto', 'görsel, harf, ikon', d('Görsel', s(DD.gorsel({src: 'assets/gorsel/besin/domates.webp'}), DD.gorsel({src: 'assets/gorsel/yemek/menemen.webp'}), DD.kucukFoto(null))) + d('gorsel:null', s(DD.gorsel({ad: 'Tavuk', ton: 'protein'}), DD.gorsel({ad: 'Bulgur', ton: 'karb'}), DD.gorsel({ad: 'Zeytinyağı', ton: 'yag'}), DD.gorsel({ad: 'Ispanak'}), DD.gorsel({ikon: 'su', ton: 'lif'})))),
+    oge('DD.rozet', '', s(DD.rozet({metin: 'Önerilen', ikon: 'yildiz'}), DD.rozet({metin: 'Nötr', ton: 'notr'})) ),
+    oge('DD.durumRozet', 'notr, uyari, basari, hata', s(DD.durumRozet({kod: 'aktif'}), DD.durumRozet({kod: 'bekliyor'}), DD.durumRozet({kod: 'taslak'}), DD.durumRozet({kod: 'basarisiz'}), DD.durumRozet({metin: 'Oruçtasın', ton: 'basari', ikon: 'oruc'}))),
+    oge('DD.madalya / DD.sayacRozet', 'kazanıldı, ilerliyor, kilitli', s(DD.madalya({ikon: 'seedling'}), DD.madalya({ikon: 'seedling', hal: 'ilerliyor'}), DD.madalya({ikon: 'seedling', hal: 'kilitli'}), DD.madalya({ikon: 'award', boy: 'buyuk'}), DD.sayacRozet(3))),
+    oge('DD.cip / DD.cipler', 'filtre, seçim, görselli', d('Filtre (çoklu)', DD.cipler({ad: 'f', ogeler: [{metin: 'Vegan', deger: 'v', ikon: 'lif'}, {metin: 'Düşük kalori', deger: 'k', sayi: 12}, {metin: 'Yüksek protein', deger: 'p'}, {metin: 'Lifli', deger: 'l'}], secili: ['k']})) + d('Seçim (tek)', DD.cipler({ad: 't', tur: 'tek', serit: false, ogeler: [{metin: '3 gün', deger: 3}, {metin: '7 gün', deger: 7}, {metin: '14 gün', deger: 14}], secili: 7})) + d('Görselli', DD.cipler({ad: 'g', ogeler: [{metin: 'Mercimek', deger: 'm', gorsel: 'assets/gorsel/yemek/mercimek-corbasi.webp'}, {metin: 'Kısır', deger: 'k', gorsel: 'assets/gorsel/yemek/kisir.webp'}], secili: 'k'})) + d('Kapat, pasif', s(DD.cip({metin: 'Glutensiz', kapat: true}), DD.cip({metin: 'Pasif', pasif: true})))),
+    oge('DD.segment', 'kayan gösterge', DD.segment({ad: 'sg', secili: 'g', ogeler: [{ad: 'Gün', deger: 'g'}, {ad: 'Hafta', deger: 'h'}, {ad: 'Ay', deger: 'a'}]}) + DD.segment({ad: 'sg2', secili: 'b', ogeler: [{ad: 'Besin', deger: 'b', ikon: 'tabak'}, {ad: 'Yemek', deger: 'y', ikon: 'ogun', sayi: 88}]})),
+    oge('DD.sekmeler / DD.gunSekme', 'segment is-kaydir', DD.gunSekme({ad: 'gs', secili: '3', ogeler: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((x, i) => ({etiket: x, deger: String(i + 1)}))})),
+    oge('DD.adimGosterge / DD.ilerleme', '', DD.adimGosterge({adim: 3, toplam: 7}) + DD.ilerleme({oran: .42}) + DD.ilerleme({n: 12, hedef: 28, etiket: 'Program', deger: '12 / 28 gün'}))
+  ]);
+
+  // Düğmeler
+  const btnDur = t => s(DD.btn({metin: 'Normal', tur: t}), DD.btn({metin: 'Basılı', tur: t, basili: true}), DD.btn({metin: 'Pasif', tur: t, pasif: true}), DD.btn({metin: 'Yükleniyor', tur: t, yukleniyor: true}));
+  bolum('dugme', 'Düğmeler', [
+    oge('DD.btn', 'birincil', DD.btn({metin: 'Programa başla', ikon: 'program', tam: true}) + btnDur('primary')),
+    oge('DD.btn tur:secondary', '', btnDur('secondary')),
+    oge('DD.btn tur:tonal', '', btnDur('tonal')),
+    oge('DD.btn tur:text / yikici', '', btnDur('text') + s(DD.btn({metin: 'Kaydı sil', tur: 'yikici', ikon: 'sil'}), DD.btn({metin: 'Küçük', boyut: 'sm', ikon: 'ekle'}))),
+    oge('DD.ikonBtn', 'duz, kutu, tint, dolu', s(DD.ikonBtn({ikon: 'paylas', etiket: 'Paylaş'}), DD.ikonBtn({ikon: 'kaydet', etiket: 'Kaydet', tur: 'kutu'}), DD.ikonBtn({ikon: 'ekle', etiket: 'Ekle', tur: 'tint'}), DD.ikonBtn({ikon: 'gonder', etiket: 'Gönder', tur: 'dolu'}), DD.ikonBtn({ikon: 'kaydet', etiket: 'Kaydedildi', secili: true}), DD.ikonBtn({ikon: 'sil', etiket: 'Pasif', pasif: true}))),
+    oge('DD.fab', 'ekran içi; alt menü FAB dock\'ta', s(DD.fab({ikon: 'kamera', etiket: 'Dada AI'}), DD.fab({ikon: 'ekle', etiket: 'Pasif', pasif: true}))),
+    oge('DD.uzunBas', 'basılı tut; klavyede onay', DD.uzunBas({ad: 'g-oruc', metin: 'Orucu başlat', ikon: 'oruc', yardim: 'Başlatmak için basılı tut', onayMetin: 'Orucun şimdi başlasın mı?'}) + DD.uzunBas({ad: 'g-oruc2', metin: 'Orucu bitir', tur: 'tonal', yardim: 'Bitirmek için basılı tut'}))
+  ]);
+
+  // Form
+  const besin = V.besinler.find(b => b.slug === 'tam-bugday-ekmegi') || V.besinler[0];
+  bolum('form', 'Form', [
+    oge('DD.input / DD.secAlan', 'ikon, hata, yardım, pasif', DD.input({ad: 'e', etiket: 'E-posta', ikon: 'envelope', yer: 'ornek@posta.com', yardim: 'Sana yalnız plan bildirimleri göndeririz.'}) + DD.input({ad: 'a', etiket: 'Ad', deger: 'Zeynep', ikon: 'profil', temizle: true}) + DD.input({ad: 'h', etiket: 'Hedef kilo', deger: '40', birim: 'kg', hata: 'Bu hedef boyuna göre çok düşük görünüyor.', mod: 'decimal'}) + DD.input({ad: 'p', etiket: 'Doğum yılı', deger: '1992', pasif: true}) + DD.input({ad: 'n', etiket: 'Not', yer: 'Diyetisyenine not', cokSatir: true}) + DD.secAlan({ad: 'sa', etiket: 'Öğün', secenekler: [['k', 'Kahvaltı'], ['o', 'Öğle']], deger: 'k'}) + DD.telefon({opsiyonel: true})),
+    oge('DD.arama + DD.aramaKur', 'autocomplete, son aramalar', `<div id="g-arama">${DD.arama({yer: 'Besin ara', mikrofon: true, ad: 'gq'})}</div>`),
+    oge('DD.slider', 'cetvel sürüklenir', DD.slider({ad: 'kilo', etiket: 'Kilo', min: 40, max: 160, adim: .5, deger: 72, birim: 'kg', etiketHer: 10}) + DD.slider({ad: 'boy', etiket: 'Boy', min: 140, max: 210, adim: 1, deger: 165, birim: 'cm'})),
+    oge('DD.stepper', 'Gastro adımlayıcı', s(DD.stepper({ad: 's1', deger: 2, min: 1, max: 9, birim: 'dilim'}), DD.stepper({ad: 's2', deger: 1, min: 1, max: 3}))),
+    oge('DD.toggle / DD.checkbox / DD.radio', '', DD.toggle({ad: 't1', etiket: 'Su hatırlatıcısı', alt: 'Günde 4 kez', secili: true, ikon: 'su'}) + DD.toggle({ad: 't2', etiket: 'Kapalı'}) + DD.toggle({ad: 't3', etiket: 'Pasif', pasif: true}) + DD.checkbox({ad: 'c1', etiket: 'KVKK aydınlatma metnini okudum', secili: true}) + DD.checkbox({ad: 'c2', etiket: 'Sağlık verilerimin işlenmesine açık rıza veriyorum'}) + DD.radio({ad: 'r', deger: 1, etiket: 'Online', secili: true}) + DD.radio({ad: 'r', deger: 2, etiket: 'Yüz yüze'})),
+    oge('DD.porsiyon / DD.kesirIzgara', 'birim + miktar', DD.porsiyon({ad: 'p', kcal100: besin.kcal, birimler: [{birim: 'adet', gram: 50}, {birim: 'dilim', gram: 25}, {birim: 'avuç', gram: 30}, {birim: 'tabak', gram: 200}, {birim: 'gram', gram: 1}], secili: 'dilim', miktar: 2}) + DD.kesirIzgara({ad: 'k', secili: 1})),
+    oge('DD.puan', 'yıldız', DD.puan({ad: 'pu', deger: 4})),
+    oge('DD.saatKadran', 'kadran sürüklenir', DD.saatKadran({ad: 'ilk', deger: '12:00', pencereSaat: 8, etiket: 'İlk öğün'})),
+    oge('DD.takvim', 'hafta', DD.takvim({ad: 'tk1', gorunum: 'hafta', noktalar: {'2026-11-02': ['bugun'], '2026-11-04': ['uyari']}})),
+    oge('DD.takvim', 'ay, görünüm seçici, mini halka', DD.takvim({ad: 'tk2', gorunum: 'ay', gorunumSec: true, noktalar: {'2026-11-02': ['uyari'], '2026-11-09': ['gecti']}, halkalar: {'2026-11-03': .8, '2026-11-05': 1}}))
+  ]);
+
+  // Yapı
+  const ustFrame = bar => `<div class="g-telefon" style="--g-h:68px">${bar}</div>`;
+  bolum('yapi', 'Yapı', [
+    oge('DD.ustBar tur:sekme', 'logo · ara · zil · menü', ustFrame(DD.ustBar({tur: 'sekme'})), {sifir: true}),
+    oge('DD.ustBar tur:alt', 'geri · başlık · menü', ustFrame(DD.ustBar({tur: 'alt', baslik: 'Öğle Yemeği'})), {sifir: true}),
+    oge('DD.ustBar tur:modal', '', ustFrame(DD.ustBar({tur: 'modal', baslik: 'Besin ekle'})), {sifir: true}),
+    oge('DD.ustBar tur:banner', 'görsel üstünde cam, kayınca solid', `<div class="g-telefon" style="--g-h:180px"><span class="dd-photo" style="background-image:url('assets/gorsel/hero/program-oruc.webp')"></span><div style="--dd-alfa:0">${DD.ustBar({tur: 'banner', baslik: 'Program', sag: [{ikon: 'kaydet', etiket: 'Kaydet'}, {ikon: 'paylas', etiket: 'Paylaş'}]}).replace('class="dd-header is-photo"', 'class="dd-header is-photo is-saydam" style="--dd-alfa:0"')}</div></div>`, {sifir: true}),
+    oge('DD.altMenu', '5 sekme, orta FAB kameraya gider; uzun bas hızlı işlem', `<div class="g-telefon g-dock" style="--g-h:140px">${DD.altMenu().replace('<a href="#/bugun" data-nav="bugun"', '<a href="#/bugun" data-nav="bugun" aria-current="page"')}</div>`, {sifir: true}),
+    oge('DD.menu', 'sağ çekmece', DD.btn({metin: 'Menüyü aç', tur: 'secondary', attrs: 'data-menu'})),
+    oge('DD.sheet / DD.filtreSheet / DD.takvimSheet / DD.paylas', 'sürükle kapat, perde, Esc', s(DD.btn({metin: 'Sheet', tur: 'secondary', id: 'g-sheet'}), DD.btn({metin: 'Tam', tur: 'secondary', id: 'g-sheet2'}), DD.btn({metin: 'Filtre', tur: 'secondary', id: 'g-filtre'}), DD.btn({metin: 'Tarih', tur: 'secondary', id: 'g-tarih'}), DD.btn({metin: 'Paylaş', tur: 'secondary', id: 'g-paylas'}))),
+    oge('DD.dialog / DD.toast', '', s(DD.btn({metin: 'Dialog', tur: 'secondary', id: 'g-dlg'}), DD.btn({metin: 'Yıkıcı', tur: 'secondary', id: 'g-dlg2'}), DD.btn({metin: 'Toast', tur: 'secondary', id: 'g-t1'}), DD.btn({metin: 'Geri al', tur: 'secondary', id: 'g-t2'}), DD.btn({metin: 'Sıra', tur: 'secondary', id: 'g-t3'}))),
+    oge('DD.bant', 'ipucu ailesi, 4 ton', DD.bant({ton: 'bilgi', metin: 'Bu içerik **genel bilgilendirme** amaçlıdır; tıbbi teşhis yerine geçmez.'}) + DD.bant({ton: 'basari', baslik: 'Planın hazır', metin: 'Diyetisyenin **onayladı**.'}) + DD.bant({ton: 'uyari', baslik: 'Oruç önerilmez', metin: 'Gebelik ve emzirme döneminde **diyetisyenine** danış.', eylem: {metin: 'Diyetisyene sor'}}) + DD.bant({ton: 'hata', metin: 'Kayıt tamamlanamadı. **Bağlantını** kontrol et.'})),
+    oge('DD.ipucu / DD.bilgi / DD.veriYok / DD.cevrimdisi', '', DD.ipucu({baslik: 'Okuyucunun dikkatine', metin: 'Porsiyon ölçüleri **ev ölçüsüdür**.'}) + DD.bilgi({etiket: 'Bilgi', ikon: 'bilgi', metin: 'Sol primary şeritli bilgi kartı **Gastro** kalıbıdır.'}) + DD.veriYok('Henüz **ölçüm** yok.') + DD.cevrimdisi()),
+    oge('DD.bos', 'Gastro durum', DD.bos({ikon: 'tabak', baslik: 'Tabağın boş', metin: 'Fotoğraf, barkod ya da aramayla eklediklerin **burada birikir**.', eylem: {metin: 'Tabak çek', ikon: 'kamera'}})),
+    oge('DD.hataEkran', 'durumSahne, açık', DD.hataEkran({tur: 'baglanti'})),
+    oge('DD.durumSahne', 'koyu tema, vizör', DD.durumSahne({tema: 'koyu', gorsel: 'assets/gorsel/hero/kamera-tabak-2.webp', isaret: 'bulanik', baslik: 'Görüntü net değil', metin: 'Tabağı **ışığa** yaklaştırıp yeniden dene.', ana: {metin: 'Tekrar çek', ikon: 'kamera'}, ikinciller: [{metin: 'Elle ekle', ikon: 'ekle'}]})),
+    oge('DD.izinIstemi', 'gülücük + maddeler', (() => { const z = DD.izinIstemi({gorsel: 'assets/gorsel/hero/kamera-tabak.webp', ikon: 'kamera', baslik: 'Kamerana ihtiyacımız var', metin: 'Tabağını tanımak için **kamera iznine** ihtiyaç var.', maddeler: [['tabak', 'Tabağı tanır', 'Bileşenleri ayırır.'], ['gizlilik', 'Fotoğrafın sende kalır', 'İzinsiz paylaşılmaz.']]}); return `<div class="g-telefon" style="--g-h:620px"><div class="dd-kaydir">${z.html}</div><div class="dd-altbar">${z.bar}</div></div>`; })(), {sifir: true}),
+    oge('DD.iskelet', 'kart, satir, liste', DD.iskelet(2, 'kart') + DD.iskelet(2, 'satir') + DD.iskelet(1, 'liste')),
+    oge('DD.iskelet', 'detay, profil', DD.iskelet(3, 'detay') + DD.iskelet(1, 'profil'))
+  ]);
+
+  // Liste
+  bolum('liste', 'Liste ve düzen', [
+    oge('DD.satir / DD.satirlar / DD.satirKap', '', DD.satirlar([{ikon: 'kilo', baslik: 'Kilo', alt: 'Son ölçüm bugün', deger: '72,4 kg', git: '#/saglik'}, {gorsel: 'assets/gorsel/besin/domates.webp', baslik: 'Domates', alt: 'Yarım orta boy', deger: '12 kcal'}, DD.satirKap({ikon: 'gecmis', baslik: 'mercimek', git: '#/ara'}, DD.ikonBtn({ikon: 'kapat', etiket: 'Sil'})), {ikon: 'cikis', baslik: 'Çıkış yap', yikici: true, git: '#/karsilama'}])),
+    oge('DD.parcali', 'liste, is-yatay, is-izgara', DD.parcali([{ikon: 'kamera', baslik: 'Tabak çek', alt: 'Fotoğraftan öğün taslağı', ana: true, git: '#/ai/kamera'}, {ikon: 'barkod', baslik: 'Barkod tara', alt: 'İçerik analizi', git: '#/x'}, {ikon: 'mikrofon', baslik: 'Sesle anlat', bilgi: true}]) + DD.parcali([{ikon: 'muadil', baslik: 'Muadil', git: '#/x'}, {ikon: 'kacamak', baslik: 'Kaçamak', git: '#/x'}, {ikon: 'kiyas', baslik: 'Kıyasla', git: '#/x'}], {kutu: 'yatay'}) + DD.parcali(V.ai.kamera.modlar.map(m => ({ikon: m.ikon, baslik: m.ad, git: '#/x'})), {kutu: 'izgara'})),
+    oge('DD.bas / DD.bolum', 'Tümü', DD.bolum({ic: false, baslik: 'Sana uygun programlar', eylem: 'Tümü', git: '#/programlar', html: DD.ikiliSerit(V.programlar.slice(0, 4).map(p => DD.programKart(p, {tur: 'tile'})))})),
+    oge('DD.stat / DD.ozet', 'istatistik, üçlü özet', DD.stat([{deger: '12', etiket: 'Gün'}, {deger: '72,4', etiket: 'Kilo'}, {deger: '82', etiket: 'Denge'}]) + DD.ozet([{ikon: 'takvim', etiket: 'Süre', deger: '7', birim: 'gün'}, {ikon: 'kalori', etiket: 'Kalori', deger: '1.600', birim: 'kcal'}, {ikon: 'ogun', etiket: 'Öğün', deger: '5', birim: 'günlük'}])),
+    oge('DD.akordiyon / DD.ako', 'tek açık, details', DD.akordiyon([{baslik: 'Kimler için uygun değil?', alt: 'Dikkat edilecekler', ikon: 'uyari', icerik: DD.p('Gebelik, emzirme ve **yeme bozukluğu** öyküsünde oruç önerilmez.')}, {baslik: 'Kaynaklar', ikon: 'book-open', icerik: DD.p('Genel beslenme **rehberleri**.')}]) + DD.ako({baslik: 'Sıkça sorulanlar', html: DD.p('Kısa **yanıt** burada.')}))
+  ]);
+
+  // Kabuk
+  const P = V.programlar;
+  bolum('kabuk', 'Ekran kabuğu', [
+    oge('DD.kubbe', 'liste-v2', `<div class="g-telefon" style="--g-h:480px"><div class="dd-kaydir">${DD.kubbe({gorsel: 'assets/gorsel/hero/program-dengeli.webp', baslik: 'Programlar', alt: 'Hedefine uygun menüler', stat: [{deger: '82', etiket: 'Program'}, {deger: '8', etiket: 'Hedef'}, {deger: '28', etiket: 'Gün'}], html: `<div class="dd-ic dd-yigin">${DD.segment({ad: 'kb', secili: 'a', ogeler: [{ad: 'Tümü', deger: 'a'}, {ad: 'Kısa', deger: 'b'}]})}${DD.iskelet(2, 'kart')}</div>`})}</div></div>`, {sifir: true}),
+    oge('DD.kubbe perde:kart', 'detay-v2', `<div class="g-telefon" style="--g-h:520px"><div class="dd-kaydir">${DD.kubbe({gorsel: P[0].kapak, perde: 'kart', rol: 'display', etiket: P[0].kategori, baslik: P[0].ad, alt: P[0].aciklama, stat: [{deger: '7', etiket: 'gün'}, {deger: '1.600', etiket: 'kcal'}], html: `<div class="dd-ic">${DD.ozet([{ikon: 'takvim', etiket: 'Süre', deger: '7', birim: 'gün'}, {ikon: 'kalori', etiket: 'Kalori', deger: '1.600', birim: 'kcal'}, {ikon: 'ogun', etiket: 'Öğün', deger: '5', birim: 'günlük'}])}</div>`})}</div></div>`, {sifir: true}),
+    oge('DD.gulucuk', 'ana-v3 hero', `<div class="g-telefon" style="--g-h:460px">${DD.gulucuk({gorsel: 'assets/gorsel/hero/karsilama-sofra.webp', etiket: 'Bugün', baslik: 'Günaydın Zeynep', alt: 'Cuma, 6 Kasım'})}<div class="dd-ic">${DD.iskelet(1, 'satir')}</div></div>`, {sifir: true}),
+    oge('DD.profilBas', 'gülücük + 96 avatar + sayaç', DD.profilBas({ad: 'Zeynep Kaya', alt: 'Kilo vermek', kapak: 'assets/gorsel/hero/ritim-sakin.webp', sayaclar: [{deger: '12', etiket: 'Gün'}, {deger: '72,4', etiket: 'Kilo'}, {deger: '82', etiket: 'Denge'}]}), {sifir: true}),
+    oge('DD.banner', 'içerik içi görselli kart', DD.banner({gorsel: 'assets/gorsel/hero/uzman-masa.webp', etiket: 'Sonraki görüşme', baslik: 'Ayça Yıldız ile haftalık görüşme', alt: 'Salı 10 Kasım · 18:30', git: '#/uzman'})),
+    oge('DD.altEylem / DD.kayanBar', '.dd-bar', `<div class="g-bar">${DD.altEylem({dugmeler: [{metin: 'Programa başla', ikon: 'program'}]})}${DD.altEylem({dugmeler: [{metin: 'Vazgeç', tur: 'secondary'}, {metin: 'Devam et'}]})}</div>`)
+  ]);
+
+  // Ekran kalıpları
+  bolum('kalip', 'Ekran kalıpları', [
+    oge('ana-v3: DD.heroAna + DD.bolumler', 'hero, alterne bölüm, şerit, slider, gösterge', `<div class="g-telefon" style="--g-h:760px"><div class="dd-kaydir"><div class="dd-icerik">${DD.heroAna({baslik: 'Bugün ne yesem?', arama: {metin: 'Besin, program, diyetisyen ara'}, slaytlar: P.slice(0, 3).map(p => ({gorsel: p.kapak, etiket: `Sana uygun · ${p.sureGun} gün`, baslik: p.ad, alt: p.kategori, git: '#/x'}))})}${DD.bolumler([{baslik: 'Programlar', eylem: 'Tümü', git: '#/programlar', html: `<div class="dd-yigin">${DD.oneCikan(P.slice(3, 6).map(p => DD.programKart(p, {tur: 'feature'})))}${DD.ikiliSerit(P.slice(0, 4).map(p => DD.programKart(p, {tur: 'tile'})))}</div>`}, {baslik: 'Kategoriler', html: DD.seritKartlar(P.slice(6, 11).map(p => ({ad: p.kategori, alt: `${p.sureGun} gün`, gorsel: p.kapak, git: '#/x'})))}, {baslik: 'Diyetisyenler', html: DD.yatay([DD.kesikKart({baslik: 'Diyetisyenini bul', alt: 'Üç soruda eşleş', git: '#/x'})])}, {baslik: 'Yüzey', html: DD.yuzey(DD.p('Bölüm yüzeyi **sırasına göre** zemin alır.'))}])}</div></div></div>`, {sifir: true}),
+    oge('Bugün hali: DD.heroAna icerik', 'tek sahne, perde tam, halka yuvası', `<div class="g-telefon" style="--g-h:560px"><div class="dd-kaydir"><div class="dd-icerik">${DD.heroAna({baslik: 'Günaydın Zeynep', perde: 'tam', slaytlar: [{gorsel: 'assets/gorsel/hero/karsilama-sofra.webp', etiket: 'Bugünün önerisi', baslik: P[0].ad, alt: 'Dyt. Elif Kaya', avatar: 'E', git: '#/x'}], icerik: DD.halka({foto: true, hedef: 1650, alinan: 1041, planli: 551, yan: [{deger: '1.041', etiket: 'Alınan'}, {deger: '551', etiket: 'Planlı'}]})})}</div></div></div>`, {sifir: true}),
+    oge('liste-v2: DD.listeArac', 'panel başı, çip şeridi, sonuç satırı, ızgara', `<div class="g-telefon" style="--g-h:760px"><div class="dd-kaydir">${DD.kubbe({gorsel: 'assets/gorsel/hero/program-dengeli.webp', baslik: 'Programlar', stat: [{deger: '82', etiket: 'Program'}, {deger: '8', etiket: 'Hedef'}, {deger: '28', etiket: 'Gün'}], arac: DD.listeArac({yer: 'Program ara', filtreSayi: 2, segment: DD.segment({ad: 'ls', secili: 'a', ogeler: [{ad: 'Hedefe göre', deger: 'a'}, {ad: 'Süreye göre', deger: 'b'}]}), serit: DD.cipSerit({ad: 'lc', secili: '', ogeler: [{metin: 'Tümü', deger: '', ikon: 'ogun'}, ...P.slice(0, 5).map(p => ({metin: p.kategori, deger: p.slug, gorsel: p.kapak}))]})}), html: `${DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: 'Program Bul', alt: 'Beş soruda sana uygun program', git: '#/program-bul'})}${DD.listeTema({ad: 'lt', baslik: 'Hedef ve tempo', secili: '', ogeler: [{metin: 'Tümü', deger: '', sayi: '82 program', gorsel: P[0].kapak}, {metin: 'Lifli', deger: 'l', sayi: '11 program', gorsel: P[1].kapak}]})}${DD.listeDurum({sayi: 82, birim: 'program'})}${DD.listeSonuc(P.slice(0, 4).map(p => DD.programKart(p)))}${DD.sayfalama({sayfa: 1, toplam: 3})}`})}</div></div>`, {sifir: true}),
+    oge('liste görünümü, boş sonuç, sıralama', 'row kartı', `<div class="dd-yigin">${DD.listeDurum({sayi: 3, birim: 'program', gorunum: 'liste'})}${DD.listeSonuc(P.slice(0, 3).map(p => DD.programKart(p, {tur: 'row'})), {gorunum: 'liste'})}${DD.listeBos({baslik: 'Program bulunamadı', metin: 'Seçimlerini **temizleyip** yeniden keşfet.', eylem: {metin: 'Tümünü temizle'}})}${DD.btn({metin: 'Sıralama sheet', tur: 'secondary', id: 'g-sirala'})}</div>`),
+    oge('detay-v2: DD.detay', 'başlık, özet şeridi, özellik, devamını oku, yapışkan sekme, alt çubuk', `<div class="g-telefon" style="--g-h:760px"><div class="dd-kaydir"><div class="dd-icerik" style="padding-bottom:96px">${DD.detay({gorsel: P[0].kapak, etiket: P[0].kategori, baslik: P[0].ad, alt: P[0].aciklama, caps: [{ikon: 'yildiz', metin: 'Orta'}, {ikon: 'takvim', metin: '7 gün'}, {ikon: 'ogun', metin: '5 öğün'}], bas: `${DD.ozetSerit([{ikon: 'takvim', etiket: 'Süre', deger: '7', birim: 'gün'}, {ikon: 'kalori', etiket: 'Kalori', deger: '1.600', birim: 'kcal'}, {ikon: 'gauge-simple', etiket: 'Zorluk', deger: 'Orta'}])}${DD.ozellikSerit({on: [{ikon: 'hedef', metin: 'Dengeli'}], ogeler: [{ikon: 'seedling', metin: 'Lifli'}, {ikon: 'droplet', metin: 'Az yağlı'}]})}${DD.aciklama({metin: (P[0].neSunar || []).join(' ') || P[0].aciklama})}`, sekmeler: DD.detaySekmeler({ad: 'gun', kaydir: true, secili: '1', ogeler: [1, 2, 3, 4, 5, 6, 7].map(i => ({ad: `${i}. gün`, deger: String(i), html: DD.iskelet(3, 'satir')}))}), kuyruk: `${DD.bilgiSerit([{ikon: 'bilgi', baslik: 'Hatırlatma', metin: 'Bu program **eğitim** amaçlıdır.'}, {ikon: 'uyari', baslik: 'Kimler için değil', metin: 'Gebelik ve **emzirme** döneminde danış.'}])}${DD.kunye([{ikon: 'takvim', etiket: 'Süre', deger: '7 gün'}, {ikon: 'ogun', etiket: 'Toplam öğün', deger: '35'}])}`})}</div></div><div class="dd-altbar">${DD.altEylem({ikonlar: [{ikon: 'kaydet', ad: 'Kaydet', sayi: 12}, {ikon: 'paylas', ad: 'Paylaş'}], dugmeler: [{metin: 'Programa başla', ikon: 'program'}]})}</div></div>`, {sifir: true})
+  ]);
+
+  // Kartlar
+  const B = V.bugun, ogunler = B.ogunler, plan = ogunler.find(x => x.durum === 'planli');
+  bolum('kart', 'Kartlar', [
+    oge('DD.ogunListe / DD.ogunKart', 'dolu, planli, degisti, atlandi, bos', DD.ogunListe([ogunler[0], plan, {...ogunler[1], durum: 'degisti'}, {...ogunler[2], durum: 'atlandi'}, {id: 'ara-2', ad: 'Ara Öğün', ikon: 'apple-whole', durum: 'bos', besinler: []}])),
+    oge('DD.besinSatir', 'swipe: sola kaydır', DD.satirlar(ogunler[0].besinler.slice(0, 3).map(b => DD.besinSatir(b, {swipe: true}))) + DD.besinSatir({ad: 'Görselsiz besin', kcal: 88, gram: 40, miktar: 1, birim: 'porsiyon', gorsel: null, P: 2, K: 12, Y: 1})),
+    oge('DD.programKart', 'card, row', `<div class="dd-izgara">${DD.programKart(P[0])}${DD.programKart(P[1])}</div>` + DD.programKart(P[2], {tur: 'row'})),
+    oge('DD.programKart', 'feature, tile, aktif', DD.programKart(P[3], {tur: 'feature'}) + DD.programKart(P[0], {tur: 'aktif', gun: 12, toplam: 28})),
+    oge('DD.icerikKart', 'Gastro püf kartı', `<div class="dd-izgara">${V.icerikler.slice(0, 2).map(x => DD.icerikKart({gorsel: x.gorsel, kategori: x.kategori, baslik: x.baslik, meta: `${x.okumaDk} dk okuma`})).join('')}</div>`),
+    oge('DD.eylemKart / DD.kart', '80, 44 ikon', DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: 'Program Bul', alt: 'Beş soruda sana uygun program', git: '#/program-bul'}) + DD.eylemKart({ikon: 'hedef', baslik: 'Seçili', alt: 'Seçili hal', secili: true, git: '#/x'}) + DD.kart({html: DD.p('Yüzey kartı **Gastro** kalıbı.')}) + DD.kart({gri: true, html: DD.p('Gri **yüzey**.')})),
+    oge('DD.metrikKart', 'değer, fark, boş', `<div class="dd-ikili">${DD.metrikKart({etiket: 'Kilo', deger: '72,4', birim: 'kg', ikon: 'kilo', degisim: '0,4 kg azaldı', degisimTon: 'iyi', degisimIkon: 'arrow-down', seri: V.gecmis.map(x => x.kiloKg).filter(Boolean)})}${DD.metrikKart({etiket: 'Bel', deger: null, birim: 'cm', ikon: 'bel', ton: 'notr', degisim: 'Ölçüm ekle'})}</div>`),
+    oge('DD.diyetisyenKart', 'kart, satir', `<div class="dd-uzman-izgara">${DD.diyetisyenKart(V.diyetisyenler[0])}${DD.diyetisyenKart(V.diyetisyenler[1])}</div>` + DD.diyetisyenKart(V.diyetisyenler[2], {tur: 'satir', eylem: {metin: 'Randevu', git: '#/uzman'}})),
+    oge('DD.diyetisyenKart tur:tam', 'detay kartı', DD.diyetisyenKart(V.diyetisyenler[0], {tur: 'tam', sayaclar: [{deger: '8', etiket: 'Yıl'}, {deger: '2', etiket: 'Uzmanlık'}, {deger: '4', etiket: 'Paket'}]})),
+    oge('DD.suKart', '+250, +500 çalışır', DD.suKart({icilen: B.su.icilenMl, hedef: B.su.hedefMl})),
+    oge('DD.duygu', '5 duygu', DD.duygu({...B.duygu})),
+    oge('DD.paketler', 'seçim kartı ailesi', DD.paketler({ogeler: V.diyetisyenler[0].paketler, secili: '1ay'})),
+    oge('DD.bildirimSatir', 'okunmamış tint kutu, nokta yok', DD.satirlar(V.bildirimler.slice(0, 3).map((b, i) => DD.bildirimSatir({...b, okundu: i > 0}, {git: '#/ritim'})))),
+    oge('DD.yorum / DD.yorumBolumu', 'Gastro yorum', DD.satirlar([DD.yorum({ad: 'Selin', metin: 'Bir haftada ritmi yakaladım.', meta: '2 gün önce'})]) + DD.yorumBolumu({baslik: 'Yorumlar', ozet: {puan: 4.5, sayi: 8, dagilim: [[5, 5], [4, 2], [3, 1], [2, 0], [1, 0]]}, yorumlar: [{yazar: 'Deniz', tarih: '1 hafta önce', puan: 5, metin: 'Akşam tabağı önerileri işe yaradı.'}]})),
+    oge('DD.icgoruKart / DD.soruCipleri', 'ipucu ailesi', DD.icgoruKart({baslik: 'Proteinin iyi gidiyor.', metin: 'Akşam tabağına **bir avuç baklagil** eklersen lif hedefine de yaklaşırsın.', yanitlar: [{metin: 'Deneyelim'}, {metin: 'Şimdi değil'}]}) + DD.soruCipleri({sorular: ['Akşam ne yesem?', 'Proteinimi nasıl artırırım?']})),
+    oge('DD.randevuSatir / DD.belgeSatir / DD.gorevSatir / DD.gizlilikBant', '', DD.randevuSatir({gun: 10, ay: 'Kas', baslik: 'Haftalık görüşme', saat: '18:30', alt: 'Online', git: '#/uzman'}) + DD.gizlilikBant() + DD.satirlar([DD.belgeSatir({baslik: 'Kan tahlili', alt: 'Eylül 2026', tarih: '18 Eyl', git: '#/saglik'})]) + DD.gorevSatir({baslik: 'Tartını gir', alt: 'Seanstan önce', id: 'g1'}) + DD.gorevSatir({baslik: 'Üç günlük öğün kaydı', tamam: true, id: 'g2'})),
+    oge('DD.slotlar / DD.modulListe / DD.fotoIzgara', '', DD.slotlar({ad: 'sl', secili: '18:30', gruplar: [{ad: 'Sabah', slotlar: [{saat: '09:30'}, {saat: '10:15', pasif: true}, {saat: '11:00'}]}, {ad: 'Akşam', slotlar: [{saat: '18:30'}, {saat: '19:15'}]}]}) + DD.modulListe({ozet: '1 / 3 tamamlandı', ogeler: [{baslik: '1. Hafta: Ritmi kur', durum: 'tamam', alt: 'Tamamlandı', git: '#/x'}, {baslik: '2. Hafta: Protein', durum: 'siradaki', alt: 'Sıradaki', git: '#/x'}, {baslik: '3. Hafta: Lif', durum: 'kilitli', alt: 'Kilitli'}]}) + DD.fotoIzgara(['menemen', 'kisir', 'piyaz'].map(x => ({gorsel: `assets/gorsel/yemek/${x}.webp`, git: '#/x'}))))
+  ]);
+
+  // Veri görselleri
+  const R = V.ritim, S = V.saglik, kesitler = ogunler.filter(o => o.durum === 'dolu').map(o => o.kcal);
+  const sayac = (durum, dk, ek = {}) => DD.orucSayac({durum, gecenDk: dk, hedefSaat: durum === 'pencere' ? 8 : 16, fazlar: R.fazlar, ...ek});
+  bolum('veri', 'Veri görselleri', [
+    oge('DD.halka', '184/18 açık yay, planlı yay, kesit', DD.halka({hedef: B.hedefKcal, alinan: B.tuketilenKcal, planli: B.planliKcal, kesitler, yan: [{deger: DD.sayi(B.tuketilenKcal), etiket: 'Alınan'}, {deger: DD.sayi(B.planliKcal), etiket: 'Planlı'}], cumle: 'Akşam için **609 kcal** alanın var, proteine yer aç.'})),
+    oge('DD.gulucuk + DD.halka foto', 'Bugün hero', `<div class="g-telefon" style="--g-h:420px">${DD.gulucuk({gorsel: 'assets/gorsel/hero/karsilama-sofra.webp', perde: 'tam', baslik: 'Günaydın Zeynep', alt: 'Cuma, 6 Kasım', icerik: DD.halka({foto: true, hedef: B.hedefKcal, alinan: B.tuketilenKcal, planli: B.planliKcal, kesitler, yan: [{deger: DD.sayi(B.tuketilenKcal), etiket: 'Alınan'}, {deger: DD.sayi(B.planliKcal), etiket: 'Planlı'}]})})}</div>`, {sifir: true}),
+    oge('DD.halka', 'hedefin üstünde, orta boy', DD.halka({hedef: 1650, alinan: 1780}) + DD.halka({hedef: 1650, alinan: 1041, boyut: 'md'})),
+    oge('DD.halkaMini', '44/6 öğün, 24/4 hafta', s(DD.halkaMini({oran: .8, ikon: 'mug-saucer'}), DD.halkaMini({oran: .4, ikon: 'bowl-rice'}), DD.halkaMini({oran: 0, ikon: 'utensils', silik: true}), DD.halkaMini({oran: 1, boyut: 'xs'}), DD.halkaMini({oran: .5, boyut: 'xs', ton: 'uyari'}))),
+    oge('DD.makroCubuk', 'tek kart 4 sütun, liste', DD.makroCubuk(B.makro) + DD.makroCubuk({...B.makro, K: {alinan: 180, hedef: 165}}, {tur: 'liste'})),
+    oge('DD.orucSayac', 'oruç, canlı', sayac('oruc', 13 * 60 + 25, {altMetin: 'Kalan 2 sa 35 dk'})),
+    oge('DD.orucSayac', 'yeme penceresi', sayac('pencere', R.durumlar.pencere.gecenDakika, {rozet: R.durumlar.pencere.rozet, altMetin: 'Kapanmasına 2 sa 55 dk'}) + DD.zamanHucreler([{etiket: 'Başladı', deger: 'Bugün 12:05'}, {etiket: 'Bitiş', deger: 'Bugün 20:05'}])),
+    oge('DD.orucSayac', 'boşta, tamamlandı', sayac('bos', 0, {altMetin: '16:8 planın hazır'}) + sayac('bitti', 960, {altMetin: '16 saatlik oruç', canli: false})),
+    oge('DD.orucPil / DD.pencereBant', 'Bugün kompakt', DD.orucPil({durum: 'pencere', baslik: 'Yeme penceresi açık', alt: '2 sa 55 dk kaldı', oran: .63, git: '#/ritim'}) + DD.pencereBant({bas: '12:05', bit: '20:05', simdi: '17:10', baslik: 'Yeme penceresi', alt: '2 sa 55 dk kaldı', git: '#/ritim'})),
+    oge('DD.dengeSkor', 'yarım kadran, bileşen segmentleri', DD.dengeSkor({skor: V.denge.tabak.skor, etiket: V.denge.tabak.skorEtiket, fark: 'Geçen haftadan 4 puan yukarı', bilesenler: V.denge.tabak.bilesenler}) + DD.dengeSatirlar(V.denge.tabak.bilesenler.slice(0, 2))),
+    oge('DD.dengeSkor', 'orta, nötr, hazırlanıyor', DD.dengeSkor({skor: 58, etiket: 'Dengeye yakın'}) + DD.dengeSkor({skor: 31, etiket: 'Başlangıç'}) + DD.dengeSkor({hazirlaniyor: {gun: 3, toplam: 7}, bilesenler: V.denge.tabak.bilesenler})),
+    oge('DD.grafik', 'sparkline', DD.grafik({seri: S.seriler.kilo.haftalik.map(x => x.deger)}) + DD.grafik({seri: V.gecmis.map(x => x.suMl), ton: 'bilgi'})),
+    oge('DD.grafikKart + DD.grafik', 'eksenli, hedef, seçili nokta', DD.grafikKart({deger: '72,4', birim: 'kg', fark: '3 ayda 2,1 kg azaldı', farkTon: 'iyi', cumle: 'Son sekiz haftada kilon **yavaş ve düzenli** iniyor.', grafik: DD.grafik({tur: 'eksenli', seri: S.seriler.kilo.haftalik, hedef: 71, birim: 'kg', hedefEtiket: 'Ara hedef', ham: S.seriler.kilo.haftalik.map((x, i) => x.deger + (i % 2 ? .4 : -.3))}), donemler: [{ad: '1H', deger: '1h'}, {ad: '1A', deger: '1a'}, {ad: '3A', deger: '3a'}, {ad: '1Y', deger: '1y'}], donem: '3a'})),
+    oge('DD.yolculuk / DD.geriSayim', 'randevu; indirimde kullanılmaz', DD.yolculuk({bas: 79.8, simdi: 72.4, hedef: 66}) + DD.geriSayim({saniye: 3 * 86400 + 4 * 3600 + 1200})),
+    oge('DD.fazCizelge', 'dikey, etkin faz', DD.fazCizelge({fazlar: R.fazlar, etkin: 'faz-3'})),
+    oge('DD.kiyasTablo', 'kazanan vurgusu', DD.kiyasTablo({a: {ad: 'Beyaz pirinç', gorsel: null, K: 28}, b: {ad: 'Bulgur', gorsel: null, K: 19, P: 3}, satirlar: [{ad: 'Kalori', a: 130, b: 83, birim: 'kcal', iyi: 'az'}, {ad: 'Protein', a: 2.7, b: 3.1, birim: 'g', iyi: 'cok'}, {ad: 'Lif', a: .4, b: 4.5, birim: 'g', iyi: 'cok'}]})),
+    oge('DD.tamamlanmaKart', 'oruç bitişi', DD.tamamlanmaKart({baslik: '16 saati tamamladın', alt: 'Bugün kendine iyi baktın.', bas: '20:05', bit: '12:05', eylem: {metin: 'Orucu açan öğünü ekle'}}))
+  ]);
+
+  // Ürün ve sağlık
+  const urun = V.ai.barkod.urunler[0], tahlil = S.kanTahlilleri[0].degerler;
+  bolum('urun', 'Ürün ve sağlık', [
+    oge('DD.skorRozet / DD.skorKart / DD.uyumRozet', 'yeşil, amber, nötr; kırmızı yok', s(DD.skorRozet({skor: 84}), DD.skorRozet({skor: 58}), DD.skorRozet({skor: 22}), DD.uyumRozet({oran: 87})) + DD.skorKart({ad: urun.ad, kategori: urun.kategori, skor: urun.skor, etiket: urun.skorEtiket, git: '#/barkod/1'}) + DD.skorKart({ad: 'Sade yoğurt', kategori: 'Süt ürünü', skor: 86, etiket: 'İyi seçim'}) + DD.skorKart({ad: 'Çikolatalı gofret', kategori: 'Atıştırmalık', skor: 24, etiket: 'Sık tüketmeye uygun değil'})),
+    oge('DD.icerikUyari / DD.madde / DD.etiketJeton', '', DD.icerikUyari({metin: 'Şekeri yüksek', aciklama: '100 g’da 19,5 g', durum: 'dikkat'}) + DD.icerikUyari({metin: 'Lifi yüksek', aciklama: '100 g’da 7,4 g', durum: 'iyi'}) + DD.madde({metin: 'İyi **lif** kaynağı'}) + DD.madde({metin: 'Tuz oranı biraz yüksek', tur: 'eksi'}) + `<div class="dd-sira">${urun.icindekiler.slice(0, 4).map((x, i) => DD.etiketJeton({metin: x, durum: i === 2 ? 'dikkat' : i === 0 ? 'iyi' : 'notr'})).join('')}</div>`),
+    oge('DD.tahlilSatir', 'değer + referans çubuğu', DD.satirlar([DD.tahlilSatir({...tahlil[0]}), DD.tahlilSatir({ad: 'D vitamini', deger: '19 ng/mL', referans: '30-100', durum: 'dusuk', aciklama: 'Referansın altında görünüyor. **Diyetisyeninle** görüş.'}), DD.tahlilSatir({ad: 'Total kolesterol', deger: '196 mg/dL', referans: '< 200', durum: 'normal'})]))
+  ]);
+
+  // Dada AI
+  const T = V.ai.tabak, kam = V.ai.kamera;
+  const menuBelge = DD.belge({baslik: 'Lokanta Deniz', alt: 'Akşam menüsü', gruplar: [{ad: 'Izgaralar', satirlar: [{ad: 'Yoğurtlu Tavuk Şiş', fiyat: '320'}, {ad: 'Dana Bonfile', fiyat: '540'}]}, {ad: 'Fırından', satirlar: [{ad: 'Karidesli Güveç', fiyat: '420'}, {ad: 'Sebzeli Levrek', fiyat: '460'}]}]});
+  const tahlilBelge = DD.belge({tur: 'tahlil', baslik: 'Laboratuvar Sonuç Raporu', alt: '18 Eylül 2026', satirlar: tahlil.slice(0, 7).map(x => ({ad: x.kisaAd, deger: `${x.deger} ${x.birim}`, referans: x.referans}))});
+  const besinG = b => ({...b, gorsel: V.besinler.find(x => x.slug === b.slug)?.gorsel ?? null});
+  bolum('ai', 'Dada AI', [
+    oge('DD.kamera', 'tabak', DD.kamera({ornek: true, baslik: 'Dada AI', gorsel: T.gorsel, modlar: kam.modlar, mod: 'tabak', baglam: 'Akşam Yemeği', ipucu: {baslik: 'Tabağı ortala', metin: 'Yukarıdan çek, gölgeyi azalt.'}}), {sifir: true}),
+    oge('DD.kamera + DD.belge', 'menü, tahlil, barkod: mod değiştir', DD.kamera({ornek: true, gorsel: 'assets/gorsel/hero/restoran-masa.webp', belgeler: {menu: menuBelge, tahlil: tahlilBelge, barkod: DD.belge({tur: 'barkod'})}, modlar: kam.modlar, mod: 'menu'}), {sifir: true}),
+    oge('DD.kamera', 'analiz anı', DD.kamera({ornek: true, gorsel: T.gorsel, modlar: kam.modlar, mod: 'tabak', analiz: 'Tabağındakileri ayırıyorum', tarama: true}), {sifir: true}),
+    oge('DD.kameraIzinSahne', 'izin reddedildi', DD.kameraIzinSahne({gorsel: T.gorsel})),
+    oge('DD.vizor', 'kompakt', DD.vizor({foto: T.gorsel, tarama: true, kompakt: true, yonerge: {metin: 'Fotoğrafın yalnız bu cihazda işlenir.'}})),
+    oge('DD.bbox', 'hap etiket; dokununca çerçeve', DD.bbox({gorsel: T.gorsel, kutular: T.bilesenler, secili: T.bilesenler[0].id})),
+    oge('DD.aiSatir / DD.varsayim', 'taslak, güven, düzelt', DD.satirlar(T.bilesenler.slice(0, 3).map((b, i) => DD.aiSatir(besinG(b), {secili: !i}))) + DD.varsayim({metin: 'Ortalama porsiyon varsaydım.', eylem: 'Değiştir'})),
+    oge('DD.tabagimBar', 'birikim çubuğu', DD.tabagimBar({adet: 3, kcal: 420, ogeler: T.bilesenler.slice(0, 3).map(besinG)}) + DD.btn({metin: 'Tabağa örnek ekle', tur: 'secondary', id: 'g-tabak'})),
+    oge('DD.oneriKart', 'en uygun, normal', DD.oneriKart({...V.ai.disarida.tabaklar[0], eylem: {metin: 'Günlüğe ekle', ikon: 'ekle'}}) + DD.oneriKart({...V.ai.disarida.tabaklar[2], enUygun: false, gerekce: null, uyari: 'Porsiyonu büyükse yarısını ayır'})),
+    oge('DD.sesDalga / DD.transkript', 'dinleme', DD.sesDalga({aktif: true}) + DD.transkript({metin: 'Öğlen **iki dilim** tam buğday ekmeği ve bir kase mercimek çorbası', canli: true})),
+    oge('DD.balon / DD.mesajGiris', 'şifreli sohbet', `<div class="dd-yigin-12"><div class="dd-gun-ayrac">${DD.sifreliRozet()}</div>${DD.gunAyrac('Bugün')}${DD.balon({kim: 'o', harf: 'A', metin: 'Bu hafta **protein** tarafı çok iyi gidiyor Zeynep.', saat: '14:12'})}${DD.balon({kim: 'ben', metin: 'Teşekkürler, akşamları hâlâ tatlı istiyorum.', saat: '14:20'})}${DD.balon({kim: 'o', harf: 'A', metin: 'Menüne meyve ekledim.', saat: '14:24', ek: {ad: 'Haftalık menü.pdf'}})}</div><div class="g-bar">${DD.mesajGiris({})}</div>`),
+    oge('DD.analizAdimlari', 'parçalı', DD.analizAdimlari({adimlar: kam.islem, etkin: 1}))
+  ]);
+
+  // Onboarding
+  const adimlar = V.onboarding.adimlar, hedef = adimlar.find(a => a.id === 'hedef') || adimlar[0], tarz = adimlar.find(a => a.tur === 'coklu-secim');
+  bolum('onb', 'Onboarding', [
+    oge('DD.onbSablon + DD.secimler', 'tek seçim', `<div class="g-telefon" style="--g-h:640px">${DD.onbSablon({adim: 1, toplam: 11, baslik: hedef.baslik, alt: hedef.altMetin, geri: false, html: DD.secimler({ad: 'h', ogeler: hedef.secenekler.slice(0, 5), secili: hedef.secenekler[0].id})})}</div>`, {sifir: true}),
+    oge('DD.onbSablon + DD.slider', 'neden soruyoruz', `<div class="g-telefon" style="--g-h:640px">${DD.onbSablon({adim: 5, toplam: 11, baslik: 'Kilon kaç?', alt: 'Hedefini buna göre **hesaplıyoruz**.', neden: 'Neden soruyoruz?', atla: {metin: 'Atla'}, html: DD.slider({ad: 'k2', etiket: 'Kilo', min: 40, max: 160, adim: .5, deger: 72, birim: 'kg'})})}</div>`, {sifir: true}),
+    oge('DD.secimler', 'çoklu, 2 sütun, ölçek, görselli üçlü', DD.secimler({ad: 'c', coklu: true, ogeler: (tarz?.secenekler || []).slice(0, 3), secili: [tarz?.secenekler[0].id]}) + DD.secimler({ad: 'i', duzen: 'iki', ogeler: [{id: 'k', ad: 'Kadın', ikon: 'venus'}, {id: 'e', ad: 'Erkek', ikon: 'mars'}], secili: 'k'}) + DD.secimler({ad: 'ol', ogeler: [{id: 'a', ad: 'Hafif aktif', alt: 'Haftada 1-2 gün', olcek: 2}, {id: 'b', ad: 'Orta aktif', alt: 'Haftada 3-4 gün', olcek: 3}, {id: 'c', ad: 'Çok aktif', alt: 'Neredeyse her gün', olcek: 5}], secili: 'b'}) + DD.secimler({ad: 'u', duzen: 'uc', coklu: true, ogeler: [{id: 'a', ad: 'Akdeniz', gorsel: 'assets/gorsel/yemek/mevsim-salatasi.webp'}, {id: 'b', ad: 'Vegan', gorsel: 'assets/gorsel/yemek/nohut-salatasi.webp'}, {id: 'c', ad: 'Yüksek protein', gorsel: 'assets/gorsel/yemek/yogurtlu-tavuk-sis.webp'}], secili: ['a', 'c']}))
+  ]);
+
+  // Çizim
+  document.getElementById('g-nav').innerHTML = bolumler.map(b => `<a href="kanon/#${b.id}" data-b="${b.id}">${esc(b.ad)}</a>`).join('');
+  document.getElementById('g-ana').innerHTML = bolumler.map(b => `<section class="g-bolum" id="${b.id}"><h2>${esc(b.ad)}</h2><div class="g-izgara"${b.kolon ? ` style="--g-kolon:${b.kolon}"` : ''}>${b.ogeler.join('')}</div></section>`).join('');
+
+  // Çalışan örnekler
+  const on = (id, fn) => document.getElementById(id)?.addEventListener('click', fn);
+  DD.aramaKur(document.getElementById('g-arama'), {son: ['mercimek', 'yoğurt'], kaynak: q => V.besinler.filter(b => DD.katla(b.ad).includes(DD.katla(q))).map(b => ({baslik: b.ad, alt: `100 g · ${DD.sayi(b.kcal)} kcal`, gorsel: b.gorsel, gorselTon: DD.makroTon(b)})), sec: x => DD.toast(`Seçildi: **${x.baslik}**`)});
+  on('g-sheet', () => DD.sheet({baslik: 'Kahvaltı', html: DD.satirlar(ogunler[0].besinler.map(b => DD.besinSatir(b))), altBar: DD.btn({metin: 'Tamam', tam: true, veri: {'sheet-kapat': 1}})}));
+  on('g-sheet2', () => DD.sheet({baslik: 'Besin ekle', tam: true, html: `<div class="dd-yigin">${DD.arama({yer: 'Besin ara', sonuc: false})}${DD.iskelet(8, 'satir')}</div>`}));
+  on('g-filtre', () => DD.filtreSheet({baslik: 'Programları filtrele', gruplar: [{baslik: 'Süre', ad: 'sure', ikon: 'takvim', tur: 'tek', ogeler: [{metin: '3 gün', deger: 3, sayi: 8}, {metin: '7 gün', deger: 7, sayi: 40}, {metin: '14 gün', deger: 14, sayi: 22}, {metin: '28 gün', deger: 28, sayi: 12}]}, {baslik: 'Tercih', ad: 'tercih', ikon: 'seedling', ogeler: [{metin: 'Vegan', deger: 'v'}, {metin: 'Akdeniz', deger: 'a'}, {metin: 'Yüksek protein', deger: 'p'}, {metin: 'Düşük kalori', deger: 'k'}, {metin: 'Lifli', deger: 'l'}, {metin: 'Glutensiz', deger: 'g'}, {metin: 'Laktozsuz', deger: 'z'}]}], uygula: v => DD.toast(`Filtre: **${JSON.stringify(v)}**`)}));
+  on('g-tarih', () => DD.takvimSheet({hizli: [['Bugün', 0], ['Yarın', 1]]}).then(v => v && DD.toast(`Tarih: **${DD.tarihUzun(v)}**`)));
+  on('g-paylas', () => DD.paylas({baslik: 'Dada Diet'}));
+  on('g-sirala', () => DD.siralaSheet({secili: 'onerilen', secenekler: [['onerilen', 'Önerilen', 'wand-magic-sparkles'], ['yeni', 'En yeni', 'calendar-plus'], ['kisa', 'En kısa', 'bolt']], sec: v => DD.toast(`Sıra: **${v}**`)}));
+  on('g-dlg', () => DD.dialog({baslik: 'Orucu bitirelim mi?', metin: 'Bugün **13 saat** tamamladın. Dilersen devam edebilirsin.', ikon: 'oruc', eylem: 'Orucu bitir', iptal: 'Devam et'}));
+  on('g-dlg2', () => DD.dialog({baslik: 'Kayıt silinsin mi?', metin: 'Bu öğün **günlüğünden** kaldırılacak.', ikon: 'sil', yikici: true, eylem: 'Sil'}));
+  on('g-t1', () => DD.toast('Öğün kaydedildi', {tur: 'basari'}));
+  on('g-t2', () => DD.toast('Domates silindi', {eylem: 'Geri al', onEylem: () => DD.toast('Geri alındı')}));
+  on('g-t3', () => { DD.toast('Bağlantı zayıf', {tur: 'uyari'}); DD.toast('İkinci bildirim sırada bekledi'); });
+  on('g-tabak', () => { DD.tabagim.ekle({ad: 'Mercimek çorbası', kcal: 180, gram: 250}); DD.tabagim.ac(); });
+  document.addEventListener('dd-onay', () => DD.toast('Onaylandı', {tur: 'basari'}));
+  document.addEventListener('dd-eylem', e => DD.toast(`${e.detail.eylem}: ${e.detail.id}`));
+  const linkler = [...document.querySelectorAll('#g-nav a')];
+  linkler.forEach(a => a.addEventListener('click', e => { e.preventDefault(); document.getElementById(a.dataset.b).scrollIntoView({behavior: DD.azHareket() ? 'auto' : 'smooth'}); }));
+  const gozcu = new IntersectionObserver(k => k.forEach(x => { if (x.isIntersecting) linkler.forEach(a => a.classList.toggle('is-aktif', a.dataset.b === x.target.id)); }), {rootMargin: '-10% 0px -80% 0px'});
+  document.querySelectorAll('.g-bolum').forEach(b => gozcu.observe(b));
+})();

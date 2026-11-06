@@ -1,0 +1,2 @@
+/* Gastro CSS'inden önce yüklenir: düğme sıfırlaması sıfır özgüllüklüdür; sonra yüklenirse Gastro'nun :where dikey yığın kurallarını ezer. */
+:where(body.dd) :where(button){margin:0;padding:0;border:0;background:none}

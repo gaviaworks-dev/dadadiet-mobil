@@ -1,0 +1,38 @@
+/* Gastro ortak/dg-kontrol.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Ortak kontroller (yalnız ana ajan yazar; Beyar revize EK, 13 Ekim) — uygulama sayfaları ve kök ekranlar (ana sayfa Dolapta Ne Var bloğu)
+   AYNI dosyayı yükler: ikon düğmesi (.dd-ibtn), segment (.dd-seg, kanondaki tek sekme ailesi) ve girdi kutusu (.dd-girdi).
+   Girdi: TEK çerçeve — solda ikon, ortada alan, sağda temizle ve isteğe bağlı mikrofon (.dd-girdi-ses) aynı kutunun içinde. Odakta
+   yalnız kutunun kendi ince primary halkası (içten); iç alan hiçbir çerçeve/halka/gölge çizmez (kökteki genel input stilleri dahil).
+   Hover yalnız fareli cihazlarda (@media (hover:hover)); dokunmatikte hover yok. */
+.dd-ibtn{display:grid;place-items:center;width:var(--dd-size-touch);height:var(--dd-size-touch);flex-shrink:0;padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-slate)}
+
+/* ---------- Segment (detay ölçüsü: docs/55 §4 D2) ---------- */
+.dd-seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:var(--dd-s-4);padding:var(--dd-s-4);border-radius:var(--dd-r-control);background:var(--dd-line)}
+.dd-seg button{display:flex;align-items:center;justify-content:center;gap:var(--dd-s-4);min-height:var(--dd-size-touch);padding:0 var(--dd-s-4);border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-slate);font-family:var(--dd-font-bold);font-size:var(--dd-t-body-size);font-weight:var(--dd-weight-bold);white-space:nowrap;transition:background-color var(--dd-m-base) var(--dd-ease),color var(--dd-m-base) var(--dd-ease)}
+.dd-seg button[aria-selected=true],.dd-seg button[aria-pressed=true]{background:var(--dd-paper);color:var(--dd-primary-dark);box-shadow:var(--dd-sh-sm)}
+.dd-seg .dd-seg-sayi{font-family:var(--dd-font);font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
+.dd-seg.is-kaydir{display:flex;overflow-x:auto;scrollbar-width:none}
+.dd-seg.is-kaydir button{flex:0 0 auto;padding:0 var(--dd-s-12)}
+
+.dd-girdi{position:relative;display:flex;align-items:center;gap:var(--dd-s-8);min-height:var(--dd-size-control-lg);padding:0 var(--dd-s-4) 0 var(--dd-s-12);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-control);background:var(--dd-paper);transition:border-color var(--dd-m-base) var(--dd-ease)}
+@media (hover:hover){.dd-girdi:hover{border-color:color-mix(in srgb,var(--dd-slate) 45%,var(--dd-line))}}
+.dd-girdi:focus-within{outline:0}
+.dd-girdi:has(:focus-visible){border-color:var(--dd-primary);box-shadow:inset 0 0 0 var(--dd-size-border) var(--dd-primary)}
+.dd-girdi select{appearance:none;-webkit-appearance:none;padding-right:var(--dd-s-32);background:transparent;cursor:pointer;text-overflow:ellipsis}
+.dd-girdi:has(> select)::after{content:'';position:absolute;right:var(--dd-s-16);top:50%;width:var(--dd-s-8);height:var(--dd-s-8);border-right:calc(var(--dd-size-border) * 2) solid var(--dd-slate);border-bottom:calc(var(--dd-size-border) * 2) solid var(--dd-slate);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.dd-girdi > .icon{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
+.dd-girdi :is(input,select,textarea){flex:1;min-width:0;min-height:var(--dd-size-touch);padding:0;border:0;background:transparent;outline:0;font-size:var(--dd-t-body-size)}
+.dd-girdi textarea{min-height:calc(var(--dd-s-48) * 2);padding:var(--dd-s-12) 0;resize:vertical;line-height:var(--dd-t-body-line)}
+.dd-girdi input::placeholder,.dd-girdi textarea::placeholder{color:var(--dd-muted)}
+.dd-temizle{display:none}
+.dd-girdi.has-text .dd-temizle{display:grid}
+/* İç alan kökteki genel input kurallarını (çerçeve, köşe, odak halkası, gölge) taşımaz: tek çerçeve kutudadır. */
+.dd-girdi :is(input,select,textarea),.dd-girdi :is(input,select,textarea):focus,.dd-girdi :is(input,select,textarea):focus-visible{border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;-webkit-appearance:none;appearance:none;color:var(--dd-ink);font-family:inherit}
+.dd-girdi input[type=search]::-webkit-search-cancel-button,.dd-girdi input[type=search]::-webkit-search-decoration{-webkit-appearance:none;display:none}
+/* Devre dışı ikon düğmesi (sınırdaki sıralama okları vb.): adımlayıcının devre dışı diliyle aynı — soluk çizgi tonu, etkileşimsiz. */
+.dd-ibtn:disabled,.dd-ibtn[aria-disabled=true]{color:var(--dd-line);background:transparent;cursor:default;pointer-events:none}
+.dd-girdi .dd-ibtn{width:var(--dd-size-touch);height:var(--dd-size-touch)}
+/* Mikrofon (sesli giriş): kutunun içinde, sağda; 40 görünür / 44 hedef, tint zemin; dinlerken primary. */
+.dd-girdi .dd-girdi-ses{width:var(--dd-s-40);height:var(--dd-s-40);margin-right:var(--dd-s-4);background:var(--dd-primary-tint);color:var(--dd-primary-deep)}
+.dd-girdi .dd-girdi-ses.is-dinliyor{background:var(--dd-primary);color:var(--dd-paper)}
+.dd-girdi .dd-ibtn:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary);outline-offset:calc(-2 * var(--dd-size-border))}

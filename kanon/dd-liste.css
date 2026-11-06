@@ -1,0 +1,159 @@
+/* Gastro liste-v2.css kaynağından taşındı: ad çevirisi dışında aynıdır. */
+/* Liste V2 — liste-1 tabanı. Ortak tokens/app/hero-light yalnız okunur; bütün değerler token'lardan.
+   Tarif kartı ailesi, kaydet, metrik rozeti, avatar ve kart radius'u ortak-kart.css'te (R3/R4/R7, EK 3).
+   Kontroller kanondaki --dd-r-control / --dd-r-media / --dd-r-sheet değerlerindedir; ?radius onları etkilemez.
+   Bölüm 1: sayfa düzeni (dd-liste-*). Bölüm 2: sayfaya bağlı bileşenler (dd-chip, dd-sheet…). */
+:root{
+  /* docs/46: header solid rengi üç ekranda tek token (--dd-header-solid). */
+  --dd-liste-header-solid:var(--dd-header-solid);
+  --dd-liste-tools-h:0px;
+  --dd-mark:calc(var(--dd-size-chip) - var(--dd-s-8) * 2);
+  --dd-badge:var(--dd-s-20);
+  --dd-flag-w:var(--dd-s-20);
+  --dd-row:var(--dd-s-48);
+  /* D2 · Panel üst köşesi: detaydaki .detail-main ile aynı sheet köşesi (24); yapışınca 0. ?radius etkilemez. */
+  --dd-liste-panel-r:var(--dd-r-sheet);
+}
+
+/* ============ 1 · Sayfa düzeni ============ */
+/* Sabit banner + üstüne kayan beyaz panel (liste-six.css choice 1 aktarımı). */
+:root .dd-liste-arac{position:sticky;top:var(--dd-ust-h);margin:0;z-index:30;background:var(--dd-paper);padding:var(--dd-s-16) var(--dd-gutter);border-bottom:0;transition:border-radius var(--dd-m-quick) var(--dd-ease);border-radius:var(--dd-liste-panel-r) var(--dd-liste-panel-r) 0 0!important}
+:root .dd-liste-arac.is-stuck{border-radius:0!important;box-shadow:0 var(--dd-size-border) 0 var(--dd-line)}
+:root .dd-liste-icerik{position:relative;background:var(--dd-paper);padding:var(--dd-s-16) var(--dd-gutter) calc(var(--dd-dock-alan) + env(safe-area-inset-bottom,0px))}
+/* R6 · Yapışık panelin altına kayan metin satırı yarım kesilmez; bütünüyle gizlenir (liste-v2.js syncHeader). */
+:root .dd-liste-occluded{opacity:0;pointer-events:none}
+:root :is(.dd-liste-themes__title,.dd-liste-theme-rail,.dd-liste-status){transition:opacity var(--dd-m-fast) var(--dd-ease),margin-top var(--dd-duration) var(--dd-ease)}
+
+/* Banner: tek sürekli overlay (JS eğrisi) + sol üstten kaynak ışık token'ı (hero-light.css). */
+/* Sayaç → panel: liste-1'den (24) bir ölçek adımı az (20). Başlık, sayaçlar ve panel aynı gutter hizasında. */
+
+/* Arama altı: kapsam sekmesi + şerit. */
+:root .dd-liste-scope{margin-top:var(--dd-s-12)}
+:root .dd-liste-rail{margin-top:var(--dd-s-12)}
+
+/* İçerik ritmi: tema 24 sonuç satırı 16 sonuçlar. */
+:root .dd-liste-themes{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:1fr;margin:var(--dd-s-8) 0 0;transition:grid-template-rows var(--dd-duration) var(--dd-ease),margin-top var(--dd-duration) var(--dd-ease),opacity var(--dd-duration) var(--dd-ease)}
+/* D1 · Dünya Mutfakları sekmesinde (ya da hiç tema kalmayınca) bölüm yükseklikle birlikte kapanır; sayfa sıçramaz.
+   Kırpma yalnız hareket/kapalı hâlde: şeridin gutter taşması ve odak halkası açık hâlde kesilmez. */
+:root .dd-liste-themes__inner{min-height:0;margin-inline:calc(-1 * var(--dd-gutter));padding-inline:var(--dd-gutter)}
+:root .dd-liste-themes:is(.is-moving,.is-collapsed)>.dd-liste-themes__inner{overflow:hidden}
+:root .dd-liste-themes.is-collapsed{grid-template-rows:0fr;margin-top:0;opacity:0;visibility:hidden;transition:grid-template-rows var(--dd-duration) var(--dd-ease),margin-top var(--dd-duration) var(--dd-ease),opacity var(--dd-duration) var(--dd-ease),visibility 0s linear var(--dd-duration)}
+/* Başlık ve alt boşluğu ortak bölüm başlığından (ortak-baslik.css). */
+/* Bölüm kapalıyken şerit → sonuç satırı, şerit → tema başlığıyla aynı ritimde (40). */
+:root .dd-liste-themes.is-collapsed+.dd-liste-status{margin-top:var(--dd-s-8)}
+/* Arama kutusu: ikon · alan · temizle · filtre. Filtre 44px hedef, kontrol radius'u. */
+:root .dd-liste-arac .dd-girdi{padding-right:var(--dd-s-4)}
+:root .dd-liste-arac .dd-girdi input{min-width:0;text-overflow:ellipsis}
+/* Odak halkası yalnız yazı alanı odaktayken; filtre düğmesi odaktaysa kendi focus-visible halkası görünür. */
+:root .dd-liste-arac .dd-girdi:focus-within:not(:has(input:focus)){outline:none;border-color:var(--dd-line)}
+:root .dd-liste-search-filter{position:relative;display:grid;place-items:center;flex:0 0 var(--dd-size-touch);width:var(--dd-size-touch);height:var(--dd-size-touch);padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-slate);cursor:pointer}
+:root .dd-liste-search-filter .icon{font-size:var(--dd-size-icon-md);color:inherit}
+:root .dd-liste-search-filter.is-active{color:var(--dd-primary)}
+:root .dd-liste-search-filter:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary);outline-offset:calc(-1 * var(--dd-s-4))}
+:root .dd-liste-search-filter__badge{position:absolute;top:var(--dd-s-4);right:var(--dd-s-4);min-width:var(--dd-s-16);height:var(--dd-s-16);padding:0 var(--dd-s-4);font-size:var(--dd-t-label-size)}
+:root .dd-liste-arac .dd-temizle .icon{color:var(--dd-slate)}
+/* Sonuç satırı: sayı solda; sıralama + görünüm aynı yükseklikte kontrol grubu sağda. */
+:root .dd-liste-status{display:flex;align-items:center;justify-content:space-between;gap:var(--dd-s-12);margin:var(--dd-s-24) 0 0;scroll-margin-top:calc(var(--dd-ust-h) + var(--dd-liste-tools-h) + var(--dd-s-16))}
+:root .dd-liste-status .dd-liste-sayi{margin:0;flex-shrink:0;white-space:nowrap;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+:root .dd-liste-status .dd-liste-sayi b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);color:var(--dd-ink)}
+:root .dd-liste-status__controls{display:flex;align-items:stretch;justify-content:flex-end;gap:var(--dd-s-8);flex:0 1 auto;min-width:0}
+:root .dd-liste-status__controls .dd-gorunum{flex-shrink:0}
+:root .dd-liste-sort-group{display:flex;padding:var(--dd-s-4);border-radius:var(--dd-r-media);background:var(--dd-bg);min-width:0}
+/* Sıralama: yalnız ikon, 44×44 (docs/47: tek tasarım, eski ?siralama=a). Varsayılan dışı sıralamada primary. */
+:root .dd-liste-sort-button{display:inline-flex;align-items:center;justify-content:center;width:var(--dd-size-touch);min-width:var(--dd-size-touch);min-height:var(--dd-size-touch);padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-slate);font:inherit;cursor:pointer}
+:root .dd-liste-sort-button .icon{font-size:var(--dd-size-icon-md);flex-shrink:0}
+:root .dd-liste-sort-button.is-active{color:var(--dd-primary)}
+:root .dd-liste-status .dd-gorunum{background:var(--dd-bg);box-shadow:none;flex-shrink:0}
+:root .dd-liste-status .dd-gorunum button{color:var(--dd-slate)}
+:root .dd-liste-status .dd-gorunum button[aria-pressed=true]{color:var(--dd-primary-deep)}
+:root .dd-liste-results{margin-top:var(--dd-s-16)}
+:root .dd-liste-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dd-s-24) var(--dd-s-12)}
+:root .dd-liste-rows{display:grid;grid-template-columns:minmax(0,1fr)}
+/* Satırlar arasında ayraç yalnız iki satır arasında. */
+:root .dd-liste-rows>.dd-card--row+.dd-card--row{margin-top:var(--dd-s-16);padding-top:var(--dd-s-16);border-top:var(--dd-size-border) solid var(--dd-line)}
+:root :is(.dd-kslider,.dd-feature)+:is(.dd-liste-grid,.dd-liste-rows){margin-top:var(--dd-s-24)}
+:root .dd-sayfalama{display:flex;justify-content:center;gap:var(--dd-s-8);margin:var(--dd-s-32) 0 0}
+:root .dd-sayfalama:empty{display:none}
+:root .dd-liste-empty{display:grid;justify-items:center;gap:var(--dd-s-12);padding:var(--dd-s-32) var(--dd-s-16);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
+:root .dd-liste-empty__mark{display:grid;place-items:center;width:var(--dd-s-48);height:var(--dd-s-48);border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-deep)}
+:root .dd-liste-empty__mark .icon{font-size:var(--dd-size-icon-lg)}
+:root .dd-liste-empty h2,:root .dd-liste-empty p{margin:0}
+:root .dd-liste-empty p{color:var(--dd-slate)}
+:root .dd-liste-empty .dd-btn{margin-top:var(--dd-s-4)}
+
+/* Header: solid zemin token'ı. */
+
+/* ============ 2 · Sayfaya bağlı bileşenler ============ */
+/* dd-stats: fotoğraf üstü sayaç satırı (liste-1 .list-stat-line ölçüleri); eşit aralık, ayraçlar ortada. */
+
+/* dd-badge: sayı rozeti. */
+.dd-badge{display:inline-grid;place-items:center;min-width:var(--dd-badge);height:var(--dd-badge);padding:0 var(--dd-s-4);border-radius:var(--dd-r-choice);background:var(--dd-primary-deep);color:var(--dd-paper);font-family:var(--dd-font-bold);font-size:var(--dd-t-label-size);line-height:1;letter-spacing:0}
+.dd-badge:empty{display:none}
+
+/* dd-chip + dd-chip-rail: 44px, 12px iç, 8px aralık, kontrol radius'u; seçimde yalnız renk değişir (genişlik sabit). */
+.dd-kok-chip-rail{display:flex;gap:var(--dd-chip-gap);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin-inline:calc(-1 * var(--dd-gutter));padding-inline:var(--dd-gutter);scroll-padding-inline:var(--dd-gutter)}
+.dd-kok-chip-rail::-webkit-scrollbar{display:none}
+.dd-kok-chip{display:inline-flex;align-items:center;gap:var(--dd-s-8);flex:0 0 auto;height:var(--dd-size-chip);min-height:var(--dd-size-chip);padding:0 var(--dd-chip-padding);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-slate);font:inherit;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);white-space:nowrap;cursor:pointer}
+.dd-kok-chip:has(>.dd-mark){padding-left:var(--dd-s-8)}
+.dd-kok-chip[aria-pressed=true]{border-color:var(--dd-primary-dark);background:var(--dd-primary-tint);color:var(--dd-primary-deep)}
+.dd-kok-chip__count{color:var(--dd-slate)}
+.dd-kok-chip[aria-pressed=true] .dd-kok-chip__count{color:var(--dd-primary-deep)}
+.dd-kok-chip--removable{color:var(--dd-ink)}
+.dd-kok-chip--removable>.icon:last-child{font-size:var(--dd-size-icon-sm);color:var(--dd-slate)}
+
+/* dd-mark: 28px işaret yuvası (kategori fotoğrafı, bayrak veya ikon); iç köşe = 12 − 8. */
+.dd-mark{display:grid;place-items:center;width:var(--dd-mark);height:var(--dd-mark);flex:0 0 var(--dd-mark);border-radius:calc(var(--dd-r-control) - var(--dd-s-8));background:var(--dd-bg);color:var(--dd-primary-deep);overflow:hidden}
+.dd-mark .icon{font-size:var(--dd-size-icon-sm)}
+.dd-mark__foto{width:100%;height:100%;border-radius:0;background-color:var(--dd-line);background-size:cover;background-position:center}
+.dd-mark__foto.image-failed{display:grid;place-items:center;font-size:var(--dd-size-icon-sm)}
+/* docs/47 · P3: bayrak çıplak (yuva zemini ve bayrağın çevresindeki ince çerçeve yok); köşesi kontrol ölçeğinde kalır. */
+.dd-mark--flag{background:transparent}
+.dd-mark--flag img{display:block;width:var(--dd-flag-w);height:auto;aspect-ratio:4/3;border-radius:var(--dd-r-choice)}
+.dd-kok-chip[aria-pressed=true] .dd-mark:not(.dd-mark--flag){background:var(--dd-paper)}
+
+/* dd-page: sayfalama, 44px. */
+.dd-page{display:grid;place-items:center;min-width:var(--dd-size-touch);height:var(--dd-size-touch);padding:0 var(--dd-s-8);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-ink);font:inherit;font-size:var(--dd-t-body-size);cursor:pointer}
+.dd-page[aria-current=page]{background:var(--dd-primary-dark);border-color:var(--dd-primary-dark);color:var(--dd-paper);font-family:var(--dd-font-bold)}
+
+/* dd-sheet: ortak alttan açılan panel. Başlık + çip satırı + iç kaydırma + sabit alt eylem çubuğu. */
+.dd-sheet>.handle{flex-shrink:0}
+.dd-sheet .dd-sheet__head{flex-shrink:0;margin:0;min-height:var(--dd-size-touch)}
+.dd-sheet__title{display:flex;align-items:center;gap:var(--dd-s-8);margin:0}
+.dd-sheet__title>.icon{font-size:var(--dd-size-icon-md);color:var(--dd-primary-deep)}
+.dd-sheet__chips{flex-shrink:0;align-items:center;height:var(--dd-size-chip);margin-top:var(--dd-s-12)}
+.dd-sheet__hint{color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);white-space:nowrap}
+.dd-sheet__scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:var(--dd-s-12) calc(-1 * var(--dd-gutter)) 0;padding:0 var(--dd-gutter);border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-sheet__foot{flex-shrink:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dd-s-12);margin:0 calc(-1 * var(--dd-gutter));padding:var(--dd-s-16) var(--dd-gutter) calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line);background:var(--dd-paper)}
+.dd-sheet__foot .dd-btn{margin:0}
+
+/* dd-facet: tek açık akordeon; yükseklik ızgara satırıyla yumuşak açılır; ayraç yalnız bölümler arasında. */
+.dd-facet+.dd-facet{border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-facet__heading{margin:0}
+.dd-facet__head{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-row);padding:0;border:0;background:none;color:var(--dd-ink);text-align:justify;text-align-last:left;cursor:pointer}
+.dd-facet__icon{display:grid;place-items:center;width:var(--dd-s-24);flex:0 0 var(--dd-s-24);color:var(--dd-primary-deep)}
+.dd-facet__icon .icon{font-size:var(--dd-size-icon-md)}
+.dd-facet__label{flex:1;min-width:0}
+.dd-facet__head>.icon:last-child{font-size:var(--dd-size-icon-sm);color:var(--dd-slate);transition:transform var(--dd-duration) var(--dd-ease)}
+.dd-facet.is-open .dd-facet__head>.icon:last-child{transform:rotate(180deg)}
+.dd-facet__body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dd-duration) var(--dd-ease)}
+.dd-facet.is-open>.dd-facet__body{grid-template-rows:1fr}
+.dd-facet__inner{min-height:0;overflow:hidden}
+.dd-facet__inner>:last-child{margin-bottom:var(--dd-s-12)}
+.dd-sheet .dd-option{display:flex;align-items:center;gap:var(--dd-s-12);min-height:var(--dd-size-touch);margin:0;font-weight:var(--dd-weight-body);cursor:pointer}
+.dd-sheet .dd-option[hidden]{display:none}
+.dd-option__label{flex:1;min-width:0;color:var(--dd-ink);font-size:var(--dd-t-body-size);line-height:var(--dd-t-meta-line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dd-option__count{color:var(--dd-slate);font-size:var(--dd-t-meta-size);font-variant-numeric:tabular-nums}
+.dd-option:has(input:checked) .dd-option__label{color:var(--dd-primary-deep)}
+.dd-more{display:inline-flex;align-items:center;gap:var(--dd-s-4);min-height:var(--dd-size-touch);padding:0;border:0;background:none;color:var(--dd-primary-deep);font:inherit;font-family:var(--dd-font-bold);font-size:var(--dd-t-meta-size);cursor:pointer}
+.dd-more .icon{font-size:var(--dd-size-icon-sm)}
+
+/* dd-choice: tekli seçim listesi (sıralama); onay ikonu yeri hep ayrılır. */
+.dd-choice-list{margin-top:var(--dd-s-12);padding-bottom:calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px))}
+.dd-choice{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-row);padding:0;border:0;background:none;color:var(--dd-ink);font:inherit;font-size:var(--dd-t-body-size);text-align:justify;text-align-last:left;cursor:pointer}
+.dd-choice+.dd-choice{border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-choice__icon{display:grid;place-items:center;width:var(--dd-s-24);flex:0 0 var(--dd-s-24);color:var(--dd-primary-deep)}
+.dd-choice__label{flex:1}
+.dd-choice>.icon:last-child{visibility:hidden;color:var(--dd-primary-deep);font-size:var(--dd-size-icon-sm)}
+.dd-choice[aria-checked=true]{color:var(--dd-primary-deep)}
+.dd-choice[aria-checked=true]>.icon:last-child{visibility:visible}
+
