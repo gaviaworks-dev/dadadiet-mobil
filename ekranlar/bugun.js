@@ -234,9 +234,10 @@
     const s = suOku(), h = suHedef();
     const kayitlar = [...s.kayitlar].map((k, i) => [k, i]).reverse().map(([k, i]) => DD.satirKap({sol: DD.ikonKutu({ikon: 'su', boyut: 'sm', ton: 'bilgi'}), baslik: `${sayi(k.ml)} ml`, alt: k.saat}, DD.ikonBtn({ikon: 'sil', etiket: `${k.saat} kaydını sil`, veri: {eylem: 'su-sil', id: i}})));
     return `<div class="dd-yigin">
-      ${DD.ozetSerit([{etiket: 'İçilen', deger: sayi(s.icilenMl), birim: 'ml'}, {etiket: 'Hedef', deger: sayi(h), birim: 'ml'}, {etiket: 'Kalan', deger: sayi(Math.max(h - s.icilenMl, 0)), birim: 'ml'}])}
-      <div class="dd-yigin-12"><span class="dd-t-card">Ne kadar içtin?</span>${DD.suMiktarlar({ogeler: SU_MIKTAR, eylem: 'su-hizli'})}<div class="dd-su-ozel">${DD.stepper({ad: 'su-miktar', deger: 250, min: 50, max: 1000, adim: 50, birim: 'ml', aria: 'Su miktarı'})}${DD.btn({metin: 'Ekle', tur: 'tonal', boyut: 'sm', veri: {eylem: 'su-ozel'}})}</div></div>
+      ${DD.ozetSerit([{etiket: 'İçilen', deger: sayi(s.icilenMl), birim: 'ml', alt: `${Math.floor(s.icilenMl / DD.SU_BARDAK)} bardak`}, {etiket: 'Hedef', deger: sayi(h), birim: 'ml', alt: `${DD.suBardak(h)} bardak`}, {etiket: 'Kalan', deger: sayi(Math.max(h - s.icilenMl, 0)), birim: 'ml', alt: `${DD.suBardak(Math.max(h - s.icilenMl, 0))} bardak`}])}
+      <div class="dd-yigin-12"><span class="dd-t-card">Ne kadar içtin?</span>${DD.suMiktarlar({ogeler: SU_MIKTAR, eylem: 'su-hizli'})}<div class="dd-su-ozel">${DD.stepper({ad: 'su-miktar', deger: 400, min: 50, max: 1000, adim: 50, birim: 'ml', aria: 'Su miktarı'})}${DD.btn({metin: 'Ekle', tur: 'tonal', boyut: 'sm', veri: {eylem: 'su-ozel'}})}</div></div>
       ${yeniMi() ? '' : suHaftaBlok(s, h)}
+      <div class="dd-yigin-8"><span class="dd-t-card">Su hatırlatması</span>${DD.suHatirlatma()}</div>
       <div class="dd-yigin-8"><span class="dd-t-card">Bugünün kayıtları</span>${kayitlar.length ? DD.satirlar(kayitlar) : DD.veriYok('Bugün için **henüz su kaydı** yok.')}</div>
     </div>`;
   };
@@ -246,6 +247,7 @@
     sonra: d => {
       const ciz = () => { d.querySelector('.dd-sheet-govde').innerHTML = suGovde(); suGuncelle(kok); };
       const ekle = ml => { const s = suOku(); suYaz({...s, kayitlar: [...s.kayitlar, {saat: DDV.bugun.simdi, ml}]}); ciz(); DD.toast(`**+${sayi(ml)} ml** eklendi`, {ikon: 'droplet'}); };
+      DD.suHatirlatmaBagla(d);
       DD.eylem(d, 'su-hizli', el => ekle(+el.dataset.id));
       DD.eylem(d, 'su-ozel', () => ekle(+d.querySelector('input[name="su-miktar"]').value));
       DD.eylem(d, 'su-sil', el => { const s = suOku(); suYaz({...s, kayitlar: s.kayitlar.filter((_, i) => i !== +el.dataset.id)}); ciz(); });
@@ -261,6 +263,8 @@
   };
 
   // Su düğmesine art arda basışlar tek toast olur; "Geri al" hepsini birden kaldırır.
+  // Belirti uyarısı: yönlendirme yok, tek çıkış "Anladım".
+  const saglikUyari = (x, u) => DD.sheet({baslik: u.baslik, zorunlu: true, html: DD.saglikUyari({seviye: x.uyari, belirti: x.ad, ikon: x.ikon, metin: u.metin}), altBar: DD.btn({metin: 'Anladım', tam: true, attrs: 'data-sheet-kapat'})});
   let suBirikim = 0, suSaat = 0;
   const suToast = kok => {
     const adet = suBirikim, s = suOku(), ml = toplam(s.kayitlar.slice(-adet), 'ml'), tamam = s.icilenMl >= suHedef();
@@ -288,7 +292,9 @@
     DD.eylem(kok, 'su-kayit', () => suSheet(kok));
     DD.on(kok, 'duygu', id => {
       DD.durum.yaz(anahtar('duygu'), id); cizilen = imza();
-      DD.toast(`Şu anki halin kaydedildi: **${DDV.bugun.duygu.secenekler.find(s => s.id === id).ad}**`, {ikon: 'onay'});
+      const D = DDV.bugun.duygu, x = D.secenekler.find(s => s.id === id);
+      if (x.uyari) saglikUyari(x, D.uyarilar[x.uyari]);
+      else DD.toast(`Şu anki halin kaydedildi: **${x.ad}**`, {ikon: 'onay'});
     });
   };
 

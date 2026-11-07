@@ -93,7 +93,7 @@
     const t = tahliller().find(x => x.id === id), l = [...t.degerler].sort((a, b) => (a.durum === 'normal') - (b.durum === 'normal')), a = S().aiAnalizleri.find(x => x.tahlil === t.id);
     DD.sheet({
       baslik: `Kan tahlili · ${t.tarihMetin}`, tam: true,
-      html: `<div class="dd-yigin">${DD.p(`**${t.degerler.length} değerin ${araliktaSay(t)} tanesi** referans aralığında. Sonuçlarını diyetisyeninle ve hekiminle değerlendir.`)}<div class="dd-yigin-12">${l.map(x => DD.tahlilSatir(x)).join('')}</div>${a ? DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: a.baslik, alt: a.tarihMetin, veri: {eylem: 'analiz-ac', id: a.id}}) : ''}${genelNot(a?.uyari || 'Bu okuma bilgilendirme amaçlıdır; teşhis değildir.')}</div>`,
+      html: `<div class="dd-yigin">${DD.p(`**${t.degerler.length} değerin ${araliktaSay(t)} tanesi** referans aralığında. Sonuçlarını diyetisyeninle ve hekiminle değerlendir.`)}${DD.kart({html: `<div class="dd-satirlar">${l.map(x => DD.tahlilSatir(x)).join('')}</div>`})}${a ? DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: a.baslik, alt: a.tarihMetin, veri: {eylem: 'analiz-ac', id: a.id}}) : ''}${genelNot(a?.uyari || 'Bu okuma bilgilendirme amaçlıdır; teşhis değildir.')}</div>`,
       altBar: DD.btn({metin: 'Diyetisyenime gönder', ikon: 'gonder', tam: true, veri: {eylem: 'tahlil-gonder'}}),
       sonra: h => {
         const c = [DD.eylem(h, 'tahlil-gonder', () => { h.kapat(); tahlilGonder(t); }), DD.eylem(h, 'analiz-ac', el => { h.kapat(); analizSheet(el.dataset.id); })];

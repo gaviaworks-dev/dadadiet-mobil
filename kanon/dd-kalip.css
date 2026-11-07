@@ -71,6 +71,7 @@
 .dd-facts dt .icon{font-size:var(--dd-size-icon-sm);color:var(--dd-primary-dark)}
 .dd-facts dd{display:flex;align-items:baseline;gap:var(--dd-s-4);margin:0;white-space:nowrap;color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-subheading-size);line-height:var(--dd-t-subheading-line)}
 .dd-facts dd small{color:var(--dd-slate)}
+.dd-facts dd.dd-facts-alt{font-family:var(--dd-font);font-weight:var(--dd-weight-body);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
 .dd-ozellikler{margin:var(--dd-s-16) calc(-1 * var(--dd-gutter)) 0}
 .dd-ozellik-rail{display:flex;align-items:center;gap:var(--dd-chip-gap);overflow-x:auto;padding:0 var(--dd-gutter);scroll-padding-left:var(--dd-gutter);scrollbar-width:none}
 .dd-ozellik-rail::-webkit-scrollbar{display:none}

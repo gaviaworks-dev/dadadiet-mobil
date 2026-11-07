@@ -356,7 +356,7 @@
     kap.className = 'dd-sheet-kap';
     const govde = o.html ?? o.govde ?? '', ayak = o.altBar ?? o.ayak ?? '';
     kap.innerHTML = `<div class="dd-perde" data-sheet-perde></div>
-      <div class="dd-sheet${o.tam ? ' is-tam' : ''}${o.sinif ? ' ' + esc(o.sinif) : ''}" open role="dialog" aria-modal="true" aria-label="${esc(o.baslik || 'Sayfa')}" tabindex="-1"><div class="dd-tutamak" aria-hidden="true"></div><div class="dd-sheet-bas"><h2 class="dd-t-sheet">${esc(o.baslik || '')}</h2><button class="dd-ibtn" type="button" data-sheet-kapat aria-label="Kapat">${ik('kapat')}</button></div><div class="dd-sheet-govde">${govde}</div>${ayak ? `<div class="dd-sheet-ayak">${ayak}</div>` : ''}</div>`;
+      <div class="dd-sheet${o.tam ? ' is-tam' : ''}${o.zorunlu ? ' is-zorunlu' : ''}${o.sinif ? ' ' + esc(o.sinif) : ''}" open role="dialog" aria-modal="true" aria-label="${esc(o.baslik || 'Sayfa')}" tabindex="-1"><div class="dd-tutamak" aria-hidden="true"></div><div class="dd-sheet-bas"><h2 class="dd-t-sheet">${esc(o.baslik || '')}</h2>${o.zorunlu ? '' : `<button class="dd-ibtn" type="button" data-sheet-kapat aria-label="Kapat">${ik('kapat')}</button>`}</div><div class="dd-sheet-govde">${govde}</div>${ayak ? `<div class="dd-sheet-ayak">${ayak}</div>` : ''}</div>`;
     kat.append(kap);
     const d = kap.querySelector('.dd-sheet'), perde = kap.querySelector('.dd-perde');
     if (window.DDMetin) DDMetin.isle(d);
@@ -372,12 +372,12 @@
     };
     d.kok = d;
     acik.push(d);
-    kap.addEventListener('keydown', ev => { if (ev.key === 'Escape') d.kapat(); odakKapani(d, ev); });
-    kap.addEventListener('click', ev => { if (ev.target.closest('[data-sheet-kapat]') || ev.target.hasAttribute('data-sheet-perde')) d.kapat(); });
+    kap.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !o.zorunlu) d.kapat(); odakKapani(d, ev); });
+    kap.addEventListener('click', ev => { if (ev.target.closest('[data-sheet-kapat]') || (ev.target.hasAttribute('data-sheet-perde') && !o.zorunlu)) d.kapat(); });
     // Tutma çubuğundan aşağı sürükle: yarı yükseklik ya da hızlı fırlatma kapatır (Gastro kuralı).
     let y0 = null, t0 = 0;
     const tut = d.querySelector('.dd-tutamak');
-    tut.addEventListener('pointerdown', ev => { y0 = ev.clientY; t0 = performance.now(); tut.setPointerCapture(ev.pointerId); d.style.transition = 'none'; });
+    tut.addEventListener('pointerdown', ev => { if (o.zorunlu) return; y0 = ev.clientY; t0 = performance.now(); tut.setPointerCapture(ev.pointerId); d.style.transition = 'none'; });
     tut.addEventListener('pointermove', ev => { if (y0 != null) d.style.transform = `translateY(${Math.max(0, ev.clientY - y0)}px)`; });
     tut.addEventListener('pointerup', ev => { if (y0 == null) return; const dy = ev.clientY - y0, v = dy / Math.max(1, performance.now() - t0); y0 = null; d.style.transition = ''; d.style.transform = ''; if (dy > d.offsetHeight / 2 || v > .7) d.kapat(); });
     d.focus({preventScroll: true});
@@ -664,7 +664,7 @@
     k.style.setProperty('--oran', kisit(yeni / hedef, 0, 1).toFixed(3));
     DD.say(k.querySelector('[data-su-deger]'), yeni, {bas: yeni - ml, sure: M.counter});
     const kalan = k.querySelector('[data-su-kalan]');
-    if (kalan) kalan.textContent = yeni >= hedef ? 'Hedefe ulaştın' : `${sayi(hedef - yeni)} ml kaldı`;
+    if (kalan) kalan.textContent = DD.suKalan(yeni, hedef);
     DD.titres(6);
     degisim(k, k.dataset.ad || 'su', yeni, {eklenen: ml});
   };

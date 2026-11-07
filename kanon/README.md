@@ -249,7 +249,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.kayitKaynak(kaynak, guven)` | kamera, galeri, ses, arama, barkod. "Fotoğraftan · Güven %92"; güven yoksa yalnız kaynak |
 | `DD.oneriNot({ad, etiket, yer, deger, oneriler, secili})` | Girdi + öneri çipleri. `DD.on(k, ad, (not, {oneriler, serbest}) => {})`: `not` birleşik metin, `oneriler` seçili çipler |
 | `DD.besinSatir(b, {swipe, eylemler, git, veri, sag, alt, ok})` | |
-| `DD.suKart({icilen, hedef, adimlar, kayitEylem, ad})`, `DD.suMiktarlar({ogeler, eylem})`, `DD.suHafta({gunler, hedef})`, `DD.duygu({soru, secenekler, secili, ad})`, `DD.paketler({ad, ogeler, secili})` | `DDV.bugun.su`, `.duygu`, `d.paketler` |
+| `DD.suKart({icilen, hedef, adimlar, kayitEylem, ad})` (`adimlar` ml ya da `{ml, metin}`; 1 bardak `DD.SU_BARDAK`), `DD.suMiktarlar({ogeler, eylem})`, `DD.suHafta({gunler, hedef})`, `DD.suHatirlatma()` + `DD.suHatirlatmaBagla(kok)`, `DD.saatSec({ad, etiket, deger})`, `DD.kilitEkrani({saat, tarih, baslik, metin})`, `DD.saglikUyari({seviye, belirti, ikon, metin})`, `DD.menuDeger({kcal, puan})`, `DD.duygu({soru, secenekler, secili, ad})`, `DD.paketler({ad, ogeler, secili})` | `DDV.bugun.su`, `.duygu`, `d.paketler` |
 | `DD.bildirimSatir(b, {git})`, `DD.yorum({ad, metin, meta})`, `DD.yorumBolumu({baslik, yorumlar, ozet, bos})`, `DD.paylas({baslik, url, alt})` | |
 | `DD.icgoruKart({baslik, metin, yanitlar})`, `DD.soruCipleri({sorular})`, `DD.randevuSatir({gun, ay, baslik, alt, saat, durum, git})`, `DD.belgeSatir(o)`, `DD.gizlilikBant(metin)`, `DD.gorevSatir({baslik, alt, tamam, id})`, `DD.slotlar({ad, gruplar, secili})`, `DD.modulListe({ozet, ogeler})`, `DD.fotoIzgara(l)` | |
 

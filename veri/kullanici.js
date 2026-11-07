@@ -4,7 +4,7 @@
  *   aktifProgram:{slug,ad,gun,toplamGun,baslangic}, diyetisyen (slug), hedefTarihi, seri, uyelik }
  * DDV.bugun: { tarih, tarihMetin, simdi, selam, hedefKcal, tuketilenKcal, kalanKcal, planliKcal, yakilanKcal, makro:{P|K|Y|Lif:{alinan,hedef}},
  *   ogunler:[{ id, ad, ikon, saat, durum ('dolu'|'planli'), kcal, P, K, Y, Lif, kaynak?, besinler:[{ slug, ad, miktar, birim, gram, kcal, P, K, Y, Lif, gorsel }] }],
- *   su:{ icilenMl, hedefMl, adimlar[], kayitlar[{saat,ml}] }, duygu:{ soru, secili, secenekler[{id,ad,ikon}] } }
+ *   su:{ icilenMl, hedefMl, adimlar[{ml,metin}], kayitlar[{saat,ml}] }, duygu:{ soru, secili, secenekler[{id,ad,ikon,uyari?}], uyarilar:{dikkat|acil:{baslik,metin}} } }
  *   Tutarlılık: tuketilenKcal = 'dolu' öğünlerin toplamı; makro.alinan = aynı öğünlerin toplamı; planli öğün tüketilene girmez.
  * DDV.gecmis[]: son 14 gün { tarih, gun, kcal, suMl, kiloKg, belCm, yagYuzde }; son kayıt bugündür (öğün/su sürüyor).
  */
@@ -452,8 +452,14 @@ DDV.bugun = {
   "icilenMl": 1250,
   "hedefMl": 2200,
   "adimlar": [
-   250,
-   500
+   {
+    "ml": 200,
+    "metin": "1 su bardağı (200 ml)"
+   },
+   {
+    "ml": 500,
+    "metin": "+500 ml"
+   }
   ],
   "kayitlar": [
    {
@@ -479,35 +485,21 @@ DDV.bugun = {
   ]
  },
  "duygu": {
-  "soru": "Şu an nasıl hissediyorsun?",
+  "soru": "Kendini nasıl hissediyorsun?",
   "secili": "iyi",
   "secenekler": [
-   {
-    "id": "harika",
-    "ad": "Harika",
-    "ikon": "face-laugh-beam"
-   },
-   {
-    "id": "iyi",
-    "ad": "İyi",
-    "ikon": "face-smile"
-   },
-   {
-    "id": "normal",
-    "ad": "Normal",
-    "ikon": "face-meh"
-   },
-   {
-    "id": "yorgun",
-    "ad": "Yorgun",
-    "ikon": "face-tired"
-   },
-   {
-    "id": "stresli",
-    "ad": "Stresli",
-    "ikon": "face-frown"
-   }
-  ]
+   {"id": "iyi", "ad": "İyi", "ikon": "face-smile"},
+   {"id": "normal", "ad": "Normal", "ikon": "face-meh"},
+   {"id": "yorgun", "ad": "Yorgun", "ikon": "face-tired", "uyari": "dikkat"},
+   {"id": "bitkin", "ad": "Bitkin", "ikon": "face-frown", "uyari": "dikkat"},
+   {"id": "halsiz", "ad": "Halsiz", "ikon": "face-meh-blank", "uyari": "dikkat"},
+   {"id": "bas-donmesi", "ad": "Baş dönmesi", "ikon": "face-dizzy", "uyari": "acil"},
+   {"id": "carpinti", "ad": "Çarpıntı", "ikon": "heart-pulse", "uyari": "acil"}
+  ],
+  "uyarilar": {
+   "dikkat": {"baslik": "Bedenini dinle", "metin": "Bu belirtiler sürüyorsa diyete ara ver ve bir diyetisyen ya da hekime danış."},
+   "acil": {"baslik": "Önemli uyarı", "metin": "Diyete devam etme, bir hekime başvur."}
+  }
  }
 };
 

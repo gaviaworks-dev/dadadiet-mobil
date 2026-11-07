@@ -1,8 +1,8 @@
 /* Profil (#/profil): DD.profilBas + bölümler. Referans: tasks/referanslar.md Profil satırları (zayıf kanıt; Gastro profil başı çıta).
  * Kullanıcı DDV.kullanici, onboarding planı varsa onun üstüne ('plan'), kilo ve BKİ son ölçümden ('saglik-olcumler'). Hedef satırları tek adımı açar: #/onboarding/<id>?duzenle=1.
- * Durum: bildirim-ayar {tur:boolean}, veri-izinleri {riza}. Diyetisyenle paylaşım izinleri Sağlık dosyam'dadır (saglik-paylasim). #/profil?hal=hata bağlantı hatası. */
+ * Durum: bildirim-ayar {tur:boolean}, su-sessiz {bas, bit} (DD.suHatirlatma), veri-izinleri {riza}. Diyetisyenle paylaşım izinleri Sağlık dosyam'dadır (saglik-paylasim). #/profil?hal=hata bağlantı hatası. */
 (() => {
-  const BILDIRIM = [['oruc', 'hourglass-half', 'Oruç ve pencere'], ['su', 'droplet', 'Su hatırlatıcısı'], ['randevu', 'calendar-check', 'Randevular'], ['mesaj', 'comment-dots', 'Diyetisyen mesajları'], ['program', 'clipboard-list', 'Program günü']];
+  const BILDIRIM = [['oruc', 'hourglass-half', 'Oruç ve pencere'], ['randevu', 'calendar-check', 'Randevular'], ['mesaj', 'comment-dots', 'Diyetisyen mesajları'], ['program', 'clipboard-list', 'Program günü']];
   // Güncel kilo Sağlık dosyam'daki son ölçümdür; ölçüm yoksa plan, o da yoksa DDV.
   const sonKilo = () => DD.durum.oku('saglik-olcumler', []).filter(o => o.kiloKg != null).sort((x, y) => x.tarih.localeCompare(y.tarih)).pop()?.kiloKg;
   const K = () => {
@@ -29,7 +29,7 @@
     ].filter(Boolean);
     return `<div class="dd-yigin">${DD.ozetSerit([{ikon: 'kalori', etiket: 'Kalori', deger: DD.sayi(k.hedefKcal), birim: 'kcal'}, {ikon: 'egg', etiket: 'Protein', deger: DD.sayi(m.P), birim: 'g'}, {ikon: 'droplet', etiket: 'Su', deger: DD.ondalik(suMl / 1000, 1), birim: 'L'}])}${DD.yuzey(DD.satirlar(satirlar))}</div>`;
   };
-  const bildirimler = () => { const a = ayarlar(); return DD.yuzey(`<div class="dd-satirlar">${BILDIRIM.map(([t, ikon, etiket]) => DD.toggle({ad: `bildirim-${t}`, ikon, etiket, secili: a[t]})).join('')}</div>`); };
+  const bildirimler = () => { const a = ayarlar(); return `<div class="dd-yigin-12">${DD.yuzey(`<div class="dd-satirlar">${BILDIRIM.map(([t, ikon, etiket]) => DD.toggle({ad: `bildirim-${t}`, ikon, etiket, secili: a[t]})).join('')}</div>`)}<div class="dd-kart"><span class="dd-su-baslik">${DD.ik('su')}<span class="dd-t-card">Su hatırlatması</span></span>${DD.suHatirlatma()}</div></div>`; };
   const saglik = k => {
     const uzman = DDV.diyetisyenler.find(d => d.slug === k.diyetisyen), a = aktifProgram();
     return DD.yuzey(DD.satirlar([
@@ -81,6 +81,7 @@
         DD.durum.yaz('bildirim-ayar', {...ayarlar(), [t]: v});
         DD.toast(`**${etiket}** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: v ? 'bell' : 'bell-slash'});
       }));
+      offs.push(DD.suHatirlatmaBagla(kok));
       offs.push(DD.eylem(kok, 'izinler', izinSheet));
       offs.push(DD.eylem(kok, 'cikis', () => DD.dialog({baslik: 'Çıkış yap', metin: 'Bu cihazdaki **kayıtların ve tercihlerin** silinir.', eylem: 'Çıkış yap', iptal: 'Vazgeç', yikici: true}).then(ok => {
         if (ok) DD.cikis();

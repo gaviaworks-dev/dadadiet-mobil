@@ -1,5 +1,5 @@
 /* Tahlil sonucu (#/ai/tahlil). Referans: tasks/referanslar.md Tahlil sonucu (Cronometer değer çubuğu, Apple Health "Typical" dili, Doctolib belge kaydı, Lifesum yorum kartı).
- * Satırlar DDV.saglik.kanTahlilleri (12 değer), açıklamalar DDV.ai.tahlil, yorum DDV.saglik.aiAnalizleri. Teşhis dili yok: "Aralıkta" / "Referansın altında".
+ * Satırlar DDV.saglik.kanTahlilleri (12 değer), açıklamalar DDV.ai.tahlil, yorum DDV.saglik.aiAnalizleri. Satır etiketi Normal, Yüksek ↑, Düşük ↓; referans dışı satırlar üstte. Teşhis dili yok.
  * Durum: saglik-tahliller (kanTahlilleri şekli, aynı id; analiz bağı kopmasın diye), ai-tahlil-gonderildi (true; sohbet ve Uzmanım bu bayraktan mesaj türetir, uzman-sohbet'e ayrıca yazılmaz). ?hal=okunamadi belge okunamadı, ?hal=hata bağlantı hatası.
  */
 (() => {

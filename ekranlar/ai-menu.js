@@ -27,8 +27,8 @@
   const uyariMetni = (t, kalan) => (sigar(t, kalan) ? t.uyari : `Kalan hedefinin ${sayi(t.kcal - Math.max(kalanIcin(t, kalan), 0))} kcal üstünde.`);
   const eklemeBtn = t => (eklendi(t.slug) ? {metin: 'Tabağında', ikon: 'onay', tur: 'secondary', veri: {eylem: 'tabagim'}} : {metin: 'Günlüğe ekle', ikon: 'ekle', veri: {eylem: 'ekle', id: t.slug}});
 
-  const oneriler = (l, kalan) => l.slice(0, 2).map(t => DD.oneriKart({...t, enUygun: true, uyari: null, gerekce: gerekce(t, kalan), eylem: eklemeBtn(t)})).join('');
-  const tumMenu = (l, kalan) => DD.satirlar(l.map((t, i) => DD.satir({sol: DD.gorsel({src: t.gorsel, ad: t.ad}), baslik: `${i + 1}. ${t.ad}`, alt: `${t.etiket} · ${sayi(t.kcal)} kcal · ${sayi(t.P)} g protein`, sag: DD.skorRozet({skor: t.puan}), ok: false, veri: {eylem: 'tabak', id: t.slug}})));
+  const oneriler = (l, kalan) => l.slice(0, 2).map(t => DD.oneriKart({...t, enUygun: true, makro: true, uyari: null, gerekce: gerekce(t, kalan), eylem: eklemeBtn(t)})).join('');
+  const tumMenu = (l, kalan) => DD.satirlar(l.map((t, i) => DD.satir({sol: DD.gorsel({src: t.gorsel, ad: t.ad}), baslikHtml: `<span data-dd-hece="yok">${i + 1}. ${DD.esc(t.ad)}</span>`, alt: `${t.etiket} · ${sayi(t.P)} g protein`, sag: DD.menuDeger(t), ok: false, veri: {eylem: 'tabak', id: t.slug}})));
   const kurallar = () => `<div class="dd-yigin-12">${D().kurallar.map(k => DD.madde({metin: k.replace(/^([^,;.]+)/, '**$1**'), tur: 'notr'})).join('')}</div>`;
 
   const gorunum = (ctx, l, kalan) => (ctx.gorunum === 'tum'
