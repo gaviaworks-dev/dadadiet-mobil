@@ -189,12 +189,11 @@
 
   DD.ekran('uzman', {
     tur: 'banner',
-    nav: 'uzman',
-    dock: true,
+    ust: '#/bugun',
     baslik: 'Uzmanım',
     yenile: true,
     iskelet: 'profil',
-    ustBar: () => ({geri: false, saydam: hazir}),   // iskelet ve hata fotoğrafsızdır; beyaz logo solid barda kalır
+    ustBar: () => ({saydam: hazir}),   // iskelet ve hata fotoğrafsızdır; üst bar solid kalır
     yukle: () => {
       if (hal() === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
       if (hazir) return Promise.resolve();

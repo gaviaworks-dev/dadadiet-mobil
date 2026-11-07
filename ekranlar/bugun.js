@@ -144,7 +144,7 @@
   const icerikler = () => { const eksik = suOku().icilenMl < suHedef(); return [...DDV.icerikler].sort((a, b) => (eksik ? (b.kategori === 'Su') - (a.kategori === 'Su') : 0)).slice(0, 4); };
   const oneriler = () => {
     const not = DDV.benimDiyetisyenim.notlar[0];
-    return `<div class="dd-yigin">${yeniMi() ? '' : DD.ipucu({ikon: 'user-doctor', baslik: 'Diyetisyeninden', metin: ilkCumleVurgulu(not.metin), eylem: {metin: 'Mesaj yaz', git: '#/uzman/sohbet'}})}${DD.yatay(icerikler().map(x => DD.icerikKart({gorsel: x.gorsel, kategori: x.kategori, baslik: x.baslik, meta: `${x.okumaDk} dk okuma`, veri: {eylem: 'icerik', id: x.slug}})), {kart: true})}</div>`;
+    return `<div class="dd-yigin">${DD.eylemKart({ikon: 'user-doctor', baslik: yeniMi() ? 'Diyetisyen bul' : 'Uzmanım', alt: yeniMi() ? 'Sana uygun uzmanı seç' : 'Görüşme, mesaj ve menün', git: '#/uzman'})}${yeniMi() ? '' : DD.ipucu({ikon: 'user-doctor', baslik: 'Diyetisyeninden', metin: ilkCumleVurgulu(not.metin), eylem: {metin: 'Mesaj yaz', git: '#/uzman/sohbet'}})}${DD.yatay(icerikler().map(x => DD.icerikKart({gorsel: x.gorsel, kategori: x.kategori, baslik: x.baslik, meta: `${x.okumaDk} dk okuma`, veri: {eylem: 'icerik', id: x.slug}})), {kart: true})}</div>`;
   };
   const programBolum = () => {
     const a = aktifProgram(), p = a && DDV.programlar.find(x => x.slug === a.slug);
@@ -294,7 +294,15 @@
     DD.eylem(kok, 'bugune', () => { secili = DD.bugunIso(); DD.tazele(); });
     DD.eylem(kok, 'makro', makroSheet);
     DD.eylem(kok, 'icerik', el => icerikSheet(el.dataset.id));
-    DD.eylem(kok, 'ogun-ekle', el => { hedefOgun = el.dataset.id; DD.git(`#/besin-ara?ogun=${el.dataset.id}`); });
+    DD.eylem(kok, 'ogun-ekle', el => {
+      const id = hedefOgun = el.dataset.id, o = ogunler().find(x => x.id === id);
+      DD.sheet({baslik: `${o?.ad ?? 'Öğün'} ekle`, html: DD.parcali([
+        {ikon: 'kamera', baslik: 'Tabağını çek', alt: 'Fotoğrafla öğüne ekle', git: `#/ai/kamera?mod=tabak&ogun=${id}`},
+        {ikon: 'ara_', baslik: 'Besin ara', alt: 'Listeden seç', git: `#/besin-ara?ogun=${id}`},
+        {ikon: 'barkod', baslik: 'Barkod tara', alt: 'Paketli ürün ekle', git: `#/ai/kamera?mod=barkod&ogun=${id}`},
+        {ikon: 'mikrofon', baslik: 'Sesle anlat', alt: 'Ne yediğini söyle', git: `#/ai/ses?ogun=${id}`}
+      ])});
+    });
     DD.eylem(kok, 'plan-uygula', el => { const id = el.dataset.id; ogunDurumYaz(kok, id, {durum: 'dolu'}); DD.toast(`**${ogunAd(id)}** kaydedildi`, {tur: 'basari', ...ogunGeriAl(kok, id)}); });
     DD.eylem(kok, 'plan-degistir', el => degistirSheet(kok, el.dataset.id));
     DD.eylem(kok, 'plan-atla', el => { const id = el.dataset.id; ogunDurumYaz(kok, id, {durum: 'atlandi'}); DD.toast(`**${ogunAd(id)}** atlandı`, {ikon: 'forward', ...ogunGeriAl(kok, id)}); });

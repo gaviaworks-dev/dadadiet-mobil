@@ -578,9 +578,7 @@
 /* Rehber kartı: kategori görselin sol üstünde */
 .dd-puf-foto{position:relative}
 .dd-puf-rozet{position:absolute;top:var(--dd-s-8);left:var(--dd-s-8);max-width:calc(100% - var(--dd-s-16));overflow:hidden;padding:var(--dd-s-4) var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:var(--dd-floating-icon-bg);color:var(--dd-paper);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-label-size);line-height:var(--dd-t-label-line);white-space:nowrap;text-overflow:ellipsis;-webkit-backdrop-filter:blur(var(--dd-s-8));backdrop-filter:blur(var(--dd-s-8))}
-/* Öğün satırı: halka içinde tabak, iki eylem, gelecek öğün soluk */
-.dd-ogun-ust{padding-inline-end:calc(var(--dd-size-touch) * 2 + var(--dd-s-8))}
-.dd-ogun-ekle{display:flex;gap:var(--dd-s-4)}
+/* Öğün satırı: halka içinde tabak, gelecek öğün soluk */
 .dd-ogun-kcal{white-space:nowrap}
 .dd-ogun.is-planli .dd-ogun-ust{opacity:.6}
 .dd-ogun.is-planli .dd-ogun-plan{opacity:.85}

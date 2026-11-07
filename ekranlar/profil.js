@@ -56,6 +56,9 @@
 
   DD.ekran('profil', {
     tur: 'banner',
+    nav: 'profil',
+    dock: true,
+    ustBar: {geri: false},
     baslik: 'Profilim',
     iskelet: 'profil',
     yenile: true,
