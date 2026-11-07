@@ -618,3 +618,6 @@ DDV.saglik = {
  ],
  "bilgiNotu": "Sağlık dosyanı yalnız sen ve izin verdiğin diyetisyen görür. Kişisel sağlık verilerin yalnız belirtilen amaç ve gerekli izin kapsamında işlenir."
 };
+
+/* Kalori trendi: son 14 gün DDV.gecmis ile aynı, önceki 16 gün örnek. Makro dengesi enerji yüzdesidir. */
+DDV.saglik.kaloriTrend = {onceki: [1610, 1575, 1640, 1590, 1620, 1560, 1650, 1605, 1585, 1630, 1570, 1615, 1595, 1645, 1580, 1625], makro: {"7": {P: 24, K: 46, Y: 30}, "30": {P: 22, K: 48, Y: 30}}};

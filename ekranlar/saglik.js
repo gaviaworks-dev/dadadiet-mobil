@@ -110,13 +110,19 @@
     });
   };
   // Duygu ile günlük kalori birlikte gösterilir; neden sonuç iddiası yoktur.
+  // Kalori trendi: 7 ve 30 gün, bugün sürdüğü için sayılmaz; makro dengesi aynı dönemin ortalamasıdır.
+  let trendDonem = '7';
+  const trendBolum = () => {
+    const T = S().kaloriTrend, gun = [...T.onceki.map((kcal, i) => ({etiket: '', kcal})), ...DDV.gecmis.slice(0, -1).map(g => ({etiket: g.gun, kcal: g.kcal}))].slice(-+trendDonem), m = T.makro[trendDonem], ort = Math.round(gun.reduce((t, x) => t + x.kcal, 0) / gun.length);
+    return DD.grafikKart({deger: DD.sayi(ort), birim: 'kcal ortalama', cumle: `Son **${trendDonem} günde** günlük ortalaman.`, grafik: DD.grafik({tur: 'eksenli', ad: 'kalori-grafik', etiket: 'Kalori grafiği', birim: 'kcal', ondalik: 0, ton: 'primary', seri: gun.map(x => ({etiket: x.etiket, deger: x.kcal}))}), donemler: [{ad: '7 gün', deger: '7'}, {ad: '30 gün', deger: '30'}], donem: trendDonem, ad: 'trend-donem', alt: [{deger: `%${m.P}`, etiket: 'Protein'}, {deger: `%${m.K}`, etiket: 'Karbonhidrat'}, {deger: `%${m.Y}`, etiket: 'Yağ'}]});
+  };
   // BMH: Mifflin-St Jeor, web hesaplayıcısıyla aynı formül.
   const testBolum = () => {
     const k = DDV.kullanici, bmh = Math.round(10 * k.kiloKg + 6.25 * k.boyCm - 5 * k.yas + (k.cinsiyet === 'erkek' ? 5 : -161)), r = Object.entries(DD.durum.oku('test-sonuclari', {}));
     return `<div class="dd-yigin-12">${DD.metrikKart({etiket: 'Bazal metabolizma hızı', deger: DD.sayi(bmh), birim: 'kcal/gün', ikon: 'kalori'})}${r.length ? DD.yuzey(DD.satirlar(r.map(([s, x]) => ({ikon: 'clipboard-check', baslik: DDV.testler.liste.find(t => t.slug === s)?.ad ?? s, alt: `${x.baslik} · ${x.puan} puan`, git: `#/test/${s}`})))) : ''}${DD.eylemKart({ikon: 'clipboard-check', baslik: `${DDV.testler.toplam} Sağlık Testi`, alt: 'Testini çöz, sonucun burada dursun', git: '#/testler'})}</div>`;
   };
   const duyguBolum = () => {
-    const D = DDV.bugun.duygu.secenekler, l = D.map(x => { const g = DDV.gecmis.filter(y => y.duygu === x.id && y.kcal); return {...x, n: g.length, ort: g.length ? Math.round(g.reduce((t, y) => t + y.kcal, 0) / g.length) : 0}; }).filter(x => x.n), ust = Math.max(...l.map(x => x.ort));
+    const D = DDV.bugun.duygu.secenekler, bugun = DD.durum.oku('bugun-duygu', null), gunler = DDV.gecmis.map((y, i, a) => (bugun && i === a.length - 1 ? {...y, duygu: bugun} : y)), l = D.map(x => { const g = gunler.filter(y => y.duygu === x.id && y.kcal); return {...x, n: g.length, ort: g.length ? Math.round(g.reduce((t, y) => t + y.kcal, 0) / g.length) : 0}; }).filter(x => x.n), ust = Math.max(...l.map(x => x.ort));
     return DD.kart({html: `<div class="dd-yigin-12">${l.map(x => DD.ilerleme({n: x.ort, hedef: ust, etiket: `${x.ad} · ${x.n} gün`, deger: `${DD.sayi(x.ort)} kcal`})).join('')}${DD.p('Son 14 günde hissettiklerin ve **ortalama kalorin** yan yana. Bir sonuç değil, diyetisyeninle konuşabileceğin bir ipucu.', {ton: 'ikincil', meta: true})}</div>`});
   };
   const notBolum = () => DD.akordiyon(notlar().map(n => ({baslik: n.baslik, alt: n.tarihMetin, ikon: 'duzenle', icerik: DD.p(n.metin.replace(/^([^.;]+[.;])/, '**$1**'))})));
@@ -160,6 +166,7 @@
     }) + DD.bolumler([
       `<div class="dd-yigin-12"><div class="dd-izgara-3">${Object.keys(METRIK).map(metrikKart).join('')}</div>${dolu ? DD.kart({html: DD.yolculuk({bas: k.baslangicKiloKg, simdi: g, hedef: k.hedefKiloKg, etiket: 'Hedefe yolculuğun'})}) : ''}</div>`,
       {baslik: 'Ölçümlerin', html: olcumBolum(s)},
+      {baslik: 'Kalori trendi', html: trendBolum()},
       {baslik: 'Kan tahlilleri', html: belgeBolum()},
       analizler().length && {baslik: 'AI analiz geçmişi', html: analizBolum()},
       notlar().length && {baslik: 'Diyetisyen notları', html: notBolum()},
@@ -174,8 +181,8 @@
 
   DD.ekran('saglik', {
     tur: 'banner',
-    nav: 'uzman',
-    ust: '#/uzman',
+    nav: 'profil',
+    ust: '#/profil',
     baslik: 'Sağlık dosyam',
     yenile: true,
     iskelet: 'profil',
@@ -198,6 +205,7 @@
       const c = [
         DD.on(kok, 'metrik', v => { s.metrik = v; grafik(); }),
         DD.on(kok, 'donem', v => { s.donem = v; grafik(); }),
+        DD.on(kok, 'trend-donem', v => { trendDonem = v; DD.tazele(); }),
         DD.eylem(kok, 'olcum', () => olcumSheet(kok)),
         DD.eylem(kok, 'tahlil', el => tahlilSheet(el.dataset.id)),
         DD.eylem(kok, 'analiz', el => analizSheet(el.dataset.id)),
