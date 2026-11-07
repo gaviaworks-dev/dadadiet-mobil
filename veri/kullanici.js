@@ -6,7 +6,7 @@
  *   ogunler:[{ id, ad, ikon, saat, durum ('dolu'|'planli'), kcal, P, K, Y, Lif, kaynak?, besinler:[{ slug, ad, miktar, birim, gram, kcal, P, K, Y, Lif, gorsel }] }],
  *   su:{ icilenMl, hedefMl, adimlar[{ml,metin}], kayitlar[{saat,ml}] }, duygu:{ soru, secili, secenekler[{id,ad,ikon,uyari?}], uyarilar:{dikkat|acil:{baslik,metin}} } }
  *   Tutarlılık: tuketilenKcal = 'dolu' öğünlerin toplamı; makro.alinan = aynı öğünlerin toplamı; planli öğün tüketilene girmez.
- * DDV.gecmis[]: son 14 gün { tarih, gun, kcal, suMl, kiloKg, belCm, yagYuzde }; son kayıt bugündür (öğün/su sürüyor).
+ * DDV.gecmis[]: son 14 gün { tarih, gun, kcal, suMl, duygu, kiloKg, belCm, yagYuzde }; son kayıt bugündür (öğün/su sürüyor).
  */
 window.DDV = window.DDV || {};
 DDV.kullanici = {
@@ -488,8 +488,8 @@ DDV.bugun = {
   "soru": "Kendini nasıl hissediyorsun?",
   "secili": "iyi",
   "secenekler": [
-   {"id": "iyi", "ad": "İyi", "ikon": "face-smile"},
-   {"id": "normal", "ad": "Normal", "ikon": "face-meh"},
+   {"id": "iyi", "ad": "İyi", "ikon": "face-smile", "not": "Güzel gidiyor, suyunu da unutma."},
+   {"id": "normal", "ad": "Normal", "ikon": "face-meh", "not": "Küçük adımlar yeter, tabağını çekmeye ne dersin?"},
    {"id": "yorgun", "ad": "Yorgun", "ikon": "face-tired", "uyari": "dikkat"},
    {"id": "bitkin", "ad": "Bitkin", "ikon": "face-frown", "uyari": "dikkat"},
    {"id": "halsiz", "ad": "Halsiz", "ikon": "face-meh-blank", "uyari": "dikkat"},
@@ -509,6 +509,7 @@ DDV.gecmis = [
 "gun": "Cmt",
 "kcal": 1612,
 "suMl": 2000,
+"duygu": "iyi",
 "kiloKg": 73.2,
 "belCm": 86.6,
 "yagYuzde": 34.2
@@ -518,6 +519,7 @@ DDV.gecmis = [
 "gun": "Paz",
 "kcal": 1588,
 "suMl": 2250,
+"duygu": "normal",
 "kiloKg": 73.1,
 "belCm": 86.6,
 "yagYuzde": 34.2
@@ -527,6 +529,7 @@ DDV.gecmis = [
 "gun": "Pzt",
 "kcal": 1705,
 "suMl": 1750,
+"duygu": "yorgun",
 "kiloKg": 73.2,
 "belCm": 86.5,
 "yagYuzde": 34.1
@@ -536,6 +539,7 @@ DDV.gecmis = [
 "gun": "Sal",
 "kcal": 1540,
 "suMl": 2200,
+"duygu": "iyi",
 "kiloKg": 73.0,
 "belCm": 86.5,
 "yagYuzde": 34.1
@@ -545,6 +549,7 @@ DDV.gecmis = [
 "gun": "Çar",
 "kcal": 1633,
 "suMl": 2000,
+"duygu": "normal",
 "kiloKg": 73.0,
 "belCm": 86.4,
 "yagYuzde": 34.0
@@ -554,6 +559,7 @@ DDV.gecmis = [
 "gun": "Per",
 "kcal": 1660,
 "suMl": 2500,
+"duygu": "iyi",
 "kiloKg": 72.9,
 "belCm": 86.3,
 "yagYuzde": 34.0
@@ -563,6 +569,7 @@ DDV.gecmis = [
 "gun": "Cum",
 "kcal": 1721,
 "suMl": 1750,
+"duygu": "bitkin",
 "kiloKg": 72.9,
 "belCm": 86.3,
 "yagYuzde": 33.9
@@ -572,6 +579,7 @@ DDV.gecmis = [
 "gun": "Cmt",
 "kcal": 1596,
 "suMl": 2250,
+"duygu": "normal",
 "kiloKg": 72.8,
 "belCm": 86.2,
 "yagYuzde": 33.9
@@ -581,6 +589,7 @@ DDV.gecmis = [
 "gun": "Paz",
 "kcal": 1648,
 "suMl": 2200,
+"duygu": "iyi",
 "kiloKg": 72.8,
 "belCm": 86.2,
 "yagYuzde": 33.8
@@ -590,6 +599,7 @@ DDV.gecmis = [
 "gun": "Pzt",
 "kcal": 1574,
 "suMl": 2000,
+"duygu": "yorgun",
 "kiloKg": 72.7,
 "belCm": 86.1,
 "yagYuzde": 33.8
@@ -599,6 +609,7 @@ DDV.gecmis = [
 "gun": "Sal",
 "kcal": 1619,
 "suMl": 2250,
+"duygu": "normal",
 "kiloKg": 72.6,
 "belCm": 86.0,
 "yagYuzde": 33.7
@@ -608,6 +619,7 @@ DDV.gecmis = [
 "gun": "Çar",
 "kcal": 1702,
 "suMl": 1900,
+"duygu": "iyi",
 "kiloKg": 72.6,
 "belCm": 86.0,
 "yagYuzde": 33.7
@@ -617,6 +629,7 @@ DDV.gecmis = [
 "gun": "Per",
 "kcal": 1638,
 "suMl": 2200,
+"duygu": "iyi",
 "kiloKg": 72.5,
 "belCm": 85.9,
 "yagYuzde": 33.6
@@ -626,6 +639,7 @@ DDV.gecmis = [
 "gun": "Cum",
 "kcal": 1041,
 "suMl": 1250,
+"duygu": "iyi",
 "kiloKg": 72.4,
 "belCm": 85.8,
 "yagYuzde": 33.6

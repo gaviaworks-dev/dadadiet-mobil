@@ -15,6 +15,7 @@
     const d = DD.durum.oku(ANAHTAR, {}) || {}, s = {seg: GRUPLAR.includes(d.seg) ? d.seg : 'hedef', q: d.q || '', gorunum: d.gorunum === 'liste' ? 'liste' : 'izgara', sira: SIRALAR.some(x => x[0] === d.sira) ? d.sira : 'onerilen', f: {...bosF(), ...(d.f || {})}, gosterilen: SAYFA};
     const dis = GRUPLAR.filter(g => sorgu[g]);
     if (sorgu.temiz || sorgu.q || dis.length) { s.f = bosF(); s.q = sorgu.q || ''; dis.forEach(g => { s.f[g] = sorgu[g].split(','); }); if (dis[0]) s.seg = dis[0]; }
+    if (GRUPLAR.includes(sorgu.seg)) s.seg = sorgu.seg;
     return s;
   };
   const yaz = ({seg, q, gorunum, sira, f}) => DD.durum.yaz(ANAHTAR, {seg, q, gorunum, sira, f});

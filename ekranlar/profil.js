@@ -48,9 +48,9 @@
     const i = izinler(), R = DDV.onboarding.adimlar.find(a => a.id === 'kvkk').acikRiza;
     DD.sheet({
       baslik: 'Veri izinlerim',
-      html: `<div class="dd-yigin">${DD.p(R.metin.replace('açık rıza veriyorum', '**açık rıza veriyorum**'))}${DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Açık rıza', secili: i.riza})}${DD.p('Diyetisyeninle **neyi paylaşacağını** Sağlık dosyam ekranından seçebilirsin.', {meta: true, ton: 'ikincil'})}</div>`,
+      html: `<div class="dd-yigin">${DD.p(R.metin.replace('açık rıza veriyorum', '**açık rıza veriyorum**'))}${DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Açık rıza', secili: i.riza})}${DD.toggle({ad: 'saglik-esitle', ikon: 'heart-pulse', etiket: 'Apple Health / Health Connect', alt: 'Su kayıtlarını eşitler', secili: !!i.esitle})}${DD.p('Diyetisyeninle **neyi paylaşacağını** Sağlık dosyam ekranından seçebilirsin.', {meta: true, ton: 'ikincil'})}</div>`,
       altBar: DD.btn({metin: 'Sağlık dosyamı aç', ikon: 'file-medical', tur: 'secondary', tam: true, git: '#/saglik', attrs: 'data-sheet-kapat'}),
-      sonra: d => DD.on(d, 'riza', v => { DD.durum.yaz('veri-izinleri', {riza: v}); DD.tazele(); DD.toast(v ? '**Açık rızan** kaydedildi' : '**Açık rızanı** geri aldın', {ikon: 'shield-halved'}); })
+      sonra: d => { DD.on(d, 'riza', v => { DD.durum.yaz('veri-izinleri', {...izinler(), riza: v}); DD.tazele(); DD.toast(v ? '**Açık rızan** kaydedildi' : '**Açık rızanı** geri aldın', {ikon: 'shield-halved'}); }); DD.on(d, 'saglik-esitle', v => { DD.durum.yaz('veri-izinleri', {...izinler(), esitle: v}); DD.toast(`**Sağlık eşitlemesi** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: 'heart-pulse'}); }); }
     });
   };
 
@@ -76,7 +76,9 @@
         {baslik: 'Hesabım', html: hesap(k)}
       ]);
     },
-    sonra: kok => {
+    sonra: (kok, ctx) => {
+      if (ctx.sorgu.ac === 'izinler') izinSheet();
+      if (ctx.sorgu.ac === 'ayarlar') kok.querySelector('[data-su-hatirlatma]')?.closest('.dd-yigin-12')?.scrollIntoView({block: 'start'});
       const offs = BILDIRIM.map(([t, , etiket]) => DD.on(kok, `bildirim-${t}`, v => {
         DD.durum.yaz('bildirim-ayar', {...ayarlar(), [t]: v});
         DD.toast(`**${etiket}** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: v ? 'bell' : 'bell-slash'});

@@ -1,10 +1,10 @@
 /* Splash (#/splash): Gastro açılış kolajı, DD.acilis. Referans: tasks/referanslar.md Splash satırları. Dokununca hemen geçer.
- * Oturum varsa Bugün; kayıt olup onboarding'i yarıda bırakan kaldığı adıma, değilse Karşılama. */
+ * Kayıt zorunlu değil: oturum yoksa misafir olarak Bugün açılır; onboarding'i yarıda bırakan kaldığı adıma döner. */
 (() => {
   const KOLAJ = 15;
   const hedef = () => {
     if (DD.durum.oku('oturum')) return '#/bugun';
-    return DD.durum.oku('onboarding')?.giris ? '#/onboarding/sonuc' : '#/karsilama';
+    return DD.durum.oku('onboarding')?.giris ? '#/onboarding/sonuc' : '#/bugun';
   };
 
   DD.ekran('splash', {

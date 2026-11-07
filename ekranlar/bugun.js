@@ -15,7 +15,7 @@
   let yeniKip = DD.durum.oku('bugun-kip', 'bugun') === 'yeni';
   const yeniMi = () => {
     if (location.hash.startsWith('#/bugun')) {
-      yeniKip = hal() === 'bos';
+      yeniKip = hal() === 'bos' || DD.yeniHesap();
       const kip = yeniKip ? 'yeni' : 'bugun';
       if (DD.durum.oku('bugun-kip') !== kip) DD.durum.yaz('bugun-kip', kip);
     }
@@ -58,7 +58,7 @@
   const suOku = () => DD.durum.oku(anahtar('su'), yeniMi() ? {icilenMl: 0, kayitlar: []} : {icilenMl: DDV.bugun.su.icilenMl, kayitlar: DDV.bugun.su.kayitlar});
   const suYaz = s => DD.durum.yaz(anahtar('su'), {...s, icilenMl: toplam(s.kayitlar, 'ml')});
   const duyguOku = () => DD.durum.oku(anahtar('duygu'), yeniMi() ? null : DDV.bugun.duygu.secili);
-  const aktifProgram = () => DD.durum.oku('aktifProgram', DDV.kullanici.aktifProgram);
+  const aktifProgram = () => DD.durum.oku('aktifProgram', yeniMi() ? null : DDV.kullanici.aktifProgram);
   const kayitDefteri = () => (typeof DDKayit === 'undefined' ? null : DDKayit);
   const bugunKayitlari = () => {
     const l = kayitDefteri()?.gunun(DD.bugunIso()) ?? [];
@@ -85,7 +85,8 @@
     const uzman = DDV.diyetisyenler.find(d => d.slug === DDV.kullanici.diyetisyen), r = DD.durum.oku('uzman-randevu', DDV.benimDiyetisyenim.sonrakiRandevu), s = z.ogunler.find(x => x.durum === 'planli');
     const sofra = 'assets/gorsel/hero/karsilama-sofra.webp';
     const gorusme = r && {gorsel: 'assets/gorsel/hero/uzman-masa.webp', etiket: `Sonraki görüşme · ${r.tarihMetin} ${r.saat}`, baslik: r.baslik, alt: uzman.ad, avatar: uzman.harf, git: '#/uzman'};
-    if (!z.kayitVar) return [{gorsel: sofra, etiket: 'Güne başla', baslik: 'İlk öğününü ekle', git: '#/besin-ara'}];
+    if (!z.kayitVar) return [{gorsel: sofra, etiket: 'Güne başla', baslik: 'Tabağını çek', alt: 'Fotoğrafla öğününe ekle', git: '#/ai/kamera?mod=tabak'}];
+    if (yeniMi()) return [{gorsel: sofra, etiket: 'Bugün', baslik: 'Sıradaki tabağını çek', alt: `${sayi(z.alinan)} kcal kaydettin`, git: '#/ai/kamera?mod=tabak'}];
     if (s) return [{gorsel: sofra, etiket: `Sıradaki öğün · ${s.saat}`, baslik: s.besinler.slice(0, 2).map(b => b.ad.split(' (')[0]).join(' ve '), alt: `Planlı · ${sayi(s.kcal)} kcal`, git: `#/ogun/${s.id}`}, gorusme].filter(Boolean);
     const m = gunMenu(programGunu(DD.bugunIso()) + 1);
     const l = [gorusme, m && {gorsel: sofra, etiket: 'Yarının menüsü', baslik: buyukHarf(m.baslik), alt: `${m.ogunler.length} öğün · ${sayi(toplam(m.ogunler, 'kcal'))} kcal`, git: `#/program/${aktifProgram().slug}`}].filter(Boolean);
@@ -93,7 +94,7 @@
   };
   const heroBugun = z => {
     const n = programGunu(DD.bugunIso());
-    return DD.heroAna({baslik: DDV.bugun.selam, altBaslik: `${DDV.bugun.tarihMetin}${n ? ` · Programın ${n}. günü` : ''}`, perde: 'tam', slaytlar: slaytlar(z), icerik: halka(z)});
+    return DD.heroAna({baslik: DD.uye() ? DDV.bugun.selam : DDV.bugun.selam.split(',')[0], altBaslik: `${DDV.bugun.tarihMetin}${n ? ` · Programın ${n}. günü` : ''}`, perde: 'tam', slaytlar: slaytlar(z), icerik: halka(z)});
   };
 
   // ---------- Bölümler ----------
@@ -136,14 +137,14 @@
   };
   const tabaklarBolum = () => {
     const l = bugunKayitlari().filter(k => k.foto).map(k => ({...k, ogun: DDV.bugun.ogunler.find(o => o.id === k.ogun)?.ad ?? k.ogun}));
-    return l.length > 0 && {baslik: 'Tabakların', html: DD.tabakSerit(l)};
+    return l.length > 0 && {baslik: 'Tabakların', html: DD.uye() ? DD.tabakSerit(l) : `<div class="dd-yigin-12">${DD.tabakSerit(l)}${DD.kanca({metin: 'Çektiğin tabakları görsel arşivinde saklamak için giriş yap', ikon: 'images'})}</div>`};
   };
   const suKart = () => DD.suKart({icilen: suOku().icilenMl, hedef: suHedef(), adimlar: DDV.bugun.su.adimlar, kayitEylem: 'su-kayit'});
   const ilkCumleVurgulu = m => m.replace(/^([^.]+\.)/, '**$1**');
   const icerikler = () => { const eksik = suOku().icilenMl < suHedef(); return [...DDV.icerikler].sort((a, b) => (eksik ? (b.kategori === 'Su') - (a.kategori === 'Su') : 0)).slice(0, 4); };
   const oneriler = () => {
     const not = DDV.benimDiyetisyenim.notlar[0];
-    return `<div class="dd-yigin">${DD.ipucu({ikon: 'user-doctor', baslik: 'Diyetisyeninden', metin: ilkCumleVurgulu(not.metin), eylem: {metin: 'Mesaj yaz', git: '#/uzman/sohbet'}})}${DD.yatay(icerikler().map(x => DD.icerikKart({gorsel: x.gorsel, kategori: x.kategori, baslik: x.baslik, meta: `${x.okumaDk} dk okuma`, veri: {eylem: 'icerik', id: x.slug}})), {kart: true})}</div>`;
+    return `<div class="dd-yigin">${yeniMi() ? '' : DD.ipucu({ikon: 'user-doctor', baslik: 'Diyetisyeninden', metin: ilkCumleVurgulu(not.metin), eylem: {metin: 'Mesaj yaz', git: '#/uzman/sohbet'}})}${DD.yatay(icerikler().map(x => DD.icerikKart({gorsel: x.gorsel, kategori: x.kategori, baslik: x.baslik, meta: `${x.okumaDk} dk okuma`, veri: {eylem: 'icerik', id: x.slug}})), {kart: true})}</div>`;
   };
   const programBolum = () => {
     const a = aktifProgram(), p = a && DDV.programlar.find(x => x.slug === a.slug);
@@ -157,10 +158,10 @@
 
   const bugunGovde = z => DD.bolumler([
     `<div class="dd-yigin"><div data-yuva="takvim">${takvim(z)}</div>${z.kayitVar ? `<div data-yuva="makro">${makro(z)}</div>` : ''}</div>`,
-    !z.kayitVar && DD.bos({ikon: 'utensils', baslik: 'Günün henüz boş', metin: 'İlk öğününü eklediğinde **halkan ve makroların** burada dolmaya başlar.', eylem: {metin: 'Öğün ekle', ikon: 'ekle', git: '#/besin-ara'}, ikincil: {metin: 'Tabağını tara', ikon: 'camera', git: '#/ai/kamera'}}),
-    {baslik: 'Öğünlerin', html: `<div class="dd-yigin"><div data-yuva="ogun">${ogunBlok(z)}</div>${pencereYuva()}</div>`},
+    !z.kayitVar && !yeniMi() && DD.bos({ikon: 'utensils', baslik: 'Günün henüz boş', metin: 'İlk öğününü eklediğinde **halkan ve makroların** burada dolmaya başlar.', eylem: {metin: 'Öğün ekle', ikon: 'ekle', git: '#/besin-ara'}, ikincil: {metin: 'Tabağını tara', ikon: 'camera', git: '#/ai/kamera'}}),
+    {baslik: 'Gün içinde', html: `<div class="dd-yigin">${DD.kart({html: `${DD.duygu({...DDV.bugun.duygu, secili: duyguOku()})}${DD.uye() ? '' : DD.kanca({metin: 'Duygu durumunun beslenmene etkisini görmek için kaydet', ikon: 'chart-line'})}`})}<div data-yuva="su">${suKart()}</div></div>`},
+    {baslik: 'Öğünlerin', html: `<div class="dd-yigin"><div data-yuva="ogun">${ogunBlok(z)}</div>${pencereYuva()}${DD.uye() ? '' : DD.btn({metin: 'Günün Özetini Kaydet', ikon: 'onay', tam: true, veri: {'uye-ol': 'Verilerini ve çektiğin tabağı buluta yedeklemek için 10 saniyede üye ol.'}})}</div>`},
     tabaklarBolum(),
-    {baslik: 'Gün içinde', html: `<div class="dd-yigin"><div data-yuva="su">${suKart()}</div>${DD.kart({html: DD.duygu({...DDV.bugun.duygu, secili: duyguOku()})})}</div>`},
     programBolum(),
     {baslik: 'Sana önerilenler', html: oneriler()}
   ]);
@@ -207,15 +208,20 @@
   const degistirSheet = (kok, id) => {
     const o = ogunler().find(x => x.id === id);
     const secim = d => [...d.querySelectorAll('input[name="besin"]:checked')].map(i => i.value);
-    const kaydet = (d, slugs) => { d.kapat(); ogunDurumYaz(kok, id, {durum: 'degisti', besinler: slugs}); };
+    const kaydet = (d, slugs) => {
+      const not = d.querySelector('[name="diyetisyen-not"]')?.value.trim();
+      d.kapat(); ogunDurumYaz(kok, id, {durum: 'degisti', besinler: slugs, ...(not ? {not} : {})});
+      if (not) DD.durum.yaz('uzman-sohbet', [...DD.durum.oku('uzman-sohbet', []), {id: Date.now(), kim: 'ben', saat: `Bugün ${DDV.bugun.simdi}`, metin: not, ek: {tur: 'ogun', ikon: 'ogun', ad: `${o.ad} notu`}}]);
+      return !!not;
+    };
     DD.sheet({
       baslik: `${o.ad} nasıldı?`,
-      html: `<div class="dd-yigin-12">${DD.p('Yediklerini işaretli bırak, **yemediklerinin** işaretini kaldır.', {ton: 'ikincil'})}<div class="dd-yigin-12">${o.besinler.map(b => DD.checkbox({ad: 'besin', deger: b.slug, etiket: b.ad.split(' (')[0], alt: `${ondalik(b.miktar, 2)} ${b.birim} · ${sayi(b.kcal)} kcal`, secili: true})).join('')}</div></div>`,
+      html: `<div class="dd-yigin-12">${DD.p('Yediklerini işaretli bırak, **yemediklerinin** işaretini kaldır.', {ton: 'ikincil'})}<div class="dd-yigin-12">${o.besinler.map(b => DD.checkbox({ad: 'besin', deger: b.slug, etiket: b.ad.split(' (')[0], alt: `${ondalik(b.miktar, 2)} ${b.birim} · ${sayi(b.kcal)} kcal`, secili: true})).join('')}</div>${yeniMi() ? '' : DD.input({ad: 'diyetisyen-not', etiket: 'Diyetisyenine not', cokSatir: true, yer: 'Dışarıdaydım, salata sosunu koydurmadım.'})}</div>`,
       altBar: `<div class="dd-ikili">${DD.btn({metin: 'Besin ekle', ikon: 'ekle', tur: 'secondary', veri: {eylem: 'degis-ekle'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'degis-kaydet'}})}</div>`,
       sonra: d => {
         const dugme = d.querySelector('[data-eylem="degis-kaydet"]');
         d.addEventListener('change', () => { dugme.disabled = !secim(d).length; });
-        DD.eylem(d, 'degis-kaydet', () => { kaydet(d, secim(d)); DD.toast(`**${o.ad}** güncellendi`, {tur: 'basari', ...ogunGeriAl(kok, id)}); });
+        DD.eylem(d, 'degis-kaydet', () => { const notlu = kaydet(d, secim(d)); DD.toast(notlu ? `**${o.ad}** güncellendi, notun diyetisyenine gitti` : `**${o.ad}** güncellendi`, {tur: 'basari', ...ogunGeriAl(kok, id)}); });
         DD.eylem(d, 'degis-ekle', () => { hedefOgun = id; kaydet(d, secim(d)); DD.git(`#/besin-ara?ogun=${id}`); });
       }
     });
@@ -237,7 +243,7 @@
       ${DD.ozetSerit([{etiket: 'İçilen', deger: sayi(s.icilenMl), birim: 'ml', alt: `${Math.floor(s.icilenMl / DD.SU_BARDAK)} bardak`}, {etiket: 'Hedef', deger: sayi(h), birim: 'ml', alt: `${DD.suBardak(h)} bardak`}, {etiket: 'Kalan', deger: sayi(Math.max(h - s.icilenMl, 0)), birim: 'ml', alt: `${DD.suBardak(Math.max(h - s.icilenMl, 0))} bardak`}])}
       <div class="dd-yigin-12"><span class="dd-t-card">Ne kadar içtin?</span>${DD.suMiktarlar({ogeler: SU_MIKTAR, eylem: 'su-hizli'})}<div class="dd-su-ozel">${DD.stepper({ad: 'su-miktar', deger: 400, min: 50, max: 1000, adim: 50, birim: 'ml', aria: 'Su miktarı'})}${DD.btn({metin: 'Ekle', tur: 'tonal', boyut: 'sm', veri: {eylem: 'su-ozel'}})}</div></div>
       ${yeniMi() ? '' : suHaftaBlok(s, h)}
-      <div class="dd-yigin-8"><span class="dd-t-card">Su hatırlatması</span>${DD.suHatirlatma()}</div>
+      <div class="dd-yigin-8"><span class="dd-t-card">Su hatırlatması</span>${DD.uye() ? DD.suHatirlatma() : DD.kanca({metin: 'Su hedefini kaçırmamak için akıllı hatırlatıcıları aç', ikon: 'bell'})}</div>
       <div class="dd-yigin-8"><span class="dd-t-card">Bugünün kayıtları</span>${kayitlar.length ? DD.satirlar(kayitlar) : DD.veriYok('Bugün için **henüz su kaydı** yok.')}</div>
     </div>`;
   };
@@ -304,7 +310,7 @@
       DD.durum.yaz(anahtar('duygu'), id); cizilen = imza();
       const D = DDV.bugun.duygu, x = D.secenekler.find(s => s.id === id);
       if (x.uyari) saglikUyari(x, D.uyarilar[x.uyari]);
-      else DD.toast(`Şu anki halin kaydedildi: **${x.ad}**`, {ikon: 'onay'});
+      else DD.toast(DD.uye() ? `Şu anki halin kaydedildi: **${x.ad}**` : x.not || `Şu anki halin: **${x.ad}**`, {ikon: 'onay'});
     });
   };
 
@@ -341,7 +347,18 @@
     },
     ciz: () => { const z = gunOzet(); return secili === DD.bugunIso() ? heroBugun(z) + bugunGovde(z) : digerGun(secili, z); },
     cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
-    sonra: kok => { cizilen = imza(); if (!bagli.has(kok)) { bagli.add(kok); bagla(kok); } },
+    sonra: kok => {
+      cizilen = imza(); if (!bagli.has(kok)) { bagli.add(kok); bagla(kok); }
+      // Tek satırda sığmayan kayıtlı seçim görünür kalsın; sayfa kaydırılmaz.
+      const d = kok.querySelector('.dd-duygu'), b = d?.querySelector('[aria-pressed=true]');
+      if (b) d.scrollLeft += b.getBoundingClientRect().left - d.getBoundingClientRect().left - (d.clientWidth - b.offsetWidth) / 2;
+      // Dönüşüm eşiği: misafir ikinci güne geçince bir kez sorulur. ?gun=2 aynı anı gösterir.
+      if (!DD.uye()) {
+        const ilk = DD.durum.oku('misafir-ilk-gun', null), ikinci = /[?&]gun=2\b/.test(location.hash) || (ilk && ilk !== DD.bugunIso() && !DD.durum.oku('misafir-duvar', false));
+        if (!ilk) DD.durum.yaz('misafir-ilk-gun', DD.bugunIso());
+        if (ikinci) { DD.durum.yaz('misafir-duvar', true); DD.uyeDuvar(); }
+      }
+    },
     donus: kok => { if (imza() !== cizilen) DD.tazele(); else yuva(kok, 'pencere', pencere()); }
   });
 })();

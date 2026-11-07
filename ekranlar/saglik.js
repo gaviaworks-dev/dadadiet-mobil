@@ -5,7 +5,7 @@
 (() => {
   const S = () => DDV.saglik, K = () => DDV.kullanici;
   const hal = () => new URLSearchParams(location.hash.split('?')[1] || '').get('hal');
-  const bosMu = () => hal() === 'bos';
+  const bosMu = () => hal() === 'bos' || DD.yeniHesap();
   const METRIK = {
     kilo: {alan: 'kiloKg', ad: 'Kilo', birim: 'kg', ikon: 'kilo', min: 35, max: 200, sozcuk: 'kilon'},
     bel: {alan: 'belCm', ad: 'Bel', birim: 'cm', ikon: 'bel', min: 50, max: 160, sozcuk: 'bel ölçün'},
@@ -109,6 +109,11 @@
       altBar: DD.btn({metin: 'Diyetisyenime sor', ikon: 'sohbet', tam: true, git: '#/uzman/sohbet'})
     });
   };
+  // Duygu ile günlük kalori birlikte gösterilir; neden sonuç iddiası yoktur.
+  const duyguBolum = () => {
+    const D = DDV.bugun.duygu.secenekler, l = D.map(x => { const g = DDV.gecmis.filter(y => y.duygu === x.id && y.kcal); return {...x, n: g.length, ort: g.length ? Math.round(g.reduce((t, y) => t + y.kcal, 0) / g.length) : 0}; }).filter(x => x.n), ust = Math.max(...l.map(x => x.ort));
+    return DD.kart({html: `<div class="dd-yigin-12">${l.map(x => DD.ilerleme({n: x.ort, hedef: ust, etiket: `${x.ad} · ${x.n} gün`, deger: `${DD.sayi(x.ort)} kcal`})).join('')}${DD.p('Son 14 günde hissettiklerin ve **ortalama kalorin** yan yana. Bir sonuç değil, diyetisyeninle konuşabileceğin bir ipucu.', {ton: 'ikincil', meta: true})}</div>`});
+  };
   const notBolum = () => DD.akordiyon(notlar().map(n => ({baslik: n.baslik, alt: n.tarihMetin, ikon: 'duzenle', icerik: DD.p(n.metin.replace(/^([^.;]+[.;])/, '**$1**'))})));
   const paylasimBolum = () => {
     const p = paylasim(), d = DDV.diyetisyenler.find(x => x.slug === K().diyetisyen);
@@ -154,6 +159,7 @@
       analizler().length && {baslik: 'AI analiz geçmişi', html: analizBolum()},
       notlar().length && {baslik: 'Diyetisyen notları', html: notBolum()},
       {baslik: 'Tabakların', html: tabakGiris()},
+      {baslik: 'Duygu ve beslenme', html: duyguBolum()},
       !bos && {id: 'paylasim-izni', baslik: 'Paylaşım izni', html: paylasimBolum()}
     ]);
   };

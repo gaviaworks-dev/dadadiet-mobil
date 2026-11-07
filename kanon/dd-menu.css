@@ -35,7 +35,9 @@ html.dd-menu-locked{overflow:hidden}
 .dd-menu-shortcuts{display:flex;gap:var(--dd-s-8);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
 .dd-menu-shortcuts::-webkit-scrollbar{display:none}
 .dd-menu-short{display:flex;flex:1 0 auto;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-height:var(--dd-size-touch);padding:var(--dd-s-8) var(--dd-s-4);border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-ink);text-decoration:none;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);white-space:nowrap}
+.dd-menu-short{position:relative}
 .dd-menu-short .icon{font-size:var(--dd-size-icon-sm);color:var(--dd-primary-deep)}
+.dd-menu-sayac{position:absolute;top:var(--dd-s-4);right:var(--dd-s-4);display:grid;place-items:center;min-width:var(--dd-s-16);height:var(--dd-s-16);padding-inline:var(--dd-s-4);border-radius:var(--dd-r-round);background:var(--dd-accent-yellow);color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-nav-size);line-height:1}
 
 /* Navigation rows: 48px, 24px icon column, 12px gap, body role; dividers only between items. */
 .dd-menu-nav{display:grid;gap:var(--dd-s-12);padding-top:var(--dd-s-12)}

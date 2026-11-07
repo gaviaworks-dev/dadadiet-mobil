@@ -115,7 +115,7 @@
       kap.addEventListener('click', ekAc);
       sonaIn();
       okundu();
-      const c = [DD.eylem(kok, 'ek', ekSheet), DD.eylem(kok, 'soru', el => gonder(el.dataset.soru))];
+      const c = [DD.eylem(kok, 'ek', ekSheet), DD.eylem(kok, 'soru', el => gonder(el.dataset.soru)), DD.eylem(kok, 'ses-mesaj', () => gonder('Sesli mesaj gönderdim.', {tur: 'ses', ikon: 'mikrofon', ad: 'Sesli mesaj · 0:12'}))];
       return () => { clearTimeout(zaman); cevapYaz(); form.removeEventListener('submit', gonderForm); kap.removeEventListener('click', ekAc); c.forEach(f => f()); };
     }
   });

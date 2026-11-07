@@ -14,7 +14,7 @@
   const sira = (a, b) => `${b.tarih}${b.saat}`.localeCompare(`${a.tarih}${a.saat}`);
   const liste = () => {
     const l = yeni(), ids = new Set(l.map(k => k.id)), sil = new Set(silinen());
-    return [...l, ...(DDV.ogunKayitlari || []).filter(k => !ids.has(k.id))].filter(k => !sil.has(k.id)).sort(sira);
+    return [...l, ...(DD.yeniHesap() ? [] : DDV.ogunKayitlari || []).filter(k => !ids.has(k.id))].filter(k => !sil.has(k.id)).sort(sira);
   };
   const paylasimAcik = () => DD.durum.oku('saglik-paylasim', {}).tabaklar !== false;
 

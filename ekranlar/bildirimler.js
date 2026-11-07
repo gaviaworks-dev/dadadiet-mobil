@@ -27,7 +27,7 @@
     },
     cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     ciz: ctx => {
-      const l = liste(ctx);
+      const l = DD.uye() ? liste(ctx) : [];
       if (!l.length) return bos();
       const var_ = GRUPLAR.filter(g => l.some(b => b.grup === g)), yeni = l.some(b => !b.okundu);
       return var_.map((g, i) => DD.bolum({baslik: g, eylem: i === 0 && yeni ? {html: okuDugme()} : null, html: DD.satirlar(l.filter(b => b.grup === g).map(b => DD.bildirimSatir(b)))})).join('');

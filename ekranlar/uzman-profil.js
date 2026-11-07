@@ -128,7 +128,7 @@
         DD.on(kok, 'tarih', v => { s.tarih = v; s.saat = null; yuva.innerHTML = slotHtml(d, s); barCiz(); }),
         DD.on(kok, 'saat', v => { s.saat = v || null; barCiz(); }),
         DD.eylem(kok, 'takvime-in', takvimeIn),
-        DD.eylem(kok, 'onay', () => onaySheet(d, s)),
+        DD.eylem(kok, 'onay', () => (DD.uye() ? onaySheet(d, s) : DD.uyeDuvar({metin: 'Diyetisyeninle doğrudan iletişim kurmak için kaydol.'}))),
         DD.eylem(kok, 'paylas', () => DD.paylas({baslik: d.ad, alt: d.uzmanliklar.join(' · '), url: `https://dadadiet.com/diyetisyen/${d.slug}`}))
       ];
       return () => c.forEach(f => f());

@@ -21,6 +21,8 @@
     'Yağsız pişti': b => ({...b, Y: b.Y * (1 - YAG_PAY), kcal: b.kcal - b.Y * YAG_PAY * YAG_KCAL}),
     'Ekstra sebze': b => (DDV.besinBul(b.slug)?.kategori === 'Sebzeler' ? olcek(b, 1.5) : b)
   };
+  // Küçük ve Büyük katsayısı Akıllı Tabak spesifikasyonundaki 0,5 ve 1,5.
+  const PORSIYON = [{ad: 'Küçük', deger: '0.5'}, {ad: 'Orta', deger: '1'}, {ad: 'Büyük', deger: '1.5'}];
   const ONERILER = ['Yarım porsiyon', 'Yağsız pişti', 'Sos yok', 'Ekstra sebze'];
 
   // Bileşen = veri + kullanıcının düzeltmesi + hazır notlar. Alternatif besinde yalnız gram başına kcal var; makrolar kcal oranıyla taşınır.
@@ -93,6 +95,7 @@
           <div class="dd-sira">${DD.durumRozet({kod: 'taslak'})}${DD.durumRozet({metin: ogunAd(hedefOgun()), ikon: 'ogun'})}${DD.durumRozet({metin: `Güven %${ort}`, ton: ort >= 90 ? 'basari' : 'notr', ikon: 'wand-magic-sparkles'})}</div>
           <h1 class="dd-t-section">${DD.esc(baslik)}</h1>
         </div>
+        ${DD.segment({ad: 'ai-porsiyon', etiket: 'Porsiyon', secili: String(durum().oran || 1), ogeler: PORSIYON})}
         ${ozetHtml(l)}
         ${kalanBant(l)}
       </div>
@@ -198,6 +201,7 @@
           if (tabagimda()) DD.tabagim.meta({not});
           const y = kok.querySelector('[data-yuva="not"]'); if (y) y.innerHTML = notBilgi(kalemler());
         }),
+        DD.on(kok, 'ai-porsiyon', v => guncelle({...durum(), oran: +v})),
         DD.on(kok, 'bilesen', id => { ctx.secili = ctx.secili === id ? null : id; DD.tazele(); }),
         DD.eylem(kok, 'duzelt', el => duzeltSheet(el.dataset.id)),
         DD.eylem(kok, 'porsiyon', porsiyonSheet),

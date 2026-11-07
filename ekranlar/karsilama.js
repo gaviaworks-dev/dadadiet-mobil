@@ -36,7 +36,7 @@
       const g = G();
       return DD.karsilamaKabuk({
         gorsel: g.gorsel, baslik: g.baslik, metin: g.altMetin.replace('kalori ve öğün düzenini', '**kalori ve öğün düzenini**'),
-        html: `<div class="dd-yigin-12"><div class="dd-yigin-8">${g.butonlar.map(dugme).join('')}${DD.btn({metin: 'Zaten hesabım var', tur: 'text', tam: true, veri: {eylem: 'hesabim-var'}})}</div>${DD.p(g.kvkkKisa.replace('Aydınlatma Metni', '**Aydınlatma Metni**'), {orta: true, meta: true, ton: 'ikincil'})}</div>`
+        html: `<div class="dd-yigin-12"><div class="dd-yigin-8">${g.butonlar.map(dugme).join('')}${DD.btn({metin: 'Zaten hesabım var', tur: 'text', tam: true, veri: {eylem: 'hesabim-var'}})}${DD.btn({metin: 'Üye olmadan devam et', tur: 'text', tam: true, git: '#/bugun'})}</div>${DD.p(g.kvkkKisa.replace('Aydınlatma Metni', '**Aydınlatma Metni**'), {orta: true, meta: true, ton: 'ikincil'})}</div>`
       });
     },
     sonra: kok => {

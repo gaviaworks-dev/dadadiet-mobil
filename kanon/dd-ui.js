@@ -115,15 +115,39 @@
     return {tur: e.tur || 'alt', baslik: typeof e.baslik === 'function' ? e.baslik(ctx) : e.baslik, ...verilen};
   };
 
+  // Misafir ve üye (MBL-FLW-v2.1): oturum yoksa misafirdir. Misafirin yaptıkları cihazda 'yeni-*' anahtarlarında durur, üye olunca aynen kalır.
+  try { if (/[?&]uye=1\b/.test(location.hash)) DD.durum.yaz('oturum', {yol: 'giris'}); } catch { /* yok */ }
+  DD.uye = () => !!DD.durum.oku('oturum');
+  DD.yeniHesap = () => !DD.uye() || !!DD.durum.oku('oturum')?.misafirden;
+  DD.UYE_KILIT = {
+    tabaklarim: {ikon: 'tabak', baslik: 'Tabakların burada birikir', metin: 'Çektiğin tabakları **görsel arşivinde** saklamak için giriş yap.'},
+    saglik: {ikon: 'file-medical', baslik: 'Sağlık dosyan', metin: 'Geçmiş günlerin **trendini** görmek için ücretsiz profil oluştur.'},
+    profil: {ikon: 'user', baslik: 'Profilin', metin: 'Hedeflerini ve **verilerini** korumak için ücretsiz profil oluştur.'},
+    'uzman-sohbet': {ikon: 'comment-dots', baslik: 'Diyetisyeninle yazış', metin: 'Diyetisyeninle **doğrudan iletişim** kurmak için kaydol.'}
+  };
+  const SSO = [{yol: 'apple', metin: 'Apple ile devam et', marka: 'apple'}, {yol: 'google', metin: 'Google ile devam et', gorsel: 'assets/marka/sosyal/google.svg'}];
+  DD.uyeDuvar = (o = {}) => DD.sheet({
+    baslik: o.baslik || 'Verilerini koru',
+    html: `<div class="dd-yigin">${DD.p(o.metin || 'Verilerini ve çektiğin tabağı buluta yedeklemek için **10 saniyede** üye ol.')}<div class="dd-yigin-8">${SSO.map(b => DD.btn({...b, tur: 'secondary', tam: true, veri: {eylem: 'uye-sso', id: b.yol}})).join('')}${DD.btn({metin: 'E-posta ile devam et', tur: 'text', tam: true, veri: {eylem: 'uye-eposta'}})}</div></div>`,
+    altBar: DD.btn({metin: 'Şimdi değil', tur: 'text', tam: true, attrs: 'data-sheet-kapat'}),
+    sonra: h => {
+      const a = DD.eylem(h, 'uye-sso', el => { DD.durum.yaz('oturum', {yol: el.dataset.id, misafirden: true}); h.kapat(); DD.tazele(); DD.toast('Bugünkü kayıtların **hesabına aktarıldı**', {tur: 'basari'}); });
+      const b = DD.eylem(h, 'uye-eposta', () => { h.kapat(); DD.git('#/karsilama'); });
+      return () => { a(); b(); };
+    }
+  });
+  // Kayıt kancası: misafire özelliğin üye tarafını söyleyen tek satır.
+  DD.kanca = (o = {}) => `<button type="button" class="dd-kanca" data-uye-ol="${esc(o.metin)}">${ik(o.ikon || 'lock')}<span>${esc(o.metin)}</span>${ik('chevron-right')}</button>`;
+
   const ciz = g => {
     const {e, ctx, el} = g;
     g.temizle?.(); g.temizle = null;
     let bar = '', icerik = '', alt = '';
-    const bekliyor = e.yukle && !g.yuklendi;
+    const kilit = !DD.uye() && DD.UYE_KILIT[g.ad], bekliyor = !kilit && e.yukle && !g.yuklendi;
     try {
-      if ((e.tur || 'alt') !== 'tam') bar = DD.ustBar(barAyar(e, ctx));
-      icerik = bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
-      if (!bekliyor && e.altBar) alt = e.altBar(ctx) || '';
+      if ((e.tur || 'alt') !== 'tam') bar = DD.ustBar(kilit ? {tur: 'alt', baslik: kilit.baslik} : barAyar(e, ctx));
+      icerik = kilit ? DD.bos({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, eylem: {metin: 'Üye ol', veri: {'uye-ol': kilit.metin.replace(/\*\*/g, '')}}, ikincil: {metin: 'Giriş yap', git: '#/karsilama'}}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
+      if (!kilit && !bekliyor && e.altBar) alt = e.altBar(ctx) || '';
     } catch (hata) {
       console.error(`[ekran ${g.ad}]`, hata);
       icerik = DD.hataEkran({tur: 'genel', eylem: {metin: 'Bugün’e dön', yerine: '#/bugun'}, ikinciller: []});
@@ -140,7 +164,7 @@
         .catch(() => { el.querySelector('.dd-icerik').innerHTML = DD.hataEkran({tur: 'baglanti', eylem: {metin: 'Tekrar dene', veri: {'dd-tazele': 1}}}); });
       return;
     }
-    if (e.sonra) { try { g.temizle = e.sonra(el, ctx) || null; } catch (hata) { console.error(`[ekran ${g.ad}]`, hata); } }
+    if (!kilit && e.sonra) { try { g.temizle = e.sonra(el, ctx) || null; } catch (hata) { console.error(`[ekran ${g.ad}]`, hata); } }
     DD.tabagim._bar();
   };
 
@@ -457,7 +481,7 @@
   };
 
   // Çıkış: DOM'da kalan sekmeler eski çizimi taşımasın diye uygulama baştan yüklenir. replaceState hashchange atmaz, router yarışmaz.
-  DD.cikis = () => { DD.tabagim.temizle(); DD.durum.sifirla(); history.replaceState(null, '', '#/karsilama'); location.reload(); };
+  DD.cikis = () => { DD.tabagim.temizle(); DD.durum.sifirla(); history.replaceState(null, '', '#/bugun'); location.reload(); };
 
   // ---------- Çekerek yenile ----------
   const cekYenileBagla = (g, k) => {
@@ -596,7 +620,9 @@
     const tmz = t.closest('.dd-temizle');
     if (tmz) { const k = tmz.closest('.dd-girdi'), i = k.querySelector('input,textarea'); i.value = ''; k.classList.remove('has-text'); i.focus(); i.dispatchEvent(new Event('input', {bubbles: true})); return; }
     const duy = t.closest('.dd-duygu button');
-    if (duy) { const k = duy.closest('.dd-duygu'); k.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === duy)); degisim(k, k.dataset.ad || 'duygu', duy.dataset.deger); return; }
+    if (duy) { const k = duy.closest('.dd-duygu'); k.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === duy)); duy.scrollIntoView({inline: 'center', block: 'nearest', behavior: azHareket() ? 'auto' : 'smooth'}); degisim(k, k.dataset.ad || 'duygu', duy.dataset.deger); return; }
+    const uo = t.closest('[data-uye-ol]');
+    if (uo) { DD.uyeDuvar({metin: uo.dataset.uyeOl}); return; }
     const su = t.closest('[data-su-ekle],[data-su-cikar]');
     if (su) { suEkle(su.closest('.dd-su'), su.dataset.suCikar ? -su.dataset.suCikar : +su.dataset.suEkle); return; }
     const por = t.closest('.dd-porsiyon [data-birim]');
@@ -721,7 +747,7 @@
       {ikon: 'kamera', baslik: 'Tabak çek', alt: 'Fotoğraftan öğün taslağı', git: '#/ai/kamera?mod=tabak'},
       {ikon: 'barkod', baslik: 'Barkod tara', alt: 'İçerik analizi', git: '#/ai/kamera?mod=barkod'},
       {ikon: 'mikrofon', baslik: 'Sesle anlat', alt: 'Ne yediğini söyle', git: '#/ai/ses'},
-      {ikon: 'oruc', baslik: 'Ritim', alt: 'Oruç sayacına git', git: '#/ritim'}
+      {ikon: 'oruc', baslik: 'Oruç & Saatler', alt: 'Oruç sayacına git', git: '#/ritim'}
     ])});
   });
 

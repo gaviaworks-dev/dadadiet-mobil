@@ -89,7 +89,7 @@
   const MENU = {ikon: 'bars', etiket: 'Menü', attrs: 'data-menu'}, ZIL = () => ({ikon: 'bildirim', etiket: 'Bildirimler', git: '#/bildirimler', attrs: 'data-zil', sayi: DD.bildirimSayi() || undefined}), ARA = {ikon: 'ara_', etiket: 'Ara', git: '#/ara', ara: true};
   DD.ustVarsayilan = () => [ARA, ZIL(), MENU];
   // Okunmamış sayısı: veri + kullanıcının okuduğu ve sildiği id'ler. Yığındaki bütün üst barlar birlikte tazelenir.
-  DD.bildirimSayi = () => { const dus = new Set([...DD.durum.oku('bildirim-okundu', []), ...DD.durum.oku('bildirim-silinen', [])].map(String)); return (window.DDV?.bildirimler || []).filter(b => !b.okundu && !dus.has(String(b.id))).length; };
+  DD.bildirimSayi = () => { if (!DD.uye()) return 0; const dus = new Set([...DD.durum.oku('bildirim-okundu', []), ...DD.durum.oku('bildirim-silinen', [])].map(String)); return (window.DDV?.bildirimler || []).filter(b => !b.okundu && !dus.has(String(b.id))).length; };
   DD.zilTazele = () => { const n = DD.bildirimSayi(); document.querySelectorAll('[data-zil]').forEach(b => { const r = b.querySelector('.dd-sayac'); if (!n) r?.remove(); else if (r) r.textContent = n; else b.insertAdjacentHTML('beforeend', DD.sayacRozet(n)); }); };
   document.addEventListener('dd-bildirim', DD.zilTazele);
   // tur sekme | alt | banner | modal; saydam: görsel üstünde başlar. sekme: logo · ara · zil · menü. alt: geri · başlık · eylem · menü.
@@ -217,7 +217,7 @@
   // Eylem kartı: Gastro .dd-eylem (80, 44 ikon). {ikon, baslik, alt, rozet, git, veri, secili, bilgi}
   DD.eylemKart = (o = {}) => `<${o.bilgi ? 'div' : 'button type="button"'} class="${liste('dd-eylem', o.secili && 'is-secili', o.bilgi && 'is-bilgi', o.sinif)}"${at(o)}><span class="dd-eylem-ikon" aria-hidden="true">${ik(o.ikon)}</span><span class="dd-eylem-metin"><b>${esc(o.baslik)}${o.rozet ? DD.rozet({metin: o.rozet}) : ''}</b>${o.alt ? `<small>${esc(o.alt)}</small>` : ''}</span>${o.bilgi ? '<span></span>' : ik('satirOk')}</${o.bilgi ? 'div' : 'button'}>`;
   // İçerik kartı: Gastro .dd-puf. {gorsel, kategori, baslik, meta, git}
-  DD.icerikKart = (o = {}) => `<button type="button" class="${liste('dd-puf', o.sinif)}"${at(o)}><span class="dd-puf-foto"${bg(o.gorsel)} aria-hidden="true"></span><span class="dd-puf-metin">${o.kategori ? `<small>${esc(o.kategori)}</small>` : ''}<b>${esc(o.baslik)}</b>${o.meta ? `<span>${ik('saat')}${esc(o.meta)}</span>` : ''}</span></button>`;
+  DD.icerikKart = (o = {}) => `<button type="button" class="${liste('dd-puf', o.sinif)}"${at(o)}><span class="dd-puf-foto"${bg(o.gorsel)}>${o.kategori ? `<small class="dd-puf-rozet">${esc(o.kategori)}</small>` : ''}</span><span class="dd-puf-metin"><b>${esc(o.baslik)}</b>${o.meta ? `<span>${ik('saat')}${esc(o.meta)}</span>` : ''}</span></button>`;
   // Bildirim: Gastro .dd-bildirim; okunmamış kalın + tint kutu, nokta yok.
   DD.bildirimSatir = (b, o = {}) => `<button type="button" class="${liste('dd-bildirim', !b.okundu && 'is-okunmadi', o.sinif)}"${at({git: o.git, veri: {id: b.id}})}><span class="dd-bildirim-ikon" aria-hidden="true">${ik(b.ikon)}</span><span class="dd-bildirim-metin"><b>${esc(b.baslik)}</b><p>${esc(b.metin)}</p><small>${esc(b.zaman)}</small></span></button>`;
   DD.yorum = (o = {}) => `<div class="dd-yorum">${o.ad ? DD.avatar({ad: o.ad}) : ''}<div class="dd-yorum-metin">${o.ad ? `<b>${esc(o.ad)}</b>` : ''}<p>${esc(o.metin)}</p>${o.meta ? `<small>${esc(o.meta)}</small>` : ''}</div></div>`;

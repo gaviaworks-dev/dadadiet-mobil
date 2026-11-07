@@ -258,21 +258,30 @@
     dongu = setInterval(() => tik(kok), 1000);
   };
 
+  // Bir sonraki öğün ve su hatırlatması; misafire bildirim için hesap bağlama söylenir.
+  const siradakiler = () => {
+    const o = DD.yeniHesap() ? null : DDV.bugun.ogunler.find(x => x.durum === 'planli'), an = DD.simdi();
+    const kalan = o && (([h, m]) => h * 60 + m - an.getHours() * 60 - an.getMinutes())(o.saat.split(':').map(Number));
+    const sure = n => `${n >= 60 ? `${Math.floor(n / 60)} sa ` : ''}${n % 60} dk sonra`;
+    const l = [o && {ikon: 'ogun', baslik: `${o.ad} · ${o.saat.replace(':', '.')}`, alt: kalan > 0 ? sure(kalan) : 'Şimdi', git: `#/ogun/${o.id}`}, {ikon: 'su', baslik: 'Su aralığı', alt: `Saat başı · sıradaki ${DD.suSonrakiSaat()}`, git: '#/bugun'}].filter(Boolean);
+    return `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar(l))}${DD.uye() ? '' : DD.kanca({metin: 'Yeme penceren açıldığında bildirim almak için hesabını bağla', ikon: 'bell'})}</div>`;
+  };
   const govde = () => {
     const engel = engelli();
     if (engel || (tohumla(), kapali())) {
       if (engel && durumOku() === 'oruc') DD.durum.yaz('ritim-durum', 'pencere');   // engelden önce başlamış oruç sürmesin
-      return DD.gulucuk({gorsel: 'assets/gorsel/hero/ritim-sakin.webp', baslik: 'Ritim', alt: 'Öğün düzenin', ust: true, perde: 'tam'}) + kapaliGovde(engel);
+      return DD.gulucuk({gorsel: 'assets/gorsel/hero/ritim-sakin.webp', baslik: 'Oruç & Saatler', alt: 'Öğün düzenin', ust: true, perde: 'tam'}) + kapaliGovde(engel);
     }
     const k = kayit(), p = planBul(k), son = !bosMu() && k.son, d = bosMu() ? 'bos' : durumOku();
     const gorsel = `assets/gorsel/hero/${{oruc: 'ritim-su', pencere: 'ritim-sofra', bos: 'ritim-sakin'}[d]}.webp`;
-    const hero = DD.gulucuk({gorsel, baslik: 'Ritim', alt: p.haftalik ? 'Haftalık plan' : `${p.orucSaat} saat oruç, ${p.pencereSaat} saat pencere`, ust: true, perde: 'tam', icerik: planHapi(k)});
+    const hero = DD.gulucuk({gorsel, baslik: 'Oruç & Saatler', alt: p.haftalik ? 'Haftalık plan' : `${p.orucSaat} saat oruç, ${p.pencereSaat} saat pencere`, ust: true, perde: 'tam', icerik: planHapi(k)});
     if (p.haftalik) return hero + DD.bolumler([haftalikGovde(k), DD.bant({metin: baslamadanNotu()})]);
     const ust = son
       ? bittiGovde(son)
       : `<div class="dd-yigin">${sayac(k, d)}${eylemler(k, d)}${DD.bilgi({metin: bilgi(k, d)})}${d === 'bos' ? '' : zamanlar(k, d)}</div>`;
     return hero + DD.bolumler([
       ust,
+      {baslik: 'Sıradakiler', html: siradakiler()},
       hafta(k),
       {baslik: 'Oruçta neler olur?', html: `<div class="dd-yigin">${fazKart(k, d)}${DD.bant({metin: baslamadanNotu()})}</div>`}
     ]);
@@ -284,7 +293,7 @@
   DD.ekran('ritim', {
     tur: 'sekme',
     nav: 'ritim',
-    baslik: 'Ritim',
+    baslik: 'Oruç & Saatler',
     ustBar: () => ({saydam: hazir}),
     yukle: () => {
       if (hal() === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }

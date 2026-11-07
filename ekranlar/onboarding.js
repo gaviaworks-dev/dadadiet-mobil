@@ -199,7 +199,7 @@
     const m = p.makro;
     return DD.kart({html: `<div class="dd-yigin">${DD.halka({hedef: p.hedefKcal, planli: p.hedefKcal, boyut: 'md', etiket: 'Günlük hedef', alt: 'kcal'})}${DD.ozetSerit([{etiket: 'Protein', deger: DD.sayi(m.P), birim: 'g'}, {etiket: 'Karb.', deger: DD.sayi(m.K), birim: 'g'}, {etiket: 'Yağ', deger: DD.sayi(m.Y), birim: 'g'}, {etiket: 'Lif', deger: DD.sayi(m.Lif), birim: 'g'}])}</div>`});
   };
-  const ritimSatir = p => (orucVar(p) ? {ikon: 'hourglass-half', etiket: 'Ritim', deger: p.orucProtokolu} : {ikon: 'utensils', etiket: 'İlk öğün', deger: p.ilkOgunSaati});
+  const ritimSatir = p => (orucVar(p) ? {ikon: 'hourglass-half', etiket: 'Oruç & Saatler', deger: p.orucProtokolu} : {ikon: 'utensils', etiket: 'İlk öğün', deger: p.ilkOgunSaati});
   const sonucGovde = (c, p) => {
     const S = adim('sonuc').sonuc, l = oneriler(c, p), hassas = p.hassasiyetler.filter(h => h !== 'yok').length;
     const bantlar = [

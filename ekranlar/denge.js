@@ -53,8 +53,8 @@
   };
 
   const govde = () => {
-    const t = tabak(), bos = hal() === 'bos';
-    const hero = DD.gulucuk({gorsel: 'assets/gorsel/hero/denge-yesil.webp', baslik: 'Denge & Tabak', alt: bos ? 'İlk skorun hazırlanıyor' : t.baslik, ust: true});
+    const t = tabak(), bos = hal() === 'bos' || DD.yeniHesap();
+    const hero = DD.gulucuk({gorsel: 'assets/gorsel/hero/denge-yesil.webp', baslik: 'Akıllı Tabak', alt: bos ? 'İlk skorun hazırlanıyor' : t.baslik, ust: true});
     if (bos) return hero + DD.bolumler([hazirlaniyor(), {baslik: 'Araçlar', html: araclar()}, {baslik: t.rehber.baslik, html: rehber()}]);
     return hero + DD.bolumler([
       skorKart(),
@@ -98,7 +98,7 @@
   DD.ekran('denge', {
     tur: 'sekme',
     nav: 'denge',
-    baslik: 'Denge & Tabak',
+    baslik: 'Akıllı Tabak',
     ustBar: () => ({saydam: hazir}),
     yukle: () => {
       if (hal() === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }

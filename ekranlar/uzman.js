@@ -165,6 +165,7 @@
     }) + DD.bolumler([
       t && {baslik: 'Bekleyen talebin', html: talepKart(t)},
       {baslik: 'Görüşmelerin', html: `<div class="dd-yigin-12">${DD.segment({ad: 'randevu', etiket: 'Görüşmeler', secili: 'yaklasan', ogeler: [{ad: 'Yaklaşan', deger: 'yaklasan'}, {ad: 'Geçmiş', deger: 'gecmis'}]})}<div data-yuva="randevu">${randevuPanel('yaklasan')}</div></div>`},
+      {baslik: 'Uzman geri bildirimleri', eylem: 'Tabaklarım', git: '#/tabaklarim', html: geriBildirim()},
       {baslik: 'Bu haftanın menüsü', eylem: 'Program', git: `#/program/${H().program}`, html: menuBolum()},
       {baslik: 'Mesajlar', eylem: 'Tümü', git: '#/uzman/sohbet', html: mesajBolum()},
       {baslik: 'Tabakların', html: tabakBolum()},
@@ -173,6 +174,8 @@
       {baslik: 'Daha fazlası', html: kisayollar()}
     ]);
   };
+  // Diyetisyenin tabaklara yazdığı notlar; kayıt sayfasına gider.
+  const geriBildirim = () => DD.yuzey(DD.satirlar(DDV.ogunKayitlari.filter(k => k.diyetisyenNotu).slice(0, 3).map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu.metin, git: `#/kayit/${k.id}`}))));
   const bos = () => {
     const t = talepOku();
     return DD.gulucuk({gorsel: KAPAK, etiket: 'Uzmanım', baslik: 'Yanında bir diyetisyen', alt: 'Görüşme, menü ve mesaj tek yerde', ust: true}) + DD.bolumler([
@@ -197,7 +200,7 @@
       if (hazir) return Promise.resolve();
       return new Promise(tamam => setTimeout(() => { hazir = true; tamam(); }, DD.azHareket() ? 0 : DD.TK.motion.reveal));
     },
-    ciz: () => (hal() === 'bos' ? bos() : dolu()),
+    ciz: () => (hal() === 'bos' || DD.yeniHesap() ? bos() : dolu()),
     cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     sonra: kok => {
       const yuva = (ad, html) => { const el = kok.querySelector(`[data-yuva="${ad}"]`); if (el) el.innerHTML = html; };
