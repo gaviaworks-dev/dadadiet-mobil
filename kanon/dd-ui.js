@@ -438,8 +438,9 @@
   });
 
   // Snackbar: Gastro DG.bildir işaretlemesi, sırası korunur. DD.toast('Metin', {tur, ikon, eylem, onEylem, sure})
-  const toastSira = []; let toastAcik = false;
-  DD.toast = (metin, o = {}) => { toastSira.push({metin, o}); toastCal(); };
+  const toastSira = []; let toastAcik = false, toastBitir = null;
+  DD.toastKapat = () => toastBitir?.();
+  DD.toast = (metin, o = {}) => { if (o.yerine) { toastSira.length = 0; DD.toastKapat(); } toastSira.push({metin, o}); toastCal(); };
   const toastCal = () => {
     if (toastAcik || !toastSira.length) return;
     toastAcik = true;
@@ -458,6 +459,7 @@
       el.classList.remove('is-on');
       setTimeout(() => { el.remove(); toastAcik = false; toastCal(); }, azHareket() ? 0 : M.base);
     };
+    toastBitir = kapat;
     const z = setTimeout(kapat, o.sure ?? (o.eylem ? M.toastAction : M.toast));
     el.querySelector('button')?.addEventListener('click', () => { o.onEylem?.(); kapat(); });
   };
@@ -637,7 +639,7 @@
     const uo = t.closest('[data-uye-ol]');
     if (uo) { DD.uyeDuvar({metin: uo.dataset.uyeOl}); return; }
     const su = t.closest('[data-su-ekle],[data-su-cikar]');
-    if (su) { suEkle(su.closest('.dd-su'), su.dataset.suCikar ? -su.dataset.suCikar : +su.dataset.suEkle); return; }
+    if (su) { suEkle(su.closest('.dd-su'), su.dataset.suCikar ? -su.dataset.suCikar : +su.dataset.suEkle, su.classList.contains('dd-bardak')); return; }
     const por = t.closest('.dd-porsiyon [data-birim]');
     if (por) {
       const k = por.closest('.dd-porsiyon'), st2 = k.querySelector('[data-adimlayici]'), gram = por.dataset.birim === 'gram', onceki = k.querySelector('[data-birim][aria-pressed=true]');
@@ -698,7 +700,7 @@
 
   // Su
   // Yeni bardak eklenirken mevcutlar yerinde kalır: dolum geçişi yalnız değişen bardakta oynar.
-  const suEkle = (k, ml) => {
+  const suEkle = (k, ml, bardak = false) => {
     const hedef = +k.dataset.hedef, once = +k.dataset.deger, yeni = Math.max(0, once + ml), kap = k.querySelector('.dd-su-bardaklar'), n = DD.suBardakSayi(yeni, hedef), sira = DD.suSiradaki(yeni);
     if (yeni === once) return;
     k.dataset.deger = yeni;
@@ -714,7 +716,7 @@
     const kalan = k.querySelector('[data-su-kalan]');
     if (kalan) kalan.textContent = DD.suKalan(yeni, hedef);
     DD.titres(6);
-    degisim(k, k.dataset.ad || 'su', yeni, {eklenen: yeni - once});
+    degisim(k, k.dataset.ad || 'su', yeni, {eklenen: yeni - once, bardak});
   };
 
   // ---------- İşaretçi tabanlı etkileşimler ----------

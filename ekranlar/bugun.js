@@ -299,16 +299,16 @@
   const suToast = kok => {
     const adet = suBirikim, s = suOku(), ml = toplam(s.kayitlar.slice(-adet), 'ml'), tamam = s.icilenMl >= suHedef();
     suBirikim = 0;
-    DD.toast(tamam ? `**+${sayi(ml)} ml** eklendi, su hedefine ulaştın` : `**+${sayi(ml)} ml** eklendi`, {ikon: 'droplet', eylem: 'Geri al', onEylem: () => { const g = suOku(); suYaz({...g, kayitlar: g.kayitlar.slice(0, -adet)}); suGuncelle(kok); }});
+    DD.toast(tamam ? `**+${sayi(ml)} ml** eklendi, su hedefine ulaştın` : `**+${sayi(ml)} ml** eklendi`, {ikon: 'droplet', yerine: true, eylem: 'Geri al', onEylem: () => { const g = suOku(); suYaz({...g, kayitlar: g.kayitlar.slice(0, -adet)}); suGuncelle(kok); }});
   };
 
-  // Dolu bardak: son kayıtlardan bir bardak düşülür; bekleyen ekleme mesajı iptal olur, geri alma kaydı aynen geri koyar.
-  const suGeriAl = (kok, s, ml) => {
-    clearTimeout(suSaat); suBirikim = 0;
-    const once = s.kayitlar, l = once.map(k => ({...k}));
+  // Bardak dokunuşu mesaj açmaz: mesaj alt satırdaki bardakların üstüne biner, geri bildirim dolum ve sayaçtır.
+  const suMesajSustur = () => { clearTimeout(suSaat); suBirikim = 0; DD.toastKapat(); };
+  // Dolu bardak: son kayıtlardan bir bardak düşülür.
+  const suGeriAl = (s, ml) => {
+    const l = s.kayitlar.map(k => ({...k}));
     for (let kalan = ml; kalan > 0 && l.length;) { const son = l[l.length - 1]; if (son.ml <= kalan) { kalan -= son.ml; l.pop(); } else { son.ml -= kalan; kalan = 0; } }
     suYaz({...s, kayitlar: l}); cizilen = imza();
-    DD.toast(`**${sayi(ml)} ml** çıkarıldı`, {ikon: 'droplet', eylem: 'Geri al', onEylem: () => { suYaz({...suOku(), kayitlar: once}); suGuncelle(kok); }});
   };
 
   // Sekme ekranında DOM kalır; bağlar kök üzerinde bir kez kurulur, her çizimde yenilenmez.
@@ -332,9 +332,11 @@
     DD.eylem(kok, 'plan-atla', el => { const id = el.dataset.id; ogunDurumYaz(kok, id, {durum: 'atlandi'}); DD.toast(`**${ogunAd(id)}** atlandı`, {ikon: 'forward', ...ogunGeriAl(kok, id)}); });
     DD.on(kok, 'su', (_, d) => {
       const s = suOku();
-      if (d.eklenen < 0) { suGeriAl(kok, s, -d.eklenen); return; }
+      if (d.bardak) suMesajSustur();
+      if (d.eklenen < 0) { suGeriAl(s, -d.eklenen); return; }
       suYaz({...s, kayitlar: [...s.kayitlar, {saat: DDV.bugun.simdi, ml: d.eklenen}]});
       cizilen = imza();
+      if (d.bardak) return;
       suBirikim += 1; clearTimeout(suSaat); suSaat = setTimeout(() => suToast(kok), DD.TK.motion.reveal);
     });
     DD.eylem(kok, 'su-kayit', () => suSheet(kok));

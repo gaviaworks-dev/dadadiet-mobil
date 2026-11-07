@@ -283,7 +283,8 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 
 /* ---------- Snackbar ---------- */
 .dd-snack{position:fixed;left:50%;bottom:calc(var(--pageEnd,var(--dd-size-page-end)) + env(safe-area-inset-bottom,0px));z-index:90;display:flex;align-items:center;gap:var(--dd-s-12);width:calc(min(var(--dd-ekran-w),var(--dd-size-app-max)) - var(--dd-gutter) * 2);min-height:var(--dd-size-touch);padding:var(--dd-s-8) var(--dd-s-8) var(--dd-s-8) var(--dd-s-16);border-radius:var(--dd-r-control);background:var(--dd-ink);color:var(--dd-paper);box-shadow:var(--dd-sh-lg);transform:translate(-50%,var(--dd-s-8));opacity:0;transition:opacity var(--dd-m-quick) var(--dd-ease),transform var(--dd-m-quick) var(--dd-ease);pointer-events:none}
-.dd-snack.is-on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.dd-snack.is-on{opacity:1;transform:translate(-50%,0)}
+.dd-snack.is-on a,.dd-snack.is-on button{pointer-events:auto}
 .dd-snack .icon{font-size:var(--dd-size-icon-sm)}
 .dd-snack span{flex:1;font-size:var(--dd-t-body-size);line-height:var(--dd-t-meta-line)}
 .dd-snack a,.dd-snack button{min-height:var(--dd-size-touch);padding:0 var(--dd-s-12);border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-primary-tint);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);display:inline-flex;align-items:center}
