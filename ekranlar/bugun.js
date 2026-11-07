@@ -159,8 +159,10 @@
     return {baslik: 'Programın', eylem: 'Tümü', git: '#/programlar', html};
   };
 
+  // Son 7 günün ortalaması; bugün sürdüğü için sayılmaz.
+  const gecmisOrtalama = () => { const l = DDV.gecmis.slice(-8, -1), ort = a => toplam(l, a) / l.length; return DD.ozetSerit([{ikon: 'kalori', etiket: '7 gün ortalaman', deger: sayi(ort('kcal')), birim: 'kcal'}, {ikon: 'su', etiket: '7 gün su', deger: ondalik(ort('suMl') / 1000, 1), birim: 'L'}]); };
   const bugunGovde = z => DD.bolumler([
-    `<div class="dd-yigin"><div data-yuva="takvim">${takvim(z)}</div>${z.kayitVar && !DD.hedefsiz() ? `<div data-yuva="makro">${makro(z)}</div>` : ''}</div>`,
+    `<div class="dd-yigin"><div data-yuva="takvim">${takvim(z)}</div>${z.kayitVar && !DD.hedefsiz() ? `<div data-yuva="makro">${makro(z)}</div>` : ''}${yeniMi() ? '' : gecmisOrtalama()}</div>`,
     !z.kayitVar && !yeniMi() && DD.bos({ikon: 'utensils', baslik: 'Günün henüz boş', metin: 'İlk öğününü eklediğinde **halkan ve makroların** burada dolmaya başlar.', eylem: {metin: 'Öğün ekle', ikon: 'ekle', git: '#/besin-ara'}, ikincil: {metin: 'Tabağını tara', ikon: 'camera', git: '#/ai/kamera'}}),
     {baslik: 'Gün içinde', html: `<div class="dd-yigin">${DD.kart({html: `${DD.duygu({...DDV.bugun.duygu, secili: duyguOku()})}${DD.uye() ? '' : DD.kanca({metin: 'Duygu durumunun beslenmene etkisini görmek için kaydet', ikon: 'chart-line'})}`})}<div data-yuva="su">${suKart()}</div></div>`},
     {baslik: 'Öğünlerin', html: `<div class="dd-yigin"><div data-yuva="ogun">${ogunBlok(z)}</div>${pencereYuva()}${DD.uye() ? '' : DD.btn({metin: 'Günün Özetini Kaydet', ikon: 'onay', tam: true, veri: {'uye-ol': 'Verilerini ve çektiğin tabağı buluta yedeklemek için 10 saniyede üye ol.'}})}</div>`},
