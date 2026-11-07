@@ -175,8 +175,7 @@ abstract final class DDSize {
   static const double sheetHandleW = 40;
   static const double sheetHandleH = 4;
   static const double sheetMax = 88;
-  static const double suWaveW = 120;
-  static const double suWaveH = 12;
+  static const double suGlass = 36;
   static const double suWeekH = 96;
   static const double chartH = 168;
   static const double sparkH = 44;

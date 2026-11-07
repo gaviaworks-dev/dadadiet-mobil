@@ -661,7 +661,8 @@
   const suEkle = (k, ml) => {
     const hedef = +k.dataset.hedef, yeni = +k.dataset.deger + ml;
     k.dataset.deger = yeni;
-    k.style.setProperty('--oran', kisit(yeni / hedef, 0, 1).toFixed(3));
+    const sira = DD.suSiradaki(yeni, hedef);
+    k.querySelectorAll('.dd-bardak').forEach((b, i) => { b.style.setProperty('--oran', DD.suBardakDurum(yeni, i).toFixed(3)); b.classList.toggle('is-siradaki', i === sira); b.disabled = i !== sira; });
     DD.say(k.querySelector('[data-su-deger]'), yeni, {bas: yeni - ml, sure: M.counter});
     const kalan = k.querySelector('[data-su-kalan]');
     if (kalan) kalan.textContent = DD.suKalan(yeni, hedef);
