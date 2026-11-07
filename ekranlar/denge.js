@@ -24,6 +24,7 @@
   };
   const hazirlaniyor = () => DD.kart({html: `<div class="dd-yigin">${DD.dengeSkor({hazirlaniyor: {gun: 3, toplam: 7}, bilesenler: tabak().bilesenler})}${DD.p('Birkaç gün daha öğün ekledikçe **ilk Denge Skorun** hazırlanır; o zamana kadar kayıtların burada birikir.', {orta: true, ton: 'ikincil'})}${DD.btn({metin: 'Öğün ekle', ikon: 'ekle', tam: true, git: '#/besin-ara'})}</div>`});
   const araclar = () => DD.parcali([
+    {ikon: 'plate-wheat', baslik: 'Tabak Kur', git: '#/denge/tabak'},
     {ikon: 'right-left', baslik: 'Muadil', git: '#/denge/muadil'},
     {ikon: 'life-ring', baslik: 'Kaçamak', git: '#/denge/kacamak'},
     {ikon: 'code-compare', baslik: 'Kıyasla', git: '#/denge/kiyasla'},

@@ -74,6 +74,8 @@
     DD.durum.yaz(g.ekA, ek); DD.durum.yaz(g.ogunA, ogun);
   };
 
+  // Yeni hesapta kalan kendi kayıtlarından çıkar; hedef yoksa kalan da yoktur (null).
+  DD.yeniKalan = () => { if (DD.hedefsiz()) return null; const h = DD.durum.oku('plan')?.hedefKcal ?? DD.durum.oku('kisa-hedef')?.kcal; return h - liste().filter(k => k.tarih === DD.bugunIso()).reduce((t, k) => t + (k.kcal || 0), 0); };
   window.DDKayit = {
     liste,
     bul: id => liste().find(k => k.id === id) || null,

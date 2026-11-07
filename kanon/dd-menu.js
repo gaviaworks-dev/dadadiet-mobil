@@ -4,11 +4,12 @@
   const hesapGrubu = {id: 'hesap', label: 'Hesabım', icon: 'user', uye: true, children: [
     {id: 'hedefler', label: 'Hedefler', icon: 'bullseye', git: '#/profil'},
     {id: 'izinler', label: 'İzinler (HealthKit)', icon: 'shield-halved', git: '#/profil?ac=izinler'},
-    {id: 'ayarlar', label: 'Ayarlar', icon: 'sliders', git: '#/profil?ac=ayarlar'}]};
+    {id: 'ayarlar', label: 'Ayarlar', icon: 'sliders', git: '#/profil?ac=ayarlar'},
+    {id: 'bagli', label: 'Bağlı Uygulamalar', icon: 'arrows-rotate', eylem: 'bagli'}]};
   const BLOKLAR = () => [[
     {id: 'bugun', label: 'Bugün', icon: 'house', git: '#/bugun'},
     {id: 'tabak', label: 'Akıllı Tabak & Değişim', icon: 'plate-wheat', children: [
-      {id: 'tabak-kur', label: 'Tabak Kur', icon: 'plate-wheat', git: '#/denge'},
+      {id: 'tabak-kur', label: 'Tabak Kur', icon: 'plate-wheat', git: '#/denge/tabak'},
       {id: 'tabak-cek', label: 'Tabağını Çek', icon: 'camera', git: '#/ai/kamera?mod=tabak'},
       {id: 'degisim', label: 'Değişim Önerileri', icon: 'right-left', git: '#/denge/muadil'}]},
     {id: 'programlar', label: 'Programlar & Diyetler', icon: 'clipboard-list', children: [
@@ -16,8 +17,8 @@
       {id: 'yasama', label: 'Yaşam Biçimine Göre', icon: 'person-walking', git: '#/programlar?seg=yasam'}]},
     {id: 'oruc', label: 'Oruç & Öğün Saatleri', icon: 'hourglass-half', git: '#/ritim'},
     {id: 'kutuphane', label: 'Beslenme Kütüphanesi', icon: 'book-open', children: [
-      {id: 'besin', label: `${(window.DDV?.besinler || []).length} Besin Değeri`, icon: 'apple-whole', git: '#/besin-ara'},
-      {id: 'testler', label: 'Sağlık Testleri', icon: 'clipboard-check', yakinda: true}]},
+      {id: 'besin', label: '541 Besin Değeri', icon: 'apple-whole', git: '#/besin-ara'},
+      {id: 'testler', label: '58 Sağlık Testi', icon: 'clipboard-check', git: '#/testler'}]},
     {id: 'etiket', label: 'Etiket Okuma', icon: 'barcode', git: '#/etiket'},
     {id: 'uzman', label: 'Diyetisyenim', icon: 'user-doctor', children: [
       {id: 'randevu', label: 'Randevularım', icon: 'calendar-check', git: '#/uzman'},
@@ -36,6 +37,12 @@
   const grup = x => { const acik = x.children.some(c => c.git === aktif()); return `<div class="dd-menu-item dd-menu-group${acik ? ' is-open' : ''}"><button class="dd-menu-row dd-menu-toggle" type="button" aria-expanded="${acik}"><span class="dd-menu-ic">${ik(x.icon)}</span><span class="dd-menu-label">${esc(x.label)}</span><span class="dd-menu-chev">${ik('chevron-down')}</span></button><div class="dd-menu-sub"${acik ? '' : ' inert'}><div class="dd-menu-sub-in">${x.children.map(c => satir(c, true)).join('')}</div></div></div>`; };
   const kullanici = () => { if (!DD.uye()) return `<p class="dd-menu-hello"><b>Merhaba</b><span>Verilerini korumak ve geçmişini görmek için giriş yap.</span></p><div class="dd-menu-auth">${DD.btn({metin: 'Giriş Yap', boyut: 'sm', attrs: 'data-menu-git="#/karsilama"'})}${DD.btn({metin: 'Üye Ol', tur: 'secondary', boyut: 'sm', attrs: 'data-menu-eylem="uye" data-menu-git=""'})}</div>`; const k = window.DDV?.kullanici || {}; return `<a class="dd-menu-profile" href="#/profil" data-menu-git="#/profil"><span class="dd-menu-avatar" aria-hidden="true">${esc(String(k.ad || 'D').slice(0, 1))}</span><span class="dd-menu-who"><b>${esc([k.ad, k.soyad].filter(Boolean).join(' ') || 'Profilim')}</b><small>${ik('hedef')} ${esc(String(k.hedefAd || '').split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr') + w.slice(1)).join(' '))}</small></span><span class="dd-menu-go">Profilim ${ik('chevron-right')}</span></a><div class="dd-menu-shortcuts">${kisayollar().map(([g, i, t, n]) => `<a class="dd-menu-short" href="${g}" data-menu-git="${g}">${ik(i)}<span>${esc(t)}</span>${n ? `<b class="dd-menu-sayac">${n}</b>` : ''}</a>`).join('')}</div>`; };
   const ayak = () => `<footer class="dd-menu-foot"><div class="dd-menu-item dd-menu-group dd-menu-lang"><button class="dd-menu-row dd-menu-toggle" type="button" aria-expanded="false"><span class="dd-menu-ic">${ik('globe')}</span><span class="dd-menu-label">Dil: <b>${esc(DILLER[0])}</b></span><span class="dd-menu-chev">${ik('chevron-down')}</span></button><div class="dd-menu-sub" inert><div class="dd-menu-sub-in" role="radiogroup" aria-label="Dil">${DILLER.map((d, i) => `<button class="dd-menu-row dd-menu-subrow dd-menu-lang-opt" type="button" role="radio" aria-checked="${!i}"${i ? ' data-menu-yakinda' : ''}><span class="dd-menu-label">${esc(d)}</span>${i ? '' : `<span class="dd-menu-ic">${ik('onay')}</span>`}</button>`).join('')}</div></div></div><div class="dd-menu-meta"><div class="dd-menu-social">${SOSYAL.map(([i, ad]) => `<a href="" data-menu-yakinda aria-label="Dada Diet ${esc(ad)}"><i class="dd-menu-brand fa-brands fa-${i}" aria-hidden="true"></i></a>`).join('')}</div><div class="dd-menu-legal">${YASAL.map(t => `<a href="" data-menu-yakinda>${esc(t)}</a>`).join('')}</div></div></footer>`;
+  // K6: yalnız profil ve hedef eşitlenir, sağlık verisi kapsam dışıdır.
+  const bagliSheet = () => { const d = DD.durum.oku('bagli-uygulamalar', {}); return DD.sheet({
+    baslik: 'Bağlı Uygulamalar',
+    html: `<div class="dd-yigin">${DD.p('**Profilin ve hedefin** bağladığın uygulamalarla eşitlenir. Sağlık verilerin eşitlenmez.')}${DD.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', secili: !!d.gastro})}${DD.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', secili: !!d.fit})}</div>`,
+    sonra: h => { [['bagli-gastro', 'gastro', 'Dada Gastro'], ['bagli-fit', 'fit', 'Dada Fit']].forEach(([ad, k, m]) => DD.on(h, ad, v => { DD.durum.yaz('bagli-uygulamalar', {...DD.durum.oku('bagli-uygulamalar', {}), [k]: v}); DD.toast(`**${m}** ${v ? 'bağlandı' : 'bağlantısı kapatıldı'}`, {ikon: 'arrows-rotate'}); })); }
+  }); };
   const gorusSheet = () => DD.sheet({
     baslik: 'Görüş Bildir',
     html: `<div class="dd-yigin">${DD.p('Uygulamayla ilgili **görüşünü** bizimle paylaş.')}${DD.input({ad: 'gorus', etiket: 'Görüşün', cokSatir: true, yer: 'Ne iyi çalıştı, neyi geliştirelim?'})}</div>`,
@@ -62,7 +69,7 @@
       if (t) { const g = t.closest('.dd-menu-group'), on = !g.classList.contains('is-open'); g.closest('.dd-menu-nav,.dd-menu-foot').querySelectorAll('.dd-menu-group').forEach(x => { const a = x === g && on; x.classList.toggle('is-open', a); x.querySelector('.dd-menu-toggle').setAttribute('aria-expanded', a); x.querySelector('.dd-menu-sub').inert = !a; }); return; }
       if (e.target.closest('[data-menu-yakinda]')) { e.preventDefault(); kapat(); DD.toast('Yakında', {ikon: 'bilgi'}); return; }
       const a = e.target.closest('[data-menu-git]');
-      if (a) { e.preventDefault(); e.stopPropagation(); kapat(); if (a.dataset.menuEylem === 'cikis') DD.cikis(); else if (a.dataset.menuEylem === 'gorus') gorusSheet(); else if (a.dataset.menuEylem === 'uye') DD.uyeDuvar(); else if (a.dataset.menuGit) DD.git(a.dataset.menuGit); }
+      if (a) { e.preventDefault(); e.stopPropagation(); kapat(); if (a.dataset.menuEylem === 'cikis') DD.cikis(); else if (a.dataset.menuEylem === 'gorus') gorusSheet(); else if (a.dataset.menuEylem === 'bagli') bagliSheet(); else if (a.dataset.menuEylem === 'uye') DD.uyeDuvar(); else if (a.dataset.menuGit) DD.git(a.dataset.menuGit); }
     });
   };
   DD.menu = {ac, kapat};

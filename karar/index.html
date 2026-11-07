@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Mobil Karar Özeti · Dada Diet</title>
+<title>Alınan Kararlar · Dada Diet</title>
 <link rel="icon" href="../assets/marka/favicon.png">
 <link rel="stylesheet" href="../kanon/dd-tokens.css">
 <style>
@@ -26,6 +26,7 @@ li+li{border-top:var(--dd-size-border) solid var(--dd-line)}
 .konu{color:var(--dd-slate)}
 .oneri{display:block;margin-top:var(--dd-s-2);color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
 .neden{color:var(--dd-slate)}
+.bekliyor{color:var(--dd-uyari-fg)}
 .son{margin:0;padding:var(--dd-s-12) var(--dd-s-16);border-radius:var(--dd-r-control);background:var(--dd-paper);border:var(--dd-size-border) solid var(--dd-primary-dark)}
 @media (max-width:620px){li{grid-template-columns:var(--dd-s-32) minmax(0,1fr)}.neden{grid-column:2}}
 @media print{body{background:var(--dd-paper)}main{padding:0;gap:var(--dd-s-8)}@page{margin:12mm}}
@@ -35,32 +36,32 @@ li+li{border-top:var(--dd-size-border) solid var(--dd-line)}
 <main>
   <header><img src="../assets/marka/dadadiet-renkli.svg" alt="Dada Diet"><span>7 Kasım 2026</span></header>
   <div>
-    <h1>Mobil uygulama: 8 karar için öneri</h1>
-    <p class="alt">Yasin Bey'in onayına. Ölçüt: Dada Gastro kanonu ve Dada Diet web ile tutarlılık.</p>
+    <h1>Mobil uygulama: alınan kararlar</h1>
+    <p class="alt">Ölçüt: Dada Gastro kanonu ve Dada Diet web ile tutarlılık. Biri dışında hepsi prototipe işlendi.</p>
   </div>
-  <div class="tamam"><span><b>Karara bağlandı:</b> Su ekleme "1 su bardağı (200 ml)" olarak kalıyor, su takibi bardak görünümünde kalıyor. Web'deki 200 ml bardak ölçüsüyle aynı.</span></div>
+  <div class="tamam"><span><b>K1 ve K2:</b> Su ekleme "1 su bardağı (200 ml)", su takibi bardak görünümünde. Web'deki 200 ml bardak ölçüsüyle aynı.</span></div>
 
   <section>
     <h2>Arayüz ve içerik</h2>
     <ol>
-      <li><span class="no">K3</span><span class="konu">Yan menü yönü<span class="oneri">Sağdan açılmaya devam etsin</span></span><span class="neden">Gastro mobilde menü sağdan açılıyor, Diet web'de de öyle. Şartname "sol" diyor ama aynı yerde "Gastro ile %100 uyumlu" diyor.</span></li>
-      <li><span class="no">K4</span><span class="konu">Tabak Kur aracı<span class="oneri">Web'deki hesabın aynısı mobile alınsın</span></span><span class="neden">Web'de oran ve puanlama hazır. Ayrı formül kurulursa aynı tabak iki yerde farklı puan alır.</span></li>
-      <li><span class="no">K5</span><span class="konu">541 besin, 58 test, BMH<span class="oneri">Menüde 541 ve 58 yazsın, testler web'deki içerikten gelsin</span></span><span class="neden">Sayılar canlı sitede doğru. Prototipte örnek olarak 309 besin var. BMH, web'deki hesaplayıcıyla aynı formülden çıksın.</span></li>
-      <li><span class="no">K6</span><span class="konu">Gastro ve Fit eşitleme<span class="oneri">Hesabım altında "Bağlı uygulamalar" olsun; yalnız profil ve hedef eşitlensin</span></span><span class="neden">Web'deki "Bağlı uygulamalar" bölümü bugün yalnız cihazları kapsıyor. Gastro ve Fit aynı bölüme eklenirse iki taraf tutarlı olur; sağlık verisi kapsam dışında kalır.</span></li>
-      <li><span class="no">K7</span><span class="konu">Öğün onayı<span class="oneri">"Onay" değil, "Diyetisyen gördü" ve not olsun</span></span><span class="neden">Web'de öğün onayı yok. Tek tek onay diyetisyene yük getirir ve tıbbi onay gibi anlaşılabilir.</span></li>
+      <li><span class="no">K3</span><span class="konu">Yan menü yönü<span class="oneri">Sağdan açılıyor</span></span><span class="neden">Gastro mobilde menü sağdan açılıyor, Diet web'de de öyle. Şartname "sol" diyor ama aynı yerde "Gastro ile %100 uyumlu" diyor.</span></li>
+      <li><span class="no">K4</span><span class="konu">Tabak Kur aracı<span class="oneri">Web'deki hesabın aynısı kullanılıyor (katsayı 0,47)</span></span><span class="neden">Aynı tabak web ve mobilde aynı puanı alıyor; hazır tabaklarla doğrulandı.</span></li>
+      <li><span class="no">K5</span><span class="konu">541 besin, 58 test, BMH<span class="oneri">Menüde 541 ve 58 yazıyor, testler web içeriğinden geliyor</span></span><span class="neden">Sayılar canlı sitede doğru. Prototipte örnek olarak 309 besin var; BMH web ile aynı formülden çıkıyor.</span></li>
+      <li><span class="no">K6</span><span class="konu">Gastro ve Fit eşitleme<span class="oneri">Hesabım altında "Bağlı Uygulamalar"; yalnız profil ve hedef eşitlenir</span></span><span class="neden">Web'deki "Bağlı uygulamalar" bölümü bugün yalnız cihazları kapsıyor. Gastro ve Fit aynı bölüme eklenirse iki taraf tutarlı olur; sağlık verisi kapsam dışında kalır.</span></li>
+      <li><span class="no">K7</span><span class="konu">Öğün onayı<span class="oneri">"Onay" değil, "Diyetisyen gördü" ve not</span></span><span class="neden">Web'de öğün onayı yok. Tek tek onay diyetisyene yük getirir ve tıbbi onay gibi anlaşılabilir.</span></li>
     </ol>
   </section>
 
   <section>
     <h2>Sağlık ve hukuk</h2>
     <ol>
-      <li><span class="no">K8</span><span class="konu">Misafirde kalori hedefi<span class="oneri">Sabit hedef gösterilmesin; hedef kısa hesaplamadan sonra çıksın</span></span><span class="neden">Boy, kilo ve yaş bilinmeden verilen hedef kişiye uygun olmayabilir. Web'de hedef hesaplayıcıdan geliyor.</span></li>
-      <li><span class="no">K9</span><span class="konu">Misafirde oruç<span class="oneri">Oruç başlamadan tek ekranlık sağlık sorusu sorulsun</span></span><span class="neden">Gebelik, emzirme ve yeme bozukluğu engeli şu an yalnız üyelikte çalışıyor. Misafir bu kontrolü atlıyor.</span></li>
-      <li><span class="no">K10</span><span class="konu">KVKK ve veri aktarımı<span class="oneri">Misafir verisi cihazda kalsın, üyelikte aktarmadan önce açık rıza alınsın</span></span><span class="neden">Web'in metni sağlık verisi için açık rıza diyor. Rıza verilmezse veri cihazda kalır, hesaba geçmez. Nihai metni hukuk onaylamalı.</span></li>
+      <li><span class="no">K8</span><span class="konu">Misafirde kalori hedefi<span class="oneri">Sabit hedef yok; hedef kısa hesaplamadan sonra çıkıyor</span></span><span class="neden">Boy, kilo ve yaş bilinmeden verilen hedef kişiye uygun olmayabilir. Web'de hedef hesaplayıcıdan geliyor.</span></li>
+      <li><span class="no">K9</span><span class="konu">Misafirde oruç<span class="oneri">Oruç başlamadan tek ekranlık sağlık sorusu var</span></span><span class="neden">Gebelik, emzirme ya da yeme bozukluğu işaretlenirse oruç başlatılamıyor.</span></li>
+      <li><span class="no">K10</span><span class="konu">KVKK ve veri aktarımı<span class="oneri">Veri cihazda kalıyor, üyelikte aktarmadan önce açık rıza alınıyor</span></span><span class="neden"><b class="bekliyor">Bekliyor:</b> Rıza metni taslak, hukuk onayına kadar yayında taslak olarak işaretli. Akış hazır.</span></li>
     </ol>
   </section>
 
-  <p class="son"><b>Hepsi uygunsa "uygun" yazmanız yeterli.</b> Farklı düşündüğünüz maddenin yalnız numarasını iletin.</p>
+  <p class="son"><b>Tek açık konu:</b> K10 rıza metni için hukuk onayı bekleniyor.</p>
 </main>
 </body>
 </html>

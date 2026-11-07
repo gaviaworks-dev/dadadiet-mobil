@@ -110,6 +110,11 @@
     });
   };
   // Duygu ile günlük kalori birlikte gösterilir; neden sonuç iddiası yoktur.
+  // BMH: Mifflin-St Jeor, web hesaplayıcısıyla aynı formül.
+  const testBolum = () => {
+    const k = DDV.kullanici, bmh = Math.round(10 * k.kiloKg + 6.25 * k.boyCm - 5 * k.yas + (k.cinsiyet === 'erkek' ? 5 : -161)), r = Object.entries(DD.durum.oku('test-sonuclari', {}));
+    return `<div class="dd-yigin-12">${DD.metrikKart({etiket: 'Bazal metabolizma hızı', deger: DD.sayi(bmh), birim: 'kcal/gün', ikon: 'kalori'})}${r.length ? DD.yuzey(DD.satirlar(r.map(([s, x]) => ({ikon: 'clipboard-check', baslik: DDV.testler.liste.find(t => t.slug === s)?.ad ?? s, alt: `${x.baslik} · ${x.puan} puan`, git: `#/test/${s}`})))) : ''}${DD.eylemKart({ikon: 'clipboard-check', baslik: `${DDV.testler.toplam} Sağlık Testi`, alt: 'Testini çöz, sonucun burada dursun', git: '#/testler'})}</div>`;
+  };
   const duyguBolum = () => {
     const D = DDV.bugun.duygu.secenekler, l = D.map(x => { const g = DDV.gecmis.filter(y => y.duygu === x.id && y.kcal); return {...x, n: g.length, ort: g.length ? Math.round(g.reduce((t, y) => t + y.kcal, 0) / g.length) : 0}; }).filter(x => x.n), ust = Math.max(...l.map(x => x.ort));
     return DD.kart({html: `<div class="dd-yigin-12">${l.map(x => DD.ilerleme({n: x.ort, hedef: ust, etiket: `${x.ad} · ${x.n} gün`, deger: `${DD.sayi(x.ort)} kcal`})).join('')}${DD.p('Son 14 günde hissettiklerin ve **ortalama kalorin** yan yana. Bir sonuç değil, diyetisyeninle konuşabileceğin bir ipucu.', {ton: 'ikincil', meta: true})}</div>`});
@@ -159,6 +164,7 @@
       analizler().length && {baslik: 'AI analiz geçmişi', html: analizBolum()},
       notlar().length && {baslik: 'Diyetisyen notları', html: notBolum()},
       {baslik: 'Tabakların', html: tabakGiris()},
+      {baslik: 'Test skorları ve BMH', html: testBolum()},
       {baslik: 'Duygu ve beslenme', html: duyguBolum()},
       !bos && {id: 'paylasim-izni', baslik: 'Paylaşım izni', html: paylasimBolum()}
     ]);

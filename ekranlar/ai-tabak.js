@@ -38,6 +38,7 @@
 
   // Bugün'ün kalanı: veri + eklenen besinler + kaydedilen planlı öğünler.
   const gunKalan = () => {
+    if (DD.yeniHesap()) return DD.yeniKalan();
     const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
     return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal');
   };
@@ -63,6 +64,7 @@
   const ozetHtml = l => DD.ozetSerit([{ikon: 'kalori', etiket: 'Enerji', deger: sayi(toplam(l, 'kcal')), birim: 'kcal'}, {ikon: 'protein', etiket: 'Protein', deger: sayi(toplam(l, 'P')), birim: 'g'}, {ikon: 'karb', etiket: 'Karb.', deger: sayi(toplam(l, 'K')), birim: 'g'}, {ikon: 'yag', etiket: 'Yağ', deger: sayi(toplam(l, 'Y')), birim: 'g'}]);
   const kalanBant = l => {
     const kcal = Math.round(toplam(l, 'kcal')), kalan = gunKalan(), fark = kalan - kcal, id = hedefOgun(), o = DDV.bugun.ogunler.find(x => x.id === id);
+    if (kalan == null) return '';
     const plan = o?.durum === 'planli' ? ` ${o.ad} planın **${sayi(o.kcal)} kcal**.` : '';
     return fark >= 0
       ? DD.bant({ikon: 'hedef', metin: `Bu tabakla günün kalanı **${sayi(fark)} kcal** olur.${plan}`})

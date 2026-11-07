@@ -7,6 +7,7 @@
   const D = () => DDV.ai.disarida;
   const toplam = (l, a) => l.reduce((t, x) => t + (x[a] || 0), 0);
   const gunKalan = () => {
+    if (DD.yeniHesap()) return DD.yeniKalan();
     const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
     return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal') - DD.tabagim.toplam().kcal;
   };
@@ -14,11 +15,12 @@
 
   const eklendi = slug => DD.tabagim.liste().some(x => x.slug === slug && x.taslak === 'ai-menu');
   // Tabağa eklenen tabak kendi kalorisiyle yeniden yargılanmaz: kalan, o tabak eklenmemiş gibi okunur.
-  const kalanIcin = (t, kalan) => kalan + (eklendi(t.slug) ? t.kcal : 0);
+  const kalanIcin = (t, kalan) => (kalan == null ? Infinity : kalan + (eklendi(t.slug) ? t.kcal : 0));
   const sigar = (t, kalan) => t.kcal <= kalanIcin(t, kalan);
   const siralama = kalan => [...D().tabaklar].sort((a, b) => sigar(b, kalan) - sigar(a, kalan) || b.puan - a.puan);
   const gerekce = (t, kalan) => {
     const k = kalanIcin(t, kalan);
+    if (kalan == null) return `**${sayi(t.P)} g protein** veriyor, yağı dengeli bir seçim.`;
     if (k === D().hedef.kalanKcal && t.gerekce) return vurgu(t.gerekce);
     return sigar(t, kalan)
       ? `Kalan **${sayi(k)} kcal**'ine sığıyor, **${sayi(t.P)} g protein** veriyor.`
@@ -66,12 +68,12 @@
       : new Promise(tamam => setTimeout(tamam, DD.azHareket() ? 0 : DD.TK.motion.reveal))),
     ciz: ctx => {
       const m = D().mekan, kalan = gunKalan(), l = ctx.sorgu.hal === 'bos' ? [] : siralama(kalan);
-      const bas = {gorsel: m.gorsel, etiket: `${m.tur} · ${m.semt}`, baslik: D().baslik, stat: [{deger: sayi(Math.max(kalan, 0)), etiket: 'Kalan kcal'}, {deger: `${sayi(D().hedef.proteinAcigi)} g`, etiket: 'Protein açığı'}, ...(l.length ? [{deger: l.length, etiket: 'Tabak'}] : [])]};
+      const bas = {gorsel: m.gorsel, etiket: `${m.tur} · ${m.semt}`, baslik: D().baslik, stat: [...(kalan == null ? [] : [{deger: sayi(Math.max(kalan, 0)), etiket: 'Kalan kcal'}]), ...(DD.yeniHesap() ? [] : [{deger: `${sayi(D().hedef.proteinAcigi)} g`, etiket: 'Protein açığı'}]), ...(l.length ? [{deger: l.length, etiket: 'Tabak'}] : [])]};
       if (!l.length) return DD.kubbe({...bas, html: DD.bos({ikon: 'menu', baslik: 'Menüyü okuyamadık', metin: 'Menüyü **düz tut** ve sayfanın tamamı görünecek şekilde yeniden çek.', eylem: {metin: 'Yeniden çek', ikon: 'kamera', git: '#/ai/kamera?mod=menu'}, ikincil: {metin: 'Besin ara', git: '#/besin-ara'}})});
       return DD.kubbe({
         ...bas,
         html: `<div class="dd-ic dd-yigin">
-          ${DD.p(`**${m.ad}** menüsünü okuduk. Sıralama **${D().hedef.ogun}** için kalan kalorine ve protein açığına göre yapıldı.`)}
+          ${DD.p(`**${m.ad}** menüsünü okuduk. ${kalan == null ? 'Sıralama **menünün besin değerine** göre yapıldı.' : `Sıralama **${D().hedef.ogun}** için kalan kalorine ve protein açığına göre yapıldı.`}`)}
           ${DD.segment({ad: 'gorunum', secili: ctx.gorunum || 'oneri', ogeler: [{ad: 'Sana en uygun', deger: 'oneri', ikon: 'hedef'}, {ad: 'Tüm menü', deger: 'tum', ikon: 'menu', sayi: l.length}]})}
           <div data-yuva="gorunum">${gorunum(ctx, l, kalan)}</div>
           ${DD.p(D().not.replace('tahminidir', '**tahminidir**'), {ton: 'ikincil', meta: true})}

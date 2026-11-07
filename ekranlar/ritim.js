@@ -22,7 +22,7 @@
   const planImzasi = () => { const p = planHam(); return p ? `${p.orucProtokolu ?? 'atlandi'}@${p.ilkOgunSaati}` : null; };
   // Bu hassasiyetlerde oruç önerilmez (kararlar 12); başlatma da plan seçme de kapanır.
   const ORUC_ENGEL = ['gebelik', 'yeme-bozuklugu'];
-  const engelli = () => (planHam()?.hassasiyetler || []).some(h => ORUC_ENGEL.includes(h));
+  const engelli = () => !!DD.durum.oku('oruc-saglik')?.engel || (planHam()?.hassasiyetler || []).some(h => ORUC_ENGEL.includes(h));
   const orucYok = () => planHam()?.orucProtokolu === 'yok';
   const kapali = () => orucYok() && !ham()?.protokol;   // "oruç istemiyorum" seçip sonradan plan seçen kişide sayaç açılır
   // İlk öğün saati ve pencere uzunluğu şu anın hangi evrede olduğunu belirler; plan yoksa DDV'nin 12:05 penceresi.
@@ -56,7 +56,7 @@
   const yaz = k => DD.durum.yaz('ritim-kayit', {...k, capa: k.capa ?? acilis, planImza: planImzasi()});
   const anlik = () => ({k: ham(), d: DD.durum.oku('ritim-durum', null)});
   const geriYukle = s => { if (s.k) DD.durum.yaz('ritim-kayit', s.k); else DD.durum.sil('ritim-kayit'); if (s.d) DD.durum.yaz('ritim-durum', s.d); else DD.durum.sil('ritim-durum'); DD.tazele(); };
-  const bosMu = () => hal() === 'bos' && !bosGecildi;
+  const bosMu = () => (hal() === 'bos' || (DD.yeniHesap() && !DD.durum.oku('oruc-saglik')?.onay)) && !bosGecildi;
   const planBul = k => DDV.ritim.protokoller.find(p => p.id === k.protokol);
   const imza = () => JSON.stringify([hal(), durumOku(), ham(), planImzasi(), engelli(), DD.durum.oku('bugun-ogun', null), DD.durum.oku('bugun-ek', null)]);
 
@@ -218,7 +218,20 @@
     DD.durum.yaz('ritim-durum', 'pencere');
     return {sureDk, tamam};
   };
+  // K9: yeni hesap oruca başlamadan önce sağlık sorusunu görür; işaretlenirse başlatma kapanır (onboarding ile aynı engel).
+  const saglikSheet = () => DD.sheet({
+    baslik: 'Başlamadan önce', zorunlu: true,
+    html: `<div class="dd-yigin-12">${DD.p('Aralıklı oruç **herkese uygun değil**. Sana uyan varsa işaretle.', {ton: 'ikincil'})}${DD.checkbox({ad: 'engel', deger: 'gebelik', etiket: 'Gebelik ya da emzirme'})}${DD.checkbox({ad: 'engel', deger: 'yeme-bozuklugu', etiket: 'Yeme bozukluğu öyküsü'})}</div>`,
+    altBar: DD.btn({metin: 'Devam et', tam: true, veri: {eylem: 'saglik-devam'}}),
+    sonra: h => DD.eylem(h, 'saglik-devam', () => {
+      const engel = !!h.querySelector('input[name="engel"]:checked');
+      DD.durum.yaz('oruc-saglik', engel ? {engel: true} : {onay: true});
+      h.kapat();
+      if (engel) DD.tazele(); else gecis();
+    })
+  });
   const gecis = () => {
+    if (DD.yeniHesap() && !DD.durum.oku('oruc-saglik')) { saglikSheet(); return; }
     const k = kayit(), eski = anlik(), geriAl = {eylem: 'Geri al', onEylem: () => geriYukle(eski)};
     if (bosMu() || durumOku() !== 'oruc') {
       bosGecildi = bosMu();

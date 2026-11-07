@@ -165,7 +165,7 @@
     }) + DD.bolumler([
       t && {baslik: 'Bekleyen talebin', html: talepKart(t)},
       {baslik: 'Görüşmelerin', html: `<div class="dd-yigin-12">${DD.segment({ad: 'randevu', etiket: 'Görüşmeler', secili: 'yaklasan', ogeler: [{ad: 'Yaklaşan', deger: 'yaklasan'}, {ad: 'Geçmiş', deger: 'gecmis'}]})}<div data-yuva="randevu">${randevuPanel('yaklasan')}</div></div>`},
-      {baslik: 'Uzman geri bildirimleri', eylem: 'Tabaklarım', git: '#/tabaklarim', html: geriBildirim()},
+      {baslik: 'Öğün geri bildirimleri', eylem: 'Tabaklarım', git: '#/tabaklarim', html: geriBildirim()},
       {baslik: 'Bu haftanın menüsü', eylem: 'Program', git: `#/program/${H().program}`, html: menuBolum()},
       {baslik: 'Mesajlar', eylem: 'Tümü', git: '#/uzman/sohbet', html: mesajBolum()},
       {baslik: 'Tabakların', html: tabakBolum()},
@@ -174,8 +174,8 @@
       {baslik: 'Daha fazlası', html: kisayollar()}
     ]);
   };
-  // Diyetisyenin tabaklara yazdığı notlar; kayıt sayfasına gider.
-  const geriBildirim = () => DD.yuzey(DD.satirlar(DDV.ogunKayitlari.filter(k => k.diyetisyenNotu).slice(0, 3).map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu.metin, git: `#/kayit/${k.id}`}))));
+  // K7: onay değil görülme bilgisi; diyetisyenin notu varsa "gördü" sayılır.
+  const geriBildirim = () => { const l = DDV.ogunKayitlari.filter(k => k.foto && k.diyetisyenGorsun); return DD.yuzey(DD.satirlar([...l.filter(k => !k.diyetisyenNotu).slice(0, 1), ...l.filter(k => k.diyetisyenNotu).slice(0, 3)].map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu?.metin ?? 'Paylaşıldı', sag: DD.durumRozet(k.diyetisyenNotu ? {metin: 'Diyetisyen gördü', ton: 'basari', ikon: 'onay'} : {metin: 'Bekliyor', ton: 'notr', ikon: 'clock'}), git: `#/kayit/${k.id}`})))); };
   const bos = () => {
     const t = talepOku();
     return DD.gulucuk({gorsel: KAPAK, etiket: 'Uzmanım', baslik: 'Yanında bir diyetisyen', alt: 'Görüşme, menü ve mesaj tek yerde', ust: true}) + DD.bolumler([

@@ -10,6 +10,7 @@
   const urunKart = u => DD.skorKart({ad: u.ad, kategori: u.skor < 40 ? null : u.kategori, skor: u.skor, etiket: skorSozcuk(u)});
   const toplam = (l, a) => l.reduce((t, x) => t + (x[a] || 0), 0);
   const gunKalan = () => {
+    if (DD.yeniHesap()) return DD.yeniKalan();
     const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
     return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal') - DD.tabagim.toplam().kcal;
   };
@@ -36,7 +37,7 @@
 
   const yorum = u => {
     const kcal = u.deger100.kcal * u.porsiyonGram / 100, kalan = gunKalan();
-    const pay = kalan > 0 ? ` Kalan **${sayi(kalan)} kcal**'inin yaklaşık **%${sayi(kcal / kalan * 100)}**'i.` : '';
+    const pay = kalan != null && kalan > 0 ? ` Kalan **${sayi(kalan)} kcal**'inin yaklaşık **%${sayi(kcal / kalan * 100)}**'i.` : '';
     return `Bir porsiyon **${sayi(u.porsiyonGram)} g**, **${sayi(kcal)} kcal** eder.${pay}`;
   };
 

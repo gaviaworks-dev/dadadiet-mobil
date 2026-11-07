@@ -119,6 +119,8 @@
   try { if (/[?&]uye=1\b/.test(location.hash)) DD.durum.yaz('oturum', {yol: 'giris'}); } catch { /* yok */ }
   DD.uye = () => !!DD.durum.oku('oturum');
   DD.yeniHesap = () => !DD.uye() || !!DD.durum.oku('oturum')?.misafirden;
+  // Profil bilgisi olmadan kalori hedefi gösterilmez (K8): hedef kısa hesaplamadan ya da onboarding planından gelir.
+  DD.hedefsiz = () => DD.yeniHesap() && !DD.durum.oku('plan') && !DD.durum.oku('kisa-hedef');
   DD.UYE_KILIT = {
     tabaklarim: {ikon: 'tabak', baslik: 'Tabakların burada birikir', metin: 'Çektiğin tabakları **görsel arşivinde** saklamak için giriş yap.'},
     saglik: {ikon: 'file-medical', baslik: 'Sağlık dosyan', metin: 'Geçmiş günlerin **trendini** görmek için ücretsiz profil oluştur.'},
@@ -126,12 +128,23 @@
     'uzman-sohbet': {ikon: 'comment-dots', baslik: 'Diyetisyeninle yazış', metin: 'Diyetisyeninle **doğrudan iletişim** kurmak için kaydol.'}
   };
   const SSO = [{yol: 'apple', metin: 'Apple ile devam et', marka: 'apple'}, {yol: 'google', metin: 'Google ile devam et', gorsel: 'assets/marka/sosyal/google.svg'}];
+  // K10: aktarım açık rızaya bağlıdır; rıza yoksa veri cihazda kalır. Metin hukuk onayına kadar taslaktır.
+  const rizaSheet = yol => DD.sheet({
+    baslik: 'Verilerin hesabına geçsin mi?', zorunlu: true,
+    html: `<div class="dd-yigin">${DD.durumRozet({metin: 'Taslak metin · Hukuk onayı bekliyor', ton: 'uyari', ikon: 'clock'})}${DD.p('Bu cihaza girdiğin **su, duygu, öğün ve tabak fotoğrafları** sağlık verisi sayılır. Hesabına aktarılması için **açık rızan** gerekir. Rıza vermezsen hesabın açılır, veriler yalnız bu cihazda kalır.')}</div>`,
+    altBar: `<div class="dd-yigin-8">${DD.btn({metin: 'Açık rıza veriyorum, aktar', tam: true, veri: {eylem: 'riza-evet'}})}${DD.btn({metin: 'Aktarma, cihazda kalsın', tur: 'text', tam: true, veri: {eylem: 'riza-hayir'}})}</div>`,
+    sonra: h => {
+      const bitir = riza => { DD.durum.yaz('oturum', {yol, misafirden: true, riza}); DD.durum.yaz('veri-izinleri', {riza}); h.kapat(); DD.tazele(); DD.toast(riza ? 'Bugünkü kayıtların **hesabına aktarıldı**' : 'Hesabın açıldı, kayıtların **bu cihazda kaldı**', {tur: 'basari'}); };
+      const a = DD.eylem(h, 'riza-evet', () => bitir(true)), b = DD.eylem(h, 'riza-hayir', () => bitir(false));
+      return () => { a(); b(); };
+    }
+  });
   DD.uyeDuvar = (o = {}) => DD.sheet({
     baslik: o.baslik || 'Verilerini koru',
     html: `<div class="dd-yigin">${DD.p(o.metin || 'Verilerini ve çektiğin tabağı buluta yedeklemek için **10 saniyede** üye ol.')}<div class="dd-yigin-8">${SSO.map(b => DD.btn({...b, tur: 'secondary', tam: true, veri: {eylem: 'uye-sso', id: b.yol}})).join('')}${DD.btn({metin: 'E-posta ile devam et', tur: 'text', tam: true, veri: {eylem: 'uye-eposta'}})}</div></div>`,
     altBar: DD.btn({metin: 'Şimdi değil', tur: 'text', tam: true, attrs: 'data-sheet-kapat'}),
     sonra: h => {
-      const a = DD.eylem(h, 'uye-sso', el => { DD.durum.yaz('oturum', {yol: el.dataset.id, misafirden: true}); h.kapat(); DD.tazele(); DD.toast('Bugünkü kayıtların **hesabına aktarıldı**', {tur: 'basari'}); });
+      const a = DD.eylem(h, 'uye-sso', el => { const yol = el.dataset.id; h.kapat(); rizaSheet(yol); });
       const b = DD.eylem(h, 'uye-eposta', () => { h.kapat(); DD.git('#/karsilama'); });
       return () => { a(); b(); };
     }

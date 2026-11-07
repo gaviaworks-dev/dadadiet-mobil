@@ -584,3 +584,9 @@
 .dd-ogun.is-planli .dd-ogun-plan{opacity:.85}
 .dd-mini-foto{position:absolute;inset:var(--dd-s-4);border-radius:var(--dd-r-round);background:var(--dd-line) center/cover}
 .dd-ogun .dd-satir-metin small{text-align:start;text-align-last:start}
+
+/* Tabak Kur */
+.dd-tabak-bolme{position:relative;display:grid;place-items:center;width:calc(var(--dd-s-48) * 3);aspect-ratio:1;margin-inline:auto;border-radius:var(--dd-r-round);background:conic-gradient(var(--dd-primary) 0 var(--a),var(--dd-protein) 0 var(--b),var(--dd-karb) 0 var(--c),var(--dd-yag) 0 var(--d),var(--dd-line) 0)}
+.dd-tabak-bolme>span{display:flex;align-items:baseline;justify-content:center;align-content:center;flex-wrap:wrap;gap:var(--dd-s-2);width:64%;aspect-ratio:1;border-radius:var(--dd-r-round);background:var(--dd-paper)}
+.dd-tabak-bolme b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-numeral-lg-size);line-height:1}
+.dd-tabak-bolme small{font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
