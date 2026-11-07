@@ -54,11 +54,11 @@
   };
 
   const govde = () => {
-    const t = tabak(), bos = hal() === 'bos' || DD.yeniHesap();
-    const hero = DD.gulucuk({gorsel: 'assets/gorsel/hero/denge-yesil.webp', baslik: 'Akıllı Tabak', alt: bos ? 'İlk skorun hazırlanıyor' : t.baslik, ust: true});
-    if (bos) return hero + DD.bolumler([hazirlaniyor(), {baslik: 'Araçlar', html: araclar()}, {baslik: t.rehber.baslik, html: rehber()}]);
+    const t = tabak(), yeni = DD.yeniHesap(), bos = hal() === 'bos' || yeni, kur = DD.eylemKart({ikon: 'plate-wheat', baslik: 'Tabak Kur', alt: 'Yemeğini seç, 100 üzerinden puanını gör', git: '#/denge/tabak'});
+    const hero = DD.gulucuk({gorsel: 'assets/gorsel/hero/denge-yesil.webp', baslik: 'Akıllı Tabak', alt: yeni ? 'Tabağını kur, puanını gör' : bos ? 'İlk skorun hazırlanıyor' : t.baslik, ust: true});
+    if (bos) return hero + DD.bolumler([yeni ? kur : `<div class="dd-yigin">${kur}${hazirlaniyor()}</div>`, {baslik: 'Araçlar', html: araclar()}, {baslik: t.rehber.baslik, html: rehber()}]);
     return hero + DD.bolumler([
-      skorKart(),
+      `<div class="dd-yigin">${kur}${skorKart()}</div>`,
       {baslik: 'Araçlar', html: araclar()},
       {baslik: 'Tabağın', eylem: 'Öğüne git', git: `#/ogun/${ogunId()}`, html: kirilim()},
       {baslik: 'Öneriler', html: `<div class="dd-yigin"><div data-yuva="icgoru">${icgoru()}</div><div data-yuva="oneri">${oneriListe()}</div><div data-yuva="tahmin">${tahmin()}</div></div>`},
