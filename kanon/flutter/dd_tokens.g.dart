@@ -215,8 +215,8 @@ abstract final class DDSize {
   static const double gPageEndSpace = 80;
   static const double gBorderWidth = 1;
   static const double gBadgeLarge = 96;
-  static const double heroMin = 520;
-  static const double heroMax = 600;
+  static const double heroMin = 560;
+  static const double heroMax = 640;
 }
 
 abstract final class DDMotion {

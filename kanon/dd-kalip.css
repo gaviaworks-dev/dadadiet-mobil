@@ -2,7 +2,7 @@
 :root{--dd-dock-alan:calc(var(--dd-size-nav-bar) + var(--dd-s-40));--dd-serit-medya:calc(var(--dd-s-48) * 2 + var(--dd-s-16))}
 
 /* Ana hero (ana-v3 .x-hero): sahne, yatay slayt, üstte başlık ve arama, altta öneri ve gösterge */
-.dd-hero{position:relative;isolation:isolate;overflow:hidden;height:calc(clamp(var(--dd-size-hero-min),calc(var(--dd-ekran-h) * .64),var(--dd-size-hero-max)) - var(--dd-scene-collapse,0px));background:var(--dd-overlay);color:var(--dd-paper)}
+.dd-hero{position:relative;isolation:isolate;overflow:hidden;height:calc(clamp(var(--dd-size-hero-min),calc(var(--dd-ekran-h) * .72),var(--dd-size-hero-max)) - var(--dd-scene-collapse,0px));background:var(--dd-overlay);color:var(--dd-paper)}
 .dd-hero::after{content:'';position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse 100% calc(var(--dd-ust-h) + var(--dd-s-48) * 3) at 0 0,color-mix(in srgb,var(--dd-primary) 25%,transparent) 0,transparent 65%);mix-blend-mode:screen}
 .dd-hero-track{position:absolute;inset:0;z-index:0;display:flex;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none}
 .dd-hero-track::-webkit-scrollbar{display:none}
@@ -10,7 +10,7 @@
 .dd-hero-slide{position:relative;flex:0 0 100%;min-width:0;height:100%;overflow:hidden;scroll-snap-align:start;scroll-snap-stop:always}
 .dd-hero-foto{position:absolute;inset:0;background-size:cover;background-position:center;transform-origin:center 30%;will-change:transform}
 .dd-hero-perde{position:absolute;inset:0;background:var(--dd-sahne-perde,linear-gradient(180deg,color-mix(in srgb,var(--dd-overlay) 86%,transparent),transparent 25%,transparent 45%,color-mix(in srgb,var(--dd-overlay) 86%,transparent) 75%,var(--dd-overlay)))}
-.dd-hero.is-perdeli .dd-hero-perde{background:color-mix(in srgb,var(--dd-overlay) 58%,transparent)}
+.dd-hero.is-perdeli .dd-hero-perde{background:radial-gradient(ellipse 78% calc(var(--dd-s-48) * 4) at 50% var(--dd-hero-odak-y,50%),color-mix(in srgb,var(--dd-overlay) 58%,transparent) 0,color-mix(in srgb,var(--dd-overlay) 46%,transparent) 48%,transparent 100%),var(--dd-sahne-perde,linear-gradient(180deg,color-mix(in srgb,var(--dd-overlay) 60%,transparent),transparent 30%,transparent 55%,color-mix(in srgb,var(--dd-overlay) 60%,transparent)))}
 .dd-hero-hit{position:absolute;inset:0;z-index:1;display:block;width:100%}
 .dd-hero-info{position:absolute;left:var(--dd-gutter);right:var(--dd-gutter);bottom:var(--dd-s-24);z-index:2;pointer-events:none}
 .dd-hero-copy{display:grid;gap:var(--dd-s-8);min-width:0;text-shadow:var(--dd-photo-shadow)}

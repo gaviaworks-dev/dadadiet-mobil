@@ -15,6 +15,8 @@
   // Ortak geçiş eğrisi: smootherstep, Gastro veils ile aynı.
   const sstep = t => { t = Math.max(0, Math.min(1, t)); return t * t * t * (t * (6 * t - 15) + 10); };
   const tok = () => { const cs = getComputedStyle(root), n = k => parseFloat(cs.getPropertyValue(k)); return {T: n('--dd-veil-top-a') || .35, E: n('--dd-veil-end-a') || .6, lead: n('--dd-veil-lead') || 40, tail: n('--dd-veil-tail') || 32}; };
+  // Ana hero perdesi: Gastro 1.0.1 overlay.heroTop ve overlay.heroBottom. Üst kol metnin altına dek sabit, sonra söner; alt kol ilk metinde dolar, alt kenarda en koyu.
+  const heroAlfa = (y, h, len, top) => { const {heroTop: U, heroBottom: A} = DD.TK.overlay; const ust = U.alpha * (1 - sstep((y - len) / U.fadeLength)); const alt = y <= top ? A.alphaAtFirstText * sstep((y - (top - A.leadAboveFirstText)) / A.leadAboveFirstText) : A.alphaAtFirstText + (A.alphaEnd - A.alphaAtFirstText) * ((y - top) / Math.max(1, h - top)); return Math.max(ust, alt); };
   const edgeTop = (y, len, t) => t.T * (1 - sstep(y / Math.max(1, len)));
   const edgeBottom = (y, top, t) => t.E * sstep((y - (top - t.lead)) / (t.lead + t.tail));
   const gradient = (h, alpha, marks = []) => { const ys = [...new Set([...Array.from({length: Math.ceil(h / 4) + 1}, (_, i) => Math.min(h, i * 4)), ...marks].map(y => Math.max(0, Math.min(h, Math.round(y)))))].sort((a, c) => a - c); return `linear-gradient(180deg,${ys.map(y => `color-mix(in srgb,var(--dd-overlay) ${(alpha(y) * 100).toFixed(2)}%,transparent) ${y}px`).join(',')})`; };
@@ -24,5 +26,5 @@
   addEventListener('resize', () => { document.querySelectorAll('[data-perde]').forEach(b => delete b.dataset.perde); veils(); });
   document.fonts?.ready.then(() => veils());
   document.addEventListener('click', e => { const b = e.target.closest('.dd-save'); if (!b) return; e.preventDefault(); const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); DD.toast(on ? 'Kaydedildi' : 'Kayıt kaldırıldı'); });
-  window.DDCard = {kart, card, feature, tile, meta, veils, textTop, gradient, edgeTop, edgeBottom, tokens: tok};
+  window.DDCard = {kart, card, feature, tile, meta, veils, textTop, gradient, edgeTop, edgeBottom, heroAlfa, tokens: tok};
 })();

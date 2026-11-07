@@ -1,4 +1,4 @@
-/* Gastro ortak-menu.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
+/* Gastro ortak-menu.css kaynağından taşındı; hesap kısayolları ve bloklar Gastro mobil 1.0.1 dg_drawer.dart ile güncel. */
 /* Ortak yan menü (ortak-menu.js). Kanon: sağdan çekmece, %86 / en çok var(--dd-size-menu-w), düz sol kenar, 48px satır,
    24px ikon sütunu + 12px metin boşluğu, tek açık akordeon; tokenlar tokens.css'ten. Sayfa CSS'inden bağımsız. */
 /* docs/46 · Header solid rengi üç ekranda tek token (Beyar kararı): canlı site ve logo rengi var(--dd-primary) (PANTONE 173 C).
@@ -32,12 +32,14 @@ html.dd-menu-locked{overflow:hidden}
 .dd-menu-who small .icon{font-size:var(--dd-size-icon-sm)}
 .dd-menu-go{display:flex;align-items:center;gap:var(--dd-s-4);flex-shrink:0;font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
 .dd-menu-go .icon{font-size:var(--dd-size-icon-sm)}
-.dd-menu-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dd-s-8)}
-.dd-menu-short{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-height:calc(var(--dd-s-48) + var(--dd-s-16));padding:var(--dd-s-8) var(--dd-s-4);border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-ink);text-decoration:none;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
-.dd-menu-short .icon{font-size:var(--dd-size-icon-md);color:var(--dd-primary-deep)}
+.dd-menu-shortcuts{display:flex;gap:var(--dd-s-8);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+.dd-menu-shortcuts::-webkit-scrollbar{display:none}
+.dd-menu-short{display:flex;flex:1 0 auto;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-height:var(--dd-size-touch);padding:var(--dd-s-8) var(--dd-s-4);border-radius:var(--dd-r-control);background:var(--dd-paper);color:var(--dd-ink);text-decoration:none;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);white-space:nowrap}
+.dd-menu-short .icon{font-size:var(--dd-size-icon-sm);color:var(--dd-primary-deep)}
 
 /* Navigation rows: 48px, 24px icon column, 12px gap, body role; dividers only between items. */
-.dd-menu-nav{display:grid;padding:var(--dd-s-12) var(--dd-s-8) var(--dd-s-16)}
+.dd-menu-nav{display:grid;gap:var(--dd-s-12);padding-top:var(--dd-s-12)}
+.dd-menu-blok{margin-inline:var(--dd-s-8);padding:var(--dd-s-4);border-radius:var(--dd-r-surface);background:var(--dd-bg)}
 .dd-menu-item{position:relative}
 .dd-menu-item+.dd-menu-item:before{content:'';position:absolute;top:0;left:var(--dd-s-12);right:var(--dd-s-12);border-top:var(--dd-size-border) solid var(--dd-line)}
 .dd-menu-row{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-s-48);padding:0 var(--dd-s-12);border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-ink);text-decoration:none;text-align:justify;text-align-last:left;font-family:var(--dd-font);font-size:var(--dd-t-body-size);font-weight:var(--dd-t-body-weight);line-height:var(--dd-t-body-line);cursor:pointer}
@@ -62,7 +64,7 @@ html.dd-menu-locked{overflow:hidden}
 
 /* Foot (end of the scroll area, so an open language list never covers rows): compact language selector,
    then quiet social and legal links. */
-.dd-menu-foot{margin:0 var(--dd-s-8);padding:var(--dd-s-8) 0 calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-menu-foot{margin:var(--dd-s-16) var(--dd-s-8) 0;padding:var(--dd-s-8) 0 calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line)}
 .dd-menu-lang .dd-menu-label b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
 .dd-menu-lang-opt[aria-checked=true]{color:var(--dd-primary-deep);font-family:var(--dd-font-bold)}
 .dd-menu-lang-opt[aria-checked=true] .dd-menu-ic{color:var(--dd-primary-deep)}
