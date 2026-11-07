@@ -35,7 +35,7 @@
 
   DD.ekran('uzman-sohbet', {
     tur: 'alt',
-    nav: 'uzman',
+    nav: 'profil',
     ust: '#/uzman',
     tabagim: false,
     iskelet: 'liste',

@@ -28,7 +28,7 @@
     ...(DD.uye() ? [hesapGrubu] : []),
     {id: 'gorus', label: 'Görüş Bildir / Destek', icon: 'comment-dots', eylem: 'gorus'}
   ]];
-  const kisayollar = () => { const a = DD.durum.oku('aktifProgram', window.DDV?.kullanici?.aktifProgram), n = DD.bildirimSayi(); return [['#/saglik', 'file-medical', 'Sağlık Dosyam'], [a ? `#/program/${a.slug}` : '#/programlar', 'clipboard-list', 'Aktif Programım'], ['#/tabaklarim', 'images', 'Tabaklarım'], ['#/bildirimler', 'bell', 'Bildirimler', n]]; };
+  const kisayollar = () => { const a = DD.durum.oku('aktifProgram', DD.yeniHesap() ? null : window.DDV?.kullanici?.aktifProgram), n = DD.bildirimSayi(); return [['#/saglik', 'file-medical', 'Sağlık Dosyam'], [a ? `#/program/${a.slug}` : '#/programlar', 'clipboard-list', 'Aktif Programım'], ['#/tabaklarim', 'images', 'Tabaklarım'], ['#/bildirimler', 'bell', 'Bildirimler', n]]; };
   const DILLER = ['Türkçe', 'English', 'Español', 'Русский', 'Deutsch'];
   const SOSYAL = [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x-twitter', 'X']];
   const YASAL = ['Hakkımızda', 'Yasal Sayfalar', 'İletişim'];

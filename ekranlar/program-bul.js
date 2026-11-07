@@ -8,7 +8,7 @@
   const vurgula = (m, p) => m.replace(p, `**${p}**`);
   const cevaplar = () => DD.durum.oku(ANAHTAR, {}) || {};
   const yaz = c => DD.durum.yaz(ANAHTAR, c);
-  const aktif = () => DD.durum.oku('aktifProgram', DDV.kullanici.aktifProgram);
+  const aktif = () => DD.durum.oku('aktifProgram', DD.yeniHesap() ? null : DDV.kullanici.aktifProgram);
   const kayitlar = () => DD.durum.oku('kayitliProgramlar', []);
   const secenek = (alan, deger) => B().adimlar.flatMap(a => a.gruplar).find(g => g.alan === alan)?.secenekler.find(x => x.deger === deger);
 

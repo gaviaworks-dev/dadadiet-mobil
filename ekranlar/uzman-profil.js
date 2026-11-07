@@ -6,7 +6,7 @@
   const KAPAK = 'assets/gorsel/hero/uzman-masa.webp', ONGORU_GUN = 30;
   const B = () => DDV.benimDiyetisyenim;
   const bul = slug => DDV.diyetisyenler.find(d => d.slug === slug);
-  const benimMi = d => d.slug === B().diyetisyen;
+  const benimMi = d => !DD.yeniHesap() && d.slug === B().diyetisyen;
   const randevu = () => DD.durum.oku('uzman-randevu', B().sonrakiRandevu);
   const buyukBas = s => s.charAt(0).toLocaleUpperCase('tr') + s.slice(1);
 
@@ -97,7 +97,7 @@
 
   DD.ekran('uzman-profil', {
     tur: 'banner',
-    nav: 'uzman',
+    nav: 'profil',
     ust: '#/uzman/bul',
     tabagim: false,
     baslik: ctx => bul(ctx.param.slug)?.kisaAd || 'Diyetisyen',

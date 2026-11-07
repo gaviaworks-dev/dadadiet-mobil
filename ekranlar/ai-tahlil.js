@@ -6,7 +6,7 @@
   const {esc, ondalik} = DD;
   const A = () => DDV.ai.tahlil;
   const tahlil = () => DDV.saglik.kanTahlilleri.find(t => t.id === A().tahlil);
-  const onceki = () => DDV.saglik.kanTahlilleri.find(t => t.id !== A().tahlil);
+  const onceki = () => (DD.yeniHesap() ? null : DDV.saglik.kanTahlilleri.find(t => t.id !== A().tahlil));
   const analiz = () => DDV.saglik.aiAnalizleri.find(a => a.tahlil === A().tahlil);
   const dosyadakiler = () => DD.durum.oku('saglik-tahliller', []);
   const kayitli = () => dosyadakiler().some(t => t.id === A().tahlil);
@@ -17,6 +17,7 @@
   // Açıklama önce AI satırından; yoksa önceki tahlille kıyas.
   const aciklama = x => {
     const a = A().satirlar.find(s => s.ad === x.ad)?.aciklama;
+    if (DD.yeniHesap() && /Mart/.test(a || '')) return '';
     if (a && x.durum !== 'normal' || a?.length > 12) return a.replace(/(Referansın altında|referans aralığına girmiş|Aralıkta)/, '**$1**');
     const o = onceki()?.degerler.find(y => y.ad === x.ad);
     return o && o.deger !== x.deger ? `${ayAdi(onceki())} sonucun **${vurguluDeger(o.deger)}** idi.` : '';
@@ -59,7 +60,7 @@
             <h1 class="dd-t-section">${esc(T.baslik)}</h1>
           </div>
           ${DD.ozetSerit([{ikon: 'tahlil', etiket: 'Okunan', deger: T.okunanDeger, birim: 'değer'}, {ikon: 'onay', etiket: 'Aralıkta', deger: T.normal}, {ikon: 'bilgi', etiket: 'Dışında', deger: T.dikkat}])}
-          ${DD.ipucu({ikon: 'wand-magic-sparkles', baslik: 'Kısa yorum', metin: a.ozet})}
+          ${DD.ipucu({ikon: 'wand-magic-sparkles', baslik: 'Kısa yorum', metin: DD.yeniHesap() ? a.ozet.split('. ').slice(0, 2).join('. ') + '.' : a.ozet})}
         </div>
         ${DD.bolum({baslik: 'Değerler', html: `<div class="dd-yigin-12">${DD.segment({ad: 'filtre', secili: ctx.filtre || 'tum', ogeler: [{ad: 'Tümü', deger: 'tum', sayi: T.okunanDeger}, {ad: 'Aralığın dışında', deger: 'disinda', sayi: T.dikkat}]})}<div data-yuva="liste">${liste(ctx)}</div></div>`})}
         ${DD.bolum({baslik: 'Görüşmede konuşabileceklerin', html: `<div class="dd-yigin-12">${a.maddeler.map(m => DD.madde({metin: m.replace(/^(D vitamini|Yağlı balık|Ferritin ve B12|[^ ]+)/, '**$1**'), tur: 'notr'})).join('')}</div>`})}
@@ -77,10 +78,11 @@
       const c = [
         DD.on(kok, 'filtre', v => { ctx.filtre = v; kok.querySelector('[data-yuva="liste"]').innerHTML = liste(ctx); }),
         DD.eylem(kok, 'kaydet-dosya', () => {
+          if (!DD.uye()) { DD.uyeDuvar({metin: 'Sonucumu Sağlık Dosyama kaydet ve uzmana ilet.'}); return; }
           DD.durum.yaz('saglik-tahliller', [tahlil(), ...dosyadakiler()]); DD.tazele();
           DD.toast('Sağlık dosyana **kaydedildi**', {tur: 'basari', eylem: 'Dosyayı aç', onEylem: () => DD.git('#/saglik')});
         }),
-        DD.eylem(kok, 'gonder', () => gonderSheet(kok))
+        DD.eylem(kok, 'gonder', () => (DD.uye() ? gonderSheet(kok) : DD.uyeDuvar({metin: 'Sonucumu Sağlık Dosyama kaydet ve uzmana ilet.'})))
       ];
       return () => c.forEach(f => f());
     }

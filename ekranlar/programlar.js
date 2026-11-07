@@ -7,7 +7,7 @@
   const F = () => DDV.programFiltreleri;
   const bosF = () => Object.fromEntries(GRUPLAR.map(g => [g, []]));
   const fold = s => String(s).toLocaleLowerCase('tr').replace(/[çğıöşü]/g, c => ({ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u'}[c]));
-  const aktif = () => DD.durum.oku('aktifProgram', DDV.kullanici.aktifProgram);
+  const aktif = () => DD.durum.oku('aktifProgram', DD.yeniHesap() ? null : DDV.kullanici.aktifProgram);
   const kayitlar = () => DD.durum.oku('kayitliProgramlar', []);
 
   // ---------- Durum ----------

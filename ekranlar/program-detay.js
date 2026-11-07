@@ -3,7 +3,7 @@
  * Gün gün döküm 1 MB olduğu için kapak ve özet hemen çizilir, öğün panelleri veri gelene kadar iskelet kalır. */
 (() => {
   const bul = slug => DDV.programlar.find(p => p.slug === slug);
-  const aktifOku = () => DD.durum.oku('aktifProgram', DDV.kullanici.aktifProgram);
+  const aktifOku = () => DD.durum.oku('aktifProgram', DD.yeniHesap() ? null : DDV.kullanici.aktifProgram);
   const kayitlar = () => DD.durum.oku('kayitliProgramlar', []);
 
   // ---------- Tarih ----------
@@ -315,7 +315,7 @@
           DD.durum.yaz('kayitliProgramlar', l.includes(id) ? l.filter(x => x !== id) : [...l, id]);
         }),
         DD.eylem(kok, 'program-paylas', () => DD.paylas({baslik: p.ad, alt: p.aciklama, url: `https://dadadiet.com/program/${p.slug}`})),
-        DD.eylem(kok, 'program-basla', baslat),
+        DD.eylem(kok, 'program-basla', el => (DD.uye() ? baslat(el) : DD.uyeDuvar({metin: 'Programa başlamak ve günlerini takip etmek için üye ol.'}))),
         DD.eylem(kok, 'program-birak', birak)
       ];
       return () => temizle.forEach(f => f());

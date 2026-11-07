@@ -8,7 +8,7 @@
   const SIRALAR = [['onerilen', 'Önerilen', 'wand-magic-sparkles'], ['fiyat', 'En uygun fiyat', 'tag'], ['deneyim', 'En deneyimli', 'award']];
   const E = () => DDV.eslesmeSorulari, TOPLAM = 3;
   const D = () => DDV.diyetisyenler;
-  const benim = () => DDV.benimDiyetisyenim.diyetisyen;
+  const benim = () => (DD.yeniHesap() ? null : DDV.benimDiyetisyenim.diyetisyen);
   const bosF = () => Object.fromEntries(GRUPLAR.map(g => [g.ad, []]));
   const tekSeans = d => d.paketler.find(p => p.id === 'tek').fiyat;
 
@@ -188,7 +188,7 @@
 
   DD.ekran('uzman-bul', {
     tur: 'banner',
-    nav: 'uzman',
+    nav: 'profil',
     ust: '#/uzman',
     tabagim: false,
     yenile: true,
