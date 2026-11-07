@@ -263,17 +263,16 @@
 /* Su: hedef bardak bardak görünür. Bardak gövdesi ve su alanı SVG maskesidir; su yüksekliği --oran ile gelir. */
 .dd-su{gap:var(--dd-s-16)}
 .dd-su-bardaklar{display:grid;grid-template-columns:repeat(6,minmax(0,var(--dd-size-su-glass)));justify-content:space-between;gap:var(--dd-s-12) var(--dd-s-8)}
-.dd-bardak{position:relative;display:block;width:100%;aspect-ratio:36/46;padding:0;border:0;background:none}
+.dd-bardak{position:relative;display:block;width:100%;aspect-ratio:36/46;padding:0;border:0;background:none;cursor:pointer;transition:transform var(--dd-m-fast) var(--dd-e-standard)}
+.dd-bardak:active{transform:scale(.94)}
 .dd-bardak::before{content:"";position:absolute;inset:0;background:var(--dd-bilgi-line);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 46'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round' d='M3 2H33L30 41Q29.7 44 26.7 44H9.3Q6.3 44 6 41Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 46'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round' d='M3 2H33L30 41Q29.7 44 26.7 44H9.3Q6.3 44 6 41Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
 .dd-bardak-ic{position:absolute;inset:0;overflow:hidden;background:var(--dd-bilgi-bg);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 46'%3E%3Cpath d='M6 7H30L27.6 39.5Q27.4 41 25.8 41H10.2Q8.6 41 8.4 39.5Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 46'%3E%3Cpath d='M6 7H30L27.6 39.5Q27.4 41 25.8 41H10.2Q8.6 41 8.4 39.5Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
 .dd-bardak-ic::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 24%,color-mix(in srgb,var(--dd-paper) 38%,transparent) 30%,color-mix(in srgb,var(--dd-paper) 38%,transparent) 37%,transparent 43%)}
-.dd-bardak-ic i{position:absolute;left:0;right:0;bottom:11%;height:calc(var(--oran) * 74%);background:linear-gradient(color-mix(in srgb,var(--dd-bilgi) 78%,var(--dd-paper)),var(--dd-bilgi));transition:height var(--dd-spring-yumusak-ms) var(--dd-spring-yumusak);animation:dd-bardak-dol var(--dd-m-dolum) var(--dd-e-standard) calc(var(--i) * 40ms) both}
+.dd-bardak-ic i{position:absolute;left:0;right:0;bottom:11%;height:calc(var(--oran) * 74%);background:linear-gradient(color-mix(in srgb,var(--dd-bilgi) 78%,var(--dd-paper)),var(--dd-bilgi));transition:height var(--dd-spring-yumusak-ms) var(--dd-spring-yumusak);animation:dd-bardak-dol var(--dd-m-dolum) var(--dd-e-standard) calc(min(var(--i),11) * 40ms) both}
 .dd-bardak-arti{position:absolute;right:calc(-1 * var(--dd-s-4));bottom:calc(-1 * var(--dd-s-2));display:none;place-items:center;width:var(--dd-s-20);height:var(--dd-s-20);border-radius:var(--dd-r-round);background:var(--dd-bilgi);color:var(--dd-paper);box-shadow:0 0 0 var(--dd-size-border2) var(--dd-paper)}
 .dd-bardak-arti .icon{font-size:var(--dd-t-label-size)}
-.dd-bardak.is-siradaki{cursor:pointer;transition:transform var(--dd-m-fast) var(--dd-e-standard)}
 .dd-bardak.is-siradaki::before{background:var(--dd-bilgi)}
 .dd-bardak.is-siradaki::after{content:"";position:absolute;inset:calc(-1 * var(--dd-s-4))}
-.dd-bardak.is-siradaki:active{transform:scale(.94)}
 .dd-bardak.is-siradaki .dd-bardak-arti{display:grid}
 @keyframes dd-bardak-dol{from{height:0}}
 @media (prefers-reduced-motion:reduce){.dd-bardak-ic i{animation:none;transition:none}}

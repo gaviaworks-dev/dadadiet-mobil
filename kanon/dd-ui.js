@@ -597,8 +597,8 @@
     if (tmz) { const k = tmz.closest('.dd-girdi'), i = k.querySelector('input,textarea'); i.value = ''; k.classList.remove('has-text'); i.focus(); i.dispatchEvent(new Event('input', {bubbles: true})); return; }
     const duy = t.closest('.dd-duygu button');
     if (duy) { const k = duy.closest('.dd-duygu'); k.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === duy)); degisim(k, k.dataset.ad || 'duygu', duy.dataset.deger); return; }
-    const su = t.closest('[data-su-ekle]');
-    if (su) { suEkle(su.closest('.dd-su'), +su.dataset.suEkle); return; }
+    const su = t.closest('[data-su-ekle],[data-su-cikar]');
+    if (su) { suEkle(su.closest('.dd-su'), su.dataset.suCikar ? -su.dataset.suCikar : +su.dataset.suEkle); return; }
     const por = t.closest('.dd-porsiyon [data-birim]');
     if (por) {
       const k = por.closest('.dd-porsiyon'), st2 = k.querySelector('[data-adimlayici]'), gram = por.dataset.birim === 'gram', onceki = k.querySelector('[data-birim][aria-pressed=true]');
@@ -658,16 +658,24 @@
   };
 
   // Su
+  // Yeni bardak eklenirken mevcutlar yerinde kalır: dolum geçişi yalnız değişen bardakta oynar.
   const suEkle = (k, ml) => {
-    const hedef = +k.dataset.hedef, yeni = +k.dataset.deger + ml;
+    const hedef = +k.dataset.hedef, once = +k.dataset.deger, yeni = Math.max(0, once + ml), kap = k.querySelector('.dd-su-bardaklar'), n = DD.suBardakSayi(yeni, hedef), sira = DD.suSiradaki(yeni);
+    if (yeni === once) return;
     k.dataset.deger = yeni;
-    const sira = DD.suSiradaki(yeni, hedef);
-    k.querySelectorAll('.dd-bardak').forEach((b, i) => { b.style.setProperty('--oran', DD.suBardakDurum(yeni, i).toFixed(3)); b.classList.toggle('is-siradaki', i === sira); b.disabled = i !== sira; });
-    DD.say(k.querySelector('[data-su-deger]'), yeni, {bas: yeni - ml, sure: M.counter});
+    while (kap.children.length > n) kap.lastElementChild.remove();
+    while (kap.children.length < n) kap.insertAdjacentHTML('beforeend', DD.suBardakCiz(once, kap.children.length));
+    [...kap.children].forEach((b, i) => {
+      const oran = DD.suBardakDurum(yeni, i), dolu = oran >= 1;
+      b.style.setProperty('--oran', oran.toFixed(3)); b.classList.toggle('is-siradaki', i === sira);
+      b.removeAttribute(dolu ? 'data-su-ekle' : 'data-su-cikar'); b.setAttribute(dolu ? 'data-su-cikar' : 'data-su-ekle', DD.SU_BARDAK);
+      b.setAttribute('aria-label', `1 su bardağı ${dolu ? 'geri al' : 'ekle'}`);
+    });
+    DD.say(k.querySelector('[data-su-deger]'), yeni, {bas: once, sure: M.counter});
     const kalan = k.querySelector('[data-su-kalan]');
     if (kalan) kalan.textContent = DD.suKalan(yeni, hedef);
     DD.titres(6);
-    degisim(k, k.dataset.ad || 'su', yeni, {eklenen: ml});
+    degisim(k, k.dataset.ad || 'su', yeni, {eklenen: yeni - once});
   };
 
   // ---------- İşaretçi tabanlı etkileşimler ----------
