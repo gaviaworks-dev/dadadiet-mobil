@@ -216,7 +216,7 @@
     const e = ekranlar[r.ad] || hataTanim;
     const ctx = {ad: r.ad, param: r.param, sorgu: r.sorgu, hash: r.hash, durum: DD.durum};
     const el = belge.createElement('section');
-    el.className = `dd-ekran dd-ekran--${e.tur || 'alt'}`;
+    el.className = `dd-ekran dd-ekran--${e.tur || 'alt'}${e.dock ? ' has-dock' : ''}`;
     el.dataset.ekran = r.ad;
     return {i: R.idx, hash: r.hash, ad: r.ad, e, ctx, el, temizle: null};
   };

@@ -123,4 +123,14 @@
     if (arac) { const st = arac.getBoundingClientRect().top - r0 <= H + .5; arac.classList.toggle('is-stuck', st); const alt = arac.getBoundingClientRect().bottom; g.el.querySelectorAll('.dd-liste-themes__title,.dd-liste-theme-rail,.dd-liste-status').forEach(e => e.classList.toggle('dd-liste-occluded', st && e.getBoundingClientRect().top < alt)); }
     g.el.querySelectorAll('.dd-sekme-bar').forEach(b => b.classList.toggle('is-stuck', b.getBoundingClientRect().top - r0 <= H + .5));
   };
+  // Seçim alanı (DD.secAlan): dokununca tek seçimli sheet açar, gizli input'u doldurur ve dd-degisim atar.
+  document.addEventListener('click', ev => {
+    const b = ev.target.closest?.('[data-sec-alan]'); if (!b) return;
+    const alan = b.closest('.dd-alan'), girdi = alan.querySelector('input[type="hidden"]'), sec = JSON.parse(b.dataset.secenekler || '[]');
+    DD.siralaSheet({baslik: alan.querySelector('label')?.textContent || 'Seç', secenekler: sec.map(([d, m]) => [String(d), m]), secili: girdi.value, sec: v => {
+      const m = sec.find(([d]) => String(d) === v); girdi.value = v;
+      const sp = b.querySelector('span'); sp.textContent = m ? m[1] : b.dataset.yer; sp.classList.toggle('is-yer', !m);
+      DD.degisim(b, b.dataset.secAlan, v);
+    }});
+  });
 })();

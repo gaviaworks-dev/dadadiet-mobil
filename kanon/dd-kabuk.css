@@ -23,7 +23,7 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 .dd-ekran.has-ust:not(.has-saydam) .dd-kaydir{padding-top:var(--dd-ust-h)}
 /* Yapışma kenarı kaydırıcının dolgusundan sayılır: dolgu üst barı zaten aştığı için ikinci kez eklenmez. */
 .dd-ekran.has-ust:not(.has-saydam) :is(.dd-cevrimdisi,.dd-liste-arac,.dd-sekme-bar){top:0}
-.dd-ekran--sekme .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) + var(--dd-s-40) + env(safe-area-inset-bottom,0px))}
+:is(.dd-ekran--sekme,.dd-ekran.has-dock) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) + var(--dd-s-40) + env(safe-area-inset-bottom,0px))}
 .dd-ekran.has-altbar .dd-icerik{padding-bottom:calc(var(--dd-altbar-h,var(--dd-size-control-lg)) + var(--dd-s-16))}
 .dd-kok.has-tabagim .dd-ekran:not(.is-gizli):not(.dd-ekran--tam) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) * 2 + var(--dd-s-48))}
 .dd-ekran--tam .dd-icerik{height:100%;padding-bottom:0}
