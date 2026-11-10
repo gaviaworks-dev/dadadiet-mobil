@@ -1,4 +1,5 @@
 /* Paketlerim (#/paketlerim). Web karşılığı: hesabim/paketlerim (uye-gastro-paketlerim.js, uye-gastro-ortak.js paket kartı) ve odeme sayfasının paket adımı.
+ * Gastro kalıbı: DD.gruplar (tek zemin, başlıklı kartsız gruplar, grup arası 24): Üyeliğin · Kademeler · Diyetisyen paketin · Geçmiş paketler · Ödemeler.
  * Üyelik kademeleri ve abonelik DDV.uye; diyetisyen paketi DDV.benimDiyetisyenim.paket (Uzmanım ile aynı), paket tanımı DDV.diyetisyenler[].paketler.
  * Durum (Ödemelerim ile ortak): abonelik {kademe, baslangic, donemBas, donemBit, yenileme, kart, iptal?} (varsayılan DDV.uye.abonelik, yeni hesapta {kademe:'ucretsiz'}),
  *   odeme-kartlari (kayıtlı kartlar), odeme-ekleri [ödeme kaydı] (yükseltme farkı ve yeni dönem tahsilatı buraya yazılır).
@@ -37,7 +38,7 @@
         ? DD.btn({metin: 'İptali geri al', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'iptal-geri'}})
         : `${ust ? DD.btn({metin: `${ust.ad}’a yükselt`, ikon: ust.ikon, tam: true, veri: {eylem: 'gec', id: ust.kod}}) : ''}${DD.btn({metin: 'Üyeliği iptal et', tur: 'text', tam: true, veri: {eylem: 'iptal'}})}`;
     const not = a.iptal ? DD.bant({ton: 'uyari', metin: `Üyeliğin **${DD.tarihUzun(a.donemBit)}** tarihinde biter, sonra Ücretsiz kademeye dönersin. Kayıtların, ölçümlerin ve rozetlerin **silinmez**.`}) : '';
-    return DD.kart({html: `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: 'primary', boyut: 'lg'}), baslik: k.tamAd, alt: ucretsiz ? 'Ücretsiz kademe' : 'Aylık üyelik', sag: durum})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'), {ton: 'ikincil'})}${DD.kunye(kunye)}${not}<div class="dd-yigin-8">${eylem}</div></div>`});
+    return `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: 'primary', boyut: 'lg'}), baslik: k.tamAd, alt: ucretsiz ? 'Ücretsiz kademe' : 'Aylık üyelik', sag: durum})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'), {ton: 'ikincil'})}${DD.kunye(kunye)}${not}<div class="dd-yigin-8">${eylem}</div></div>`;
   };
 
   // ---------- Kademeler ----------
@@ -47,7 +48,7 @@
     const dugme = sira === simdi ? `<div class="dd-sira">${DD.durumRozet({metin: 'Mevcut paketin', ton: 'basari', ikon: 'onay'})}</div>`
       : sira > simdi ? DD.btn({metin: `${k.ad}’a geç`, ikon: k.ikon, tam: true, veri: {eylem: 'gec', id: k.kod}})
         : DD.btn({metin: `${k.ad} kademesine dön`, tur: 'secondary', tam: true, veri: {eylem: 'dusur', id: k.kod}});
-    return DD.kart({html: `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: sira === simdi ? 'primary' : 'notr', boyut: 'lg'}), baslik: k.tamAd, alt: k.fiyat ? `${tl(k.fiyat)} / ay` : 'Her zaman 0 TL'})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'))}${miras}<div class="dd-yigin-8">${k.ozellikler.map(o => DD.madde({metin: o})).join('')}</div>${dugme}</div>`});
+    return `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: sira === simdi ? 'primary' : 'notr', boyut: 'lg'}), baslik: k.tamAd, alt: k.fiyat ? `${tl(k.fiyat)} / ay` : 'Her zaman 0 TL'})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'))}${miras}<div class="dd-yigin-8">${k.ozellikler.map(o => DD.madde({metin: o})).join('')}</div>${dugme}</div>`;
   };
 
   // ---------- Diyetisyen paketi ----------
@@ -55,12 +56,12 @@
     if (yeni() || !DDV.kullanici.diyetisyen) return DD.bos({ikon: 'box-open', baslik: 'Aktif görüşme paketin yok', metin: 'Bir diyetisyenle çalışmaya başladığında **görüşme hakların** burada görünür.', eylem: {metin: 'Diyetisyen bul', ikon: 'uzman', tur: 'secondary', git: '#/uzman/bul'}});
     const d = DDV.diyetisyenler.find(x => x.slug === B().diyetisyen), p = B().paket, t = d.paketler.find(x => x.id === p.id), biten = t.seans - p.kalanSeans;
     const odeme = U().odemeler.find(o => o.tur === 'paket' && o.diyetisyen === d.slug);
-    return DD.kart({html: `<div class="dd-yigin">${DD.diyetisyenKart(d, {tur: 'satir'})}${DD.ilerleme({n: biten, hedef: t.seans, etiket: `${biten} görüşme tamamlandı`, deger: `${p.kalanSeans} kaldı`})}${DD.kunye([
+    return `<div class="dd-yigin">${DD.diyetisyenKart(d, {tur: 'satir'})}${DD.ilerleme({n: biten, hedef: t.seans, etiket: `${biten} görüşme tamamlandı`, deger: `${p.kalanSeans} kaldı`})}${DD.kunye([
       {ikon: 'box-open', etiket: 'Paket', deger: `${t.ad} · ${t.seans} görüşme`},
       odeme && {ikon: 'takvim', etiket: 'Alınma', deger: DD.tarihUzun(odeme.tarih)},
       {ikon: 'flag-checkered', etiket: 'Bitiş', deger: DD.tarihUzun(p.bitis)},
       odeme && {ikon: 'tag', etiket: 'Ödenen', deger: tl(odeme.tutar)}
-    ].filter(Boolean))}<div class="dd-yigin-8">${t.kapsam.map(m => DD.madde({metin: m})).join('')}</div><div class="dd-ikili">${DD.btn({metin: 'Uzmanım', tur: 'secondary', git: '#/uzman'})}${DD.btn({metin: 'Paketi yenile', ikon: 'yenile', git: `#/uzman/profil/${d.slug}?paket=${p.id}`})}</div></div>`});
+    ].filter(Boolean))}<div class="dd-yigin-8">${t.kapsam.map(m => DD.madde({metin: m})).join('')}</div><div class="dd-ikili">${DD.btn({metin: 'Uzmanım', tur: 'secondary', git: '#/uzman'})}${DD.btn({metin: 'Paketi yenile', ikon: 'yenile', git: `#/uzman/profil/${d.slug}?paket=${p.id}`})}</div></div>`;
   };
   const gecmisPaketler = () => (yeni() ? [] : U().gecmisPaketler).map(x => { const d = DDV.diyetisyenler.find(y => y.slug === x.diyetisyen); return {ikon: 'box-open', baslik: `${x.ad} · ${d.kisaAd}`, alt: `${DD.tarihUzun(x.alinma)} · ${x.seans} görüşme kullanıldı`, git: `#/uzman/profil/${d.slug}`}; });
 
@@ -114,12 +115,13 @@
     ciz: ctx => {
       bosHal = ctx.sorgu.hal === 'bos';
       const s = ctx.kademe || abonelik().kademe, gp = gecmisPaketler();
-      return DD.bolumler([
+      return DD.gruplar([
         {baslik: 'Üyeliğin', html: uyelikKart()},
-        {baslik: 'Kademeler', html: `<div class="dd-yigin">${DD.segment({ad: 'kademe', etiket: 'Kademeler', secili: s, ogeler: U().kademeler.map(k => ({ad: k.ad, deger: k.kod}))})}<div data-yuva="kademe">${kademePanel(s)}</div></div>`},
+        {baslik: 'Kademeler', html: `<div class="dd-yigin">${DD.segment({ad: 'kademe', etiket: 'Kademeler', kaydir: true, secili: s, ogeler: U().kademeler.map(k => ({ad: k.ad, deger: k.kod}))})}<div data-yuva="kademe">${kademePanel(s)}</div></div>`},
         {baslik: 'Diyetisyen paketin', html: diyetisyenPaket()},
-        gp.length && {baslik: 'Geçmiş paketler', html: DD.yuzey(DD.satirlar(gp))},
-        `<div class="dd-yigin-12">${DD.bant({ton: 'bilgi', baslik: 'Diyetisyen paketleri üyeliğe dahil değildir', metin: 'Görüşme paketinin bedelini **diyetisyene ayrı** ödersin; Pro ise gelişmiş program ve plan katmanını açar.'})}${DD.eylemKart({ikon: 'credit-card', baslik: 'Ödemelerim', alt: 'Tahsilatlar, faturalar ve kartlar', git: '#/odemelerim'})}</div>`
+        gp.length && {baslik: 'Geçmiş paketler', satirlar: gp},
+        {baslik: 'Ödemeler', satirlar: [{ikon: 'credit-card', baslik: 'Ödemelerim', alt: 'Tahsilatlar, faturalar ve kartlar', git: '#/odemelerim'}]},
+        {html: DD.bant({ton: 'bilgi', baslik: 'Diyetisyen paketleri üyeliğe dahil değildir', metin: 'Görüşme paketinin bedelini **diyetisyene ayrı** ödersin; Pro ise gelişmiş program ve plan katmanını açar.'})}
       ]);
     },
     sonra: (kok, ctx) => {

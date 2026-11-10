@@ -1,8 +1,10 @@
 /* Rozetlerim (#/rozetler). Web karşılığı: hesabim/rozetlerim (uye-rozetlerim.js): koleksiyon, kademe, puan defteri, liderlik, meydan okumalar.
+ * Gastro kalıbı (profil.js rozetlerim): alt sayfa, üstte tek özet kartı (kademe, rozet sayısı, sıradaki kademeye ölçütler), altında kaydırmalı segment
+ *   Koleksiyon · Kademem · Puan · Liderlik · Meydan okumalar; koleksiyon aile akordiyonu (açık olan tamamlanmaya en yakın aile).
  * Katalog ve kazanımlar DDV.uye.rozet. Puan kazanılan rozetlerin toplamıdır; kademe puan, takip günü ve ulaşılan hedef (Hedef ailesi) ile atlanır.
  * Durum: rozet-yeni [{id, tarih}] (bu cihazda tamamlanan meydan okuma rozetleri), meydan-katilim {id:{baslangic, isaret:{iso:true}, birakti?}}
  *   (varsayılan DDV.uye.rozet.meydanKatilim, yeni hesapta {}), liderlik-gorunur (boolean, varsayılan true).
- * İlerleme ölçüleri kayıtlardan okunur: program-gecmisi, saglik-olcumler, kayitli-*, test-sonuclari, bugun-su. #/rozetler?sekme=meydan, ?hal=bos, ?hal=hata. */
+ * İlerleme ölçüleri kayıtlardan okunur: program-gecmisi, saglik-olcumler, kayitli-*, test-sonuclari, bugun-su. #/rozetler?sekme=koleksiyon|kademe|puan|liderlik|meydan (eski defter = puan), ?hal=bos, ?hal=hata. */
 (() => {
   const R = () => DDV.uye.rozet;
   const isoMs = s => { const [y, a, g] = s.split('-').map(Number); return Date.UTC(y, a - 1, g); };
@@ -66,27 +68,40 @@
     const i = K.reduce((s, k, n) => (p >= k.puan && g >= k.gun && h >= k.hedef ? n : s), 0);
     return {simdi: K[i], sira: i, sonraki: K[i + 1], p, g, h};
   };
-  const kademeKart = () => {
-    const k = kademe(), s = k.sonraki;
-    if (!s) return DD.kart({html: DD.p(`**${k.simdi.ad}** kademesindesin: merdivenin **son basamağı**.`)});
+  // Özet kartı (Gastro pf-rz-ozet): kademe + rozet sayısı, altında sıradaki kademeye üç ölçüt.
+  const ozetKart = () => {
+    const k = kademe(), s = k.sonraki, adet = Object.keys(kazanilan()).length, sira = siram();
+    const bas = DD.satir({sol: DD.ikonKutu({ikon: k.simdi.ikon, ton: 'primary', boyut: 'lg'}), baslik: `${k.simdi.ad} kademesi`, alt: `Kademen ${k.sira + 1} / ${R().kademeler.length}${sira ? ` · Sıran #${sira}` : ''}`, deger: `${adet} / ${hepsi().length} rozet`});
+    if (!s) return DD.kart({html: `<div class="dd-yigin-12">${bas}${DD.p('Merdivenin **son basamağındasın**; rozet topladıkça puanın artmaya devam eder.', {ton: 'ikincil', meta: true})}</div>`});
     const cubuk = (etiket, n, hedef, birim) => DD.ilerleme({n: Math.min(n, hedef), hedef, etiket, deger: n >= hedef ? 'Tamam' : `${DD.sayi(n)} / ${DD.sayi(hedef)} ${birim}`});
     const eksik = [s.puan > k.p && `**${DD.sayi(s.puan - k.p)} puan**`, s.gun > k.g && `**${s.gun - k.g} takip günü**`, s.hedef > k.h && `**${s.hedef - k.h} hedef**`].filter(Boolean);
-    return DD.kart({html: `<div class="dd-yigin">${DD.satir({sol: DD.madalya({ikon: s.ikon, hal: 'ilerliyor'}), baslik: `Sıradaki kademe: ${s.ad}`, alt: `${k.sira + 2}. basamak · ${DD.sayi(s.puan)} puan, ${s.gun} gün, ${s.hedef} hedef`})}<div class="dd-yigin-12">${cubuk('Puan', k.p, s.puan, 'puan')}${cubuk('Takip günü', k.g, s.gun, 'gün')}${cubuk('Ulaşılan hedef', k.h, s.hedef, 'hedef')}</div>${DD.p(eksik.length ? `${s.ad} kademesi için ${eksik.join(', ')} kaldı. Kademe **satın alınmaz**, sürdürdükçe yükselir.` : `Üç ölçütü de geçtin; **${s.ad}** kademesine geçiyorsun.`, {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Kademe merdiveni', ikon: 'layer-group', tur: 'tonal', tam: true, veri: {eylem: 'merdiven'}})}</div>`});
+    return DD.kart({html: `<div class="dd-yigin-12">${bas}<span class="dd-t-meta dd-ton-ikincil">Sıradaki kademe: <b>${DD.esc(s.ad)}</b></span>${cubuk('Puan', k.p, s.puan, 'puan')}${cubuk('Takip günü', k.g, s.gun, 'gün')}${s.hedef ? cubuk('Ulaşılan hedef', k.h, s.hedef, 'hedef') : ''}${DD.p(eksik.length ? `${s.ad} için ${eksik.join(', ')} kaldı; kademe **satın alınmaz**, sürdürdükçe yükselir.` : `Üç ölçütü de geçtin; **${s.ad}** kademesine geçiyorsun.`, {ton: 'ikincil', meta: true})}</div>`});
   };
-  const merdivenSheet = () => {
+  const basBlok = (baslik, metin) => `<div class="dd-yigin-8">${DD.bas(baslik)}${metin ? DD.p(metin, {ton: 'ikincil', meta: true}) : ''}</div>`;
+  // Kademem: merdiven satırları + kademeyi besleyen sayılar.
+  const kademePanel = () => {
     const k = kademe();
-    DD.sheet({baslik: 'Kademe merdiveni', html: `<div class="dd-yigin">${DD.p('Her kademenin **puan eşiği, takip günü barajı** ve hedef sayısı var; üçünü birlikte geçtiğin en yüksek kademedesin.', {ton: 'ikincil'})}${DD.satirlar(R().kademeler.map((x, n) => ({
+    const merdiven = DD.satirlar(R().kademeler.map((x, n) => ({
       sol: DD.madalya({ikon: x.ikon, hal: n <= k.sira ? '' : 'kilitli'}), baslik: x.ad, alt: `${DD.sayi(x.puan)} puan · ${x.gun} gün · ${x.hedef} hedef`,
       sag: n === k.sira ? DD.durumRozet({metin: 'Buradasın', ton: 'basari', ikon: 'location-dot'}) : n < k.sira ? DD.durumRozet({metin: 'Geçtin', ton: 'notr', ikon: 'onay'}) : ''
-    })))}</div>`});
+    })));
+    const sayilar = [
+      ['calendar-check', 'Takip günü', DD.sayi(takipGunu()), 'gün'], ['fire', 'Güncel seri', DD.sayi(OLCU.seri()), 'gün'],
+      ['bullseye', 'Ulaşılan hedef', String(hedefSayisi()), 'hedef'], ['clipboard-list', 'Tamamlanan program', String(tamamProgram()), 'program'],
+      ['chart-line', 'Ölçüm', String(olcumSayisi()), 'kayıt'], ['ogun', 'Öğün kalemi', DD.sayi(OLCU.kalem()), 'kalem']
+    ];
+    return `<div class="dd-yigin">${basBlok('Merdivende neredesin?', 'Kademe üç ölçütle atlanır: **puan, takip günü ve ulaşılan hedef**; üçünü birlikte geçtiğin en yüksek kademedesin.')}${merdiven}${basBlok('Kademeyi besleyen sayılar', 'Günlük takibinden, ölçümlerinden ve programlarından **kendiliğinden** sayılır.')}<div class="dd-izgara">${sayilar.map(([ikon, etiket, deger, birim]) => DD.metrikKart({etiket, deger, birim, ikon})).join('')}</div></div>`;
   };
 
   // ---------- Koleksiyon ----------
   const izgaraOge = r => { const h = hal(r), n = ilerleme(r); return {id: r.id, ad: r.ad, ikon: r.ikon, hal: h, n: Math.min(n, r.hedef || n), hedef: r.hedef, alt: h === 'kazanildi' ? DD.tarihKisa(kazanilan()[r.id]) : `+${r.puan} puan`}; };
-  const koleksiyon = aile => {
-    const k = kazanilan(), l = R().aileler.filter(a => !aile || a.ad === aile);
-    const cip = DD.cipler({ad: 'aile', tur: 'tek', secili: aile || '', ogeler: [{metin: 'Tümü', deger: ''}, ...R().aileler.map(a => ({metin: a.ad, ikon: a.ikon, deger: a.ad, sayi: `${a.rozetler.filter(r => k[r.id]).length}/${a.rozetler.length}`}))]});
-    return `<div class="dd-yigin">${cip}${l.map(a => `<section class="dd-yigin-12"><div class="dd-yigin-4">${DD.bas(a.ad, {html: `<span class="dd-t-meta dd-ton-ikincil">${a.rozetler.filter(r => k[r.id]).length} / ${a.rozetler.length}</span>`})}<span class="dd-t-meta dd-ton-ikincil">${DD.esc(a.not)}</span></div>${DD.rozetIzgara({ogeler: a.rozetler.map(izgaraOge)})}</section>`).join('')}</div>`;
+  // Akordiyon: her aile bir bölüm; varsayılan açık = bitmemiş aileler içinde tamamlanmaya en yakın, yoksa ilki (Gastro galeriCiz).
+  const koleksiyon = () => {
+    const k = kazanilan(), say = a => a.rozetler.filter(r => k[r.id]).length, l = R().aileler;
+    const aday = l.map((a, i) => [i, say(a) / a.rozetler.length]).filter(([, o]) => o < 1).sort((x, y) => y[1] - x[1])[0];
+    const kaz = hepsi().filter(r => k[r.id]).length, yolda = hepsi().filter(r => !k[r.id] && hal(r) === 'ilerliyor').length;
+    const giris = kaz ? '' : DD.bos({ikon: 'medal', baslik: 'İlk rozetin yakın', metin: 'Günlük takibini girdiğinde, ilk ölçümünü kaydettiğinde ya da bir program başlattığında **ilk rozetlerin** gelir.', eylem: {metin: 'Bugün’e git', ikon: 'bugun', tur: 'secondary', git: '#/bugun'}});
+    return `<div class="dd-yigin">${basBlok('Rozet koleksiyonun', `Her rozet ölçülebilir bir kayıttan doğar: **${kaz} kazanıldı**, ${yolda} yolda, ${hepsi().length - kaz - yolda} ölçü bekliyor.`)}${giris}${DD.akordiyon(l.map(a => ({baslik: a.ad, alt: a.not, ikon: a.ikon, sag: `<span class="dd-t-meta dd-ton-ikincil">${say(a)} / ${a.rozetler.length}</span>`, icerik: DD.rozetIzgara({ogeler: a.rozetler.map(izgaraOge)})})), {ad: 'rozet-ak', acik: aday ? aday[0] : 0})}</div>`;
   };
   const rozetSheet = id => {
     const r = hepsi().find(x => x.id === id), h = hal(r), n = ilerleme(r), meydan = r.olcu?.startsWith('meydan:');
@@ -103,10 +118,10 @@
 
   // ---------- Puan defteri ----------
   const defter = () => {
-    const k = kazanilan(), l = hepsi().filter(r => k[r.id]).sort((a, b) => k[b.id].localeCompare(k[a.id])), tavan = hepsi().reduce((t, r) => t + r.puan, 0);
+    const k = kazanilan(), l = hepsi().filter(r => k[r.id]).sort((a, b) => k[b.id].localeCompare(k[a.id])), tavan = hepsi().reduce((t, r) => t + r.puan, 0), p = puan();
     if (!l.length) return DD.bos({ikon: 'medal', baslik: 'Henüz kazanımın yok', metin: 'İlk rozetini kazandığında **tarihi ve puanı** burada birikmeye başlar.', eylem: {metin: 'Bugün’e git', tur: 'secondary', git: '#/bugun'}});
-    const aileler = R().aileler.map(a => { const t = a.rozetler.filter(r => k[r.id]).reduce((s, r) => s + r.puan, 0), m = a.rozetler.reduce((s, r) => s + r.puan, 0); return DD.ilerleme({n: t, hedef: m, etiket: a.ad, deger: `${t} / ${m}`}); }).join('');
-    return `<div class="dd-yigin">${DD.p(`Puan ayrı bir sayaç değil: **kazandığın rozetlerin toplamı**. ${R().aileler.length} ailenin tamamı ${DD.sayi(tavan)} puan eder.`, {ton: 'ikincil'})}${DD.kart({html: `<div class="dd-yigin-12">${aileler}</div>`})}${DD.bas('Ne zaman ne kazandın')}${DD.yuzey(DD.satirlar(l.map(r => ({sol: DD.madalya({ikon: r.ikon}), baslik: r.ad, alt: `${DD.tarihUzun(k[r.id])} · ${r.aile}`, deger: `+${r.puan}`, veri: {eylem: 'rozet', id: r.id}}))))}</div>`;
+    const aileler = R().aileler.map(a => { const kz = a.rozetler.filter(r => k[r.id]), t = kz.reduce((s, r) => s + r.puan, 0), m = a.rozetler.reduce((s, r) => s + r.puan, 0); return DD.ilerleme({n: t, hedef: m, etiket: a.ad, deger: `${kz.length}/${a.rozetler.length} rozet · ${t} / ${m} puan`}); }).join('');
+    return `<div class="dd-yigin">${basBlok(`Toplam ${DD.sayi(p)} puan`, `Puan ayrı bir sayaç değil: **kazandığın rozetlerin toplamı**. Açık kalan ${DD.sayi(tavan - p)} puan.`)}<div class="dd-yigin-12">${aileler}</div>${basBlok('Kazanım defteri', `En yeni **${l.length} kazanım**; tarih, rozetin kazanıldığı gündür.`)}${DD.satirlar(l.map(r => ({sol: DD.madalya({ikon: r.ikon}), baslik: r.ad, alt: `${DD.tarihUzun(k[r.id])} · ${r.aile}`, deger: `+${r.puan}`, veri: {eylem: 'rozet', id: r.id}})))}</div>`;
   };
 
   // ---------- Liderlik ----------
@@ -117,7 +132,7 @@
     return l.sort((a, b) => b.puan - a.puan || (b.ben ? 1 : 0) - (a.ben ? 1 : 0));
   };
   const siram = () => { const i = tablo().findIndex(x => x.ben); return i < 0 || !puan() ? null : i + 1; };
-  const liderlik = () => `<div class="dd-yigin">${DD.p('Sıralama **rozet puanına** göre kurulur ve çevreni gösterir: üstünde beş, altında iki sıra.', {ton: 'ikincil'})}${DD.yuzey(DD.toggle({ad: 'liderlik-gorunur', ikon: 'eye', etiket: 'Tabloda görün', alt: gorunur() ? 'Adın ve puanın görünüyor' : 'Adın tabloda görünmüyor', secili: gorunur()}))}${DD.yuzey(DD.satirlar(tablo().map((x, n) => ({avatar: {ad: x.ad}, baslik: `${n + 1}. ${x.ad}`, alt: `@${x.kullanici} · ${x.rozet} rozet`, deger: `${DD.sayi(x.puan)} puan`, sag: x.ben ? DD.rozet({metin: 'Sen'}) : ''}))))}</div>`;
+  const liderlik = () => `<div class="dd-yigin">${basBlok('Rozet puanına göre', 'Sıralama çevreni gösterir: **üstünde beş, altında iki sıra**.')}${DD.satirlar(tablo().map((x, n) => ({avatar: {ad: x.ad}, baslik: `${n + 1}. ${x.ad}`, alt: `@${x.kullanici} · ${x.rozet} rozet`, deger: `${DD.sayi(x.puan)} puan`, sag: x.ben ? DD.durumRozet({metin: 'Sen', ton: 'basari', ikon: 'user'}) : ''})))}${DD.satirlar([DD.toggle({ad: 'liderlik-gorunur', ikon: 'eye', etiket: 'Tabloda görün', alt: gorunur() ? 'Adın ve puanın görünüyor' : 'Adın tabloda görünmüyor', secili: gorunur()})])}</div>`;
 
   // ---------- Meydan okumalar ----------
   const MD = {devam: ['Devam ediyor', 'basari', 'play'], tamam: ['Tamamladın', 'basari', 'onay'], bitti: ['Süresi bitti', 'notr', 'flag-checkered'], birakti: ['Bıraktın', 'notr', 'circle-stop'], yok: ['Katılmadın', 'notr', 'circle']};
@@ -139,45 +154,40 @@
   };
   const meydan = () => `<div class="dd-yigin">${DD.p('Her meydan okumanın **tek bir günlük görevi** var; sonuna kadar götürdüğünde rozetini kazanırsın.', {ton: 'ikincil'})}${R().meydan.map(meydanKart).join('')}</div>`;
 
-  const SEKMELER = [['koleksiyon', 'Koleksiyon'], ['defter', 'Puan geçmişi'], ['liderlik', 'Liderlik'], ['meydan', 'Meydan okumalar']];
-  const panel = (s, ctx) => (s === 'defter' ? defter() : s === 'liderlik' ? liderlik() : s === 'meydan' ? meydan() : koleksiyon(ctx.aile));
+  const SEKMELER = [['koleksiyon', 'Koleksiyon'], ['kademe', 'Kademem'], ['puan', 'Puan'], ['liderlik', 'Liderlik'], ['meydan', 'Meydan okumalar']];
+  const panel = s => (s === 'kademe' ? kademePanel() : s === 'puan' ? defter() : s === 'liderlik' ? liderlik() : s === 'meydan' ? meydan() : koleksiyon());
+  const ilkSekme = ctx => { const q = ctx.sorgu.sekme === 'defter' ? 'puan' : ctx.sorgu.sekme; return SEKMELER.some(x => x[0] === q) ? q : 'koleksiyon'; };
 
-  let hataGosterildi = false, hazir = false;
+  let hataGosterildi = false;
   DD.ekran('rozetler', {
-    tur: 'banner',
+    tur: 'alt',
     nav: 'profil',
     ust: '#/profil',
     baslik: 'Rozetlerim',
-    iskelet: 'profil',
+    iskelet: 'liste',
     yenile: true,
-    ustBar: () => ({saydam: hazir}),
     yukle: ctx => {
       if (ctx.sorgu.hal === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
-      return new Promise(tamam => setTimeout(() => { hazir = true; tamam(); }, DD.azHareket() ? 0 : DD.TK.motion.reveal));
+      return new Promise(tamam => setTimeout(tamam, DD.azHareket() ? 0 : DD.TK.motion.reveal));
     },
     ciz: ctx => {
       bosHal = ctx.sorgu.hal === 'bos';
       rozetVer();
-      const k = kademe(), adet = Object.keys(kazanilan()).length, s = ctx.sekme || (SEKMELER.some(x => x[0] === ctx.sorgu.sekme) ? ctx.sorgu.sekme : 'koleksiyon'), sira = siram();
-      const giris = adet ? '' : DD.bos({ikon: 'medal', baslik: 'İlk rozetin yakın', metin: 'Günlük takibini girdiğinde, ilk ölçümünü kaydettiğinde ya da bir program başlattığında **ilk rozetlerin** gelir.', eylem: {metin: 'Bugün’e git', ikon: 'bugun', git: '#/bugun'}});
-      return DD.gulucuk({gorsel: 'assets/gorsel/hero/karsilama-sofra.webp', etiket: 'Rozetlerim', baslik: `${k.simdi.ad} kademesi`, alt: k.sonraki ? `Sıradaki kademe: ${k.sonraki.ad}` : 'Merdivenin son basamağındasın', ust: true}) + DD.bolumler([
-        `<div class="dd-yigin">${DD.stat([{deger: DD.sayi(k.p), etiket: 'Puan'}, {deger: `${adet}/${hepsi().length}`, etiket: 'Rozet'}, {deger: sira ? `#${sira}` : '–', etiket: 'Sıran'}])}${giris}</div>`,
-        {baslik: 'Kademen', html: kademeKart()},
-        {baslik: 'Rozetler', html: `<div class="dd-yigin">${DD.segment({ad: 'rozet-sekme', etiket: 'Rozet bölümleri', kaydir: true, secili: s, ogeler: SEKMELER.map(([deger, ad]) => ({ad, deger}))})}<div data-yuva="rozet">${panel(s, ctx)}</div></div>`},
-        DD.bant({ton: 'bilgi', metin: 'Rozetler alışkanlıklarını görünür kılar; **tıbbi bir başarı ölçüsü değildir**.'})
-      ]);
+      const s = ctx.sekme || ilkSekme(ctx);
+      return DD.gruplar([
+        {html: `<div class="dd-yigin">${DD.segment({ad: 'rozet-sekme', etiket: 'Rozetlerim bölümleri', kaydir: true, secili: s, ogeler: SEKMELER.map(([deger, ad]) => ({ad, deger}))})}<div data-yuva="rozet">${panel(s)}</div></div>`},
+        {html: DD.bant({ton: 'bilgi', metin: 'Rozetler alışkanlıklarını görünür kılar; **tıbbi bir başarı ölçüsü değildir**.'})}
+      ], {bas: ozetKart()});
     },
     sonra: (kok, ctx) => {
       const yuva = () => kok.querySelector('[data-yuva="rozet"]');
-      const ciz = () => { yuva().innerHTML = panel(ctx.sekme || 'koleksiyon', ctx); };
+      const ciz = () => { yuva().innerHTML = panel(ctx.sekme || ilkSekme(ctx)); };
       const meydanYaz = (id, f) => { const l = {...katilim()}; l[id] = f(l[id]); DD.durum.yaz('meydan-katilim', l); };
       const sekmeye = s => { ctx.sekme = s; const b = kok.querySelector(`.dd-seg [data-seg="${s}"]`); b?.click(); };
       const c = [
         DD.on(kok, 'rozet-sekme', v => { ctx.sekme = v; ciz(); }),
-        DD.on(kok, 'aile', v => { ctx.aile = v || null; ciz(); }),
         DD.on(kok, 'liderlik-gorunur', v => { DD.durum.yaz('liderlik-gorunur', v); DD.tazele(); DD.toast(v ? 'Adın **liderlik tablosunda** görünüyor' : 'Adın tablodan **gizlendi**', {ikon: v ? 'eye' : 'eye-slash'}); }),
         DD.eylem(kok, 'rozet', el => rozetSheet(el.dataset.id)),
-        DD.eylem(kok, 'merdiven', merdivenSheet),
         DD.eylem(kok, 'meydan-katil', el => { const id = el.dataset.id; meydanYaz(id, () => ({baslangic: bugun(), isaret: {}})); DD.tazele(); DD.toast('Meydan okumaya katıldın; **bugün 1. gün**', {tur: 'basari', ikon: 'trophy'}); }),
         DD.eylem(kok, 'meydan-isaret', el => {
           const id = el.dataset.id, on = !katilim()[id].isaret?.[bugun()];

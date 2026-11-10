@@ -1,4 +1,5 @@
 /* Destek grupları: #/destek-gruplari (liste) ve #/destek-grubu/:id (grup akışı). Web karşılığı: hesabim/destek-gruplari (uye-destek-gruplari.js).
+ * Gastro alt sayfa kalıbı: DD.gruplar (tek zemin, başlıklı kartsız satır grupları, grup arası 24).
  * Gruplar, kurallar ve gönderiler DDV.uye. Durum: grup-uyelik {id:{gorunen, tarih}} (varsayılan DDV.uye.katildigim, yeni hesapta {}),
  *   grup-gonderi {id:[{id, metin, zaman}]} (üyenin gönderileri), grup-begeni [gonderiId], grup-yorum {gonderiId:[{metin, zaman}]},
  *   grup-sikayet {gonderiId:{neden, not, tarih}}, grup-bildirim (boolean, varsayılan true), grup-riza (sağlık grubu açık rızası, boolean).
@@ -32,13 +33,12 @@
   };
   const listeCiz = ctx => {
     const u = uyelik(ctx), benim = U().gruplar.filter(g => u[g.id]), diger = U().gruplar.filter(g => !u[g.id]);
-    return DD.bolumler([
-      `<div class="dd-yigin">${DD.p('Benzer yoldan geçenlerle **deneyim paylaş**; gerçek adınla ya da takma adla katılabilirsin.', {ton: 'ikincil'})}${DD.bant({ton: 'uyari', metin: 'Destek grupları **tıbbi tavsiye yeri değildir**. Tanı ve tedavi kararlarını hekiminle ver.'})}</div>`,
-      {baslik: 'Katıldığın gruplar', html: benim.length ? DD.yuzey(DD.satirlar(benim.map(g => grupSatir(g, ctx, true)))) : DD.bos({ikon: 'people-group', baslik: 'Henüz bir gruba katılmadın', metin: 'Aşağıdaki gruplardan **hedefine yakın** olanı seçebilirsin.'})},
-      diger.length && {baslik: benim.length ? 'Önerilen gruplar' : 'Gruplar', html: DD.yuzey(DD.satirlar(diger.map(g => grupSatir(g, ctx, false))))},
-      {baslik: 'Grup bildirimleri', html: DD.yuzey(DD.toggle({ad: 'grup-bildirim', ikon: 'bildirim', etiket: 'Gönderime yorum gelince bildir', alt: 'Uygulama içi bildirim; e-posta gönderilmez', secili: DD.durum.oku('grup-bildirim', true)}))},
+    return DD.gruplar([
+      {baslik: 'Katıldığın gruplar', html: benim.length ? DD.satirlar(benim.map(g => grupSatir(g, ctx, true))) : DD.bos({ikon: 'people-group', baslik: 'Henüz bir gruba katılmadın', metin: 'Aşağıdaki gruplardan **hedefine yakın** olanı seçebilirsin.'})},
+      diger.length && {baslik: benim.length ? 'Önerilen gruplar' : 'Gruplar', satirlar: diger.map(g => grupSatir(g, ctx, false))},
+      {baslik: 'Grup bildirimleri', satirlar: [DD.toggle({ad: 'grup-bildirim', ikon: 'bildirim', etiket: 'Gönderime yorum gelince bildir', alt: 'Uygulama içi bildirim; e-posta gönderilmez', secili: DD.durum.oku('grup-bildirim', true)})]},
       {baslik: 'Grup kuralları', html: kurallar()}
-    ]);
+    ], {bas: `<div class="dd-yigin">${DD.p('Benzer yoldan geçenlerle **deneyim paylaş**; gerçek adınla ya da takma adla katılabilirsin.', {ton: 'ikincil'})}${DD.bant({ton: 'uyari', metin: 'Destek grupları **tıbbi tavsiye yeri değildir**. Tanı ve tedavi kararlarını hekiminle ver.'})}</div>`});
   };
   const kurallar = () => `<div class="dd-yigin-12">${U().grupKurallari.map(k => DD.madde({metin: k.replace(/^([^;,.]+)/, '**$1**'), tur: 'notr'})).join('')}</div>`;
 
@@ -57,12 +57,11 @@
   const detayCiz = (g, ctx) => {
     const u = uyelik(ctx)[g.id], l = gonderiler(g, ctx);
     const kim = u ? `<div class="dd-ara"><span class="dd-t-meta dd-ton-ikincil">Grupta <b>${DD.esc(u.gorunen)}</b> olarak görünüyorsun</span>${DD.btn({metin: 'Ayrıl', tur: 'text', boyut: 'sm', veri: {eylem: 'ayril', id: g.id}})}</div>` : DD.btn({metin: 'Gruba katıl', ikon: 'ekle', tam: true, veri: {eylem: 'katil', id: g.id}});
-    return DD.bolumler([
-      `<div class="dd-yigin">${DD.banner({gorsel: g.gorsel, etiket: g.saglik ? 'Sağlık grubu' : 'Destek grubu', baslik: g.ad, stat: [{deger: DD.sayi(uyeSayisi(g, ctx)), etiket: 'üye'}, {deger: String(l.length), etiket: 'gönderi'}]})}${DD.p(g.aciklama)}${kim}</div>`,
-      {baslik: 'Gönderiler', html: DD.yuzey(DD.satirlar(l.map(x => gonderiHtml(g, x))))},
+    return DD.gruplar([
+      {baslik: 'Gönderiler', satirlar: l.map(x => gonderiHtml(g, x))},
       {baslik: 'Kurallar', html: kurallar()},
-      DD.bant({ton: 'uyari', metin: 'Gruplarda **sağlık verin paylaşılmaz**; yalnız yazdıkların görünür. Tanı ve ilaç kararlarını hekiminle ver.'})
-    ]);
+      {html: DD.bant({ton: 'uyari', metin: 'Gruplarda **sağlık verin paylaşılmaz**; yalnız yazdıkların görünür. Tanı ve ilaç kararlarını hekiminle ver.'})}
+    ], {bas: `<div class="dd-yigin">${DD.banner({gorsel: g.gorsel, etiket: g.saglik ? 'Sağlık grubu' : 'Destek grubu', baslik: g.ad, stat: [{deger: DD.sayi(uyeSayisi(g, ctx)), etiket: 'üye'}, {deger: String(l.length), etiket: 'gönderi'}]})}${DD.p(g.aciklama)}${kim}</div>`});
   };
 
   // ---------- Sheet'ler ----------

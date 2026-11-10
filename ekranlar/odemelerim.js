@@ -1,8 +1,10 @@
 /* Ödemelerim (#/odemelerim). Web karşılığı: hesabim/odemelerim + odeme (uye-gastro-odemelerim.js, uye-gastro-odeme.js, uye-gastro-ortak.js).
+ * Gastro kalıbı (profil.js #odemeler: Abonelik Ödemeleri · Kayıtlı Kartlar · İade Talepleri): sıradaki tahsilat grubu, segment Geçmiş · Kartlar · İadeler
+ *   (?sekme=gecmis|kartlar|iadeler), kartsız satırlar, fatura bilgileri grubu.
  * Kayıtlar DDV.uye (odemeler, kartlar, faturaBilgi, abonelik). Gerçek kart verisi istenmez: kart ekleme ödeme kuruluşunun güvenli sayfasına gider, kart maskeli saklanır.
  * Durum (Paketlerim ile ortak): abonelik, odeme-kartlari [{id, marka, ikon, son, skt, varsayilan}] (varsayılan DDV.uye.kartlar, yeni hesapta []),
  *   odeme-ekleri [ödeme kaydı] (bu cihazda yapılan tahsilatlar, en yeni üstte), fatura-bilgi {tip, ad, eposta, telefon, il, ilce, adres, unvan, vergiDairesi, vkn}.
- * #/odemelerim?kart=ekle kart ekleme sheet'ini açar, ?hal=bos, ?hal=hata. */
+ * #/odemelerim?kart=ekle Kartlar sekmesinde kart ekleme sheet'ini açar, ?hal=bos, ?hal=hata. */
 (() => {
   const U = () => DDV.uye;
   let bosHal = false;
@@ -16,6 +18,7 @@
   const kartAd = k => (k ? `${k.marka} •••• ${k.son}` : 'Kayıtlı kart yok');
   const kartBul = id => kartlar().find(k => k.id === id);
   const tutar = n => (n < 0 ? `−${DD.paraTL(-n)}` : DD.paraTL(n));
+  const sekme = ctx => ctx.sekme || (ctx.sorgu.kart === 'ekle' ? 'kartlar' : ['gecmis', 'kartlar', 'iadeler'].includes(ctx.sorgu.sekme) ? ctx.sorgu.sekme : 'gecmis');
   const kurus = n => `${n < 0 ? '−' : ''}${DD.ondalik(Math.abs(n), 2)} TL`;
   const DURUM = {odendi: {metin: 'Ödendi', ton: 'basari', ikon: 'onay'}, 'iade-edildi': {metin: 'İade edildi', ton: 'notr', ikon: 'rotate-left'}, 'iade-surecinde': {metin: 'İade sürecinde', ton: 'uyari', ikon: 'hourglass-half'}};
   const TUR = {abonelik: ['bolt', 'Üyelik'], paket: ['box-open', 'Diyetisyen'], tek: ['user-doctor', 'Diyetisyen'], iade: ['rotate-left', 'İade']};
@@ -23,19 +26,28 @@
   // ---------- Sıradaki tahsilat ----------
   const siradaki = () => {
     const a = abonelik();
-    if (a.kademe === 'ucretsiz') return DD.kart({html: `<div class="dd-yigin-12">${DD.p('Ücretsiz kademedesin; **planlı bir tahsilatın yok**.', {ton: 'ikincil'})}${DD.btn({metin: 'Paketlere bak', tur: 'secondary', tam: true, git: '#/paketlerim'})}</div>`});
+    if (a.kademe === 'ucretsiz') return `<div class="dd-yigin-12">${DD.p('Ücretsiz kademedesin; **planlı bir tahsilatın yok**.', {ton: 'ikincil'})}${DD.btn({metin: 'Paketlere bak', tur: 'secondary', tam: true, git: '#/paketlerim'})}</div>`;
     const k = kademe(a.kademe), kart = kartBul(a.kart) || kartlar().find(x => x.varsayilan);
     if (a.iptal) return DD.bant({ton: 'uyari', ikon: 'hourglass-half', metin: `**${k.tamAd}** yenilenmeyecek; erişimin **${DD.tarihUzun(a.donemBit)}** tarihinde biter. Tahsilat yapılmaz.`});
-    return DD.kart({html: `<div class="dd-yigin-12">${DD.satir({ikon: 'takvim', baslik: k.tamAd, alt: `${DD.tarihUzun(a.yenileme)} · ${kartAd(kart)}`, deger: DD.paraTL(k.fiyat)})}<div class="dd-ikili">${DD.btn({metin: 'Kartı değiştir', tur: 'secondary', veri: {eylem: 'yenileme-kart'}})}${DD.btn({metin: 'Üyeliğim', tur: 'tonal', git: '#/paketlerim'})}</div></div>`});
+    return `<div class="dd-yigin-12">${DD.satirlar([{ikon: 'takvim', baslik: k.tamAd, alt: `${DD.tarihUzun(a.yenileme)} · ${kartAd(kart)}`, deger: DD.paraTL(k.fiyat)}])}<div class="dd-ikili">${DD.btn({metin: 'Kartı değiştir', tur: 'secondary', veri: {eylem: 'yenileme-kart'}})}${DD.btn({metin: 'Üyeliğim', tur: 'tonal', git: '#/paketlerim'})}</div></div>`;
   };
 
   // ---------- Ödeme geçmişi ----------
   const odemeSatir = o => ({ikon: TUR[o.tur][0], baslik: o.baslik, alt: `${DD.tarihUzun(o.tarih)} · ${DURUM[o.durum].metin}`, deger: tutar(o.tutar), veri: {eylem: 'fatura', id: o.id}});
+  const iadeMi = o => o.tur === 'iade' || o.durum !== 'odendi';
   const gecmisPanel = suz => {
-    const tum = odemeler(), l = tum.filter(o => !suz || TUR[o.tur][1] === suz);
+    const tum = odemeler().filter(o => o.tur !== 'iade'), l = tum.filter(o => !suz || TUR[o.tur][1] === suz);
     if (!tum.length) return DD.bos({ikon: 'credit-card', baslik: 'Henüz ödemen yok', metin: 'Üyelik ya da diyetisyen paketi aldığında **ödemelerin ve faturaların** burada listelenir.', eylem: {metin: 'Paketlere bak', tur: 'secondary', git: '#/paketlerim'}});
-    const cip = DD.cipler({ad: 'odeme-suz', tur: 'tek', secili: suz || '', ogeler: [{metin: 'Tümü', deger: '', sayi: tum.length}, ...['Üyelik', 'Diyetisyen', 'İade'].map(t => ({metin: t, deger: t, sayi: tum.filter(o => TUR[o.tur][1] === t).length})).filter(x => x.sayi)]});
-    return `<div class="dd-yigin">${cip}<div data-yuva="odeme-liste">${l.length ? DD.yuzey(DD.satirlar(l.map(odemeSatir))) : DD.p('Bu türde ödeme yok.', {ton: 'ikincil'})}</div></div>`;
+    const yil = DD.bugunIso().slice(0, 4), buYil = odemeler().filter(o => o.tarih.startsWith(yil) && o.durum !== 'iade-surecinde');
+    const ozet = DD.stat([{deger: DD.paraTL(buYil.reduce((t, o) => t + o.tutar, 0)), etiket: `${yil} net toplam`}, {deger: String(tum.length), etiket: 'Ödeme'}, {deger: String(odemeler().filter(o => o.tur === 'iade').length), etiket: 'İade'}], {yalin: true});
+    const cip = DD.cipler({ad: 'odeme-suz', tur: 'tek', etiket: 'Ödeme türü süzgeci', secili: suz || '', ogeler: [{metin: 'Tümü', deger: '', sayi: tum.length}, ...['Üyelik', 'Diyetisyen'].map(t => ({metin: t, deger: t, sayi: tum.filter(o => TUR[o.tur][1] === t).length})).filter(x => x.sayi)]});
+    return `<div class="dd-yigin">${ozet}${cip}${l.length ? DD.satirlar(l.map(odemeSatir)) : DD.p('Bu türde **ödeme yok**.', {ton: 'ikincil'})}${DD.p('Bir ödemeye dokun: **fatura ayrıntısı** açılır, indirebilirsin.', {ton: 'ikincil', meta: true})}</div>`;
+  };
+  const iadePanel = () => {
+    const l = odemeler().filter(iadeMi);
+    const talep = DD.satirlar([{ikon: 'rotate-left', baslik: 'İade ya da itiraz talebi', alt: 'Çözüm Merkezi’nde talep aç', git: `#/cozum-merkezi?yeni=1&konu=${encodeURIComponent('İptal ve iade')}`}]);
+    const liste = l.length ? DD.satirlar(l.map(odemeSatir)) : DD.bos({ikon: 'rotate-left', baslik: 'İade kaydın yok', metin: 'İade ya da itiraz talebin olursa **sonucu ve tutarı** burada görünür.'});
+    return `<div class="dd-yigin">${liste}${talep}${DD.p('İade tutarı **ödeme yaptığın karta** geri yansır; bankana göre birkaç iş günü sürebilir.', {ton: 'ikincil', meta: true})}</div>`;
   };
   const faturaSheet = id => {
     const o = odemeler().find(x => x.id === id), f = fatura(), brut = Math.abs(o.tutar), net = brut / 1.2, kart = kartBul(o.kart) || U().kartlar.find(k => k.id === o.kart);
@@ -59,7 +71,7 @@
   // ---------- Kartlar ----------
   const kartPanel = () => {
     const l = kartlar();
-    const liste = l.length ? DD.yuzey(DD.satirlar(l.map(k => ({ikon: 'credit-card', baslik: kartAd(k), alt: `Son kullanma ${k.skt}${k.varsayilan ? ' · varsayılan' : ''}`, veri: {eylem: 'kart', id: k.id}})))) : DD.p('Kayıtlı kartın yok. Üyelik ve paket ödemeleri için **bir kart ekleyebilirsin**.', {ton: 'ikincil'});
+    const liste = l.length ? DD.satirlar(l.map(k => ({ikon: 'credit-card', baslik: kartAd(k), alt: `Son kullanma ${k.skt}`, sag: k.varsayilan ? DD.durumRozet({metin: 'Varsayılan', ton: 'basari', ikon: 'onay'}) : '', veri: {eylem: 'kart', id: k.id}}))) : DD.p('Kayıtlı kartın yok. Üyelik ve paket ödemeleri için **bir kart ekleyebilirsin**.', {ton: 'ikincil'});
     return `<div class="dd-yigin-12">${liste}${DD.btn({metin: 'Kart ekle', ikon: 'ekle', tur: 'secondary', tam: true, veri: {eylem: 'kart-ekle'}})}${DD.gizlilikBant('Tam kart numarası **Dada Diet’te saklanmaz**; yalnız marka, son dört hane ve son kullanma tarihi görünür.')}</div>`;
   };
   const kartSheet = id => {
@@ -158,19 +170,20 @@
     },
     ciz: ctx => {
       bosHal = ctx.sorgu.hal === 'bos';
-      const l = odemeler(), yil = l.filter(o => o.tarih.startsWith(DD.bugunIso().slice(0, 4)) && o.durum !== 'iade-surecinde');
-      const ozet = l.length ? DD.stat([{deger: DD.paraTL(yil.reduce((t, o) => t + o.tutar, 0)), etiket: `${DD.bugunIso().slice(0, 4)} toplamı`}, {deger: String(l.filter(o => o.tur !== 'iade').length), etiket: 'Ödeme'}, {deger: String(l.filter(o => o.tur === 'iade').length), etiket: 'İade'}]) : '';
-      return DD.bolumler([
+      const s = sekme(ctx), panel = (k, html) => `<div data-panel="${k}"${k === s ? '' : ' hidden'}>${html}</div>`;
+      const seg = DD.segment({ad: 'odeme-sekme', etiket: 'Ödemelerim bölümleri', kaydir: true, secili: s, ogeler: [{ad: 'Geçmiş', deger: 'gecmis'}, {ad: 'Kartlar', deger: 'kartlar', sayi: kartlar().length || null}, {ad: 'İadeler', deger: 'iadeler'}]});
+      return DD.gruplar([
         {baslik: 'Sıradaki tahsilat', html: siradaki()},
-        {baslik: 'Ödeme geçmişi', html: `<div class="dd-yigin">${ozet}<div data-yuva="odeme">${gecmisPanel(ctx.suz)}</div></div>`},
-        {baslik: 'Kayıtlı kartlar', html: kartPanel()},
-        {baslik: 'Fatura ve iade', html: DD.yuzey(DD.satirlar([faturaOzet(), {ikon: 'rotate-left', baslik: 'İade ya da itiraz', alt: 'Çözüm Merkezi’nde talep aç', git: `#/cozum-merkezi?yeni=1&konu=${encodeURIComponent('İptal ve iade')}`}]))},
-        DD.bant({ton: 'bilgi', metin: 'Diyetisyen paketlerinin bedeli **diyetisyen onayladığında** alınır; onaylanmayan talepte ödeme yapılmaz.'})
+        {html: seg},
+        {html: `${panel('gecmis', `<div data-yuva="odeme">${gecmisPanel(ctx.suz)}</div>`)}${panel('kartlar', kartPanel())}${panel('iadeler', iadePanel())}`},
+        {baslik: 'Fatura bilgileri', satirlar: [faturaOzet()]},
+        {html: DD.bant({ton: 'bilgi', metin: 'Diyetisyen paketlerinin bedeli **diyetisyen onayladığında** alınır; onaylanmayan talepte ödeme yapılmaz.'})}
       ]);
     },
     sonra: (kok, ctx) => {
       if (ctx.sorgu.kart === 'ekle' && !ctx.acildi) { ctx.acildi = true; kartEkleSheet(); }
       const c = [
+        DD.on(kok, 'odeme-sekme', v => { ctx.sekme = v; kok.querySelectorAll('[data-panel]').forEach(p => { p.hidden = p.dataset.panel !== v; }); }),
         DD.on(kok, 'odeme-suz', v => { ctx.suz = v || null; kok.querySelector('[data-yuva="odeme"]').innerHTML = gecmisPanel(ctx.suz); }),
         DD.eylem(kok, 'fatura', el => faturaSheet(el.dataset.id)),
         DD.eylem(kok, 'kart', el => kartSheet(el.dataset.id)),

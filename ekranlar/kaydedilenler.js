@@ -1,4 +1,6 @@
 /* Kaydedilenler (#/kaydedilenler). Web karşılığı: hesabim/kaydedilenler (uye-kaydedilenler.js).
+ * Gastro kalıbı (profil.js H9 Kaydettiklerim): sayılı sayfa başlığı, tür segmenti; tarif, besin ve ipucu 2 sütun püf kartı ızgarası (DD.icerikKart),
+ *   programlar DD.programKart ızgarası, diyetisyenler kartsız satır. Kartı basılı tutmak (dd-uzun 'kayit') kayıttan çıkarma sheet'ini açar.
  * Durum: kayitliProgramlar (program-detay sözleşmesi, varsayılan []), kayitli-tarifler, kayitli-besinler, kayitli-ipuclari, kayitli-uzmanlar (slug dizileri;
  *   varsayılan DDV.uye.kayitli, yeni hesapta []). Kayıt tarihi DDV.uye.kayitli.tarihler'den; sonradan kaydedilen öğe tarihsiz en üstte durur.
  * Detay rotaları: #/program/:slug, #/tarif/:slug, #/besin/:slug, #/ipucu/:slug, #/uzman/profil/:slug. #/kaydedilenler?tur=tarifler sekmeyi açar, ?hal=bos, ?hal=hata. */
@@ -7,7 +9,7 @@
     {tur: 'programlar', ad: 'Programlar', anahtar: 'kayitliProgramlar', kisa: 'program', ikon: 'program', liste: '#/programlar', bos: 'Programları incele'},
     {tur: 'tarifler', ad: 'Tarifler', anahtar: 'kayitli-tarifler', kisa: 'tarif', ikon: 'ogun', liste: '#/tarifler', bos: 'Tariflere göz at'},
     {tur: 'besinler', ad: 'Besinler', anahtar: 'kayitli-besinler', kisa: 'besin', ikon: 'apple-whole', liste: '#/besinler', bos: 'Besinlere göz at'},
-    {tur: 'ipuclari', ad: 'İpuçları', anahtar: 'kayitli-ipuclari', kisa: 'ipucu', ikon: 'ipucu', liste: '#/ipuclari', bos: 'İpuçlarını oku'},
+    {tur: 'ipuclari', ad: 'İpuçları', anahtar: 'kayitli-ipuclari', kisa: 'ipucu', ikon: 'ipucu', liste: '#/ara', bos: 'İpuçlarını oku'},
     {tur: 'uzmanlar', ad: 'Diyetisyenler', anahtar: 'kayitli-uzmanlar', kisa: 'uzman', ikon: 'uzman', liste: '#/uzman/bul', bos: 'Diyetisyenleri incele'}
   ];
   const BOS_METIN = {
@@ -36,17 +38,20 @@
   const ek = (tur, s) => { const t = tarih(tur, s); return t ? ` · ${DD.tarihKisa(t)}` : ''; };
 
   const kaldirBtn = (tur, s, ad) => DD.ikonBtn({ikon: 'kaydet', etiket: `${ad}: kayıttan çıkar`, tur: 'tint', veri: {eylem: 'kaldir', id: `${tur}|${s}`}});
-  const SATIR = {
-    tarifler: (y, s) => ({gorsel: y.gorsel, baslik: y.ad, alt: `${y.kategori} · ${DD.sayi(y.porsiyonKcal)} kcal${ek('tarifler', s)}`, git: `#/tarif/${s}`}),
-    besinler: (b, s) => ({gorsel: b.gorsel, gorselTon: DD.makroTon(b), baslik: b.ad, alt: `100 g ${DD.sayi(b.kcal)} kcal${ek('besinler', s)}`, git: `#/besin/${s}`}),
-    ipuclari: (i, s) => ({gorsel: i.gorsel, baslik: i.baslik, alt: `${i.kategori} · ${i.okumaDk} dk okuma${ek('ipuclari', s)}`, git: `#/ipucu/${s}`}),
-    uzmanlar: (d, s) => ({avatar: {ad: d.harf}, baslik: d.ad, alt: `${d.unvan} · ${d.sehir}${ek('uzmanlar', s)}`, git: `#/uzman/profil/${s}`})
+  // Püf kartı: dokunuş detaya gider, basılı tutmak kayıttan çıkarma sheet'ini açar.
+  const KART = {
+    tarifler: (y, s) => ({gorsel: y.gorsel, kategori: y.kategori, baslik: y.ad, meta: `${y.sureDk} dk · ${DD.sayi(y.porsiyonKcal)} kcal`, git: `#/tarif/${s}`}),
+    besinler: (b, s) => ({gorsel: b.gorsel, kategori: b.kategori, baslik: b.ad, meta: `100 g · ${DD.sayi(b.kcal)} kcal`, git: `#/besin/${s}`}),
+    ipuclari: (i, s) => ({gorsel: i.gorsel, kategori: i.kategori, baslik: i.baslik, meta: `${i.okumaDk} dk okuma`, git: `#/ara?q=${encodeURIComponent(i.baslik)}`})
   };
+  const kart = (tur, x, s) => DD.icerikKart({...KART[tur](x, s), attrs: `data-uzun="kayit" data-kayit="${DD.esc(`${tur}|${s}`)}"`});
+  const uzmanSatir = (d, s) => DD.satirKap({avatar: {ad: d.harf}, baslik: d.ad, alt: `${d.unvan} · ${d.sehir}${ek('uzmanlar', s)}`, git: `#/uzman/profil/${s}`}, kaldirBtn('uzmanlar', s, d.ad));
   const panel = (tur, ctx) => {
     const l = ogeler(tur, ctx), t = T(tur);
     if (!l.length) return DD.bos({ikon: t.ikon, baslik: `Kayıtlı ${t.ad.toLocaleLowerCase('tr')} yok`, metin: BOS_METIN[tur], eylem: {metin: t.bos, tur: 'secondary', git: t.liste}});
-    if (tur === 'programlar') return `<div class="dd-yigin-12">${l.map(({x}) => DD.programKart(x, {tur: 'row', kayitli: true})).join('')}</div>`;
-    return DD.yuzey(DD.satirlar(l.map(({x, s}) => DD.satirKap(SATIR[tur](x, s), kaldirBtn(tur, s, x.ad || x.baslik)))));
+    if (tur === 'programlar') return `<div class="dd-izgara">${l.map(({x}) => DD.programKart(x, {kayitli: true})).join('')}</div>`;
+    if (tur === 'uzmanlar') return DD.satirlar(l.map(({x, s}) => uzmanSatir(x, s)));
+    return `<div class="dd-yigin-12">${DD.p('Kartı **basılı tut**, kayıttan çıkar ya da detayını aç.', {ton: 'ikincil', meta: true})}<div class="dd-izgara">${l.map(({x, s}) => kart(tur, x, s)).join('')}</div></div>`;
   };
   const secili = ctx => ctx.tur || (T(ctx.sorgu.tur) ? ctx.sorgu.tur : 'tarifler');
   const toplam = ctx => TURLER.reduce((t, x) => t + ogeler(x.tur, ctx).length, 0);
@@ -66,10 +71,10 @@
     ciz: ctx => {
       const s = secili(ctx), n = toplam(ctx);
       const seg = DD.segment({ad: 'kayit-tur', etiket: 'Kayıt türü', kaydir: true, secili: s, ogeler: TURLER.map(x => ({ad: x.ad, deger: x.tur, sayi: ogeler(x.tur, ctx).length}))});
-      const giris = n
-        ? DD.p(`**${n} içerik** kaydettin. Kayıttan çıkardığın öğeyi hemen **geri alabilirsin**.`, {ton: 'ikincil'})
-        : DD.p('Henüz bir şey kaydetmedin. Program, tarif, besin, ipucu ve diyetisyenlerdeki **kaydet** düğmesi öğeyi buraya ekler.', {ton: 'ikincil'});
-      return `<div class="dd-bolum dd-yigin">${giris}${seg}<div data-yuva="kayit">${panel(s, ctx)}</div></div>`;
+      const bas = DD.metinBlok({etiket: n ? `${n} içerik` : null, baslik: 'Kaydedilenler', metin: n
+        ? 'Kayıttan çıkardığın öğeyi hemen **geri alabilirsin**.'
+        : 'Henüz bir şey kaydetmedin. Program, tarif, besin, ipucu ve diyetisyenlerdeki **kaydet** düğmesi öğeyi buraya ekler.'});
+      return DD.gruplar([{html: seg}, {html: `<div data-yuva="kayit">${panel(s, ctx)}</div>`}], {bas});
     },
     sonra: (kok, ctx) => {
       const yuva = () => kok.querySelector('[data-yuva="kayit"]');
@@ -82,6 +87,22 @@
       const c = [
         DD.on(kok, 'kayit-tur', v => { ctx.tur = v; yuva().innerHTML = panel(v, ctx); }),
         DD.eylem(kok, 'kaldir', el => { const [tur, s] = el.dataset.id.split('|'); cikar(tur, s); }),
+        (() => {
+          const uzun = ev => {
+            if (ev.detail?.ad !== 'kayit') return;
+            const el = ev.target.closest('[data-kayit]'), [tur, s] = el.dataset.kayit.split('|'), x = KAYNAK[tur](s), git = el.dataset.git;
+            DD.sheet({
+              baslik: x.ad || x.baslik,
+              html: DD.satirlar([
+                {ikon: 'arrow-right', baslik: 'Detayını aç', git, attrs: 'data-sheet-kapat'},
+                {ikon: 'kaydet', baslik: 'Kayıttan çıkar', yikici: true, veri: {eylem: 'k-cikar'}, attrs: 'data-sheet-kapat', ok: false}
+              ]),
+              sonra: d => DD.eylem(d, 'k-cikar', () => cikar(tur, s))
+            });
+          };
+          kok.addEventListener('dd-uzun', uzun);
+          return () => kok.removeEventListener('dd-uzun', uzun);
+        })(),
         // Program kartındaki kaydet düğmesi: kartı kendi çevirir, kayıttan çıkarma burada yazılır.
         DD.eylem(kok, 'kaydet', el => cikar('programlar', el.dataset.id))
       ];

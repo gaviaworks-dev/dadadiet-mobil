@@ -1,4 +1,5 @@
-/* Haftalık menüm (#/haftalik-menu). Web karşılığı: hesabim/haftalik-menum (uye-haftalik-menum.js) ve Beslenme Planım'ın haftalık menü + alışveriş listesi bölümü.
+/* Haftalık menüm (#/haftalik-menu). Gastro alt sayfa kalıbı: DD.gruplar, kartsız satırlar; alışveriş listesi DD.gorevListe (alınan soluk + üstü çizili).
+ * Web karşılığı: hesabim/haftalik-menum (uye-haftalik-menum.js) ve Beslenme Planım'ın haftalık menü + alışveriş listesi bölümü.
  * Menü diyetisyenin gönderdiğidir: DDV.benimDiyetisyenim.haftalikMenu (Uzmanım'daki "Bu haftanın menüsü" ile aynı kaynak). Kalemler DDV.besinler / DDV.yemekler'e çözülür;
  * dokununca #/besin/:slug ya da #/tarif/:slug açılır. Günün makrosu bütün kalemlerin gramı biliniyorsa hesaplanır.
  * Durum: alisveris {'<program>-<hafta>': {malzeme: true}} (alındı işaretleri hafta başına). #/haftalik-menu?ac=alisveris listeyi açar, ?hal=bos, ?hal=hata. */
@@ -42,8 +43,8 @@
   const gunPanel = g => {
     const t = tarih(g), makro = gunMakro(g), hedef = DDV.kullanici.hedefKcal;
     const bas = `<div class="dd-yigin-8"><div class="dd-ara"><h3 class="dd-t-sub">${DD.esc(gunAdi(t))}</h3>${g.bugun ? DD.rozet({metin: 'Bugün'}) : t < DD.bugunIso() ? DD.durumRozet({metin: 'Geçti', ton: 'notr', ikon: 'onay'}) : ''}</div><span class="dd-t-meta dd-ton-ikincil">${DD.esc(`${buyukBas(g.baslik)} · ${g.ogunler.length} öğün · ${DD.sayi(g.kcal)} / ${DD.sayi(hedef)} kcal`)}</span></div>`;
-    const ogunler = g.ogunler.map(o => `<section class="dd-yigin-8">${DD.bas(o.ad, {html: `<span class="dd-t-meta dd-ton-ikincil">${DD.esc(`${DD.ogun.noktali(o.saat)} · ${DD.sayi(o.kcal)} kcal`)}</span>`})}${DD.yuzey(DD.satirlar(o.kalemler.map(m => kalemSatir(coz(m)))))}</section>`).join('');
-    return `<div class="dd-yigin">${bas}${makro ? DD.makroCubuk(makro) : ''}${ogunler}</div>`;
+    const ogunler = g.ogunler.map(o => `<section class="dd-yigin-8">${DD.bas(o.ad, {html: `<span class="dd-t-meta dd-ton-ikincil">${DD.esc(`${DD.ogun.noktali(o.saat)} · ${DD.sayi(o.kcal)} kcal`)}</span>`})}${DD.satirlar(o.kalemler.map(m => kalemSatir(coz(m))))}</section>`).join('');
+    return `<div class="dd-yigin">${bas}${makro ? DD.makroCubuk(makro, {kart: false}) : ''}${ogunler}</div>`;
   };
 
   // ---------- Hafta özeti ----------
@@ -51,7 +52,7 @@
     const l = H().gunler, ort = Math.round(l.reduce((t, g) => t + g.kcal, 0) / l.length), hedef = DDV.kullanici.hedefKcal, i = l.findIndex(g => g.bugun);
     const grafik = DD.grafik({tur: 'eksenli', ad: 'hm-kcal', etiket: 'Günlük enerji', seri: l.map(g => ({etiket: g.etiket, deger: g.kcal})), hedef, hedefEtiket: 'Hedef', birim: 'kcal', secili: i < 0 ? 0 : i});
     const fark = ort - hedef, yorum = Math.abs(fark) <= 50 ? 'hedefinle **aynı çizgide**' : fark > 0 ? `hedefinin **${DD.sayi(fark)} kcal üstünde**` : `hedefinin **${DD.sayi(-fark)} kcal altında**`;
-    return DD.kart({html: `<div class="dd-yigin">${DD.ozetSerit([{ikon: 'kalori', etiket: 'Ortalama', deger: DD.sayi(ort), birim: 'kcal'}, {ikon: 'hedef', etiket: 'Hedefin', deger: DD.sayi(hedef), birim: 'kcal'}, {ikon: 'ogun', etiket: 'Öğün', deger: String(Math.round(l.reduce((t, g) => t + g.ogunler.length, 0) / l.length)), birim: '/gün'}])}${grafik}${DD.p(`Bu haftanın günlük ortalaması ${yorum}. Antrenman ya da sosyal günlerde enerji **bilerek** yükseltilmiş olabilir; sorun varsa diyetisyenine yaz.`, {ton: 'ikincil', meta: true})}</div>`});
+    return `<div class="dd-yigin">${DD.ozetSerit([{ikon: 'kalori', etiket: 'Ortalama', deger: DD.sayi(ort), birim: 'kcal'}, {ikon: 'hedef', etiket: 'Hedefin', deger: DD.sayi(hedef), birim: 'kcal'}, {ikon: 'ogun', etiket: 'Öğün', deger: String(Math.round(l.reduce((t, g) => t + g.ogunler.length, 0) / l.length)), birim: '/gün'}])}${grafik}${DD.p(`Bu haftanın günlük ortalaması ${yorum}. Antrenman ya da sosyal günlerde enerji **bilerek** yükseltilmiş olabilir; sorun varsa diyetisyenine yaz.`, {ton: 'ikincil', meta: true})}</div>`;
   };
 
   // ---------- Alışveriş listesi: haftanın bütün kalemleri, gram toplamıyla ----------
@@ -73,21 +74,21 @@
     const ozet = () => { const a = alinan(); return `${l.filter(v => a[v.ad]).length} / ${l.length} alındı`; };
     DD.sheet({
       baslik: 'Alışveriş listesi', tam: true,
-      html: `<div class="dd-yigin">${DD.p(`${DD.tarihKisa(tarih(H().gunler[0]))} – ${DD.tarihKisa(tarih(H().gunler[H().gunler.length - 1]))} menüsündeki **${l.length} malzeme**. Aldıklarını işaretle; liste bu hafta için saklanır.`, {ton: 'ikincil'})}<span class="dd-t-meta dd-ton-ikincil" data-yuva="alis-ozet">${ozet()}</span><div class="dd-yigin-8">${l.map((v, i) => DD.checkbox({ad: `alis-${i}`, etiket: v.ad, alt: miktarMetin(v), secili: !!ilk[v.ad]})).join('')}</div></div>`,
+      html: `<div class="dd-yigin">${DD.p(`${DD.tarihKisa(tarih(H().gunler[0]))} – ${DD.tarihKisa(tarih(H().gunler[H().gunler.length - 1]))} menüsündeki **${l.length} malzeme**. Aldıklarını işaretle; liste bu hafta için saklanır.`, {ton: 'ikincil'})}<span class="dd-t-meta dd-ton-ikincil" data-yuva="alis-ozet">${ozet()}</span>${DD.gorevListe(l.map((v, i) => ({id: `alis-${i}`, baslik: v.ad, alt: miktarMetin(v), tamam: !!ilk[v.ad]})), {etiket: 'Alışveriş listesi'})}</div>`,
       altBar: `<div class="dd-ikili">${DD.btn({metin: 'Paylaş', ikon: 'paylas', tur: 'secondary', veri: {eylem: 'alis-paylas'}})}${DD.btn({metin: 'Tümü alındı', ikon: 'onay', veri: {eylem: 'alis-hepsi'}})}</div>`,
       sonra: d => {
         const tazele = () => { d.querySelector('[data-yuva="alis-ozet"]').textContent = ozet(); const e = kok.querySelector('[data-yuva="alis-kart"]'); if (e) e.innerHTML = alisverisKart(); };
         const c = l.map((v, i) => DD.on(d, `alis-${i}`, on => { const a = {...alinan()}; if (on) a[v.ad] = true; else delete a[v.ad]; alinanYaz(a); tazele(); }));
-        c.push(DD.eylem(d, 'alis-hepsi', () => { alinanYaz(Object.fromEntries(l.map(v => [v.ad, true]))); d.querySelectorAll('.dd-secim input').forEach(i => { i.checked = true; }); tazele(); DD.toast('Listenin **hepsi** alındı', {tur: 'basari'}); }));
+        c.push(DD.eylem(d, 'alis-hepsi', () => { alinanYaz(Object.fromEntries(l.map(v => [v.ad, true]))); d.querySelectorAll('.dd-kalem').forEach(k => { k.classList.add('is-tamam'); k.querySelector('input').checked = true; }); tazele(); DD.toast('Listenin **hepsi** alındı', {tur: 'basari'}); }));
         c.push(DD.eylem(d, 'alis-paylas', () => DD.paylas({baslik: 'Haftalık alışveriş listem', alt: l.map(v => `${v.ad} (${miktarMetin(v)})`).join(', '), url: 'https://dadadiet.com/hesabim/haftalik-menum'})));
         return () => c.forEach(f => f());
       }
     });
   };
-  const alisverisKart = () => { const l = alisveris(), a = alinan(), n = l.filter(v => a[v.ad]).length; return DD.eylemKart({ikon: 'cart-shopping', baslik: 'Alışveriş listesi', alt: n ? `${n} / ${l.length} malzeme alındı` : `${l.length} malzeme · haftanın menüsünden`, rozet: n === l.length ? 'Tamam' : null, veri: {eylem: 'alisveris'}}); };
+  const alisverisKart = () => { const l = alisveris(), a = alinan(), n = l.filter(v => a[v.ad]).length; return DD.satirlar([{ikon: 'cart-shopping', baslik: 'Alışveriş listesi', alt: n ? `${n} / ${l.length} malzeme alındı` : `${l.length} malzeme · haftanın menüsünden`, sag: n === l.length ? DD.durumRozet({metin: 'Tamam', ton: 'basari', ikon: 'onay'}) : '', veri: {eylem: 'alisveris'}}]); };
 
-  const bos = () => DD.bolumler([
-    DD.bos({ikon: 'takvim', baslik: 'Haftalık menün yok', metin: 'Bir diyetisyenle çalıştığında **gün gün menün** burada görünür. O zamana dek programların menülerine göz atabilirsin.', eylem: {metin: 'Diyetisyen bul', ikon: 'uzman', git: '#/uzman/bul'}, ikincil: {metin: 'Programlar', git: '#/programlar'}})
+  const bos = () => DD.gruplar([
+    {html: DD.bos({ikon: 'takvim', baslik: 'Haftalık menün yok', metin: 'Bir diyetisyenle çalıştığında **gün gün menün** burada görünür. O zamana dek programların menülerine göz atabilirsin.', eylem: {metin: 'Diyetisyen bul', ikon: 'uzman', git: '#/uzman/bul'}, ikincil: {metin: 'Programlar', git: '#/programlar'}})}
   ]);
 
   let hataGosterildi = false;
@@ -106,14 +107,14 @@
     ciz: ctx => {
       if (menuYok(ctx)) return bos();
       const d = benim(), s = ctx.gun || bugunGun().gun, g0 = H().gunler[0], gS = H().gunler[H().gunler.length - 1];
-      const bas = DD.kart({html: `<div class="dd-yigin-12">${DD.satir({avatar: {ad: d.harf}, baslik: d.ad, alt: `${H().programAd} · ${H().hafta}. hafta`})}${DD.p(`${DD.tarihKisa(tarih(g0))} – ${DD.tarihKisa(tarih(gS))} menün **diyetisyenin tarafından** hazırlandı. Kaleme dokunursan besin değerini görürsün.`, {ton: 'ikincil', meta: true})}</div>`});
-      return DD.bolumler([
-        `<div class="dd-yigin">${bas}<div data-yuva="alis-kart">${alisverisKart()}</div></div>`,
+      const bas = `<div class="dd-yigin-12">${DD.satir({avatar: {ad: d.harf}, baslik: d.ad, alt: `${H().programAd} · ${H().hafta}. hafta`})}${DD.p(`${DD.tarihKisa(tarih(g0))} – ${DD.tarihKisa(tarih(gS))} menün **diyetisyenin tarafından** hazırlandı. Kaleme dokunursan besin değerini görürsün.`, {ton: 'ikincil', meta: true})}</div>`;
+      return DD.gruplar([
+        {html: `<div data-yuva="alis-kart">${alisverisKart()}</div>`},
         {baslik: 'Gün gün', html: `<div class="dd-yigin">${DD.gunSekme({ad: 'hm-gun', secili: String(s), ogeler: H().gunler.map(x => ({etiket: x.etiket, deger: String(x.gun)}))})}<div data-yuva="hm-gun">${gunPanel(H().gunler.find(x => x.gun === s))}</div></div>`},
         {baslik: 'Haftanın özeti', html: haftaOzet()},
-        {baslik: 'Değişiklik mi gerekiyor?', html: DD.eylemKart({ikon: 'sohbet', baslik: 'Diyetisyenine yaz', alt: 'Öğün ya da kalem değişikliği iste', git: '#/uzman/sohbet'})},
-        DD.bant({ton: 'bilgi', baslik: 'Genel bilgi', metin: 'Menü **diyetisyeninin değerlendirmesine** göre hazırlanır; ilaç ya da tedavi yerine geçmez.'})
-      ]);
+        {baslik: 'Değişiklik mi gerekiyor?', satirlar: [{ikon: 'sohbet', baslik: 'Diyetisyenine yaz', alt: 'Öğün ya da kalem değişikliği iste', git: '#/uzman/sohbet'}]},
+        {html: DD.bant({ton: 'bilgi', baslik: 'Genel bilgi', metin: 'Menü **diyetisyeninin değerlendirmesine** göre hazırlanır; ilaç ya da tedavi yerine geçmez.'})}
+      ], {bas});
     },
     altBar: ctx => (menuYok(ctx) ? '' : DD.altEylem({
       ikonlar: [{ikon: 'paylas', ad: 'Paylaş', sayi: 'Paylaş', veri: {eylem: 'paylas'}}, {ikon: 'file-pdf', ad: 'PDF indir', sayi: 'PDF', veri: {eylem: 'pdf'}}],

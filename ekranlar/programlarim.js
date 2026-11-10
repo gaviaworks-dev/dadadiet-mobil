@@ -1,4 +1,5 @@
 /* Programlarım (#/programlarim). Web karşılığı: hesabim/programlarim + program-baslat (uye-programlarim.js, uye-program-baslat.js).
+ * Gastro alt sayfa kalıbı: DD.gruplar (özet sayılar üstte; Devam eden · Kaydettiğin · Tamamladıkların · Bıraktıkların · Program geçmişin), kartsız satırlar.
  * Durum: aktifProgram (program-detay sözleşmesi {slug, ad, gun, toplamGun, baslangic}; bu ekran duraklatmada 'duraklatildi' iso alanını ekler),
  *   kayitliProgramlar (slug dizisi), program-gecmisi [{slug, baslangic, bitis, durum:'tamamlandi'|'birakildi', tamam, toplam}] (varsayılan DDV.uye.programGecmisi),
  *   program-hareket [{tarih, slug, hareket}] (duraklat ve devam kayıtları). Başlatma program detayındadır (#/program/:slug).
@@ -47,9 +48,9 @@
     const dugmeler = a.duraklatildi
       ? `<div class="dd-ikili">${DD.btn({metin: 'Bırak', tur: 'secondary', veri: {eylem: 'birak'}})}${DD.btn({metin: 'Devam et', ikon: 'play', veri: {eylem: 'devam'}})}</div>`
       : `<div class="dd-ikili">${DD.btn({metin: 'Duraklat', ikon: 'pause', tur: 'secondary', pasif: baslamadi, veri: {eylem: 'duraklat'}})}${DD.btn({metin: 'Öğünlerim', ikon: 'ogun', git: '#/beslenme-plani'})}</div>${DD.btn({metin: 'Programı bırak', tur: 'text', tam: true, veri: {eylem: 'birak'}})}`;
-    return `<div class="dd-yigin">${ust}${DD.programKart(p, {tur: 'aktif', gun: baslamadi ? 0 : g, toplam: p.sureGun})}${DD.kart({html: `<div class="dd-yigin-12">${sayac}${u.toplam ? DD.ilerleme({oran: u.oran / 100}) : ''}${uyumMetin}</div>`})}${dugmeler}</div>`;
+    return `<div class="dd-yigin">${ust}${DD.programKart(p, {tur: 'aktif', gun: baslamadi ? 0 : g, toplam: p.sureGun})}<div class="dd-yigin-12">${sayac}${u.toplam ? DD.ilerleme({oran: u.oran / 100}) : ''}${uyumMetin}</div>${dugmeler}</div>`;
   };
-  const aktifYok = () => `<div class="dd-yigin-12">${DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: 'Program Bul', alt: 'Beş soruda sana uygun menü', git: '#/program-bul'})}${DD.eylemKart({ikon: 'program', baslik: 'Tüm programlar', alt: `${DDV.programlar.length} program`, git: '#/programlar'})}</div>`;
+  const aktifYok = () => DD.satirlar([{ikon: 'wand-magic-sparkles', baslik: 'Program Bul', alt: 'Beş soruda sana uygun menü', git: '#/program-bul'}, {ikon: 'program', baslik: 'Tüm programlar', alt: `${DDV.programlar.length} program`, git: '#/programlar'}]);
 
   const gecmisSatir = x => {
     const p = bul(x.slug);
@@ -65,7 +66,7 @@
   const kayitliBolum = ctx => {
     const l = kayitlar(ctx).map(bul).filter(Boolean);
     if (!l.length) return null;
-    return {baslik: 'Kaydettiğin programlar', eylem: 'Tümü', git: '#/kaydedilenler?tur=programlar', html: `<div class="dd-yigin-12">${l.slice(0, 3).map(p => DD.programKart(p, {tur: 'row', kayitli: true})).join('')}</div>`};
+    return {baslik: 'Kaydettiğin programlar', eylem: {metin: 'Tümü', git: '#/kaydedilenler?tur=programlar'}, html: `<div class="dd-yigin-12">${l.slice(0, 3).map(p => DD.programKart(p, {tur: 'row', kayitli: true})).join('')}</div>`};
   };
   // Hareketler: geçmiş kayıtlardan türer, duraklat ve devam ayrıca yazılır. En yeni üstte.
   const hareketler = ctx => {
@@ -79,7 +80,7 @@
   const hareketBolum = ctx => {
     const l = hareketler(ctx);
     if (!l.length) return null;
-    return {baslik: 'Program geçmişin', html: DD.yuzey(DD.satirlar(l.slice(0, 8).map(h => ({ikon: HAREKET_IKON[h.hareket] || 'program', baslik: bul(h.slug).ad, alt: `${DD.tarihUzun(h.tarih)} · ${h.hareket}`}))))};
+    return {baslik: 'Program geçmişin', satirlar: l.slice(0, 8).map(h => ({ikon: HAREKET_IKON[h.hareket] || 'program', baslik: bul(h.slug).ad, alt: `${DD.tarihUzun(h.tarih)} · ${h.hareket}`}))};
   };
 
   // ---------- Eylemler ----------
@@ -127,20 +128,19 @@
     ciz: ctx => {
       const a = aktifOku(ctx), g = gecmisOku(ctx), tamam = g.filter(x => x.durum === 'tamamlandi'), birakilan = g.filter(x => x.durum === 'birakildi');
       if (!a && !g.length) {
-        return DD.bolumler([
-          DD.bos({ikon: 'program', baslik: 'Henüz başlattığın program yok', metin: 'Sana uygun programı **Program Bul** ile seçebilirsin; öğünlerin hemen Bugün’e düşer.', eylem: {metin: 'Program Bul', ikon: 'wand-magic-sparkles', git: '#/program-bul'}, ikincil: {metin: 'Tüm programlar', git: '#/programlar'}}),
+        return DD.gruplar([
+          {html: DD.bos({ikon: 'program', baslik: 'Henüz başlattığın program yok', metin: 'Sana uygun programı **Program Bul** ile seçebilirsin; öğünlerin hemen Bugün’e düşer.', eylem: {metin: 'Program Bul', ikon: 'wand-magic-sparkles', git: '#/program-bul'}, ikincil: {metin: 'Tüm programlar', git: '#/programlar'}})},
           kayitliBolum(ctx)
         ]);
       }
-      return DD.bolumler([
-        DD.stat([{deger: String(a ? 1 : 0), etiket: 'Devam eden'}, {deger: String(tamam.length), etiket: 'Tamamlanan'}, {deger: String(birakilan.length), etiket: 'Bırakılan'}]),
+      return DD.gruplar([
         {baslik: 'Devam eden', html: a && bul(a.slug) ? aktifKart(a) : aktifYok()},
         kayitliBolum(ctx),
-        {baslik: 'Tamamladıkların', html: tamam.length ? DD.yuzey(DD.satirlar(tamam.slice().reverse().map(gecmisSatir).filter(Boolean))) : DD.p('Bir programı sonuna kadar götürdüğünde **uyum oranınla** burada saklanır.', {ton: 'ikincil'})},
-        birakilan.length && {baslik: 'Bıraktıkların', html: DD.yuzey(DD.satirlar(birakilan.slice().reverse().map(gecmisSatir).filter(Boolean)))},
+        {baslik: 'Tamamladıkların', ...(tamam.length ? {satirlar: tamam.slice().reverse().map(gecmisSatir).filter(Boolean)} : {html: DD.p('Bir programı sonuna kadar götürdüğünde **uyum oranınla** burada saklanır.', {ton: 'ikincil'})})},
+        birakilan.length && {baslik: 'Bıraktıkların', satirlar: birakilan.slice().reverse().map(gecmisSatir).filter(Boolean)},
         hareketBolum(ctx),
-        DD.bant({ton: 'bilgi', baslik: 'Genel bilgi', metin: 'Programlar **eğitim amaçlıdır**; kişiye özel plan için diyetisyenine danış.'})
-      ]);
+        {html: DD.bant({ton: 'bilgi', baslik: 'Genel bilgi', metin: 'Programlar **eğitim amaçlıdır**; kişiye özel plan için diyetisyenine danış.'})}
+      ], {bas: DD.stat([{deger: String(a ? 1 : 0), etiket: 'Devam eden'}, {deger: String(tamam.length), etiket: 'Tamamlanan'}, {deger: String(birakilan.length), etiket: 'Bırakılan'}])});
     },
     sonra: (kok, ctx) => {
       const c = [

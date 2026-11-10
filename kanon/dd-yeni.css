@@ -612,7 +612,7 @@
 .dd-rozet-izgara>li{min-width:0}
 
 /* İpucu ve bilgi kutusu dar sütundur: iki yana yaslama kelime arasını açıyordu; başa yaslı (Beyar, 10 Kasım) */
-body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin small,.dd-kalem-alt){text-align:start!important;text-align-last:start!important}
+body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin>span,.dd-satir-metin small,.dd-kalem-alt,.dd-kalem-ad){text-align:start!important;text-align-last:start!important}
 
 /* İşaretlenebilir kalem (Gastro .pf-kalem): satır dolgusu 4/0, metin ızgarası 4, tamamlanınca soluk + üstü çizili */
 .dd-kalem{display:flex;align-items:center;gap:var(--dd-s-8)}
