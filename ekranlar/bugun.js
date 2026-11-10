@@ -36,7 +36,12 @@
   const besinli = (x, besinler, durum) => ({...x, durum, besinler, kcal: toplam(besinler, 'kcal'), ...Object.fromEntries(MAKRO.map(m => [m, toplam(besinler, m)]))});
   const ogunler = () => {
     const durumlar = DD.durum.oku(anahtar('ogun'), {}), ekler = DD.durum.oku(anahtar('ek'), {});
-    return DDV.bugun.ogunler.map(o => {
+    // Plandan gelen öğünde plan seçimi (Uydum / Değiştirdim / Atladım) karardan sonra da kartta seçili görünür.
+    const SECIM = {planli: '', dolu: 'uygula', degisti: 'degistir', atlandi: 'atla'};
+    return DDV.bugun.ogunler.map(o => { const x = ogunDurumlu(o, durumlar, ekler); return o.durum === 'planli' && !yeniMi() ? {...x, planSecim: SECIM[x.durum] ?? null} : x; });
+  };
+  const ogunDurumlu = (o, durumlar, ekler) => {
+    {
       let x = yeniMi() ? besinli(o, [], 'bos') : o;
       const d = durumlar[o.id], ek = ekler[o.id] || [];
       if (d?.durum === 'atlandi') x = besinli(x, [], 'atlandi');
@@ -45,7 +50,7 @@
       if (!ek.length) return x;
       if (x.durum === 'planli') return besinli(x, ek, 'degisti');
       return besinli(x, [...x.besinler, ...ek], x.durum === 'degisti' ? 'degisti' : 'dolu');
-    });
+    }
   };
   const gunOzet = () => {
     const l = ogunler(), yenen = l.filter(yendi);

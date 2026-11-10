@@ -247,8 +247,8 @@
 .dd-ogun-ekle{position:absolute;top:var(--dd-s-16);right:0}
 .dd-ogun:is(.is-planli,.is-bos,.is-atlandi) .dd-ogun-ad{color:var(--dd-slate)}
 .dd-ogun.is-atlandi .dd-ogun-ad{text-decoration:line-through;text-decoration-color:var(--dd-muted)}
-.dd-ogun-plan{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:var(--dd-s-4);padding-bottom:var(--dd-s-12)}
-.dd-ogun-plan .dd-chip{gap:var(--dd-s-4);min-height:var(--dd-size-chip-sm);padding-inline:var(--dd-s-8)}
+/* Plan durumu: Gastro etiketli segment alanı (dd-alan + dd-seg); kart yalnız alt boşluğu verir */
+.dd-ogun-plan{padding-bottom:var(--dd-s-12)}
 
 /* Swipe satır */
 .dd-swipe{position:relative;overflow:hidden;background:var(--dd-paper)}
@@ -581,7 +581,7 @@
 /* Öğün satırı: halka içinde tabak, gelecek öğün soluk */
 .dd-ogun-kcal{white-space:nowrap}
 .dd-ogun.is-planli .dd-ogun-ust{opacity:.6}
-.dd-ogun.is-planli .dd-ogun-plan{opacity:.85}
+
 .dd-mini-foto{position:absolute;inset:var(--dd-s-4);border-radius:var(--dd-r-round);background:var(--dd-line) center/cover}
 .dd-ogun .dd-satir-metin small{text-align:start;text-align-last:start}
 
@@ -610,3 +610,17 @@
 .dd-zc-eylem{display:flex;gap:var(--dd-s-8);width:100%;padding-top:var(--dd-s-4)}
 .dd-zc-eylem>.dd-btn{flex:0 1 auto;min-width:0;margin:0}
 .dd-rozet-izgara>li{min-width:0}
+
+/* İpucu ve bilgi kutusu dar sütundur: iki yana yaslama kelime arasını açıyordu; başa yaslı (Beyar, 10 Kasım) */
+body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin small,.dd-kalem-alt){text-align:start!important;text-align-last:start!important}
+
+/* İşaretlenebilir kalem (Gastro .pf-kalem): satır dolgusu 4/0, metin ızgarası 4, tamamlanınca soluk + üstü çizili */
+.dd-kalem{display:flex;align-items:center;gap:var(--dd-s-8)}
+.dd-kalem .dd-secim{flex:1;min-width:0;padding:var(--dd-s-4) 0}
+.dd-kalem-metin{display:grid;gap:var(--dd-s-4);min-width:0}
+.dd-kalem-ad{min-width:0;overflow-wrap:anywhere}
+.dd-kalem-alt{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-muted)}
+.dd-kalem.is-tamam:not(.is-secim) .dd-kalem-ad{color:var(--dd-slate);text-decoration:line-through}
+/* Alt sayfa grupları (Gastro .ay-gruplar): grup arası 24, alt boşluk 32 */
+.dd-gruplar{display:grid;gap:var(--dd-s-24);padding-top:var(--dd-s-16);padding-bottom:var(--dd-s-32)}
+.dd-grup{min-width:0}

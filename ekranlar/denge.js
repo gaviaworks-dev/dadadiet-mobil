@@ -24,7 +24,6 @@
   };
   const hazirlaniyor = () => DD.kart({html: `<div class="dd-yigin">${DD.dengeSkor({hazirlaniyor: {gun: 3, toplam: 7}, bilesenler: tabak().bilesenler})}${DD.p('Birkaç gün daha öğün ekledikçe **ilk Denge Skorun** hazırlanır; o zamana kadar kayıtların burada birikir.', {orta: true, ton: 'ikincil'})}${DD.btn({metin: 'Öğün ekle', ikon: 'ekle', tam: true, git: '#/besin-ara'})}</div>`});
   const araclar = () => DD.parcali([
-    {ikon: 'plate-wheat', baslik: 'Tabak Kur', git: '#/denge/tabak'},
     {ikon: 'right-left', baslik: 'Muadil', git: '#/denge/muadil'},
     {ikon: 'life-ring', baslik: 'Kaçamak', git: '#/denge/kacamak'},
     {ikon: 'code-compare', baslik: 'Kıyasla', git: '#/denge/kiyasla'},
@@ -38,7 +37,7 @@
       ? DD.bant({ton: 'basari', ikon: 'onay', metin: `Seçtiklerinle bu tabağın tahmini skoru **${Math.min(100, t.skor + artis)}**. Küçük bir değişiklik yeterli.`})
       : DD.veriYok('Denemek istediklerini işaretle; **tahmini etkisini** burada gör.');
   };
-  const oneriListe = () => `<div class="dd-yigin-12">${tabak().oneriler.map((o, i) => DD.gorevSatir({id: `oneri-${i}`, baslik: `${o.baslik} (+${o.puanArtisi})`, alt: o.metin, tamam: seciliOneri().includes(i)})).join('')}</div>`;
+  const oneriListe = () => DD.gorevListe(tabak().oneriler.map((o, i) => ({id: `oneri-${i}`, baslik: `${o.baslik} (+${o.puanArtisi})`, alt: o.metin, tamam: seciliOneri().includes(i)})), {cizgi: false, etiket: 'Denemek istediğin öneriler'});
   const icgoru = () => {
     if (DD.durum.oku('denge-icgoru', null) === 'kapali') return '';
     const b = enAcik();

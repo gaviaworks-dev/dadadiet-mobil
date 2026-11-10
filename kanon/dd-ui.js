@@ -675,6 +675,7 @@
   });
   belge.addEventListener('change', ev => {
     const t = ev.target;
+    if (t.matches?.('.dd-kalem input')) t.closest('.dd-kalem').classList.toggle('is-tamam', t.checked);
     if (t.matches?.('.dd-anahtar input,.dd-secim input')) degisim(t, t.name || t.closest('[data-ad]')?.dataset.ad, t.type === 'radio' ? t.value : t.checked);
   });
   // Bağlantı gibi çalışan a[href="#/..."]

@@ -69,15 +69,10 @@
   DD.skorTon = s => (s >= 70 ? 'iyi' : s >= 40 ? 'orta' : 'notr');
   // {skor, etiket, fark, bilesenler:[{ad,puan,enCok}], hazirlaniyor:{gun,toplam}}
   DD.dengeSkor = (o = {}) => {
-    const cx = 132, cy = 136, r = 112, bosluk = .085, ton = o.hazirlaniyor ? 'notr' : DD.skorTon(o.skor || 0);
-    const parcalar = o.bilesenler?.length ? o.bilesenler : [{puan: o.skor || 0, enCok: 100}];
-    const top = parcalar.reduce((a, b) => a + b.enCok, 0), acik = Math.PI - bosluk * (parcalar.length - 1);
-    let a = Math.PI;
-    const yaylar = parcalar.map((b, i) => {
-      const a1 = a + acik * (b.enCok / top), d = yayYol(cx, cy, r, a, a1); a = a1 + bosluk;
-      const u = o.hazirlaniyor ? 0 : yuvarla(b.puan / b.enCok * 100);
-      return `<path class="dd-skor-iz" d="${d}"/>${u > 0 ? `<path class="dd-skor-dolu" d="${d}" pathLength="100" stroke-dasharray="${u} 100" data-c="yay" data-uzun="${u}" data-gecik="${i * M.stagger * 3}"/>` : ''}`;
-    }).join('');
+    const cx = 132, cy = 136, r = 112, ton = o.hazirlaniyor ? 'notr' : DD.skorTon(o.skor || 0);
+    // Tek yay: bileşen kırılımı DD.dengeSatirlar'dadır. Parçalı yay yarım dolmuş yükleme göstergesi gibi okunuyordu (Beyar, 10 Kasım).
+    const d = yayYol(cx, cy, r, Math.PI, 2 * Math.PI), u = o.hazirlaniyor ? yuvarla(o.hazirlaniyor.gun / o.hazirlaniyor.toplam * 100) : kisit(o.skor || 0, 0, 100);
+    const yaylar = `<path class="dd-skor-iz" d="${d}"/>${u > 0 ? `<path class="dd-skor-dolu" d="${d}" pathLength="100" stroke-dasharray="${u} 100" data-c="yay" data-uzun="${u}"/>` : ''}`;
     const orta = o.hazirlaniyor
       ? `<span class="dd-t-sub">Hazırlanıyor</span><b class="dd-t-numeral-lg">${esc(o.hazirlaniyor.gun)}<span class="dd-skor-bolu">/${esc(o.hazirlaniyor.toplam)} gün</span></b>`
       : `<span class="dd-skor-sozcuk">${esc(o.etiket || '')}</span><b class="dd-t-numeral-xl"><span data-c="say" data-hedef="${o.skor}">${esc(o.skor)}</span><span class="dd-skor-bolu">/100</span></b>${o.fark ? `<small>${esc(o.fark)}</small>` : ''}`;
@@ -187,7 +182,9 @@
     const hedef = o.hedef ?? x.hedefKcal ?? Math.round(gunluk * (OGUN_PAY[x.id] ?? OGUN_PAY[String(x.id).split('-')[0]] ?? .15));
     const git = o.git ?? `#/ogun/${x.id}`, dolu = durum === 'dolu' || durum === 'degisti';
     const kcalSatir = o.hedefsiz ? (dolu ? `Yenilen: <b>${sayi(x.kcal)} kcal</b>` : 'Henüz kayıt yok') : dolu ? `<span class="dd-ogun-kcal">Yenilen: <b>${sayi(x.kcal)} kcal</b></span> · <span class="dd-ogun-kcal">Hedef: ${sayi(hedef)} kcal</span>` : durum === 'planli' ? `Planlı · ${sayi(x.kcal)} kcal` : durum === 'atlandi' ? 'Atlandı' : `Hedef ${sayi(hedef)} kcal`;
-    const plan = durum === 'planli' && o.durumlar !== false ? `<div class="dd-ogun-plan" role="group" aria-label="${esc(x.ad)} durumu">${[['uygula', 'Planladığım gibi', 'onay'], ['degistir', 'Değiştirdim', 'duzenle'], ['atla', 'Atladım', 'forward']].map(([e, m, i]) => DD.cip({metin: m, ikon: i, kucuk: true, veri: {eylem: `plan-${e}`, id: x.id}})).join('')}</div>` : '';
+    // Plan durumu Gastro üçlü seçimidir (.dgu-seg, Dolabım "Yer" alanı gibi etiketli): seçim kalır, plandan gelen öğünde karardan sonra da görünür (x.planSecim).
+    const planSecim = x.planSecim ?? (durum === 'planli' ? '' : null);
+    const plan = planSecim != null && o.durumlar !== false ? `<div class="dd-alan dd-ogun-plan"><span class="dd-etiket">Plana göre</span>${DD.segment({ad: `plan-${x.id}`, etiket: `${x.ad}: plana göre`, secili: planSecim, ogeler: [['uygula', 'Uydum'], ['degistir', 'Değiştirdim'], ['atla', 'Atladım']].map(([e, m]) => ({ad: m, deger: e, veri: {eylem: `plan-${e}`, id: x.id}}))})}</div>` : '';
     return `<article class="${liste('dd-ogun', `is-${durum}`, o.sinif)}"><button type="button" class="dd-ogun-ust" data-git="${esc(git)}">${DD.halkaMini({oran: dolu ? (o.hedefsiz ? 1 : x.kcal / hedef) : 0, foto: x.foto, ikon: x.foto ? null : durum === 'atlandi' ? 'forward' : x.ikon || 'ogun', silik: !dolu})}<span class="dd-satir-metin"><span class="dd-ogun-ad">${esc(x.ad)}${x.saat ? `<small>${esc(x.saat)}</small>` : ''}${durum === 'degisti' ? DD.durumRozet({metin: 'Değişti', ton: 'uyari', ikon: 'duzenle'}) : ''}</span><small>${kcalSatir}</small>${ozet ? `<small class="dd-kirp-1">${esc(ozet)}</small>` : ''}</span></button><span class="dd-ogun-ekle">${DD.ikonBtn({ikon: 'ekle', etiket: `${x.ad} ekle`, tur: 'tint', veri: {eylem: 'ogun-ekle', id: x.id}})}</span>${plan}</article>`;
   };
   DD.ogunListe = (l, o = {}) => `<div class="dd-satirlar dd-ogunler">${l.map(x => DD.ogunKart(x, o)).join('')}</div>`;
@@ -255,7 +252,15 @@
   const sessizde = (dk, bas, bit) => (bas === bit ? false : bas < bit ? dk >= bas && dk < bit : dk >= bas || dk < bit);
   const sonrakiSaat = (bas, bit) => { const h0 = DD.simdi().getHours(); for (let i = 1; i <= 24; i += 1) { const h = (h0 + i) % 24; if (!sessizde(h * 60, dakika(bas), dakika(bit))) return `${String(h).padStart(2, '0')}:00`; } return null; };
   // Saat seçimi: yarım saatlik yerel seçici; tarayıcı diline bakmadan 24 saat gösterir.
-  DD.saatSec = (o = {}) => `<div class="dd-alan"><label for="f-${esc(o.ad)}">${esc(o.etiket)}</label><div class="dd-girdi"><select id="f-${esc(o.ad)}" name="${esc(o.ad)}">${Array.from({length: 48}, (_, i) => { const v = `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`; return `<option value="${v}"${v === o.deger ? ' selected' : ''}>${noktali(v)}</option>`; }).join('')}</select></div></div>`;
+  // Saat alanı: Gastro saat alanı (DG.alan tur:'time', Flutter DgTimeField) gibi kutuya dokununca alttan kadran açılır. Seçim gizli input'a yazılır, 'change' ve dd-degisim atılır.
+  DD.saatSec = (o = {}) => `<div class="dd-alan"><span class="dd-etiket" id="l-${esc(o.ad)}">${esc(o.etiket)}</span><div class="dd-girdi dd-secici"><button type="button" class="dd-secici-dugme" data-saat-alan="${esc(o.ad)}" data-adim="${esc(o.adim || 30)}" aria-labelledby="l-${esc(o.ad)}" aria-haspopup="dialog"><span>${esc(noktali(o.deger || '12:00'))}</span></button><span class="dd-secici-ok" aria-hidden="true">${ik('saat')}</span><input type="hidden" name="${esc(o.ad)}" value="${esc(o.deger || '12:00')}"></div>${o.yardim ? `<p class="dd-yardim">${esc(o.yardim)}</p>` : ''}</div>`;
+  document.addEventListener('click', ev => {
+    const b = ev.target.closest?.('[data-saat-alan]'); if (!b) return;
+    const girdi = b.parentElement.querySelector('input[type="hidden"]'), baslik = document.getElementById(b.getAttribute('aria-labelledby'))?.textContent || 'Saat';
+    let deger = girdi.value;
+    DD.sheet({baslik, html: DD.saatKadran({ad: '_saat', deger, adim: +b.dataset.adim || 30, etiket: baslik, noktali: true}), altBar: DD.btn({metin: 'Tamam', tam: true, veri: {eylem: 'saat-tamam'}}),
+      sonra: d => { DD.on(d, '_saat', v => { deger = typeof v === 'number' ? DD.saatMetin(v) : v; }); DD.eylem(d, 'saat-tamam', () => { girdi.value = deger; b.querySelector('span').textContent = noktali(deger); girdi.dispatchEvent(new Event('change', {bubbles: true})); DD.degisim(b, b.dataset.saatAlan, deger); d.kapat(); }); }});
+  });
   DD.suSonrakiSaat = () => { const {bas, bit} = DD.suHatirlatmaDurum(); return noktali(sonrakiSaat(bas, bit) || '18:00'); };
   DD.suHatirlatmaDurum = () => ({acik: DD.durum.oku('bildirim-ayar', {}).su ?? true, bas: '23:00', bit: '08:00', ...DD.durum.oku('su-sessiz', {})});
   const suHatirlatmaIc = () => {
@@ -371,7 +376,9 @@
   DD.gizlilikBant = metin => DD.veriYok(metin || 'Bu dosyaya **yalnız sen ve diyetisyenin** erişebilir.');
   DD.slotlar = (o = {}) => `<div class="dd-yigin-12" data-cip-grup="tek" data-ad="${esc(o.ad || 'slot')}">${(o.gruplar || []).map(g => `<div class="dd-yigin-8"><span class="dd-yardim">${esc(g.ad)}</span><div class="dd-sira">${g.slotlar.map(s => DD.cip({metin: s.saat, deger: s.saat, secili: s.saat === o.secili, pasif: s.pasif})).join('')}</div></div>`).join('')}</div>`;
   DD.pencereBant = (o = {}) => { const b = DD.saatDk(o.bas) / 1440, e = DD.saatDk(o.bit) / 1440, n = DD.saatDk(o.simdi || '12:00') / 1440; return `<${o.git ? 'button type="button"' : 'div'} class="dd-kart dd-pencere"${at({git: o.git})}>${o.baslik ? `<div class="dd-ara"><span>${esc(o.baslik)}</span><small class="dd-yardim">${esc(o.alt || '')}</small></div>` : ''}<div class="dd-pencere-yol" style="--b:${b.toFixed(4)};--e:${e.toFixed(4)};--n:${n.toFixed(4)}"><i class="dd-pencere-acik"></i><i class="dd-pencere-simdi"></i></div><div class="dd-pencere-et"><span>00</span><span style="--p:${b.toFixed(4)}">${esc(o.bas)}</span><span style="--p:${e.toFixed(4)}">${esc(o.bit)}</span><span>24</span></div></${o.git ? 'button' : 'div'}>`; };
-  DD.gorevSatir = (o = {}) => DD.checkbox({ad: o.id || 'gorev', etiket: o.baslik, alt: o.alt, secili: o.tamam});
+  // İşaretlenebilir kalem: Gastro alışveriş listesi kalemi (ortak/sayfalar/profil.css .pf-kalem, Flutter DgCheckedItem). Tamamlanınca ad soluk ve üstü çizili; cizgi:false seçimde (öneri) çizgi yok.
+  DD.gorevSatir = (o = {}) => `<li class="${liste('dd-kalem', o.tamam && 'is-tamam', o.cizgi === false && 'is-secim')}"><label class="dd-secim"><input type="checkbox" name="${esc(o.id || 'gorev')}" value="1"${o.tamam ? ' checked' : ''}${o.pasif ? ' disabled' : ''}><span class="dd-kalem-metin"><span class="dd-kalem-ad">${esc(o.baslik)}</span>${o.alt ? `<small class="dd-kalem-alt">${esc(o.alt)}</small>` : ''}</span></label>${o.sil ? DD.ikonBtn({ikon: 'sil', etiket: `${o.baslik} kaldır`, veri: {eylem: o.sil, id: o.id}}) : ''}</li>`;
+  DD.gorevListe = (ogeler, o = {}) => `<ul class="${liste('dd-satirlar dd-kalemler', o.sinif)}"${o.etiket ? ` aria-label="${esc(o.etiket)}"` : ''}>${ogeler.map(x => DD.gorevSatir({cizgi: o.cizgi, ...x})).join('')}</ul>`;
   DD.modulListe = (o = {}) => `<div class="dd-yigin-8">${o.ozet ? `<span class="dd-yardim">${esc(o.ozet)}</span>` : ''}${DD.parcali((o.ogeler || []).map(m => ({ikon: m.durum === 'tamam' ? 'onay' : m.durum === 'kilitli' ? 'sifreli' : 'play', baslik: m.baslik, alt: m.alt, git: m.git, ana: m.durum === 'siradaki', pasif: m.durum === 'kilitli', bilgi: m.durum === 'kilitli'})))}</div>`;
   DD.uyumRozet = (o = {}) => DD.durumRozet({metin: `Sana uyumu %${o.oran}`, ikon: 'hedef', ton: o.oran >= 70 ? 'basari' : o.oran >= 40 ? 'uyari' : 'notr'});
   DD.yolculuk = (o = {}) => { const oran = kisit((o.bas - o.simdi) / ((o.bas - o.hedef) || 1), 0, 1); return DD.ilerleme({n: oran * 100, hedef: 100, etiket: o.etiket || 'Yolculuğun', deger: `${ondalik(o.simdi, 1)} / ${ondalik(o.hedef, 1)} ${o.birim || 'kg'}`}); };

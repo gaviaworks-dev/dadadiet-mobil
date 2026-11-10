@@ -16,7 +16,7 @@
     const yakin = Math.abs(ort - h) <= h * .05;
     return `Son ${l.length} günde ortalaman **${sayi(ort)} kcal**, hedefin ${sayi(h)}. ${yakin ? 'Tek öğün bu tabloyu **değiştirmez**.' : 'Belirleyici olan **tek öğün değil**, genel örüntü.'}`;
   };
-  const adimListe = (s, d) => { const y = d.adimlar[s.id] || []; return `<div class="dd-yigin-12">${s.adimlar.map((a, i) => DD.gorevSatir({id: `adim-${i}`, baslik: a.baslik, alt: a.metin, tamam: y.includes(i)})).join('')}</div>`; };
+  const adimListe = (s, d) => { const y = d.adimlar[s.id] || []; return DD.gorevListe(s.adimlar.map((a, i) => ({id: `adim-${i}`, baslik: a.baslik, alt: a.metin, tamam: y.includes(i)}))); };
   const tamamBant = (s, d) => ((d.adimlar[s.id] || []).length === s.adimlar.length ? DD.bant({ton: 'basari', ikon: 'onay', metin: '**Üç adım da tamam.** Gününe olağan akışında devam edebilirsin.'}) : '');
   const detay = s => {
     const d = oku();

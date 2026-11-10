@@ -32,7 +32,7 @@
     {id: 'menu', baslik: 'Bu haftanın menüsünü oku', alt: 'Zorlandığın öğünü not et'}
   ];
   const hazirlik = () => ({olcum: DD.durum.oku('saglik-olcumler', []).length > 0, ...DD.durum.oku('uzman-hazirlik', {})});
-  const gorevler = () => { const h = hazirlik(); return `<div class="dd-yigin-12">${GOREVLER.map(g => DD.gorevSatir({...g, id: `gorev-${g.id}`, tamam: !!h[g.id]})).join('')}</div>`; };
+  const gorevler = () => { const h = hazirlik(); return DD.gorevListe(GOREVLER.map(g => ({...g, id: `gorev-${g.id}`, tamam: !!h[g.id]}))); };
 
   // ---------- Randevu ----------
   const randevuKart = r => {
