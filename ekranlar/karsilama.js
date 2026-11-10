@@ -1,5 +1,5 @@
 /* SCR-01 Karşılama (#/karsilama): Gastro .ac-k3, gülücük kapak + beyaz alanda giriş yolları. Referans: tasks/referanslar.md Karşılama satırları.
- * Apple, Google ve E-posta hedef adımına gider (DD.durum 'onboarding'.giris); "Zaten hesabım var" oturum açıp dolu Bugün'e gider. */
+ * Apple, Google ve E-posta hedef adımına gider (DD.durum 'onboarding'.giris); "Zaten hesabım var" Giriş ekranını (#/giris) açar; oturum orada açılır. */
 (() => {
   const G = () => DDV.onboarding.giris;
   const EPOSTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/, SIFRE_EN_AZ = 8;
@@ -45,7 +45,7 @@
         if (navigator.onLine === false) { DD.toast('**Bağlantı yok.** Bağlanınca yeniden dene.', {tur: 'hata'}); return; }
         DD.mesgul(el, girisSure()).then(() => baslat(el.dataset.id));
       });
-      const c2 = DD.eylem(kok, 'hesabim-var', () => { DD.durum.yaz('oturum', {yol: 'giris'}); DD.yerine('#/bugun'); });
+      const c2 = DD.eylem(kok, 'hesabim-var', () => DD.git('#/giris'));
       return () => { c1(); c2(); };
     }
   });

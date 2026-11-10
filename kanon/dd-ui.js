@@ -161,7 +161,7 @@
     const kilit = !DD.uye() && DD.UYE_KILIT[g.ad], bekliyor = !kilit && e.yukle && !g.yuklendi;
     try {
       if ((e.tur || 'alt') !== 'tam') bar = DD.ustBar(kilit ? (e.dock ? {tur: 'sekme'} : {tur: 'alt', baslik: kilit.baslik}) : barAyar(e, ctx));
-      icerik = kilit ? DD.bos({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, eylem: {metin: 'Üye ol', veri: {'uye-ol': kilit.metin.replace(/\*\*/g, '')}}, ikincil: {metin: 'Giriş yap', git: '#/karsilama'}}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
+      icerik = kilit ? DD.bos({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, eylem: {metin: 'Üye ol', veri: {'uye-ol': kilit.metin.replace(/\*\*/g, '')}}, ikincil: {metin: 'Giriş yap', git: '#/giris'}}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
       if (!kilit && !bekliyor && e.altBar) alt = e.altBar(ctx) || '';
     } catch (hata) {
       console.error(`[ekran ${g.ad}]`, hata);
