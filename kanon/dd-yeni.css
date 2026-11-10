@@ -672,7 +672,10 @@ body :is(.dd-veri-yok,.dd-izin-maddeler small,.dd-yorum-metin p,.dd-kunye span){
 .dd-mesaj-oneri::-webkit-scrollbar{display:none}
 .dd-mesaj-oneri>.dd-chip{flex:none}
 /* İpucu eylemi: metnin 12 altında, sola yaslı küçük ikincil düğme (eski metin düğmesi kayboluyor, satırı boşa harcıyordu) */
-.dd-ipucu > div > .dd-btn{justify-self:start;margin-top:var(--dd-s-12)!important}
+/* İpucu eylemi metnin sağında aynı satırda (Beyar: alt satırı boşa harcamasın); ikon | metin | düğme, dikeyde ortalı */
+.dd-ipucu.is-eylemli{align-items:center}
+.dd-ipucu.is-eylemli>div{flex:1}
+.dd-ipucu.is-eylemli>.dd-btn{flex:none;margin:0!important;white-space:nowrap}
 
 /* Mesaj yazma çubuğu: kart içinde kutu yok; ince üst çizgi, hap giriş, yuvarlak eylemler. Gönder yalnız yazı varken görünür, o zaman mikrofon çekilir. */
 .dd-bar.dd-mesaj-bar{padding:var(--dd-s-8) var(--dd-s-12) calc(var(--dd-s-8) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line);background:var(--dd-paper)}
