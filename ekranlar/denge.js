@@ -62,7 +62,8 @@
       {baslik: t.rehber.baslik, html: rehber()}
     ]);
   };
-  const rehber = () => { const r = tabak().rehber; return DD.ipucu({ikon: 'plate-wheat', metin: ilkCumle(r.metin), eylem: {metin: 'Programlara göz at', git: '#/programlar'}}); };
+  // Rehber: ipucu kutusu + girintili düğme yerine görselli kart (dokununca Tabak Kur) ve altında kısa açıklama (Beyar: "dengesiz duruyor")
+  const rehber = () => { const r = tabak().rehber; return `<div class="dd-yigin-12">${DD.banner({gorsel: 'assets/gorsel/hero/tabak-duzeni.webp', etiket: 'Dengeli tabak', baslik: 'Yarısı sebze, çeyreği protein, çeyreği tahıl', alt: 'Kendi tabağını kur, puanını gör', git: '#/denge/tabak'})}${DD.p(ilkCumle(r.metin))}</div>`; };
 
   // ---------- Sheet'ler ----------
   const ayrintiSheet = () => {

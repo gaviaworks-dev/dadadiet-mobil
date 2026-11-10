@@ -685,3 +685,7 @@ body :is(.dd-veri-yok,.dd-izin-maddeler small,.dd-yorum-metin p,.dd-kunye span){
 .dd-mesaj:has(input:placeholder-shown) .dd-mesaj-gonder{display:none}
 .dd-mesaj:not(:has(input:placeholder-shown)) .dd-mesaj-ses{display:none}
 .dd-mesaj-oneri>.dd-chip{min-height:var(--dd-size-chip-sm);padding-inline:var(--dd-s-12);border-radius:calc(var(--dd-size-chip-sm) / 2);font-size:var(--dd-t-meta-size)}
+/* Seçim kartı başlığı kalın (Beyar): başlık ile alt satır arasındaki hiyerarşi okunsun */
+.dd-secim-metin b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+/* İçerik kartı başlığı iki satırlık yer tutar: şerit ve ızgarada okuma süresi satırları aynı hizada kalır (Beyar) */
+.dd-puf-metin b{min-height:2lh}
