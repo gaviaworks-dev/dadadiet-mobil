@@ -71,7 +71,7 @@
     const t = tabak();
     DD.sheet({
       baslik: 'Denge Skoru nasıl oluşur?',
-      html: `<div class="dd-yigin">${DD.p(`Skor dört bileşenin toplamıdır: **${t.bilesenler.map(b => b.puan).join(' + ')} = ${t.skor}**. Bir not değil, tabağı kurarken yol gösteren bir özettir.`)}${DD.satirlar(t.bilesenler.map(b => ({ikon: b.ikon, baslik: b.ad, alt: b.yorum, deger: `${b.puan} / ${b.enCok}`, ok: false})))}${DD.bant({metin: 'Bu skor **genel bilgi** içindir; sana özel kararlar için diyetisyeninle konuş.'})}</div>`,
+      html: `<div class="dd-yigin">${DD.p('Skor dört bileşenin **toplamıdır**. Bir not değil, tabağı kurarken yol gösteren bir özettir.')}${DD.satirlar([...t.bilesenler.map(b => ({ikon: b.ikon, baslik: b.ad, alt: b.yorum, deger: `${b.puan} / ${b.enCok}`, ok: false})), {ikon: 'denge', baslik: 'Denge Skoru', alt: t.bilesenler.map(b => b.puan).join(' + '), deger: `${t.skor} / 100`, ok: false}])}${DD.bant({metin: 'Bu skor **genel bilgi** içindir; sana özel kararlar için diyetisyeninle konuş.'})}</div>`,
       altBar: DD.btn({metin: 'Öğünü aç', ikon: 'utensils', tam: true, git: `#/ogun/${ogunId()}`, attrs: 'data-sheet-kapat'})
     });
   };

@@ -68,8 +68,9 @@
     return DD.satir({ikon: 'kahvalti', baslik: o ? 'İlk öğün saatin (kahvaltı)' : 'Kahvaltı saatin', alt: `Zincirin çapası${k.aktif === false ? ' · hatırlatma kapalı' : ''}`, deger: nok(o ? o.ilk_ogun_saati : k.planlanan), veri: {eylem: 'ogun', id: 'kahvalti'}});
   };
   const zincir = () => {
-    const A = ARA(), l = kurallar().filter(x => x.tur !== 'kahvalti' && x.tur !== A[1]).map(x => `${A.includes(x.tur) ? 'ara öğün' : x.ad.toLocaleLowerCase('tr')} = ${x.kural}`);
-    return DD.p(`**Zincir:** ${l.join('; ')}.`, {meta: true, ton: 'ikincil'});
+    // Formül paragrafta okunmuyor (Beyar okunurluk, 11 Kasım): Gastro bilgi kutusu, her kural ayrı satır.
+    const A = ARA(), l = kurallar().filter(x => x.tur !== 'kahvalti' && x.tur !== A[1]).map(x => `**${A.includes(x.tur) ? 'Ara öğün' : x.ad}** = ${x.kural}`);
+    return DD.bilgi({etiket: 'Zincir', ikon: 'link', html: `<div class="dd-yigin-8">${l.map(m => DD.madde({metin: m, tur: 'notr'})).join('')}</div>`});
   };
   const ogunSatir = (x, ps) => {
     const elle = x.kaynak === 'elle', alt = [elle ? 'Elle girdin' : x.kural, ps[x.tur] && `planda ${nok(ps[x.tur])}`, x.aktif === false && 'hatırlatma kapalı'].filter(Boolean).join(' · ');
@@ -83,7 +84,7 @@
       <div class="dd-yigin-8">${DD.satirlar([kahvaltiSatir(t), ...digerleri.map(x => ogunSatir(x, ps))])}${zincir()}</div>
       <div class="dd-ikili">${DD.btn({metin: 'Ara öğün ekle', ikon: 'ekle', tur: 'secondary', pasif: araSay >= enCok(), veri: {eylem: 'ara-ekle'}})}${DD.btn({metin: 'Şablona dön', ikon: 'rotate-left', tur: 'secondary', veri: {eylem: 'sablon'}})}</div>
       ${araSay >= enCok() ? `<p class="dd-yardim">En çok ${enCok()} ara öğün eklenebilir.</p>` : ''}
-      ${DD.bilgi({etiket: 'Kaydedince', ikon: 'saat', metin: `**Bugün:** ${O().ozet(h)}`})}
+      ${DD.bilgi({etiket: 'Kaydedince bugün', ikon: 'saat', html: `<div class="dd-yigin-8">${O().ozet(h).split(' · ').map(m => DD.madde({metin: m.replace(/^(.*) (\d{1,2}\.\d{2})$/, '$1 **$2**'), tur: 'notr'})).join('')}</div>`})}
     </div>`;
   };
 

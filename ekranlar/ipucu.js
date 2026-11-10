@@ -23,7 +23,7 @@
     'gunde-ne-kadar-su-icmek-gerekir': [['erkeklerde 2,5, kadınlarda 2,0 litre'], ['İçilen suyu değil, toplamı'], ['erkekte 2.000, kadında 1.600 mililitre'], ['toplam su'], ['6-8 bardak'], ['35 mililitre × vücut ağırlığı (kilogram)', 'alınan her kilokalori için 1 mililitre'], ['Gereksinim sabit de değil'], ['18 yaşından sonra değer 70 yaş üstüne kadar değişmiyor'], ['bunu bir hekimle konuşmak gerekir'], ['1.594,3 mililitre'], ['kafein içeren içecekler dışında'], ['susama merkezi uyarılmıyor ve susama duygusu gelişmiyor'], ['idrar renginin koyulaşmasını']],
     'buzdolabinda-hangi-raf-neye-ait': [['soğuk havanın dolap içinde nasıl dolaştığından'], ['üst raflara göre daha uzun süre serin kalır'], ['en değişken sıcaklığa sahip bölgedir'], ['pişmiş ya da doğrudan tüketilecek besinler'], ['kapalı bir kapta'], ['Çiğ et hiçbir zaman sebzelerin ya da doğrudan yenecek besinlerin üzerindeki bir rafta durmamalıdır'], ['kendi kabına koymak'], ['sos, turşu, reçel gibi kendi içinde dayanıklı ürünler'], ['orijinal kartonuyla iç raflarda'], ['daha yüksek nem tutacak şekilde'], ['nem oranını ayarlayan küçük bir sürgü'], ['alışveriş sonrası yerleştirme süresini kısaltır'], ['besin israfını azaltır']]
   };
-  const ilkCumle = s => { const i = s.search(/[;,.:]/), bas = i > 0 ? s.slice(0, i) : s, k = bas.split(' '); return k.length > 5 ? `**${k.slice(0, 3).join(' ')}** ${s.slice(k.slice(0, 3).join(' ').length + 1)}` : `**${bas}**${s.slice(bas.length)}`; };
+  const ilkCumle = s => { const i = s.search(/[;:]|[,.](?=\s|$)/), bas = i > 0 ? s.slice(0, i) : s, k = bas.split(' '); return k.length > 5 ? `**${k.slice(0, 3).join(' ')}** ${s.slice(k.slice(0, 3).join(' ').length + 1)}` : `**${bas}**${s.slice(bas.length)}`; };
   // Özet (web'deki başlık altı yazı) kısa yanıttır: ilk cümlesi kalın.
   const ozetVurgu = s => { const m = s.match(/^(.+?[.?!])(\s|$)/); return m ? `**${m[1]}**${s.slice(m[1].length)}` : `**${s}**`; };
   const vurgula = (slug, p, sira) => {
@@ -32,7 +32,31 @@
   };
 
   // ---------- Gövde (Gastro püf detayı: giriş + numaralı bloklar) ----------
-  const paragraflar = (x, l, bas) => l.map((p, i) => DD.p(vurgula(x.slug, p, bas + i))).join('');
+  // Sayı dizisi (formül, yaşa göre tablo, döküm) paragraf içinde okunmuyor (Beyar okunurluk, 11 Kasım): o cümle Gastro bilgi kutusuna (DD.bilgi)
+  // alınır, her öğe ayrı satır (DD.madde). Metin veriden gelir; burada yalnız hangi cümlenin, nereden bölüneceği yazılı:
+  // bas = cümlenin ':' ile biten başı, ayrac = öğe ayracı, kuyruk = son öğeden ayrılıp kalın toplam satırı olan ek, etiket = kutu başlığı.
+  const DIZI = {
+    'gunde-ne-kadar-su-icmek-gerekir': [
+      {bas: 'Günlük kaybı da rehber ayrıca veriyor:', ayrac: /, | ve /, kuyruk: ' olmak üzere ', etiket: 'Günlük su kaybı (mililitre)', ikon: 'su'},
+      {bas: 'Rehber iki pratik formül veriyor:', ayrac: / ya da /, etiket: 'Günlük su gereksinmesi', ikon: 'calculator'},
+      {bas: 'Tablo çocuklukta düşük başlıyor ve ergenlikte yetişkin değerine çıkıyor:', ayrac: /; |, (?=\d+-\d+ yaşta)/, etiket: 'Yaşa göre günlük su', ikon: 'su'},
+      {bas: 'Rehber toplumun bugünkü tüketimini de veriyor:', ayrac: /; |, (?=kadınlarda)/, etiket: 'Günlük su tüketimi (TBSA 2017)', ikon: 'su'}
+    ]
+  };
+  const buyuk = s => s.charAt(0).toLocaleUpperCase('tr') + s.slice(1);
+  const kalin = (slug, s) => (VURGU[slug] || []).flat().filter(f => s.includes(f)).reduce((t, f) => t.replace(f, `**${f}**`), s);
+  const diziParagraf = (x, p, sira) => {
+    const r = (DIZI[x.slug] || []).find(d => p.includes(d.bas));
+    if (!r) return DD.p(vurgula(x.slug, p, sira));
+    const i = p.indexOf(r.bas), bas = p.slice(0, i + r.bas.length), kalan = p.slice(i + r.bas.length);
+    const son = kalan.search(/\.(\s|$)/), liste = (son < 0 ? kalan : kalan.slice(0, son)).trim(), devam = son < 0 ? '' : kalan.slice(son + 1).trim();
+    const ogeler = liste.split(r.ayrac).map(s => s.trim()).filter(Boolean);
+    let toplam = '';
+    if (r.kuyruk && ogeler.at(-1).includes(r.kuyruk)) { const [a, b] = ogeler.pop().split(r.kuyruk); ogeler.push(a.trim()); toplam = b.trim(); }
+    const kutu = DD.bilgi({etiket: r.etiket, ikon: r.ikon, html: `<div class="dd-yigin-8">${ogeler.map(o => DD.madde({metin: buyuk(kalin(x.slug, o)), tur: 'notr'})).join('')}${toplam ? DD.madde({metin: `**${buyuk(toplam)}**`, tur: 'notr'}) : ''}</div>`});
+    return `${DD.p(vurgula(x.slug, bas, sira))}${kutu}${devam ? DD.p(vurgula(x.slug, devam, sira)) : ''}`;
+  };
+  const paragraflar = (x, l, bas) => l.map((p, i) => diziParagraf(x, p, bas + i)).join('');
   // DD.icerikBlok kanona eklenene dek aynı sıra DD.makale + alt başlıkla çizilir (kanon isteği).
   const bloklar = (x, m) => {
     let i = 0;

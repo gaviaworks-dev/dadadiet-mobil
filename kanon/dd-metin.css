@@ -1,35 +1,82 @@
-/* Gastro ortak/dg-metin.css kaynağından taşındı: ad çevirisi dışında aynıdır. Düzeltme için README "Gastro → Diet" tablosuna bak. */
-/* METİN KANONU (Diet, mimari §2): paragraf iki yana yaslıdır; başlık, ad, etiket ve buton yaslanmaz, hecelenmez; kural yalnız buradan gelir, sayfada ezilmez (docs/50 §13, docs/55 §2g).
-   Sola dayalı blokta son satır sola, ortalı blokta (boş durum, karşılama…) son satır ortaya: sayfa CSS'leri yalnız text-align-last verir.
-   Heceleme Türkçe (html lang="tr" her sayfada). Sayı sütunlarının sağa hizası (miktar) korunur. Bold vurgular kaynaktaki gibi kalır.
-   Bütün sayfalarda en son yüklenir (kök ekranlar: dd-duzeltme'den sonra; uygulama sayfaları: üretici). */
-html{-webkit-hyphens:auto;hyphens:auto}
-/* Otomatik bölmede kısa parça yok (gövde 5 2 2, başlık 6 3 3); Türkçe yumuşak tireler dd-metin.js'ten aynı sınırlarla gelir. */
-body{hyphenate-limit-chars:5 2 2;-webkit-hyphenate-limit-before:2;-webkit-hyphenate-limit-after:2}
-body :is(h1,h2,h3,.dd-t-page,.dd-t-section,.dd-t-display,.dd-t-featured){hyphenate-limit-chars:6 3 3;-webkit-hyphenate-limit-before:3;-webkit-hyphenate-limit-after:3}
-body{text-align:justify;text-align-last:left;-webkit-hyphens:auto;hyphens:auto}
-:where(p,li,dd,dt,blockquote,figcaption,small,label,legend,summary,td,th,span,b,strong,em,a,h1,h2,h3,h4,h5,h6,button){-webkit-hyphens:auto;hyphens:auto}
-/* Tarayıcı varsayılanları (düğme ortalı, form alanı başa yaslı) da aynı kurala bağlanır; sıfır özgüllük, sayfa kuralı ezmez. */
-:where(button,[role=button],summary){text-align:justify;text-align-last:center}
-:where(input,textarea,select,option){text-align:justify;text-align-last:left}
-/* İstisna (Beyar EK “metin kuralı”: başlık, buton, etiket ve tek satırlık kısa metinler hariç): başlık/ad/etiket rolleri iki yana
-   gerilmez — kısa iki satırlık başlıkta kelime arası açılır (ör. kart başlığı). Bulunduğu bloğun hizasını alır: --dd-baslik-hiza
-   (ortalı blokta center, aksi hâlde start). Satır içi strong/b'ye etkisi yoktur (text-align yalnız bloklarda çalışır). */
+/* METİN KANONU (Diet, mimari §2) — okunurluk sürümü (Beyar, 11 Kasım 2026):
+   1. Heceleme yok: hiçbir sözcük satır sonunda "-" ile bölünmez (hyphens:none her yerde, dd-metin.js yumuşak tire eklemez).
+   2. Paragraf başa yaslı: hecelemesiz iki yana yaslama dar sütunda geniş sözcük boşluğu açıyordu (390'da ölçüldü), bu yüzden
+      justify kaldırıldı. Hiza bloğun son satır kuralından gelir: başa yaslı blok start, ortalı blok (boş durum, karşılama…) center,
+      sayı sütunu end. Gastro'dan taşınan CSS'teki justify kuralları elle değiştirilmez; en alttaki üretilmiş blok
+      (tasks/araclar/hiza-uret.py) her birini kendi hizasına çevirir.
+   3. Satır sonunda yalnız kalan sözcüğü azaltmak için paragraflarda text-wrap:pretty; sayı ile birim dd-metin.js'te bölünmeyen boşlukla bağlı.
+   Başlık, ad, etiket ve buton bulunduğu bloğun hizasını alır (--dd-baslik-hiza). Bold vurgular kaynaktaki gibi kalır. */
+html,html *,html *::before,html *::after{-webkit-hyphens:none!important;hyphens:none!important}
+body{text-align:start;text-align-last:auto}
+/* Tarayıcı varsayılanları: düğme ortalı, form alanı başa yaslı; sıfır özgüllük, sayfa kuralı ezmez. */
+:where(button,[role=button],summary){text-align:center}
+:where(input,textarea,select,option){text-align:start}
+/* Başlık, ad, etiket rolleri: bulunduğu bloğun hizası (ortalı blokta center, aksi hâlde start). */
 body :is(h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,strong,b,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat){text-align:var(--dd-baslik-hiza,start)!important;text-align-last:var(--dd-baslik-hiza,start)!important}
-body :is(h1,h2,h3,h4,h5,h6,dt,th,legend,label,summary,[class*=title],[class*=baslik]:not(.dd-baslik):not([class*=baslik-]),[class*=__name],[class*=-name],.dd-t-page,.dd-t-section,.dd-t-sub,.dd-t-card,.dd-t-featured,.dd-t-display,.dd-t-label,.dd-t-sheet,.dd-t-stat,.dd-btn,.dd-kok-chip,.dd-chip){-webkit-hyphens:manual!important;hyphens:manual!important}
 body :is(.dd-btn,.button,.dd-chip,.dd-kok-chip,.chip,.dd-hbtn,.icon-button,.dd-uzman-ol,.dd-uzman-ol>span){text-align:center!important;text-align-last:center!important;--dd-baslik-hiza:center}
-/* Dar sütun açıklaması (bildirim kanal tablosu): ~150px sütunda iki yana yaslama nehir oluşturur; başlık istisnasıyla aynı hiza. */
+/* Dar sütun açıklaması (bildirim kanal tablosu, rozet adı…): başlık istisnasıyla aynı hiza. */
 body :is(.dd-kanal-metin small,.dd-rozet-ad,.dd-bayrak-metin b,.dd-mod-ad span,.dd-stats>span){text-align:var(--dd-baslik-hiza,start)!important;text-align-last:var(--dd-baslik-hiza,start)!important}
 /* Bölüm başlığı (akordiyon düğmesi) bir başlıktır: düğme ortalaması değil, başa yaslı. */
 body :is(.dd-bolum-bas,.dd-bolum-bas *){text-align:start!important;text-align-last:start!important;--dd-baslik-hiza:start}
-/* Paragraflarda hiza farkı yalnız son satırla verilir (text-align-last: başa / ortaya / sona). Kelime arası boşluk Türkçe hecelemeyle çözülür:
-   ortak/dd-metin.js görünen metne Türkçe hece kurallarıyla yumuşak tire ekler (tarayıcıların Türkçe hyphens:auto sözlüğü yok — ölçüldü).
-   Kelime boşluğu genişlemesi word-spacing ile sınırlanamaz (iki yana yaslama satırı her durumda doldurur); dar sütunlarda genişlik /
-   yazı rolü kanon içinde ayarlanır ya da metin kısaltılır. */
-:where(p,li,dd,blockquote,figcaption,small,.dd-metin>*){text-wrap:pretty}
-/* Kök ekranın sağa hizalı sayı alanı (output) da kanonda: iki yana yaslı, son satır sona. */
-body output{text-align:justify!important;text-align-last:end!important}
-/* Kısa mutfak etiketi (Beyar V4 A3): yalnız millet adı (“Türk”, “İtalyan”); tek satır, sığmazsa “…”; heceleme yok (dd-metin.js MUTFAK).
-   Tek satır olduğu için justify görünümü değişmez (son satır hizası); denetimden muaf değildir. */
-body :is(.dd-bayrak-metin b,.v3-cuisine .v3-cuisine-text b,.dd-uz-feature .dd-uz-flag ~ span,.dd-mark--flag ~ span,.dd-mutfak-ad){display:block;max-width:100%;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;-webkit-hyphens:manual!important;hyphens:manual!important;-webkit-line-clamp:unset}
-
+/* Satır sonunda yalnız kalan sözcük: paragraf ve açıklamalarda dengeli kırma. */
+:where(p,li,dd,blockquote,figcaption,small,.dd-metin>*,.dd-yardim,.dd-satir-metin>small,.dd-bildirim small){text-wrap:pretty}
+/* Kök ekranın sağa hizalı sayı alanı (output). */
+body output{text-align:end!important;text-align-last:end!important}
+/* Kısa mutfak etiketi (Beyar V4 A3): yalnız millet adı; tek satır, sığmazsa “…”. */
+body :is(.dd-bayrak-metin b,.v3-cuisine .v3-cuisine-text b,.dd-uz-feature .dd-uz-flag ~ span,.dd-mark--flag ~ span,.dd-mutfak-ad){display:block;max-width:100%;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;-webkit-line-clamp:unset}
+/* Üretilmiş blok: Gastro'dan taşınan CSS'teki justify kurallarının hizası (elle düzenlenmez; yeniden üret: python3 tasks/araclar/hiza-uret.py). */
+/* HIZA-URETICI BAS */
+:root :is(.dd-btn){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-satir){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-eylem){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-ozet > div){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-uzman){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-durum){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-secim-kart){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-video){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-profil-kimlik){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-metin){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-bildirim){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-secici-dugme){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-ulke-satir){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-rozet-hucre){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-rozet-detay){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-rozet-bilgi){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-uzman-kart){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-uzman-ol){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-izin-govde){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-izin-maddeler){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-zengin-alan,.dd-zengin-alan *){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-akis-kart){text-align:start}  /* dd-bilesen.css */
+:root :is(.dd-secim-izgara.is-orta .dd-secim-kart){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-secim-izgara.is-orta .dd-secim-metin b){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-secim-izgara.is-orta .dd-secim-metin small){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-liste-son){text-align:center}  /* dd-bilesen.css */
+:root :is(.dd-orta-metin){text-align:center}  /* dd-kabuk.css */
+:root :is(button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim)){text-align:start}  /* dd-kabuk.css */
+:root :is(.dd-facts dl>div){text-align:center}  /* dd-kalip.css */
+:root :is(.dd-bilgi-govde){text-align:start}  /* dd-kalip.css */
+:root :is(:root .dd-liste-empty){text-align:center}  /* dd-liste.css */
+:root :is(.dd-facet__head){text-align:start}  /* dd-liste.css */
+:root :is(.dd-choice){text-align:start}  /* dd-liste.css */
+:root :is(.dd-menu-row){text-align:start}  /* dd-menu.css */
+:root :is(.dd-parcali-oge){text-align:start}  /* dd-parcali.css */
+:root :is(.dd-parcali-metin){text-align:start}  /* dd-parcali.css */
+:root :is(.dd-parcali:is(.is-yatay,.is-izgara) .dd-parcali-metin){text-align:center}  /* dd-parcali.css */
+:root :is(.dd-parcali:is(.is-yatay,.is-izgara) .dd-parcali-metin b){text-align:center}  /* dd-parcali.css */
+:root :is(.dd-sahne-metin){text-align:center}  /* dd-sahne.css */
+:root :is(.dd-kamera){text-align:start}  /* dd-sahne.css */
+:root :is(.dd-kamera-yonerge){text-align:center}  /* dd-sahne.css */
+:root :is(.dd-istatistik>div){text-align:center}  /* dd-sayac.css */
+:root :is(.dd-adimlayici .dd-adim-deger>output,.dd-adimlayici .dd-adim-deger>.dd-adim-iz){text-align:center}  /* dd-sayac.css */
+:root :is(.dd-tk-gunadlari span){text-align:center}  /* dd-takvim.css */
+:root :is(.dd-tk-ozet){text-align:center}  /* dd-takvim.css */
+:root :is(.dd-tk-deger){text-align:start}  /* dd-takvim.css */
+:root :is(.dd-ogun-ust){text-align:start}  /* dd-yeni.css */
+:root :is(.dd-tabagim-ac){text-align:start}  /* dd-yeni.css */
+:root :is(.dd-halka-hedef,.dd-halka-orta,.dd-halka-yan,.dd-oruc-orta,.dd-skor-orta,.dd-kiyas-satir em,.dd-kiyas-bas){text-align:center}  /* dd-yeni.css */
+:root :is(.dd-pil,.dd-pil-metin){text-align:start}  /* dd-yeni.css */
+:root :is(.dd-yrm .dd-uz-rating-score){text-align:center}  /* dd-yorum.css */
+:root :is(.dd-yrm .dd-uz-bar-count){text-align:end}  /* dd-yorum.css */
+:root :is(.dd-yrm .review-empty){text-align:center}  /* dd-yorum.css */
+/* HIZA-URETICI SON */

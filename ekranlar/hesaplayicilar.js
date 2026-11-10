@@ -259,7 +259,9 @@
       const e = h.ayar.kategori_esikleri;
       return {
         kart: {etiket: 'Beden kütle endeksi', deger: bir(r.bki), birim: 'kg/m²', degisim: BKI_AD[r.kategori], degisimTon: iyiTon(r.kategori === 'normal')},
-        metin: `Zayıf < ${ond(e[0])} · Normal < ${ond(e[1])} · Fazla Kilolu < ${ond(e[2])} · Obez. BKİ **yalnızca boy ve kiloyu** kullanır; aktivite kalori hesaplayıcıda devreye girer.`,
+        // Web sonuç kartındaki sınıf ölçeği (bki.blade.php alan-yardim) satır satır bilgi kutusunda.
+        ek: DD.bilgi({etiket: 'Sınıflandırma ölçeği', ikon: 'chart-simple', html: [`**Zayıf:** ${bir(e[0])} altı`, `**Normal:** ${bir(e[1])} altı`, `**Fazla Kilolu:** ${bir(e[2])} altı`, `**Obez:** ${bir(e[2])} ve üstü`].map(metin => DD.madde({metin, tur: 'notr'})).join('')}),
+        metin: 'BKİ **yalnızca boy ve kiloyu** kullanır; aktivite kalori hesaplayıcıda devreye girer.',
         eylemler: [gitBtn('Vücut yağ oranına bak', 'percent', '#/hesaplayici/vucut-yag-orani')]
       };
     },
@@ -440,7 +442,43 @@
   // ---------- Form ----------
   const VURGU = {'bazal-metabolizma': 'dinlenme enerjisini', 'beden-kutle-endeksi': 'BKİ değerini', 'gunluk-kalori': 'koru, ver ya da al', 'vucut-tipi': 'düşük, orta ya da yüksek', 'vucut-yag-orani': 'yağın yüzdesini', 'gunluk-su': 'günlük su ihtiyacını', 'ideal-kilo': 'sağlıklı kilo aralığını', 'hedef-kilo-suresi': 'kaç haftada', 'makro-dagilim': 'protein, karbonhidrat ve yağ', 'porsiyon-hesaplama': 'yeniden ölçekle'};
   const vurgula = (metin, ifade) => (ifade && metin.includes(ifade) ? metin.replace(ifade, `**${ifade}**`) : `**${metin}**`);
-  const formulMetin = f => f.replace(/^([^=:,]+?)(\s*[=:,])/, '**$1**$2');
+  // "Nasıl hesaplanır?" formül bloğu: Gastro bilgi kutusu (DD.bilgi), her denklem ayrı satır (DD.madde), altında birimler; künye kutunun altında ayrı satır.
+  // Sayılar hesaplayıcının ayar alanından okunur; hesapla aynı değerler.
+  const vs = n => String(n).replace('.', ',');
+  const isaret = n => (n > 0 ? `+${vs(n)}` : n < 0 ? `−${vs(-n)}` : '0');
+  const sira = (o, f, anahtar) => anahtar.map(k => f(o[k])).join(' / ');
+  const HEDEF3 = ['koru', 'form', 'kas'], AKT3 = ['dusuk', 'orta', 'yuksek'];
+  const BMH_SATIR = a => [`**Erkek:** BMH = 10 × kilo + 6,25 × boy − 5 × yaş + ${vs(a.cinsiyet_ekleri.erkek)}`, `**Kadın:** BMH = 10 × kilo + 6,25 × boy − 5 × yaş − ${vs(-a.cinsiyet_ekleri.kadin)}`];
+  const FORMUL = {
+    'bazal-metabolizma': a => ({satirlar: BMH_SATIR(a), birim: 'kilo kg · boy cm · yaş yıl · BMH kcal/gün'}),
+    'beden-kutle-endeksi': a => {
+      const e = a.kategori_esikleri.map(vs);
+      return {satirlar: ['**BKİ** = kilo ÷ boy²', `**Zayıf:** ${e[0]} altı · **Normal:** ${e[1]} altı`, `**Fazla kilolu:** ${e[2]} altı`, `**Obezite sınıf I:** ${e[3]} altı · **sınıf II:** ${e[4]} altı`, `**Obezite sınıf III:** ${e[4]} ve üstü`], birim: 'kilo kg · boy m'};
+    },
+    'gunluk-kalori': a => ({satirlar: [...BMH_SATIR(a), '**Günlük ihtiyaç** = BMH × aktivite katsayısı', `**Katsayılar:** ${AKTIVITE.map(x => vs(x.k)).join(' · ')}`, `**Kilo vermek** = ihtiyaç − ${vs(a.band_farki_kcal)} (en az ${DD.sayi(EN_DUSUK)})`, `**Kilo almak** = ihtiyaç + ${vs(a.band_farki_kcal)}`], birim: 'kilo kg · boy cm · yaş yıl (18 ve üstü) · kcal/gün'}),
+    'vucut-tipi': a => {
+      const ad = {dusuk: 'Düşük', orta: 'Orta', yuksek: 'Yüksek'};
+      const sinif = (c, l) => l.map((x, i) => `**${c}, ${ad[x.tip]}:** ${x.ust == null ? `${iki(l[i - 1].ust)} ve üstü` : i ? `${iki(l[i - 1].ust)}–${iki(x.ust)}` : `${iki(x.ust)} altı`}`);
+      return {satirlar: ['**Oran** = bel ÷ kalça', ...sinif('Kadın', a.siniflar.kadin), ...sinif('Erkek', a.siniflar.erkek)], birim: 'bel cm · kalça cm'};
+    },
+    'vucut-yag-orani': a => {
+      const b = c => `${a.bantlar[c].p.slice(0, 4).map(vs).join(' · ')} · üst sınır %${a.bantlar[c].hedef}`;
+      return {satirlar: ['**Erkek:** %yağ = 495 ÷ D − 450', '**D (erkek)** = 1,0324 − 0,19077 × log(bel − boyun) + 0,15456 × log(boy)', '**Kadın:** %yağ = 495 ÷ D − 450', '**D (kadın)** = 1,29579 − 0,35004 × log(bel + kalça − boyun) + 0,22100 × log(boy)', '**Yağ kütlesi** = kilo × %yağ ÷ 100', `**Sınırlar, kadın:** ${b('kadin')}`, `**Sınırlar, erkek:** ${b('erkek')}`], birim: 'boy ve çevreler cm · kilo kg · log 10 tabanlı'};
+    },
+    'gunluk-su': a => ({satirlar: [`**Günlük su** = ${vs(a.ml_per_kg)} ml × kilo + egzersiz eki`, '**Egzersiz eki** = saat × yoğunluk', '**Yoğunluk:** düşük 350 · yoğun 500 ml/saat', `**Üst sınır:** ${vs(a.ust_sinir_ml / 1000)} L`], birim: 'kilo kg · su ml · 1 bardak 200 ml'}),
+    'ideal-kilo': a => ({satirlar: [`**Erkek:** ideal = ${vs(a.taban_kg.erkek)} + ${vs(a.inch_basina_kg)} × (boy ÷ 2,54 − ${vs(a.inch_esigi)})`, `**Kadın:** ideal = ${vs(a.taban_kg.kadin)} + ${vs(a.inch_basina_kg)} × (boy ÷ 2,54 − ${vs(a.inch_esigi)})`, `**Sağlıklı aralık** = ${vs(a.bki_alt)} × boy² ile ${vs(a.bki_ust)} × boy²`], birim: 'ideal kg · boy cm (aralıkta m)'}),
+    'hedef-kilo-suresi': a => ({satirlar: ['**Hafta** = |hedef − mevcut| ÷ haftalık hız', `**Günlük fark** = hız × ${DD.sayi(a.kg_basina_kcal)} ÷ 7`, '**Tahmini tarih** = başlangıç + hafta × 7 gün', `**Sürdürülebilir:** haftada ${vs(a.surdurulebilir_ust_sinir)} kg ve altı`, `**Yüksek:** kilonun %${vs(a.risk_esik_orani * 100)}’ini aşan hız`], birim: `kilo kg · hız kg/hafta · günlük fark 10 kcal’e yuvarlanır`}),
+    'makro-dagilim': a => ({satirlar: [
+      '**Protein** = kilo × (taban + eki)', `**Taban (hedef):** ${sira(a.protein_gkg, bir, HEDEF3)}`, `**Eki (aktivite):** ${sira(a.protein_aktivite_eki, isaret, AKT3)}`,
+      '**Karbonhidrat** = kilo × (taban + eki)', `**Taban (aktivite):** ${sira(a.karb_aktivite_gkg, vs, AKT3)}`, `**Eki (hedef):** ${sira(a.karb_hedef_eki, isaret, HEDEF3)}`,
+      `**Yağ** = kilo × ${sira(a.yag_gkg, bir, HEDEF3)} (hedef)`, '**Hedef sırası:** Koru / Form-tut / Kas-odak', '**Aktivite sırası:** Düşük / Orta / Yüksek'
+    ], birim: 'kilo kg · katsayılar g/kg · sonuç g/gün'}),
+    'porsiyon-hesaplama': () => ({satirlar: ['**Çarpan** = hedef kişi ÷ tarif kişi × porsiyon boyutu', `**Porsiyon boyutu:** ${ALAN.porsiyon_carpani.ogeler.map(([d, ad]) => `${ad.toLocaleLowerCase('tr')} ${vs(d)}`).join(' · ')}`, '**Yeni miktar** = malzeme × çarpan'], birim: 'çarpan 2 hane · miktar 1 hane'})
+  };
+  const formulBlok = h => {
+    const f = FORMUL[h.slug](h.ayar);
+    return `<div class="dd-yigin-12">${DD.bilgi({etiket: 'Formül', ikon: 'calculator', html: `${f.satirlar.map(metin => DD.madde({metin, tur: 'notr'})).join('')}${DD.p(`**Birimler:** ${f.birim}`, {ton: 'ikincil', meta: true})}`})}${h.kaynaklar.length ? DD.p(`**Kaynak:** ${h.kaynaklar.join('; ')}`, {ton: 'ikincil', meta: true}) : ''}</div>`;
+  };
   const formCiz = h => {
     const t = taslak(h), x = kayit(h.slug), alanlar = gorunen(h, t.s);
     const gecis = DD.cipler({ad: 'hesaplayici', tur: 'tek', etiket: 'Hesaplayıcılar', secili: h.slug, ogeler: L().hesaplayicilar.map(y => ({metin: y.kisaAd, deger: y.slug, ikon: y.ikon}))});
@@ -448,7 +486,7 @@
     return DD.gruplar([
       x?.sonuc && {baslik: 'Sonucun', html: sonucHtml(h, x)},
       {baslik: x?.sonuc ? 'Bilgilerin' : 'Bilgilerini gir', eylem: {html: DD.btn({metin: 'Sıfırla', ikon: 'rotate-left', tur: 'text', boyut: 'sm', veri: {eylem: 'sifirla'}})}, html: `<div class="dd-yigin">${DD.p(bilgi, {ton: 'ikincil'})}${alanlar.map(ad => alanHtml(h, ad, t)).join('')}</div>`},
-      {baslik: 'Nasıl hesaplanır?', html: `<div class="dd-yigin-12">${DD.p(formulMetin(h.formul))}${h.kaynaklar.length && !x?.sonuc ? DD.p(`**Kaynak:** ${h.kaynaklar.join('; ')}`, {ton: 'ikincil', meta: true}) : ''}</div>`},
+      {baslik: 'Nasıl hesaplanır?', html: formulBlok(h)},
       {baslik: 'Hesaplamaya devam et', satirlar: [
         {ikon: 'tabak', baslik: 'Akıllı Tabak ve Değişim', alt: 'Sonucunu tabağa dök', git: '#/denge/tabak', ok: true},
         {ikon: 'apple-whole', baslik: 'Kaç Kalori?', alt: 'Porsiyon karşılıklarını gör', git: '#/besinler', ok: true},

@@ -18,7 +18,7 @@
   const deger = (b, gram) => ({kcal: Math.round(b.kcal * gram / 100), ...Object.fromEntries(MAKRO.map(m => [m, bir((b[m] || 0) * gram / 100)]))});
   const hedefMakro = () => DD.durum.oku('plan', null)?.makro || (DD.yeniHesap() ? null : DDV.kullanici.makroHedef);
   // Vurgu: ilk yan cümle, uzunsa ilk üç kelime.
-  const ilkCumle = s => { const i = s.search(/[;,.:]/), bas = i > 0 ? s.slice(0, i) : s, k = bas.split(' '); return k.length > 5 ? `**${k.slice(0, 3).join(' ')}** ${s.slice(k.slice(0, 3).join(' ').length + 1)}` : `**${bas}**${s.slice(bas.length)}`; };
+  const ilkCumle = s => { const i = s.search(/[;:]|[,.](?=\s|$)/), bas = i > 0 ? s.slice(0, i) : s, k = bas.split(' '); return k.length > 5 ? `**${k.slice(0, 3).join(' ')}** ${s.slice(k.slice(0, 3).join(' ').length + 1)}` : `**${bas}**${s.slice(bas.length)}`; };
 
   // ---------- Bölümler ----------
   const bolum = (baslik, sag, html) => `<section class="dd-yigin-12">${DD.bas(baslik, sag ? {html: `<span class="dd-t-meta dd-ton-ikincil">${DD.esc(sag)}</span>`} : null)}${html}</section>`;
