@@ -248,8 +248,9 @@
 .dd-ogun-ekle{position:absolute;top:var(--dd-s-16);right:0}
 .dd-ogun:is(.is-planli,.is-bos,.is-atlandi) .dd-ogun-ad{color:var(--dd-slate)}
 .dd-ogun.is-atlandi .dd-ogun-ad{text-decoration:line-through;text-decoration-color:var(--dd-muted)}
-/* Plan durumu: Gastro etiketli segment alanı (dd-alan + dd-seg); kart yalnız alt boşluğu verir */
-.dd-ogun-plan{padding-bottom:var(--dd-s-12)}
+/* Plan kararı: üç ayrı küçük düğme, eşit genişlik, aralık 8 (yapışık segment değil); seçilen dolu */
+.dd-ogun-plan{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dd-s-8);padding-bottom:var(--dd-s-12)}
+.dd-ogun-plan>.dd-btn{min-width:0;padding-inline:var(--dd-s-8)}
 
 /* Swipe satır */
 .dd-swipe{position:relative;overflow:hidden;background:var(--dd-paper)}
@@ -503,11 +504,12 @@
 .dd-tabagim-kat{position:absolute;left:0;right:0;bottom:calc(var(--dd-size-nav-bottom) + env(safe-area-inset-bottom,0px) + var(--dd-tabagim-alt,0px));z-index:32;padding-inline:var(--dd-size-nav-edge)}
 .dd-kok.has-dock .dd-tabagim-kat{bottom:calc(var(--dd-size-nav-bar) + var(--dd-size-nav-bottom) + var(--dd-s-12) + env(safe-area-inset-bottom,0px))}
 .dd-kok.has-tabagim-ust .dd-tabagim-kat{top:calc(env(safe-area-inset-top,0px) + var(--dd-s-64));bottom:auto}
-.dd-tabagim{background:var(--dd-paper)}
-.dd-tabagim .dd-kayan-kim{width:100%;border:0;background:none;padding:0;text-align:left}
-.dd-tabagim-foto{width:var(--dd-s-40);height:var(--dd-s-40);flex:0 0 var(--dd-s-40)}
-.dd-tabagim-foto+.dd-tabagim-foto{margin-inline-start:calc(-1 * var(--dd-s-20))}
-.dd-tabagim>button>.icon{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
+/* Tabağım çubuğu = Gastro menü tepsisi (bul.css:39–41 .bul-tepsi-ac): tint zemin, primary-dark kenar, kart radius'u, sh-md, iç 12/16, ızgara 44 · metin · ok.
+   Gastro'daki kâğıt şerit (.bul-tepsi) sayfa içi yapışkan sarmalayıcıdır; Diet'te katman (dd-tabagim-kat) içerik üstünde yüzer, şerit yok. */
+.dd-tabagim-ac{display:grid;grid-template-columns:var(--dd-size-action-icon) minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-12);width:100%;padding:var(--dd-s-12) var(--dd-s-16);border:var(--dd-size-border) solid var(--dd-primary-dark);border-radius:var(--dd-r-surface);background:var(--dd-primary-tint);color:var(--dd-ink);text-align:justify;text-align-last:start;box-shadow:var(--dd-sh-md);cursor:pointer}
+.dd-tabagim-ac .dd-eylem-ikon{background:var(--dd-paper)}
+.dd-tabagim-ac>.icon:last-child{color:var(--dd-primary-deep);font-size:var(--dd-size-icon-sm)}
+.dd-tabagim-ac:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
 
 /* Metin kanonu altında ortalı ve sola yaslı küçük satırlar */
 .dd-halka-hedef,.dd-halka-orta,.dd-halka-yan,.dd-oruc-orta,.dd-skor-orta,.dd-kiyas-satir em,.dd-kiyas-bas{text-align:justify;text-align-last:center}

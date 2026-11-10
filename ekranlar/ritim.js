@@ -90,17 +90,18 @@
   let onizlenen = '16-8';
   const planOnizleme = id => {
     const p = DDV.ritim.protokoller.find(x => x.id === id), ilk = planHam()?.ilkOgunSaati || '12:00', bit = DD.saatMetin((DD.saatDk(ilk) + (p.pencereSaat || 0) * 60) % 1440), nk = s => s.replace(':', '.');
-    const ust = `<div class="dd-ara"><span class="dd-t-section">${DD.esc(p.ad)}</span>${DD.durumRozet({metin: p.populer ? `${p.seviye} · Popüler` : p.seviye, ton: p.seviye === 'İleri' ? 'uyari' : 'basari', ikon: p.seviye === 'İleri' ? 'uyari' : 'onay'})}</div>`;
-    const ozet = p.haftalik ? DD.ozet([{ikon: 'calendar-week', etiket: 'Düzen', deger: '5 gün olağan · 2 gün kısıtlı'}]) : DD.ozet([{ikon: 'moon', etiket: 'Oruç', deger: `${p.orucSaat} sa`}, {ikon: 'utensils', etiket: 'Yeme', deger: `${p.pencereSaat} sa`}, {ikon: 'clock', etiket: 'İlk öğün', deger: nk(ilk)}]);
+    // Elle kart yok (Beyar): program detayındaki Gastro özet şeridi (DD.ozetSerit) + açıklama + uyarı + birincil düğme; düzey kanon rozetiyle
+    const serit = p.haftalik ? DD.ozetSerit([{ikon: 'calendar-week', etiket: 'Olağan', deger: '5', birim: 'gün'}, {ikon: 'moon', etiket: 'Kısıtlı', deger: '2', birim: 'gün'}, {ikon: 'gauge-high', etiket: 'Düzey', deger: p.seviye}])
+      : DD.ozetSerit([{ikon: 'moon', etiket: 'Oruç', deger: String(p.orucSaat), birim: 'sa'}, {ikon: 'utensils', etiket: 'Yeme', deger: String(p.pencereSaat), birim: 'sa'}, {ikon: 'clock', etiket: 'Pencere', deger: `${nk(ilk)}–${nk(bit)}`}]);
     const uyari = p.seviye === 'İleri' ? DD.bant({ton: 'uyari', metin: 'Bu plan **uzman desteğiyle** daha güvenli ilerler. Başlamadan diyetisyeninle konuş.'}) : '';
-    return DD.kart({html: `<div class="dd-yigin">${ust}${DD.p(`${p.aciklama.replace(/^([^,.;]+)/, '**$1**')}${p.haftalik ? '' : ` Pencere **${nk(ilk)}–${nk(bit)}**.`}`)}${ozet}${uyari}${DD.btn({metin: `${p.ad} planını başlat`, ikon: 'play', tam: true, veri: {eylem: 'plan-baslat', id: p.id}})}</div>`});
+    return `<div class="dd-yigin">${serit}${DD.p(`${p.aciklama.replace(/^([^,.;]+)/, '**$1**')} Düzey: **${p.seviye}**${p.populer ? ', en çok seçilen plan' : ''}.`)}${uyari}${DD.btn({metin: `${p.ad} planını başlat`, ikon: 'play', tam: true, veri: {eylem: 'plan-baslat', id: p.id}})}</div>`;
   };
   const protokolOgeler = () => DDV.ritim.protokoller.map(p => ({k: p.id, ad: p.ad, alt: p.haftalik ? `Haftalık · ${p.seviye}` : p.id === 'omad' ? `Tek öğün · ${p.seviye}` : p.populer ? `${p.seviye} · Popüler` : p.seviye}));
   // Plan yok: uyarı kutusu + tek metin düğmesi yerine planlar doğrudan seçim kartı; dokununca plan sheet'i o planla açılır. Altında başlamadan önce okunacaklar.
   const kapaliGovde = engel => (engel
     ? DD.bolumler([`<div class="dd-yigin">${DD.bant({baslik: 'Oruç takibi kapalı', metin: 'Paylaştığın sağlık bilgilerine göre **oruç sana önerilmiyor**. Öğün düzenini diyetisyeninle birlikte planlayabilirsin.'})}${diyetisyenDugme()}</div>`])
     : DD.bolumler([
-      {baslik: 'Bir plan seç', html: `<div class="dd-yigin">${DD.p('Öğünlerin **olağan düzeninde** ilerliyor. Denemek istersen bir plan seç; istediğin an değiştirir ya da bırakırsın.', {ton: 'ikincil'})}${DD.secAlan({ad: 'plan-onizle', etiket: 'Oruç planı', deger: onizlenen, secenekler: DDV.ritim.protokoller.map(p => [p.id, `${p.ad} · ${p.haftalik ? 'Haftalık' : p.id === 'omad' ? 'Tek öğün' : `${p.orucSaat} sa oruç`}`])})}<div data-yuva="plan-onizleme">${planOnizleme(onizlenen)}</div></div>`},
+      {baslik: 'Bir plan seç', html: `<div class="dd-yigin">${DD.p('Öğünlerin **olağan düzeninde** ilerliyor. Denemek istersen bir plan seç; istediğin an değiştirir ya da bırakırsın.', {ton: 'ikincil'})}${DD.cipler({ad: 'plan-onizle', tur: 'tek', serit: true, secili: onizlenen, ogeler: DDV.ritim.protokoller.map(p => ({metin: p.ad, deger: p.id}))})}<div data-yuva="plan-onizleme">${planOnizleme(onizlenen)}</div></div>`},
       {baslik: 'Başlamadan önce', html: `<div class="dd-yigin">${DD.parcali([{ikon: 'layer-group', baslik: 'Biyolojik fazlar', alt: 'Oruçta saat saat ne olur', git: '#/ritim/fazlar'}, {ikon: 'lightbulb', baslik: 'Aralıklı oruç kimin için uygun?', alt: 'Kısa okuma', git: '#/ipucu/aralikli-oruc-kimin-icin-uygun'}])}${DD.ipucu({ikon: 'uyari', ton: 'uyari', baslik: 'Herkese uygun değil', metin: DDV.ritim.baslamadanNotu.replace(/^([^.]+\.)/, '**$1**')})}${diyetisyenDugme()}</div>`}
     ]));
   const planHapi = k => `<div class="dd-sira">${DD.btn({metin: `Planım ${planBul(k).ad}`, ikon: 'duzenle', tur: 'cam', boyut: 'sm', veri: {eylem: 'protokol'}})}</div>`;
@@ -203,7 +204,7 @@
     const ms = () => gunBasi(simdi) - (gun === 'dun' ? GUN_MS : 0) + dk * 6e4;
     DD.sheet({
       baslik: oruc ? 'Oruç başlangıcı' : 'Pencere başlangıcı',
-      html: `<div class="dd-yigin">${oruc ? DD.segment({ad: 'bas-gun', secili: gun, ogeler: [{ad: 'Dün', deger: 'dun'}, {ad: 'Bugün', deger: 'bugun'}]}) : ''}${DD.saatKadran({ad: 'bas-saat', deger: saat(bas), pencereSaat: hedefSaat(k, d0), etiket: 'Başlangıç', adim: 5})}<div data-yuva="saat-uyari"></div></div>`,
+      html: `<div class="dd-yigin">${oruc ? DD.segment({ad: 'bas-gun', secili: gun, ogeler: [{ad: 'Dün', deger: 'dun'}, {ad: 'Bugün', deger: 'bugun'}]}) : ''}${DD.saatKadran({ad: 'bas-saat', deger: saat(bas), pencereSaat: hedefSaat(k, d0), etiket: 'Başlangıç', adim: 5, noktali: true})}<div data-yuva="saat-uyari"></div></div>`,
       altBar: DD.btn({metin: 'Saati kaydet', ikon: 'onay', tam: true, veri: {eylem: 'saat-kaydet'}}),
       sonra: d => {
         const dugme = d.querySelector('[data-eylem="saat-kaydet"]');
@@ -340,7 +341,7 @@
         DD.eylem(kok, 'plan-baslat', el => planKaydet(el.dataset.id)),
         DD.eylem(kok, 'faz', () => fazSheet(kayit())),
         DD.eylem(kok, 'zaman-duzenle', el => (el.dataset.id === 'plan' ? protokolSheet() : baslangicSheet())),
-        DD.eylem(kok, 'gecis-onay', () => { const m = gecisMetin(kayit(), bosMu() ? 'bos' : durumOku()); DD.dialog({baslik: m.baslik, metin: m.metin, eylem: m.eylem}).then(v => { if (v) gecis(); }); }),
+        DD.eylem(kok, 'gecis-onay', () => { const m = gecisMetin(kayit(), bosMu() ? 'bos' : durumOku()); DD.dialog({baslik: m.baslik, metin: m.metin, eylem: m.eylem, iptal: 'Vazgeç'}).then(v => { if (v) gecis(); }); }),
         DD.eylem(kok, 'son-kapat', () => { const k = kayit(); yaz({...k, son: null}); DD.tazele(); }),
         DD.eylem(kok, 'acis-ogun', () => { const k = kayit(); yaz({...k, son: null}); DD.tazele(); DD.git(`#/besin-ara?ogun=${planliOgun()?.id || 'ara'}`); }),
         DD.on(kok, 'ritim-gun', iso => { secili = iso; const y = kok.querySelector('[data-yuva="gun"]'); if (y) y.innerHTML = gunDetay(kayit()); }),
