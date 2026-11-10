@@ -29,16 +29,14 @@
       {id: 'degisim', label: 'Değişim Önerileri', icon: 'right-left', git: '#/denge/muadil'},
       {id: 'kiyasla', label: 'Besin Kıyasla', icon: 'scale-balanced', git: '#/denge/kiyasla'},
       {id: 'etiket', label: 'Etiket Okuma', icon: 'barcode', git: '#/etiket'},
-      {id: 'oruc', label: 'Oruç & Öğün Saatleri', icon: 'hourglass-half', git: '#/ritim'},
-      {id: 'hesapla', label: 'Hesaplayıcılar', icon: 'calculator', git: '#/hesaplayicilar'}]},
+      {id: 'oruc', label: 'Oruç & Öğün Saatleri', icon: 'hourglass-half', git: '#/ritim'}]},
     {id: 'uzman', label: 'Diyetisyenler', icon: 'user-doctor', children: [
       {id: 'bul2', label: 'Diyetisyen Bul', icon: 'magnifying-glass', git: '#/uzman/bul'},
       {id: 'randevu', label: 'Diyetisyenim', icon: 'calendar-check', git: '#/uzman'},
       {id: 'sohbet', label: 'Mesajlarım', icon: 'comment-dots', git: '#/uzman/sohbet'}]},
     {id: 'rehber', label: 'Beslenme Rehberi', icon: 'book-open', children: [
       {id: 'besin', label: '541 Besin Değeri', icon: 'apple-whole', git: '#/besinler'},
-      {id: 'testler', label: '58 Sağlık Testi', icon: 'clipboard-check', git: '#/testler'},
-      {id: 'ipuclari', label: 'İpuçları', icon: 'lightbulb', git: '#/ipuclari'}]}
+      {id: 'testler', label: '58 Sağlık Testi', icon: 'clipboard-check', git: '#/testler'}]}
   ].map(x => (x.children ? {...x, children: x.children.filter(c => !c.uye || DD.uye())} : x)), [
     ...(DD.uye() ? [hesapGrubu] : []),
     {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', eylem: 'gorus'}

@@ -1,7 +1,7 @@
 /* Ekran dosyaları ve rota tablosu (ortak dosya, yalnız lead değiştirir). 404 olan dosya sessizce atlanır. */
 window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun', 'kayit', 'tabaklarim', 'besin-ara', 'programlar', 'program-bul', 'program-detay', 'ritim', 'fazlar', 'ai-kamera', 'ai-tabak', 'ai-menu', 'ai-ses', 'ai-tahlil', 'barkod', 'etiket', 'denge', 'tabak-kur', 'testler', 'muadil', 'kacamak', 'kiyasla', 'uzman', 'uzman-bul', 'uzman-profil', 'uzman-sohbet', 'saglik', 'bildirimler', 'ara', 'hata', 'profil',
   /* Üye alanı (web Hesabım eşi) */ 'ogun-saatleri', 'bildirim-izni', 'bildirim-onizleme', 'ayarlar', 'tercihler', 'veri-izinleri', 'giris', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim',
-  /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'ipuclari', 'ipucu', 'tarifler', 'tarif', 'hesaplayicilar'];
+  /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'tarifler', 'tarif'];
 window.DD_ROTALAR = {
   '#/splash': 'splash',
   '#/karsilama': 'karsilama',
@@ -62,10 +62,6 @@ window.DD_ROTALAR = {
   '#/odemelerim': 'odemelerim',
   '#/besinler': 'besinler',
   '#/besin/:slug': 'besin',
-  '#/ipuclari': 'ipuclari',
-  '#/ipucu/:slug': 'ipucu',
   '#/tarifler': 'tarifler',
-  '#/tarif/:slug': 'tarif',
-  '#/hesaplayicilar': 'hesaplayicilar',
-  '#/hesaplayici/:slug': 'hesaplayicilar'
+  '#/tarif/:slug': 'tarif'
 };
