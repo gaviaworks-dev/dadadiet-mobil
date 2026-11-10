@@ -125,7 +125,9 @@
     tabaklarim: {ikon: 'tabak', baslik: 'Tabakların burada birikir', metin: 'Çektiğin tabakları **görsel arşivinde** saklamak için giriş yap.'},
     saglik: {ikon: 'file-medical', baslik: 'Sağlık dosyan', metin: 'Geçmiş günlerin **trendini** görmek için ücretsiz profil oluştur.'},
     profil: {ikon: 'user', baslik: 'Profilin', metin: 'Hedeflerini ve **verilerini** korumak için ücretsiz profil oluştur.'},
-    'uzman-sohbet': {ikon: 'comment-dots', baslik: 'Diyetisyeninle yazış', metin: 'Diyetisyeninle **doğrudan iletişim** kurmak için kaydol.'}
+    'uzman-sohbet': {ikon: 'comment-dots', baslik: 'Diyetisyeninle yazış', metin: 'Diyetisyeninle **doğrudan iletişim** kurmak için kaydol.'},
+    // Üye alanı (web Hesabım eşi): misafire kapalı, tek metin
+    ...Object.fromEntries(['ogun-saatleri', 'ayarlar', 'tercihler', 'veri-izinleri', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim'].map(ad => [ad, {ikon: 'user', baslik: 'Üye alanı', metin: 'Bu bölüm **hesabına bağlı** çalışır; ücretsiz profil oluştur ya da giriş yap.'}]))
   };
   const SSO = [{yol: 'apple', metin: 'Apple ile devam et', marka: 'apple'}, {yol: 'google', metin: 'Google ile devam et', gorsel: 'assets/marka/sosyal/google.svg'}];
   // K10: aktarım açık rızaya bağlıdır; rıza yoksa veri cihazda kalır. Metin hukuk onayına kadar taslaktır.

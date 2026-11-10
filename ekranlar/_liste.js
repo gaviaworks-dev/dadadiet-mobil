@@ -1,5 +1,7 @@
 /* Ekran dosyaları ve rota tablosu (ortak dosya, yalnız lead değiştirir). 404 olan dosya sessizce atlanır. */
-window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun', 'kayit', 'tabaklarim', 'besin-ara', 'programlar', 'program-bul', 'program-detay', 'ritim', 'fazlar', 'ai-kamera', 'ai-tabak', 'ai-menu', 'ai-ses', 'ai-tahlil', 'barkod', 'etiket', 'denge', 'tabak-kur', 'testler', 'muadil', 'kacamak', 'kiyasla', 'uzman', 'uzman-bul', 'uzman-profil', 'uzman-sohbet', 'saglik', 'bildirimler', 'ara', 'hata', 'profil'];
+window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun', 'kayit', 'tabaklarim', 'besin-ara', 'programlar', 'program-bul', 'program-detay', 'ritim', 'fazlar', 'ai-kamera', 'ai-tabak', 'ai-menu', 'ai-ses', 'ai-tahlil', 'barkod', 'etiket', 'denge', 'tabak-kur', 'testler', 'muadil', 'kacamak', 'kiyasla', 'uzman', 'uzman-bul', 'uzman-profil', 'uzman-sohbet', 'saglik', 'bildirimler', 'ara', 'hata', 'profil',
+  /* Üye alanı (web Hesabım eşi) */ 'ogun-saatleri', 'bildirim-izni', 'bildirim-onizleme', 'ayarlar', 'tercihler', 'veri-izinleri', 'giris', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim',
+  /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'ipuclari', 'ipucu', 'tarifler', 'tarif', 'hesaplayicilar'];
 window.DD_ROTALAR = {
   '#/splash': 'splash',
   '#/karsilama': 'karsilama',
@@ -36,5 +38,34 @@ window.DD_ROTALAR = {
   '#/bildirimler': 'bildirimler',
   '#/ara': 'ara',
   '#/hata': 'hata',
-  '#/profil': 'profil'
+  '#/profil': 'profil',
+  '#/ogun-saatleri': 'ogun-saatleri',
+  '#/bildirim-izni': 'bildirim-izni',
+  '#/bildirim-onizleme': 'bildirim-onizleme',
+  '#/ayarlar': 'ayarlar',
+  '#/ayarlar/:bolum': 'ayarlar',
+  '#/tercihler': 'tercihler',
+  '#/veri-izinleri': 'veri-izinleri',
+  '#/giris': 'giris',
+  '#/sifre-sifirla': 'giris',
+  '#/eposta-dogrula': 'giris',
+  '#/programlarim': 'programlarim',
+  '#/kaydedilenler': 'kaydedilenler',
+  '#/rozetler': 'rozetler',
+  '#/haftalik-menu': 'haftalik-menu',
+  '#/beslenme-plani': 'beslenme-plani',
+  '#/destek-gruplari': 'destek-gruplari',
+  '#/destek-grubu/:id': 'destek-gruplari',
+  '#/cozum-merkezi': 'cozum-merkezi',
+  '#/talep/:id': 'cozum-merkezi',
+  '#/paketlerim': 'paketlerim',
+  '#/odemelerim': 'odemelerim',
+  '#/besinler': 'besinler',
+  '#/besin/:slug': 'besin',
+  '#/ipuclari': 'ipuclari',
+  '#/ipucu/:slug': 'ipucu',
+  '#/tarifler': 'tarifler',
+  '#/tarif/:slug': 'tarif',
+  '#/hesaplayicilar': 'hesaplayicilar',
+  '#/hesaplayici/:slug': 'hesaplayicilar'
 };
