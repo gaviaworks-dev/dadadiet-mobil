@@ -89,7 +89,7 @@
   const MENU = {ikon: 'bars', etiket: 'Menü', attrs: 'data-menu'}, ZIL = () => ({ikon: 'bildirim', etiket: 'Bildirimler', git: '#/bildirimler', attrs: 'data-zil', sayi: DD.bildirimSayi() || undefined}), ARA = {ikon: 'ara_', etiket: 'Ara', git: '#/ara', ara: true};
   DD.ustVarsayilan = () => [ARA, ZIL(), MENU];
   // Okunmamış sayısı: veri + kullanıcının okuduğu ve sildiği id'ler. Yığındaki bütün üst barlar birlikte tazelenir.
-  DD.bildirimSayi = () => { if (!DD.uye()) return 0; const dus = new Set([...DD.durum.oku('bildirim-okundu', []), ...DD.durum.oku('bildirim-silinen', [])].map(String)); return (window.DDV?.bildirimler || []).filter(b => !b.okundu && !dus.has(String(b.id))).length; };
+  DD.bildirimSayi = () => { if (!DD.uye()) return 0; const dus = new Set([...DD.durum.oku('bildirim-okundu', []), ...DD.durum.oku('bildirim-silinen', [])].map(String)); return [...(DD.yeniHesap() ? [] : window.DDV?.bildirimler || []), ...(DD.ogun?.bildirimler() || [])].filter(b => !b.okundu && !dus.has(String(b.id))).length; };
   DD.zilTazele = () => { const n = DD.bildirimSayi(); document.querySelectorAll('[data-zil]').forEach(b => { const r = b.querySelector('.dd-sayac'); if (!n) r?.remove(); else if (r) r.textContent = n; else b.insertAdjacentHTML('beforeend', DD.sayacRozet(n)); }); };
   document.addEventListener('dd-bildirim', DD.zilTazele);
   // tur sekme | alt | banner | modal; saydam: görsel üstünde başlar. sekme: logo · ara · zil · menü. alt: geri · başlık · eylem · menü.

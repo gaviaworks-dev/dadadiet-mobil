@@ -206,7 +206,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.toggle({ad, etiket, alt, ikon, secili, pasif})`, `DD.anahtar(o)`, `DD.checkbox({ad, etiket, alt, secili})`, `DD.radio({ad, deger, etiket, secili})` | | boolean; değer |
 | `DD.porsiyon({ad, birimler, secili, miktar, kcal100})`, `DD.kesirIzgara({ad, secili})` | `besin.porsiyonlar` verilebilir | `{birim,miktar,gram,kcal}` |
 | `DD.puan({ad, deger, etiket})` | | radyo |
-| `DD.saatKadran({ad, deger, pencereSaat, etiket, adim, min, max})` | `min`, `max` `'HH:MM'` ya da dakika: kadran sınırda durur; `min > max` gece yarısını geçer | `'12:15'` |
+| `DD.saatKadran({ad, deger, pencereSaat, etiket, adim, min, max, noktali})` | `min`, `max` `'HH:MM'` ya da dakika: kadran sınırda durur; `min > max` gece yarısını geçer | `'12:15'` |
 | `DD.takvim({ad, gorunum, mod, secili, aralik, noktalar:{iso:['uyari','gecti']}, halkalar:{iso:oran}, min, max, gorunumSec, gecis})`, `DD.takvimSheet(o)`, `DD.takvimAlan({ad, etiket, deger, hizli})` | Gastro takvim | iso |
 | `DD.secimKart({k, ad, alt, ikon, olcek, gorsel, secili, tek})`, `DD.secimler({ad, ogeler, secili, coklu, duzen})` | duzen tek, iki, uc, orta | değer ya da dizi |
 

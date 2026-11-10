@@ -1,34 +1,49 @@
-/* Sağ çekmece menü: Gastro mobil 1.0.1 dg_drawer.dart + app_drawer.dart. %86 / en çok 360, hesap kartı, kayan kısayollar, başlıksız gezinme blokları, tek açık akordeon, dil, sosyal ve yasal ayak. API: DD.menu.ac(), DD.menu.kapat(). */
+/* Sağ çekmece menü: Gastro mobil 1.0.1 dg_drawer.dart + app_drawer.dart (güncel ekran görüntüsüyle 10 Kasım'da yeniden kıyaslandı). %86 / en çok 360, hesap kartı, kayan kısayollar, başlıksız gezinme blokları, tek açık akordeon, dil, sosyal ve yasal ayak. API: DD.menu.ac(), DD.menu.kapat(). */
 (() => {
   const esc = s => DD.esc(s), ik = DD.ik;
+  // Gezinme Gastro mobilin güncel çekmecesiyle aynı kalıptır (Beyar, 10 Kasım): hesap kartı + 4 kısayol, 6 satırlık ana blok, Hesabım + Görüş Bildir bloğu, ayak.
+  // Şartname 2c maddeleri (Akıllı Tabak, Oruç, Kütüphane, Etiket Okuma) alt satır olarak korunur. uye:true satır misafirde görünmez.
   const hesapGrubu = {id: 'hesap', label: 'Hesabım', icon: 'user', uye: true, children: [
-    {id: 'hedefler', label: 'Hedefler', icon: 'bullseye', git: '#/profil'},
-    {id: 'izinler', label: 'İzinler (HealthKit)', icon: 'shield-halved', git: '#/profil?ac=izinler'},
-    {id: 'ayarlar', label: 'Ayarlar', icon: 'sliders', git: '#/profil?ac=ayarlar'},
-    {id: 'bagli', label: 'Bağlı Uygulamalar', icon: 'arrows-rotate', eylem: 'bagli'}]};
+    {id: 'tercihler', label: 'Tercihlerim', icon: 'bullseye', git: '#/tercihler'},
+    {id: 'ayarlar', label: 'Hesap Ayarları', icon: 'sliders', git: '#/ayarlar'},
+    {id: 'ogun-saat', label: 'Öğün Saatlerim', icon: 'clock', git: '#/ogun-saatleri'},
+    {id: 'tabaklarim', label: 'Tabaklarım', icon: 'images', git: '#/tabaklarim'},
+    {id: 'rozetler', label: 'Rozetlerim', icon: 'medal', git: '#/rozetler'},
+    {id: 'paketler', label: 'Paketlerim', icon: 'box-open', git: '#/paketlerim'},
+    {id: 'odemeler', label: 'Ödemelerim', icon: 'credit-card', git: '#/odemelerim'},
+    {id: 'izinler', label: 'Veri İzinlerim', icon: 'shield-halved', git: '#/veri-izinleri'},
+    {id: 'bagli', label: 'Bağlı Uygulamalar', icon: 'arrows-rotate', git: '#/ayarlar/bagli'},
+    {id: 'cozum', label: 'Çözüm Merkezi', icon: 'life-ring', git: '#/cozum-merkezi'}]};
   const BLOKLAR = () => [[
-    {id: 'bugun', label: 'Bugün', icon: 'house', git: '#/bugun'},
-    {id: 'tabak', label: 'Akıllı Tabak & Değişim', icon: 'plate-wheat', children: [
+    {id: 'bugun', label: 'Ana Sayfa', icon: 'house', git: '#/bugun'},
+    {id: 'programlar', label: 'Programlar', icon: 'clipboard-list', children: [
+      {id: 'tum', label: 'Tüm Programlar', icon: 'clipboard-list', git: '#/programlar'},
+      {id: 'hedefe', label: 'Hedefe Göre', icon: 'bullseye', git: '#/programlar?seg=hedef'},
+      {id: 'yasama', label: 'Yaşam Biçimine Göre', icon: 'person-walking', git: '#/programlar?seg=yasam'},
+      {id: 'bul', label: 'Program Bul', icon: 'wand-magic-sparkles', git: '#/program-bul'},
+      {id: 'programlarim', label: 'Programlarım', icon: 'list-check', git: '#/programlarim', uye: true}]},
+    {id: 'tarifler', label: 'Sağlıklı Tarifler', icon: 'utensils', git: '#/tarifler'},
+    {id: 'araclar', label: 'Araçlar', icon: 'wand-magic-sparkles', children: [
       {id: 'tabak-kur', label: 'Tabak Kur', icon: 'plate-wheat', git: '#/denge/tabak'},
       {id: 'tabak-cek', label: 'Tabağını Çek', icon: 'camera', git: '#/ai/kamera?mod=tabak'},
-      {id: 'degisim', label: 'Değişim Önerileri', icon: 'right-left', git: '#/denge/muadil'}]},
-    {id: 'programlar', label: 'Programlar & Diyetler', icon: 'clipboard-list', children: [
-      {id: 'hedefe', label: 'Hedefe Göre', icon: 'bullseye', git: '#/programlar?seg=hedef'},
-      {id: 'yasama', label: 'Yaşam Biçimine Göre', icon: 'person-walking', git: '#/programlar?seg=yasam'}]},
-    {id: 'oruc', label: 'Oruç & Öğün Saatleri', icon: 'hourglass-half', git: '#/ritim'},
-    {id: 'kutuphane', label: 'Beslenme Kütüphanesi', icon: 'book-open', children: [
-      {id: 'besin', label: '541 Besin Değeri', icon: 'apple-whole', git: '#/besin-ara'},
-      {id: 'testler', label: '58 Sağlık Testi', icon: 'clipboard-check', git: '#/testler'}]},
-    {id: 'etiket', label: 'Etiket Okuma', icon: 'barcode', git: '#/etiket'},
-    {id: 'uzman', label: 'Diyetisyenim', icon: 'user-doctor', children: [
-      {id: 'randevu', label: 'Randevularım', icon: 'calendar-check', git: '#/uzman'},
-      {id: 'sohbet', label: 'Mesajlarım', icon: 'comment-dots', git: '#/uzman/sohbet'},
-      {id: 'bul2', label: 'Uzman Bul', icon: 'magnifying-glass', git: '#/uzman/bul'}]}
-  ], [
+      {id: 'degisim', label: 'Değişim Önerileri', icon: 'right-left', git: '#/denge/muadil'},
+      {id: 'kiyasla', label: 'Besin Kıyasla', icon: 'scale-balanced', git: '#/denge/kiyasla'},
+      {id: 'etiket', label: 'Etiket Okuma', icon: 'barcode', git: '#/etiket'},
+      {id: 'oruc', label: 'Oruç & Öğün Saatleri', icon: 'hourglass-half', git: '#/ritim'},
+      {id: 'hesapla', label: 'Hesaplayıcılar', icon: 'calculator', git: '#/hesaplayicilar'}]},
+    {id: 'uzman', label: 'Diyetisyenler', icon: 'user-doctor', children: [
+      {id: 'bul2', label: 'Diyetisyen Bul', icon: 'magnifying-glass', git: '#/uzman/bul'},
+      {id: 'randevu', label: 'Diyetisyenim', icon: 'calendar-check', git: '#/uzman'},
+      {id: 'sohbet', label: 'Mesajlarım', icon: 'comment-dots', git: '#/uzman/sohbet'}]},
+    {id: 'rehber', label: 'Beslenme Rehberi', icon: 'book-open', children: [
+      {id: 'besin', label: '541 Besin Değeri', icon: 'apple-whole', git: '#/besinler'},
+      {id: 'testler', label: '58 Sağlık Testi', icon: 'clipboard-check', git: '#/testler'},
+      {id: 'ipuclari', label: 'İpuçları', icon: 'lightbulb', git: '#/ipuclari'}]}
+  ].map(x => (x.children ? {...x, children: x.children.filter(c => !c.uye || DD.uye())} : x)), [
     ...(DD.uye() ? [hesapGrubu] : []),
-    {id: 'gorus', label: 'Görüş Bildir / Destek', icon: 'comment-dots', eylem: 'gorus'}
+    {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', eylem: 'gorus'}
   ]];
-  const kisayollar = () => { const a = DD.durum.oku('aktifProgram', DD.yeniHesap() ? null : window.DDV?.kullanici?.aktifProgram), n = DD.bildirimSayi(); return [['#/saglik', 'file-medical', 'Sağlık Dosyam'], [a ? `#/program/${a.slug}` : '#/programlar', 'clipboard-list', 'Aktif Programım'], ['#/tabaklarim', 'images', 'Tabaklarım'], ['#/bildirimler', 'bell', 'Bildirimler', n]]; };
+  const kisayollar = () => [['#/beslenme-plani', 'clipboard-list', 'Beslenme Planım'], ['#/saglik', 'file-medical', 'Sağlık Dosyam'], ['#/haftalik-menu?ac=alisveris', 'cart-shopping', 'Alışveriş Listem'], ['#/kaydedilenler', 'bookmark', 'Kaydettiklerim']];
   const DILLER = ['Türkçe', 'English', 'Español', 'Русский', 'Deutsch'];
   const SOSYAL = [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x-twitter', 'X']];
   const YASAL = ['Hakkımızda', 'Yasal Sayfalar', 'İletişim'];
