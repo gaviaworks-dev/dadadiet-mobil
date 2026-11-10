@@ -115,7 +115,7 @@
 
   // ---------- Geri bildirim yüzeyleri ----------
   // Uyarı bandı: Gastro DG.ipucu kalıbı, dört durum tonu. {ton, baslik, metin, ikon, eylem}
-  DD.ipucu = (o = {}) => `<aside class="${liste('dd-ipucu', o.ton && `is-${o.ton}`, o.sinif)}"><span class="dd-ipucu-ikon" aria-hidden="true">${ik(o.ikon || 'ipucu')}</span><div>${o.baslik ? `<h4>${esc(o.baslik)}</h4>` : ''}<p>${o.html ?? vurgu(o.metin || '')}</p>${o.eylem ? DD.btn({tur: 'text', ...o.eylem}) : ''}</div></aside>`;
+  DD.ipucu = (o = {}) => `<aside class="${liste('dd-ipucu', o.ton && `is-${o.ton}`, o.sinif)}"><span class="dd-ipucu-ikon" aria-hidden="true">${ik(o.ikon || 'ipucu')}</span><div>${o.baslik ? `<h4>${esc(o.baslik)}</h4>` : ''}<p>${o.html ?? vurgu(o.metin || '')}</p>${o.eylem ? DD.btn({tur: 'secondary', boyut: 'sm', ...o.eylem}) : ''}</div></aside>`;
   DD.bant = (o = {}) => DD.ipucu({...o, ton: o.ton || 'bilgi', ikon: o.ikon || {bilgi: 'bilgi', basari: 'basari', uyari: 'uyari', hata: 'hata'}[o.ton || 'bilgi']});
   DD.bilgi = (o = {}) => `<div class="dd-bilgi">${o.etiket ? `<span class="dd-t-label">${o.ikon ? ik(o.ikon) : ''}${esc(o.etiket)}</span>` : ''}${o.metin ? DD.p(o.metin) : ''}${o.html || ''}</div>`;
   DD.veriYok = metin => `<p class="dd-veri-yok">${ik('bilgi')}<span>${vurgu(metin)}</span></p>`;

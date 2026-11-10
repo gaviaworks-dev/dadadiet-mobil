@@ -46,10 +46,10 @@
     return l.length ? DD.satirlar(l.map(x => sonucSatir(x, ctx))) : DD.veriYok('Bu aramada **sonuç yok**.');
   };
   const durumHtml = l => {
-    if (!l.length) return DD.bos({ikon: 'tabak', baslik: 'Tabağın boş', metin: 'Hazır bir tabak seç ya da aşağıdan **yemeğini** ara.'});
-    const h = hesap(l), o = oneri(l, h), yuzde = id => Math.round(h.oran[id]);
+    if (!l.length) return DD.kart({html: `<div class="dd-yigin">${DD.tabakBolme({bos: true, ideal: T().bolme})}${DD.p('**Tabağın boş.** Hazır bir tabak seç ya da aşağıdan yemeğini ara; ideal tabak böyle bölünür.', {orta: true, ton: 'ikincil'})}${DD.tabakOranlar({ideal: T().bolme, bos: true})}</div>`});
+    const h = hesap(l), o = oneri(l, h), bolme = Object.fromEntries(SIRA.map(id => [id, Math.round(h.oran[id])]));
     return `<div class="dd-yigin">
-      ${DD.kart({html: `<div class="dd-yigin">${DD.tabakBolme({bolme: Object.fromEntries(SIRA.map(id => [id, yuzde(id)])), skor: h.skor})}<div class="dd-yigin-8">${SIRA.map(id => { const b = T().bolme[id]; return DD.ilerleme({n: yuzde(id), hedef: 100, etiket: `${b.ad} %${yuzde(id)}`, deger: `ideal %${b.aralik[0]}-${b.aralik[1]}`}); }).join('')}</div></div>`})}
+      ${DD.kart({html: `<div class="dd-yigin-24">${DD.tabakBolme({bolme: bolme, skor: h.skor, ideal: T().bolme})}${DD.tabakOranlar({bolme, ideal: T().bolme})}</div>`})}
       ${DD.ipucu({ikon: 'wand-magic-sparkles', metin: o.metin, eylem: o.eylem})}
       ${DD.satirlar(l.map((k, i) => DD.satirKap({gorsel: kayit(k).gorsel ?? null, baslik: kayit(k).ad, alt: `${k.etiket} · ${sayi(kcalOf(k))} kcal`}, DD.ikonBtn({ikon: 'sil', etiket: `${kayit(k).ad} çıkar`, veri: {eylem: 'cikar', id: i}}))))}
     </div>`;

@@ -280,7 +280,39 @@
     return () => { anahtar?.(); kok.removeEventListener('change', saat); };
   };
   // Tabak bölmeleri: dört bölmeli daire, ortada skor. {bolme:{sebze, protein, karb, yag}, skor}
-  DD.tabakBolme = (o = {}) => { const b = o.bolme || {}, a = b.sebze || 0, c = a + (b.protein || 0), d = c + (b.karb || 0), e = d + (b.yag || 0); return `<div class="dd-tabak-bolme" style="--a:${a}%;--b:${c}%;--c:${d}%;--d:${e}%" role="img" aria-label="${esc(`Sebze yüzde ${a}, protein yüzde ${b.protein || 0}, karbonhidrat yüzde ${b.karb || 0}, yağ yüzde ${b.yag || 0}`)}"><span><b>${esc(o.skor ?? '–')}</b><small>/100</small></span></div>`; };
+  // ---------- Tabak: dört bölmeli tabak + oran satırları (Diet'e özgü; Gastro kart ve tipografi ölçüsünde) ----------
+  // Renk eşlemesi tek yerde: tabaktaki dilim = satırdaki nokta. sebze primary, protein, karb, yağ makro token'ları.
+  const TABAK_SIRA = ['sebze', 'protein', 'karb', 'yag'];
+  const TABAK_IDEAL = {sebze: {ad: 'Sebze', aralik: [40, 50]}, protein: {ad: 'Protein', aralik: [20, 25]}, karb: {ad: 'Karbonhidrat', aralik: [20, 25]}, yag: {ad: 'Sağlıklı yağ', aralik: [5, 10]}};
+  const tabakIdeal = o => ({...TABAK_IDEAL, ...(o || {})});
+  const dilim = (a0, a1, R) => {
+    if (a1 - a0 >= 359.99) return `M50 ${50 - R}A${R} ${R} 0 1 1 49.99 ${50 - R}Z`;
+    const p = a => [50 + R * Math.cos(rad(a - 90)), 50 + R * Math.sin(rad(a - 90))].map(yuvarla), [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `M50 50L${x0} ${y0}A${R} ${R} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}Z`;
+  };
+  // {bolme:{sebze, protein, karb, yag} yüzde, skor, bos, ideal:{id:{ad, aralik}}}. bos (ya da toplam 0): ideal oranın kesik çizgili silik kılavuzu.
+  DD.tabakBolme = (o = {}) => {
+    const R = 40, uid = `tb${Math.random().toString(36).slice(2, 7)}`, ideal = tabakIdeal(o.ideal), b = o.bolme || {};
+    const bos = o.bos || !TABAK_SIRA.some(id => +b[id] > 0);
+    const deger = bos ? Object.fromEntries(TABAK_SIRA.map(id => [id, (ideal[id].aralik[0] + ideal[id].aralik[1]) / 2])) : b;
+    const top = TABAK_SIRA.reduce((t, id) => t + Math.max(0, +deger[id] || 0), 0) || 1;
+    let a = 0; const parca = [];
+    TABAK_SIRA.forEach(id => { const v = Math.max(0, +deger[id] || 0); if (!v) return; const a1 = a + v / top * 360; parca.push({id, a0: a, a1}); a = a1; });
+    const ayrac = parca.length > 1 ? parca.map(x => { const r = rad(x.a0 - 90); return `<line class="dd-tabak-ayrac" x1="50" y1="50" x2="${yuvarla(50 + R * Math.cos(r))}" y2="${yuvarla(50 + R * Math.sin(r))}"/>`; }).join('') : '';
+    const dilimler = parca.map(x => `<path class="dd-tabak-dilim is-${x.id}"${bos ? '' : ` fill="url(#${uid}-${x.id})"`} d="${dilim(x.a0, x.a1, R)}"/>`).join('');
+    const grad = bos ? '' : TABAK_SIRA.map(id => `<radialGradient id="${uid}-${id}" class="is-${id}" cx="50" cy="50" r="${R}" gradientUnits="userSpaceOnUse"><stop class="dd-tabak-ic" offset=".38"/><stop class="dd-tabak-dis" offset="1"/></radialGradient>`).join('');
+    const etiket = bos ? `İdeal tabak: ${TABAK_SIRA.map(id => `${ideal[id].ad} yüzde ${ideal[id].aralik[0]}-${ideal[id].aralik[1]}`).join(', ')}` : `${TABAK_SIRA.map(id => `${ideal[id].ad} yüzde ${Math.round(+b[id] || 0)}`).join(', ')}. Denge puanı ${o.skor ?? '–'} / 100`;
+    return `<div class="${liste('dd-tabak-bolme', bos && 'is-bos', o.sinif)}" role="img" aria-label="${esc(etiket)}"><svg viewBox="0 0 100 100" aria-hidden="true"><defs>${grad}<radialGradient id="${uid}-isik" cx="36" cy="30" r="52" gradientUnits="userSpaceOnUse"><stop class="dd-tabak-isik" offset="0"/><stop class="dd-tabak-isik is-son" offset="1"/></radialGradient></defs><circle class="dd-tabak-kuyu" cx="50" cy="50" r="${R + 1.5}"/>${dilimler}${ayrac}${bos ? '' : `<circle cx="50" cy="50" r="${R}" fill="url(#${uid}-isik)"/>`}</svg><span class="dd-tabak-orta">${bos ? '<small>İdeal</small><b class="dd-tabak-hedef">tabak</b>' : `<b>${esc(o.skor ?? '–')}</b><small>/100</small>`}</span></div>`;
+  };
+  // Oran satırı: nokta + ad + şu anki yüzde; çubukta ideal aralık bandı (tint) ve değer dolgusu (makro rengi); altta durum ve ideal aralık.
+  // {id: sebze|protein|karb|yag, ad, deger, aralik:[alt, ust], bos}
+  DD.tabakOran = (o = {}) => {
+    const [alt, ust] = o.aralik || TABAK_IDEAL[o.id]?.aralik || [0, 100], v = Math.max(0, Math.min(100, Math.round(+o.deger || 0)));
+    const durum = o.bos ? null : v < alt ? ['az', v < alt / 2 ? 'Az' : 'Biraz az', 'arrow-down'] : v > ust ? ['fazla', 'Fazla', 'arrow-up'] : ['ideal', 'İdeal aralıkta', 'circle-check'];
+    return `<div class="${liste('dd-oran', `is-${o.id}`, o.bos && 'is-bos')}" style="--v:${v / 100};--alt:${alt / 100};--ust:${ust / 100}"><div class="dd-oran-bas"><i class="dd-oran-nokta" aria-hidden="true"></i><span class="dd-oran-ad">${esc(o.ad || TABAK_IDEAL[o.id]?.ad || o.id)}</span>${o.bos ? '' : `<b class="dd-oran-deger">%${v}</b>`}</div><div class="dd-oran-yol" aria-hidden="true"><i class="dd-oran-bant"></i>${o.bos ? '' : '<i class="dd-oran-dolgu"></i>'}</div><div class="dd-oran-alt">${durum ? `<span class="dd-oran-durum is-${durum[0]}">${ik(durum[2])}${durum[1]}</span>` : ''}<small>ideal %${alt}-${ust}</small></div></div>`;
+  };
+  // {bolme, ideal, bos}: dört satır tabakla aynı sırada.
+  DD.tabakOranlar = (o = {}) => { const ideal = tabakIdeal(o.ideal); return `<div class="dd-oranlar">${TABAK_SIRA.map(id => DD.tabakOran({id, ad: ideal[id].ad, aralik: ideal[id].aralik, deger: o.bolme?.[id], bos: o.bos})).join('')}</div>`; };
   // Sağlık uyarısı: seviye dikkat ya da acil; sheet gövdesidir, yönlendirme düğmesi taşımaz.
   DD.saglikUyari = (o = {}) => `<div class="${liste('dd-saglik-uyari', `is-${o.seviye || 'dikkat'}`)}">${DD.ikonKutu({ikon: o.seviye === 'acil' ? 'hata' : 'uyari', boyut: 'lg', ton: o.seviye === 'acil' ? 'hata' : 'uyari'})}${o.belirti ? DD.durumRozet({metin: o.belirti, ton: o.seviye === 'acil' ? 'hata' : 'uyari', ikon: o.ikon}) : ''}<p>${vurgu(o.metin)}</p></div>`;
   // Soru etiketi Gastro puan alanı gibi (.dgu-alan > .dgu-etiket, ayarlar.js görüş puanı); seçenekler ikonlu düğme.
@@ -334,7 +366,8 @@
   DD.sifreliRozet = (o = {}) => DD.durumRozet({metin: o.metin || 'Uçtan uca şifreli', ton: 'basari', ikon: 'sifreli'});
   DD.balon = (o = {}) => `<div class="dd-balon-kap is-${o.kim === 'ben' ? 'ben' : 'o'}">${o.kim !== 'ben' && o.harf ? DD.avatar({ad: o.harf, boyut: 20}) : ''}<div class="dd-balon"><p>${vurgu(o.metin)}</p>${o.ek ? `<span class="dd-balon-ek">${ik(o.ek.ikon || 'ek')}${esc(o.ek.ad || o.ek)}</span>` : ''}<time>${esc(o.saat || '')}${o.kim === 'ben' ? ik('check-double') : ''}</time></div></div>`;
   DD.gunAyrac = metin => `<div class="dd-gun-ayrac">${DD.rozet({metin, ton: 'notr'})}</div>`;
-  DD.mesajGiris = (o = {}) => `<div class="dd-bar">${o.oneriler?.length ? `<div class="dd-mesaj-oneri" aria-label="Hazır mesajlar">${o.oneriler.map(m => DD.cip({metin: m, kucuk: true, veri: {eylem: 'soru', soru: m}})).join('')}</div>` : ''}<form class="dd-bar-ic dd-mesaj" data-mesaj>${DD.ikonBtn({ikon: 'ek', etiket: 'Dosya ekle', veri: {eylem: 'ek'}})}<div class="dd-girdi"><input name="${esc(o.ad || 'mesaj')}" placeholder="${esc(o.yer || 'Mesaj yaz')}" aria-label="${esc(o.yer || 'Mesaj yaz')}" autocomplete="off" enterkeyhint="send"></div>${DD.ikonBtn({ikon: 'mikrofon', etiket: 'Sesli mesaj', veri: {eylem: 'ses-mesaj'}})}${DD.ikonBtn({ikon: 'gonder', etiket: 'Gönder', tur: 'dolu', tip: 'submit'})}</form></div>`;
+  // Mesaj yazma (modern sohbet kalıbı): solda yuvarlak ek düğmesi, ortada tek parça hap giriş (içinde mikrofon), yazınca mikrofonun yerine yuvarlak gönder. Üstte isteğe bağlı hazır mesaj çipleri.
+  DD.mesajGiris = (o = {}) => `<div class="dd-bar dd-mesaj-bar">${o.oneriler?.length ? `<div class="dd-mesaj-oneri" aria-label="Hazır mesajlar">${o.oneriler.map(m => DD.cip({metin: m, kucuk: true, veri: {eylem: 'soru', soru: m}})).join('')}</div>` : ''}<form class="dd-mesaj" data-mesaj>${DD.ikonBtn({ikon: 'plus', etiket: 'Dosya ya da fotoğraf ekle', tur: 'tint', sinif: 'dd-mesaj-ek', veri: {eylem: 'ek'}})}<label class="dd-mesaj-kutu"><input name="${esc(o.ad || 'mesaj')}" placeholder="${esc(o.yer || 'Mesaj yaz')}" aria-label="${esc(o.yer || 'Mesaj yaz')}" autocomplete="off" enterkeyhint="send">${DD.ikonBtn({ikon: 'mikrofon', etiket: 'Sesli mesaj', sinif: 'dd-mesaj-ses', veri: {eylem: 'ses-mesaj'}})}</label>${DD.ikonBtn({ikon: 'gonder', etiket: 'Gönder', tur: 'dolu', tip: 'submit', sinif: 'dd-mesaj-gonder'})}</form></div>`;
 
   // ---------- Geri sayım, faz, kıyas ----------
   DD._geriSayimCiz = (el, s) => { s = Math.max(0, s); const v = [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60]; el.querySelectorAll('[data-gs]').forEach((b, i) => { b.textContent = iki2(v[i]); }); };

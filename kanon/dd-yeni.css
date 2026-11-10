@@ -372,9 +372,6 @@
 .dd-balon-ek{display:inline-flex;align-items:center;gap:var(--dd-s-4);padding:var(--dd-s-4) var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:color-mix(in srgb,var(--dd-ink) 8%,transparent);font-size:var(--dd-t-meta-size)}
 .dd-balon-kap.is-ben .dd-balon-ek{background:color-mix(in srgb,var(--dd-paper) 18%,transparent)}
 .dd-gun-ayrac{display:grid;place-items:center}
-.dd-mesaj{align-items:center;gap:var(--dd-s-8)}
-.dd-mesaj>.dd-ibtn{flex:none;width:var(--dd-size-touch);height:var(--dd-size-touch)}
-.dd-mesaj .dd-girdi{flex:1;min-width:0;min-height:var(--dd-size-touch);padding-inline-end:var(--dd-s-12)}
 
 /* Sayısal roller */
 .dd-t-numeral-xl{font-family:var(--dd-font-bold);font-size:var(--dd-t-numeral-xl-size);font-weight:var(--dd-t-numeral-xl-weight);line-height:var(--dd-t-numeral-xl-line);letter-spacing:var(--dd-t-numeral-xl-track)}
@@ -584,10 +581,52 @@
 .dd-ogun .dd-satir-metin small{text-align:start;text-align-last:start}
 
 /* Tabak Kur */
-.dd-tabak-bolme{position:relative;display:grid;place-items:center;width:calc(var(--dd-s-48) * 3);aspect-ratio:1;margin-inline:auto;border-radius:var(--dd-r-round);background:conic-gradient(var(--dd-primary) 0 var(--a),var(--dd-protein) 0 var(--b),var(--dd-karb) 0 var(--c),var(--dd-yag) 0 var(--d),var(--dd-line) 0)}
-.dd-tabak-bolme>span{display:flex;align-items:baseline;justify-content:center;align-content:center;flex-wrap:wrap;gap:var(--dd-s-2);width:64%;aspect-ratio:1;border-radius:var(--dd-r-round);background:var(--dd-paper)}
-.dd-tabak-bolme b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-numeral-lg-size);line-height:1}
-.dd-tabak-bolme small{font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
+/* Tabak: beyaz tabak kenarı (kâğıt, ince çizgi, gölge, radyal ışık), içte makro dilimleri tint → ana renk gradyanı, beyaz ayraç; ortada skor diski.
+   Renk eşlemesi .is-<id> ile tek yerden: tabak dilimi = oran satırı noktası. Boşken ideal oranın kesik çizgili silik kılavuzu. */
+:is(.dd-tabak-bolme,.dd-oran) .is-sebze,.dd-oran.is-sebze{--renk:var(--dd-primary);--iz:var(--dd-primary-tint);--yazi:var(--dd-primary-deep)}
+:is(.dd-tabak-bolme,.dd-oran) .is-protein,.dd-oran.is-protein{--renk:var(--dd-protein);--iz:var(--dd-protein-tint);--yazi:var(--dd-protein-text)}
+:is(.dd-tabak-bolme,.dd-oran) .is-karb,.dd-oran.is-karb{--renk:var(--dd-karb);--iz:var(--dd-karb-tint);--yazi:var(--dd-karb-text)}
+:is(.dd-tabak-bolme,.dd-oran) .is-yag,.dd-oran.is-yag{--renk:var(--dd-yag);--iz:var(--dd-yag-tint);--yazi:var(--dd-yag-text)}
+.dd-tabak-bolme{position:relative;display:grid;place-items:center;width:calc(var(--dd-s-48) * 4.5);aspect-ratio:1;margin-inline:auto;border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-round);background:radial-gradient(circle at 36% 28%,var(--dd-paper) 0 52%,color-mix(in srgb,var(--dd-line) 55%,var(--dd-paper)) 100%);box-shadow:var(--dd-sh-md),inset 0 0 0 var(--dd-s-4) color-mix(in srgb,var(--dd-paper) 70%,transparent)}
+.dd-tabak-bolme svg{position:absolute;inset:0;width:100%;height:100%}
+.dd-tabak-kuyu{fill:var(--dd-paper);stroke:color-mix(in srgb,var(--dd-line) 80%,var(--dd-slate));stroke-width:.4;filter:drop-shadow(0 .6px .8px color-mix(in srgb,var(--dd-ink) 12%,transparent))}
+.dd-tabak-dilim{stroke:none}
+.dd-tabak-ic{stop-color:color-mix(in srgb,var(--renk) 52%,var(--iz))}
+.dd-tabak-dis{stop-color:var(--renk)}
+.dd-tabak-isik{stop-color:var(--dd-paper);stop-opacity:.34}
+.dd-tabak-isik.is-son{stop-opacity:0}
+.dd-tabak-ayrac{stroke:var(--dd-paper);stroke-width:1.4;stroke-linecap:round}
+.dd-tabak-bolme.is-bos .dd-tabak-dilim{fill:var(--iz);fill-opacity:.7;stroke:var(--renk);stroke-width:.5;stroke-dasharray:1.6 1.4;stroke-opacity:.7}
+.dd-tabak-bolme.is-bos .dd-tabak-ayrac{stroke-width:1}
+.dd-tabak-orta{position:relative;display:flex;align-items:baseline;justify-content:center;align-content:center;flex-wrap:wrap;gap:var(--dd-s-2);width:36%;aspect-ratio:1;border-radius:var(--dd-r-round);background:var(--dd-paper);box-shadow:var(--dd-sh-sm),0 0 0 var(--dd-size-border) var(--dd-line)}
+.dd-tabak-orta b{font-family:var(--dd-t-numeral-lg-family);font-weight:var(--dd-t-numeral-lg-weight);font-size:var(--dd-t-numeral-lg-size);line-height:1;letter-spacing:var(--dd-t-numeral-lg-track);font-variant-numeric:tabular-nums}
+.dd-tabak-orta small{font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
+.dd-tabak-bolme.is-bos .dd-tabak-orta{flex-direction:column;align-items:center;gap:0}
+.dd-tabak-bolme.is-bos .dd-tabak-orta small{font-size:var(--dd-t-label-size);line-height:var(--dd-t-label-line);letter-spacing:var(--dd-t-label-track);text-transform:uppercase}
+.dd-tabak-bolme .dd-tabak-orta .dd-tabak-hedef{font-family:var(--dd-font-bold);font-size:var(--dd-t-body-size);font-weight:var(--dd-weight-bold);letter-spacing:0;color:var(--dd-slate)}
+@media (prefers-reduced-motion:no-preference){.dd-tabak-dilim{animation:dd-belir var(--dd-m-base) var(--dd-e-standard) backwards}}
+/* Oran satırı: ideal aralık bandı (tint) üstünde değer dolgusu (makro rengi) ve uç işareti; durum yargısız: ideal başarı, az/fazla uyarı tonu. */
+.dd-oranlar{display:grid;gap:var(--dd-s-16)}
+.dd-oran{display:grid;gap:var(--dd-s-8)}
+.dd-oran-bas,.dd-oran-alt{display:flex;align-items:center;gap:var(--dd-s-8);min-width:0}
+.dd-oran-nokta{flex:none;width:var(--dd-s-12);height:var(--dd-s-12);border-radius:var(--dd-r-round);background:var(--renk);box-shadow:0 0 0 var(--dd-s-2) var(--iz)}
+.dd-oran-ad{flex:1;min-width:0;font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line)}
+.dd-oran-deger{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line);font-variant-numeric:tabular-nums}
+.dd-oran-yol{position:relative;height:var(--dd-s-16);border-radius:var(--dd-r-switch)}
+.dd-oran-yol::before{content:"";position:absolute;left:0;right:0;top:50%;height:var(--dd-s-8);margin-top:calc(-.5 * var(--dd-s-8));border-radius:var(--dd-r-switch);background:var(--dd-bg)}
+.dd-oran-bant{position:absolute;top:0;bottom:0;left:calc(var(--alt) * 100%);width:max(var(--dd-s-12),calc((var(--ust) - var(--alt)) * 100%));border-radius:var(--dd-r-dot);background:var(--iz)}
+.dd-oran-yol::after{content:"";position:absolute;top:0;bottom:0;left:calc(var(--alt) * 100%);width:max(var(--dd-s-12),calc((var(--ust) - var(--alt)) * 100%));border-radius:var(--dd-r-dot);box-shadow:inset 0 0 0 var(--dd-size-border) color-mix(in srgb,var(--renk) 55%,transparent);pointer-events:none}
+.dd-oran-dolgu{position:absolute;left:0;top:50%;width:calc(var(--v) * 100%);height:var(--dd-s-8);margin-top:calc(-.5 * var(--dd-s-8));border-radius:var(--dd-r-switch);background:var(--renk);transition:width var(--dd-m-dolum) var(--dd-e-decelerate)}
+.dd-oran-dolgu::after{content:"";position:absolute;right:calc(-.5 * var(--dd-s-16));top:50%;width:var(--dd-s-16);height:var(--dd-s-16);margin-top:calc(-.5 * var(--dd-s-16));border:var(--dd-size-border2) solid var(--dd-paper);border-radius:var(--dd-r-round);background:var(--renk);box-shadow:var(--dd-sh-sm)}
+.dd-oran-alt{justify-content:space-between;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
+.dd-oran-alt small{margin-inline-start:auto;font-size:var(--dd-t-meta-size);color:var(--dd-slate);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dd-oran-durum{display:inline-flex;align-items:center;gap:var(--dd-s-4)}
+.dd-oran-durum .icon{font-size:var(--dd-size-icon-sm)}
+.dd-oran-durum.is-ideal{color:var(--dd-basari-fg)}
+.dd-oran-durum:is(.is-az,.is-fazla){color:var(--dd-uyari-fg)}
+.dd-oran.is-bos{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-4) var(--dd-s-12)}
+.dd-oran.is-bos .dd-oran-yol{grid-column:1/-1;grid-row:2}
+.dd-oran.is-bos .dd-oran-alt{grid-column:2;grid-row:1}
 
 /* Zaman çizelgesi (Bugünün öğünleri): saat kolonu + işaret + gövde; faz çizelgesinin çizgisi ve işaret halleri */
 .dd-zc{display:grid;grid-template-columns:minmax(0,1fr);margin:0;padding:0;list-style:none}
@@ -630,3 +669,19 @@ body :is(.dd-veri-yok,.dd-izin-maddeler small,.dd-yorum-metin p,.dd-kunye span){
 .dd-mesaj-oneri{display:flex;gap:var(--dd-s-8);margin-inline:calc(-1 * var(--dd-size-nav-edge));padding:0 var(--dd-size-nav-edge) var(--dd-s-8);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
 .dd-mesaj-oneri::-webkit-scrollbar{display:none}
 .dd-mesaj-oneri>.dd-chip{flex:none}
+/* İpucu eylemi: metnin 12 altında, sola yaslı küçük ikincil düğme (eski metin düğmesi kayboluyor, satırı boşa harcıyordu) */
+.dd-ipucu > div > .dd-btn{justify-self:start;margin-top:var(--dd-s-12)!important}
+
+/* Mesaj yazma çubuğu: kart içinde kutu yok; ince üst çizgi, hap giriş, yuvarlak eylemler. Gönder yalnız yazı varken görünür, o zaman mikrofon çekilir. */
+.dd-bar.dd-mesaj-bar{padding:var(--dd-s-8) var(--dd-s-12) calc(var(--dd-s-8) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line);background:var(--dd-paper)}
+.dd-mesaj-bar .dd-mesaj-oneri{margin-inline:calc(-1 * var(--dd-s-12));padding-inline:var(--dd-s-12)}
+.dd-mesaj{display:flex;align-items:center;gap:var(--dd-s-8);margin:0}
+.dd-mesaj .dd-ibtn{flex:none;width:var(--dd-size-touch);height:var(--dd-size-touch);border-radius:var(--dd-r-round)}
+.dd-mesaj-kutu{display:flex;align-items:center;flex:1;min-width:0;min-height:var(--dd-size-touch);padding:0 var(--dd-s-4) 0 var(--dd-s-16);border:var(--dd-size-border) solid transparent;border-radius:calc(var(--dd-size-touch) / 2);background:var(--dd-bg);cursor:text;transition:border-color var(--dd-m-quick) var(--dd-ease),background-color var(--dd-m-quick) var(--dd-ease)}
+.dd-mesaj-kutu:focus-within{border-color:var(--dd-primary);background:var(--dd-paper)}
+.dd-mesaj-kutu input,.dd-mesaj-kutu input:focus,.dd-mesaj-kutu input:focus-visible{flex:1;min-width:0;height:var(--dd-size-touch);margin:0;padding:0;border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:var(--dd-ink);font-family:var(--dd-font);font-size:var(--dd-t-body-size)}
+.dd-mesaj-kutu input::placeholder{color:var(--dd-muted)}
+.dd-mesaj-kutu .dd-ibtn{width:calc(var(--dd-size-touch) - var(--dd-s-8));height:calc(var(--dd-size-touch) - var(--dd-s-8));color:var(--dd-slate)}
+.dd-mesaj:has(input:placeholder-shown) .dd-mesaj-gonder{display:none}
+.dd-mesaj:not(:has(input:placeholder-shown)) .dd-mesaj-ses{display:none}
+.dd-mesaj-oneri>.dd-chip{min-height:var(--dd-size-chip-sm);padding-inline:var(--dd-s-12);border-radius:calc(var(--dd-size-chip-sm) / 2);font-size:var(--dd-t-meta-size)}

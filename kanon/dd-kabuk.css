@@ -5,7 +5,7 @@ html,body{height:100%}
 body.dd{overscroll-behavior:none}
 body.dd.dd-uygulama{position:fixed;inset:0;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.dd.dd-uygulama :is(input,textarea){-webkit-user-select:text;user-select:text}
-.dd-orta-metin{text-align:justify;text-align-last:center}
+.dd-orta-metin{text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
 button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;text-align:justify;text-align-last:left}
 .dd-tabagim .dd-satir-metin{text-align:justify;text-align-last:left}
 .dd-yigin-4{display:grid;gap:var(--dd-s-4)}
