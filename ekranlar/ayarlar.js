@@ -437,7 +437,7 @@
   const veriBagla = kok => [
     DD.eylem(kok, 'indir', el => DD.mesgul(el, DD.azHareket() ? 0 : DD.TK.motion.reveal * 4).then(() => { ayarYaz('veri', {sonIndirme: `bugün ${noktali(DDV.bugun.simdi)}`}); DD.tazele(); DD.toast(`Veri paketin hazır; bağlantı **${kisi().eposta}** adresine gönderildi`, {tur: 'basari'}); })),
     DD.eylem(kok, 'saklama', () => sheetSec('Takip verisi saklama', H().saklamaSecenek, ayar('veri').saklama, v => { ayarYaz('veri', {saklama: v}); DD.tazele(); DD.toast(`Saklama süresi: **${secAd(H().saklamaSecenek, v).toLocaleLowerCase('tr')}**`, {tur: 'basari'}); })),
-    DD.eylem(kok, 'takip-sil', () => DD.dialog({baslik: 'Takip verilerin silinsin mi?', metin: 'Öğün, su ve ölçüm kayıtların **30 gün sonra** kalıcı olarak silinir. Hesabın ve planın kalır.', eylem: 'Silme talebi oluştur', iptal: 'Vazgeç', yikici: true}).then(ok => { if (!ok) return; ayarYaz('veri', {silmeTalebi: DD.bugunIso()}); DD.tazele(); DD.toast('Silme talebin **alındı**', {tur: 'uyari'}); })),
+    DD.eylem(kok, 'takip-sil', () => DD.dialog({baslik: 'Takip verilerin silinsin mi?', metin: 'Öğün, su ve ölçüm kayıtların **30 gün sonra** kalıcı olarak silinir. Hesabın ve planın kalır.', eylem: 'Talep oluştur', iptal: 'Vazgeç', yikici: true}).then(ok => { if (!ok) return; ayarYaz('veri', {silmeTalebi: DD.bugunIso()}); DD.tazele(); DD.toast('Silme talebin **alındı**', {tur: 'uyari'}); })),
     DD.eylem(kok, 'sil-geri', () => { ayarYaz('veri', {silmeTalebi: null}); DD.tazele(); DD.toast('Silme talebin **geri alındı**', {tur: 'basari'}); })
   ];
 

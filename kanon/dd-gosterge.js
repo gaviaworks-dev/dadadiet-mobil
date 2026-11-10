@@ -148,7 +148,7 @@
     const y = el.querySelector('.dd-kadran-yay');
     y.setAttribute('stroke-dasharray', `${p / g * 100} 100`); y.setAttribute('stroke-dashoffset', `${-v / g * 100}`);
     el.querySelector('[data-kadran-saat]').textContent = 'noktali' in el.dataset ? DD.saatMetin(v).replace(':', '.') : DD.saatMetin(v);
-    const b = el.querySelector('[data-kadran-bitis]'); if (b) b.textContent = `${DD.saatMetin((v + p) % g)}’e kadar`;
+    const b = el.querySelector('[data-kadran-bitis]'); if (b) b.textContent = `${'noktali' in el.dataset ? DD.saatMetin((v + p) % g).replace(':', '.') : DD.saatMetin((v + p) % g)}’e kadar`;
     a.setAttribute('aria-valuenow', v); a.setAttribute('aria-valuetext', DD.saatMetin(v));
   };
   const kadranYaz = (el, v, dokunus) => { const adim = +el.dataset.adim; v = ((Math.round(v / adim) * adim) % 1440 + 1440) % 1440; if (el.dataset.min != null) v = kadranSinir(+el.dataset.min, +el.dataset.max, v, dokunus ? v : +el.dataset.deger); if (v !== +el.dataset.deger) { el.dataset.deger = v; DD._kadranCiz(el); DD.titres(2); DD.degisim(el, el.dataset.ad, DD.saatMetin(v), {dakika: v}); } };

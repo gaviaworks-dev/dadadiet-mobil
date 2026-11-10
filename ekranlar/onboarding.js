@@ -155,7 +155,7 @@
 
   const kadran = c => {
     const s = adim('ritim').saatAlani, p = protokol(c), v = c.ilkOgunSaati || s.varsayilan;
-    return DD.saatKadran({ad: s.alan, deger: v, pencereSaat: pencereSaat(p), etiket: 'İlk öğün', adim: s.adimDk, min: s.min, max: s.max});
+    return DD.saatKadran({ad: s.alan, deger: v, pencereSaat: pencereSaat(p), etiket: 'İlk öğün', adim: s.adimDk, min: s.min, max: s.max, noktali: true});
   };
   const ritimGovde = (a, c) => {
     const engel = orucEngel(c), ogeler = engel ? a.secenekler.filter(s => s.id === 'yok') : a.secenekler, s = a.saatAlani;
