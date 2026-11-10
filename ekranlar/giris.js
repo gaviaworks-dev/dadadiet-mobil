@@ -1,4 +1,5 @@
 /* Giriş (#/giris), şifre sıfırlama (#/sifre-sifirla), e-posta doğrulama (#/eposta-dogrula): web giris/, sifremi-unuttum/, eposta-dogrula/ eşi. Üç rota tek ekran tanımıdır; ayrım ctx.hash.
+ * Giriş (Gastro hesap.js giriş sırası): gülücük kapak + saydam üst bar, sosyal düğmeler, "ya da e-posta ile" ayracı, form, altta "Hesabın yok mu?".
  * Giriş: e-posta + şifre (kayıtlı hesap DDV.hesap.giris; Ayarlar'da değişen şifre hesap-ayar.guvenlik.sifre), Apple/Google. Başarıda DD.durum 'oturum' {yol:'giris'} ve #/bugun.
  *   Hatalar: boş alan, yanlış biçim, hatalı şifre (deneme hakkı sayılır, bitince giriş kilitlenir), bağlantı yok. ?hal=hata ilk denemede bağlantı hatası.
  * Şifre sıfırlama: ?adim yok → e-posta, ?adim=gonderildi → bağlantı gönderildi, ?adim=yeni → yeni şifre (hesap-ayar.guvenlik.sifre, sifreTarih).
@@ -14,7 +15,7 @@
   const yol = ctx => ctx.hash.split('?')[0];
   const bekle = n => (DD.azHareket() ? 0 : DD.TK.motion.reveal * n);
   const enc = encodeURIComponent;
-  const ayirac = `<p class="dd-t-meta dd-ton-ikincil dd-orta-metin" data-dd-hece="yok">ya da</p>`;
+  const ayirac = `<p class="dd-t-meta dd-ton-ikincil dd-orta-metin" data-dd-hece="yok">ya da e-posta ile</p>`;
   let hataGosterildi = false;
   const baglantiYok = ctx => {
     if (navigator.onLine === false) return true;
@@ -37,18 +38,12 @@
   };
   const giris = ctx => {
     const d = ctx.taslak || {eposta: ctx.sorgu.eposta || G().eposta, sifre: ctx.sorgu.eposta ? '' : kayitliSifre()};
-    return `<div class="dd-ic dd-yigin-24">
-      ${DD.metinBlok({baslik: 'Tekrar hoş geldin', metin: 'Kaldığın yerden devam et; **kayıtların** seni bekliyor.'})}
-      <div class="dd-yigin-12">
-        <div data-yuva="form">${girisForm(d, ctx.hatalar)}</div>
-        <div class="dd-ara">${DD.checkbox({ad: 'hatirla', etiket: 'Beni hatırla', secili: true})}${DD.btn({metin: 'Şifremi unuttum', tur: 'text', boyut: 'sm', veri: {eylem: 'unuttum'}})}</div>
-        <div data-yuva="deneme">${denemeBant(ctx)}</div>
-      </div>
-      ${DD.btn({metin: 'Giriş yap', ikon: 'right-to-bracket', tam: true, pasif: kilit(ctx), veri: {eylem: 'giris'}})}
-      ${ayirac}
-      <div class="dd-yigin-8">${SSO.map(b => DD.btn({...b, tur: 'secondary', tam: true, veri: {eylem: 'sso', id: b.yol}})).join('')}</div>
-      ${DD.p('Dada Gastro ya da Dada Fit hesabın varsa **aynı hesapla** giriş yapabilirsin.', {orta: true, meta: true, ton: 'ikincil'})}
-    </div>`;
+    return `${DD.gulucuk({gorsel: 'assets/gorsel/hero/karsilama-sofra.webp', etiket: 'Dada Diet', baslik: 'Tekrar hoş geldin', alt: 'Kaldığın yerden devam et; kayıtların seni bekliyor.', ust: true})}${DD.gruplar([
+      `<div class="dd-yigin-12"><div class="dd-ikili">${SSO.map(b => DD.btn({...b, metin: b.yol === 'apple' ? 'Apple' : 'Google', etiket: b.metin, tur: 'secondary', veri: {eylem: 'sso', id: b.yol}})).join('')}</div>${DD.p('Dada Gastro ya da Dada Fit hesabın varsa **aynı hesapla** giriş yapabilirsin.', {orta: true, meta: true, ton: 'ikincil'})}</div>`,
+      ayirac,
+      `<div class="dd-yigin-12"><div data-yuva="form">${girisForm(d, ctx.hatalar)}</div><div class="dd-ara">${DD.checkbox({ad: 'hatirla', etiket: 'Beni hatırla', secili: true})}${DD.btn({metin: 'Şifremi unuttum', tur: 'text', boyut: 'sm', veri: {eylem: 'unuttum'}})}</div><div data-yuva="deneme">${denemeBant(ctx)}</div></div>`,
+      DD.btn({metin: 'Giriş yap', ikon: 'right-to-bracket', tam: true, pasif: kilit(ctx), veri: {eylem: 'giris'}})
+    ])}`;
   };
   const oturumAc = () => { DD.durum.yaz('oturum', {yol: 'giris'}); DD.yerine('#/bugun'); DD.toast(`Tekrar hoş geldin, **${DDV.kullanici.ad}**`, {tur: 'basari'}); };
   const girisBagla = (kok, ctx) => {
@@ -161,7 +156,7 @@
     tabagim: false,
     get ust() { return location.hash.startsWith('#/eposta-dogrula') ? (DD.uye() ? '#/ayarlar/profil' : '#/karsilama') : location.hash.startsWith('#/sifre-sifirla') ? '#/giris' : '#/karsilama'; },
     baslik: ctx => BASLIK[yol(ctx)] || 'Giriş yap',
-    ustBar: () => ({menu: false}),
+    ustBar: ctx => ({menu: false, saydam: yol(ctx) === '#/giris'}),
     ciz: ctx => ({'#/sifre-sifirla': sifirla, '#/eposta-dogrula': dogrula}[yol(ctx)] || giris)(ctx),
     altBar: ctx => {
       const y = yol(ctx);

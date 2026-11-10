@@ -624,3 +624,5 @@ body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin small,.dd-kalem-al
 /* Alt sayfa grupları (Gastro .ay-gruplar): grup arası 24, alt boşluk 32 */
 .dd-gruplar{display:grid;gap:var(--dd-s-24);padding-top:var(--dd-s-16);padding-bottom:var(--dd-s-32)}
 .dd-grup{min-width:0}
+/* Bildirim meta satırı (Gastro arama.css .ar-bil-meta): okunmamışta Yeni rozeti + "tür · zaman" */
+.dd-bildirim-meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dd-s-4) var(--dd-s-8)}

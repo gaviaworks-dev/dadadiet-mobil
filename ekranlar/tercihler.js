@@ -41,32 +41,32 @@
     const m = k.makro ?? k.makroHedef ?? {}, suMl = k.suMl ?? k.suHedefMl, [kc, kb] = enerji(k.hedefKcal), d = B(), b = ayar('besin'), r = riza();
     const uzman = !DD.yeniHesap() && DDV.diyetisyenler.find(x => x.slug === k.diyetisyen);
     const ogunHesap = DD.ogun.hesap({duz: true});
-    return DD.bolumler([
+    return DD.gruplar([
       `<div class="dd-yigin">${DD.p('Planın ve önerilerin bu cevaplardan hesaplanır. Bir değeri değiştirdiğinde **günlük hedefin** de güncellenir.', {ton: 'ikincil'})}${DD.ozetSerit([{ikon: 'kalori', etiket: 'Kalori', deger: kc, birim: kb}, {ikon: 'egg', etiket: 'Protein', deger: DD.sayi(m.P), birim: 'g'}, {ikon: 'droplet', etiket: 'Su', deger: DD.ondalik(suMl / 1000, 1), birim: 'L'}])}</div>`,
-      {baslik: 'Hedefin', html: DD.yuzey(DD.satirlar([
+      {baslik: 'Hedefin', satirlar: [
         {ikon: 'hedef', baslik: 'Hedefim', alt: k.hedefAd, git: duzenle('hedef')},
         {ikon: 'weight-scale', baslik: 'Kilo', alt: k.hedefKiloKg ? `${kg(k.kiloKg)} · hedef ${kg(k.hedefKiloKg)}` : kg(k.kiloKg), git: duzenle('kilo')},
         k.tempoAd && {ikon: 'gauge-high', baslik: 'Tempo', alt: k.tempoAd, git: duzenle('tempo')}
-      ].filter(Boolean)))},
-      {baslik: 'Ölçülerin ve hareketin', html: DD.yuzey(DD.satirlar([
+      ].filter(Boolean)},
+      {baslik: 'Ölçülerin ve hareketin', satirlar: [
         {ikon: 'venus-mars', baslik: 'Cinsiyet', deger: secenekAd('cinsiyet', k.cinsiyet) || '–', git: duzenle('cinsiyet')},
         {ikon: 'cake-candles', baslik: 'Yaş', deger: k.yas ? `${k.yas}` : '–', git: duzenle('yas')},
         {ikon: 'ruler-vertical', baslik: 'Boy', deger: k.boyCm ? boy(k.boyCm) : '–', git: duzenle('boy')},
         {ikon: 'person-walking', baslik: 'Aktivite', deger: k.aktiviteAd || '–', git: duzenle('aktivite')}
-      ]))},
-      {baslik: 'Beslenme ve öğün ritmin', html: DD.yuzey(DD.satirlar([
+      ]},
+      {baslik: 'Beslenme ve öğün ritmin', satirlar: [
         {ikon: 'utensils', baslik: 'Beslenme tarzı', alt: (k.beslenmeTarziAd || []).join(', ') || 'Seçim yok', git: duzenle('tarz')},
         {ikon: 'hourglass-half', baslik: 'Oruç ve ilk öğün', alt: ritimAlt(k), git: duzenle('ritim')},
         {ikon: 'clock', baslik: 'Öğün saatlerim', alt: DD.ogun.ozet(ogunHesap) || 'Öğün saatlerini kur', git: '#/ogun-saatleri'}
-      ]))},
-      {baslik: 'Hassasiyetlerin', html: `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar(r ? [
+      ]},
+      {baslik: 'Hassasiyetlerin', html: `<div class="dd-yigin-12">${DD.satirlar(r ? [
         {ikon: 'shield-halved', baslik: 'Hassasiyet ve kronik durum', alt: hassasAd(k), git: duzenle('kvkk')},
         {ikon: 'wheat-awn-circle-exclamation', baslik: 'Alerjenlerim', alt: alerjenAd(), veri: {eylem: 'alerjen'}},
         {ikon: 'thumbs-down', baslik: 'Sevmediklerim', alt: b.sevmedik.length ? b.sevmedik.join(', ') : 'Eklenmedi', veri: {eylem: 'sevmedik'}}
       ] : [
         {ikon: 'lock', baslik: 'Hassasiyet ve alerjenler', alt: 'Açık rıza vermediğin için kullanılmıyor', git: '#/veri-izinleri'},
         {ikon: 'thumbs-down', baslik: 'Sevmediklerim', alt: b.sevmedik.length ? b.sevmedik.join(', ') : 'Eklenmedi', veri: {eylem: 'sevmedik'}}
-      ]))}${DD.veriYok('Önerilerin bu seçimlere göre **süzülür**; sevmediklerin tarif ve menülerde geri planda kalır.')}</div>`},
+      ])}${DD.veriYok('Önerilerin bu seçimlere göre **süzülür**; sevmediklerin tarif ve menülerde geri planda kalır.')}</div>`},
       {baslik: 'Günlük hedefin', html: `<div class="dd-yigin-12">${DD.kunye([
         {ikon: 'kalori', etiket: 'Kalori', deger: `${kc} ${kb}`},
         {ikon: 'egg', etiket: 'Protein', deger: `${DD.sayi(m.P)} g`},
@@ -75,10 +75,10 @@
         {ikon: 'leaf', etiket: 'Lif', deger: `${DD.sayi(m.Lif)} g`},
         {ikon: 'glass-water', etiket: 'Su', deger: `${DD.ondalik(suMl / 1000, 1)} L`}
       ])}${uzman ? DD.veriYok(`**${uzman.ad}** ile çalıştığın için planındaki değerler esastır.`) : ''}</div>`},
-      {baslik: 'Bildirim ve birimler', html: DD.yuzey(DD.satirlar([
+      {baslik: 'Bildirim ve birimler', satirlar: [
         {ikon: 'bell', baslik: 'Bildirim tercihleri', alt: 'Öğün, su ve oruç hatırlatmaları', git: '#/ayarlar/bildirim'},
         {ikon: 'ruler-combined', baslik: 'Birimler', alt: `${d.agirlik} · ${d.boy === 'inc' ? 'inç' : 'cm'} · ${d.enerji === 'kj' ? 'kJ' : 'kcal'}`, git: '#/ayarlar/dil'}
-      ]))},
+      ]},
       {baslik: 'Soruları baştan yanıtla', html: `<div class="dd-yigin-12">${DD.p('Hedef, ölçü ve beslenme soruları **yeniden sorulur**. Bitirdiğinde günlük hedefin yenilenir; yarıda bırakırsan bugünkü tercihlerin kalır.', {ton: 'ikincil'})}${DD.btn({metin: 'Baştan yanıtla', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'bastan'}})}</div>`}
     ]);
   };

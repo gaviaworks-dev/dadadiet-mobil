@@ -163,7 +163,7 @@
   // satir: Gastro DG.satir. {ikon, sol, gorsel, baslik, baslikHtml, alt, deger, sag, ok, git, veri, duz, yikici, sinif}
   DD.satir = (o = {}) => {
     const sol = o.sol || (o.gorsel !== undefined ? DD.gorsel({src: o.gorsel, ad: o.baslik, ton: o.gorselTon}) : o.avatar ? DD.avatar(o.avatar) : o.ikon ? `<span class="dd-satir-ikon">${ik(o.ikon)}</span>` : '');
-    const tik = !o.duz && (o.git || o.geri || o.veri || o.attrs);
+    const tik = !o.duz && (o.git || o.yerine || o.geri || o.veri || o.attrs);
     const ic = `${sol}<span class="dd-satir-metin"><span>${o.baslikHtml || esc(o.baslik)}</span>${o.alt ? `<small>${esc(o.alt)}</small>` : ''}</span>${o.deger != null ? `<b class="dd-satir-deger">${esc(o.deger)}</b>` : ''}${o.sag || ''}${(o.ok ?? !!tik) ? ik('satirOk') : ''}`;
     const c = liste('dd-satir', o.yikici && 'is-yikici', o.sinif);
     return tik ? `<button class="${c}" type="button"${at(o)}>${ic}</button>` : `<div class="${c}"${o.duz ? at({...o, git: undefined, veri: undefined}) : ''}>${ic}</div>`;
@@ -222,7 +222,7 @@
   // İçerik kartı: Gastro .dd-puf. {gorsel, kategori, baslik, meta, git}
   DD.icerikKart = (o = {}) => `<button type="button" class="${liste('dd-puf', o.sinif)}"${at(o)}><span class="dd-puf-foto"${bg(o.gorsel)}>${o.kategori ? `<small class="dd-puf-rozet">${esc(o.kategori)}</small>` : ''}</span><span class="dd-puf-metin"><b>${esc(o.baslik)}</b>${o.meta ? `<span>${ik('saat')}${esc(o.meta)}</span>` : ''}</span></button>`;
   // Bildirim: Gastro .dd-bildirim; okunmamış kalın + tint kutu, nokta yok.
-  DD.bildirimSatir = (b, o = {}) => `<button type="button" class="${liste('dd-bildirim', !b.okundu && 'is-okunmadi', o.sinif)}"${at({git: o.git, veri: {id: b.id}})}><span class="dd-bildirim-ikon" aria-hidden="true">${ik(b.ikon)}</span><span class="dd-bildirim-metin"><b>${esc(b.baslik)}</b><p>${esc(b.metin)}</p><small>${esc(b.zaman)}</small></span></button>`;
+  DD.bildirimSatir = (b, o = {}) => `<button type="button" class="${liste('dd-bildirim', !b.okundu && 'is-okunmadi', o.sinif)}"${at({git: o.git, veri: {id: b.id}})}><span class="dd-bildirim-ikon" aria-hidden="true">${ik(b.ikon)}</span><span class="dd-bildirim-metin"><b>${esc(b.baslik)}</b><p>${esc(b.metin)}</p><small class="dd-bildirim-meta">${b.okundu ? '' : DD.durumRozet({metin: 'Yeni', ton: 'basari'})}<span>${esc([o.meta ?? b.tur_ad, b.zaman].filter(Boolean).join(' · '))}</span></small></span></button>`;
   DD.yorum = (o = {}) => `<div class="dd-yorum">${o.ad ? DD.avatar({ad: o.ad}) : ''}<div class="dd-yorum-metin">${o.ad ? `<b>${esc(o.ad)}</b>` : ''}<p>${esc(o.metin)}</p>${o.meta ? `<small>${esc(o.meta)}</small>` : ''}</div></div>`;
   // Yorum bölümü: Gastro DG.yorumBolumu. {baslik, yorumlar:[{yazar, tarih, puan, metin}], ozet:{puan, sayi, dagilim:[[yildiz,adet]]}, bos}
   const yildiz = (v, c = '') => `<span class="dd-uz-stars ${c}" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<i class="icon fa-solid fa-star${n <= Math.round(v) ? ' on' : ''}"></i>`).join('')}</span>`;

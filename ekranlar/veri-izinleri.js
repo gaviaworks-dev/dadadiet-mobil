@@ -27,7 +27,7 @@
   // ---------- Bölümler ----------
   const rizaBolum = () => {
     const i = izinler(), r = R(), ilk = hareketler().find(h => /rıza/.test(h.metin));
-    return `<div class="dd-yigin">${DD.durumRozet({metin: 'Taslak metin · Hukuk onayı bekliyor', ton: 'uyari', ikon: 'clock'})}${DD.p('Sağlık verilerin **özel nitelikli kişisel veridir**; Dada Diet bunları yalnız açık rızanla işler. Diyetisyenle paylaşım ayrı bir izindir.', {ton: 'ikincil'})}${DD.yuzey(`<div class="dd-satirlar">${DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Sağlık verisi açık rızası', alt: i.riza ? (ilk ? `Verildi · ${DD.tarihUzun(ilk.tarih)}` : 'Verildi') : 'Verilmedi · veriler yalnız bu cihazda', secili: !!i.riza})}</div>`)}${DD.maddeler([['weight-scale', 'Boy, kilo ve ölçümlerin', 'Kalori ve öğün planı için'], ['heart-pulse', 'Hassasiyet ve kronik durumun', 'Önerileri süzmek için'], ['camera', 'Su, duygu, öğün ve tabak fotoğrafların', 'Günlüğün ve Sağlık dosyan için']])}${DD.akordiyon([{baslik: 'Rıza metni', ikon: 'file-lines', icerik: `<div class="dd-yigin-12">${DD.p(r.metin.replace('açık rıza veriyorum', '**açık rıza veriyorum**'))}${DD.p(r.detay.replace('dilediğin an geri alabilirsin', '**dilediğin an geri alabilirsin**'), {ton: 'ikincil', meta: true})}</div>`}], {acik: -1})}</div>`;
+    return `<div class="dd-yigin">${DD.durumRozet({metin: 'Taslak metin · Hukuk onayı bekliyor', ton: 'uyari', ikon: 'clock'})}${DD.p('Sağlık verilerin **özel nitelikli kişisel veridir**; Dada Diet bunları yalnız açık rızanla işler. Diyetisyenle paylaşım ayrı bir izindir.', {ton: 'ikincil'})}${DD.satirlar([DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Sağlık verisi açık rızası', alt: i.riza ? (ilk ? `Verildi · ${DD.tarihUzun(ilk.tarih)}` : 'Verildi') : 'Verilmedi · veriler yalnız bu cihazda', secili: !!i.riza})])}${DD.maddeler([['weight-scale', 'Boy, kilo ve ölçümlerin', 'Kalori ve öğün planı için'], ['heart-pulse', 'Hassasiyet ve kronik durumun', 'Önerileri süzmek için'], ['camera', 'Su, duygu, öğün ve tabak fotoğrafların', 'Günlüğün ve Sağlık dosyan için']])}${DD.akordiyon([{baslik: 'Rıza metni', ikon: 'file-lines', icerik: `<div class="dd-yigin-12">${DD.p(r.metin.replace('açık rıza veriyorum', '**açık rıza veriyorum**'))}${DD.p(r.detay.replace('dilediğin an geri alabilirsin', '**dilediğin an geri alabilirsin**'), {ton: 'ikincil', meta: true})}</div>`}], {acik: -1})}</div>`;
   };
   const istekBolum = () => {
     const u = uzman(), l = istekler();
@@ -37,26 +37,26 @@
     const u = uzman();
     if (!u) return DD.bos({ikon: 'user-doctor', baslik: 'Henüz diyetisyenin yok', metin: 'Bir diyetisyenle çalışmaya başladığında **neyi paylaşacağını** buradan seçersin.', eylem: {metin: 'Diyetisyen bul', ikon: 'magnifying-glass', git: '#/uzman/bul'}});
     const p = paylasim(), s = izinAyar().sure, acik = TUR().filter(t => p[t.id]).length;
-    return `<div class="dd-yigin-12">${DD.p(`Seçtiğin veri türlerini **${u.ad}** görebilir. Değişiklik anında kaydedilir ve diyetisyen paneline yansır.`, {ton: 'ikincil'})}${DD.yuzey(`<div class="dd-satirlar">${DD.toggle({ad: 'paylas-genel', ikon: 'user-doctor', etiket: 'Diyetisyenimle paylaş', alt: acik ? `${acik} veri türü açık` : 'Bütün erişimler kapalı', secili: acik > 0})}${TUR().map(t => DD.toggle({ad: `paylas-${t.id}`, ikon: t.ikon, etiket: t.etiket, alt: p[t.id] && s[t.id] ? `Açık · ${s[t.id]}` : t.alt, secili: p[t.id]})).join('')}</div>`)}${acik < TUR().length ? DD.btn({metin: 'Süreli izin ver', ikon: 'calendar-plus', tur: 'secondary', tam: true, veri: {eylem: 'yeni-izin'}}) : ''}${acik ? DD.btn({metin: 'Bütün izinleri geri çek', ikon: 'ban', tur: 'text', tam: true, veri: {eylem: 'hepsini-cek'}}) : ''}</div>`;
+    return `<div class="dd-yigin-12">${DD.p(`Seçtiğin veri türlerini **${u.ad}** görebilir. Değişiklik anında kaydedilir ve diyetisyen paneline yansır.`, {ton: 'ikincil'})}${DD.satirlar([DD.toggle({ad: 'paylas-genel', ikon: 'user-doctor', etiket: 'Diyetisyenimle paylaş', alt: acik ? `${acik} veri türü açık` : 'Bütün erişimler kapalı', secili: acik > 0}), ...TUR().map(t => DD.toggle({ad: `paylas-${t.id}`, ikon: t.ikon, etiket: t.etiket, alt: p[t.id] && s[t.id] ? `Açık · ${s[t.id]}` : t.alt, secili: p[t.id]}))])}${acik < TUR().length ? DD.btn({metin: 'Süreli izin ver', ikon: 'calendar-plus', tur: 'secondary', tam: true, veri: {eylem: 'yeni-izin'}}) : ''}${acik ? DD.btn({metin: 'Bütün izinleri geri çek', ikon: 'ban', tur: 'text', tam: true, veri: {eylem: 'hepsini-cek'}}) : ''}</div>`;
   };
   const gecmisBolum = ctx => {
     const sec = ctx.gecmis ||= ctx.sorgu.gecmis === 'erisim' ? 'erisim' : 'hareket', u = uzman();
     const l = sec === 'hareket'
       ? hareketler().map(h => ({ikon: h.ikon || 'shield-halved', baslik: h.metin, alt: DD.tarihUzun(h.tarih)}))
       : u ? DDV.saglik.diyetisyenNotlari.map(n => ({avatar: {harf: u.harf, boyut: 40}, baslik: u.kisaAd || u.ad, alt: `${n.tarihMetin} · ölçüm ve tahlil kayıtların · görüntüleme`})) : [];
-    return `<div class="dd-yigin-12">${DD.segment({ad: 'gecmis', etiket: 'Geçmiş', secili: sec, ogeler: [{ad: 'İzin hareketlerin', deger: 'hareket'}, {ad: 'Erişim kaydı', deger: 'erisim'}]})}${l.length ? DD.yuzey(DD.satirlar(l)) : DD.veriYok(sec === 'hareket' ? 'Henüz **izin hareketin** yok.' : 'Henüz **erişim kaydı** yok.')}</div>`;
+    return `<div class="dd-yigin-12">${DD.segment({ad: 'gecmis', etiket: 'Geçmiş', secili: sec, ogeler: [{ad: 'İzin hareketlerin', deger: 'hareket'}, {ad: 'Erişim kaydı', deger: 'erisim'}]})}${l.length ? DD.satirlar(l) : DD.veriYok(sec === 'hareket' ? 'Henüz **izin hareketin** yok.' : 'Henüz **erişim kaydı** yok.')}</div>`;
   };
-  const haklarBolum = () => `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar([
+  const haklarBolum = () => `<div class="dd-yigin-12">${DD.satirlar([
     {ikon: 'download', baslik: 'Verilerimi indir', alt: 'Erişim kaydın dahil tek arşivde', git: '#/ayarlar/veri'},
-    {ikon: 'trash', baslik: 'Verilerimin silinmesini iste', alt: 'Kimliğin doğrulandıktan sonra işlenir', git: '#/ayarlar/hesap'},
+    {ikon: 'trash', baslik: 'Verilerimin silinmesini iste', alt: 'Kimliğin doğrulandıktan sonra işlenir', git: '#/ayarlar/sil'},
     {ikon: 'arrows-rotate', baslik: 'Bağlı uygulamalar', alt: 'Apple Health, Dada Gastro ve Dada Fit', git: '#/ayarlar/bagli'}
-  ]))}${DD.gizlilikBant(DDV.saglik.bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
+  ])}${DD.gizlilikBant(DDV.saglik.bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
 
-  const govde = ctx => DD.bolumler([
+  const govde = ctx => DD.gruplar([
     {baslik: 'Açık rıza', html: rizaBolum()},
     istekler().length && {baslik: 'Bekleyen istekler', html: istekBolum()},
     {baslik: 'Diyetisyenle paylaşım', html: paylasimBolum()},
-    {id: 'gecmis', baslik: 'Geçmiş', html: gecmisBolum(ctx)},
+    {baslik: 'Geçmiş', html: `<div id="gecmis">${gecmisBolum(ctx)}</div>`},
     {baslik: 'Hakların', html: haklarBolum()}
   ]);
 

@@ -117,6 +117,8 @@
 
   // Misafir ve üye (MBL-FLW-v2.1): oturum yoksa misafirdir. Misafirin yaptıkları cihazda 'yeni-*' anahtarlarında durur, üye olunca aynen kalır.
   try { if (/[?&]uye=1\b/.test(location.hash)) DD.durum.yaz('oturum', {yol: 'giris'}); } catch { /* yok */ }
+  // Uygulama sürümü (Ayarlar > Uygulama > Sürüm). Mağaza sürümü belirlenince buradan değişir.
+  DD.SURUM = '1.0.0';
   DD.uye = () => !!DD.durum.oku('oturum');
   DD.yeniHesap = () => !DD.uye() || !!DD.durum.oku('oturum')?.misafirden;
   // Profil bilgisi olmadan kalori hedefi gösterilmez (K8): hedef kısa hesaplamadan ya da onboarding planından gelir.

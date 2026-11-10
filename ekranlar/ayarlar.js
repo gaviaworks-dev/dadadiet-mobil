@@ -1,14 +1,17 @@
-/* Hesap ayarları (#/ayarlar, #/ayarlar/:bolum): web hesabim/ayarlar (8 sekme) + uye-gastro-ayarlar.js eşi. Hub bölüm satırları güncel özet taşır; her sekme alt ekrandır.
- * Bölümler: profil, bildirim, guvenlik, dil, bagli, veri, hesap. #/ayarlar/ogun → #/ogun-saatleri (Öğün Saatlerim başka ekran).
+/* Hesap ayarları (#/ayarlar, #/ayarlar/:bolum): web hesabim/ayarlar (8 sekme) + uye-gastro-ayarlar.js eşi, Gastro ortak/sayfalar/ayarlar.js kalıbında:
+ * hub = parçalı profil kartı + başlıklı kartsız gruplar (DD.gruplar), Çıkış ayrı Oturum grubunda. Her bölüm alt ekrandır ve yine DD.gruplar ile kurulur.
+ * Bölümler: profil, gizlilik, bildirim, guvenlik, dil, bagli, veri, dondur, sil. #/ayarlar/hesap → #/ayarlar/dondur, #/ayarlar/ogun → #/ogun-saatleri.
  * Durum: hesap-ayar {profil, bildirim, guvenlik, dil, bagli, veri, hesap} (varsayılan DDV.hesap.varsayilan; şema veri/hesap.js). Ortak anahtarlar:
  *   bildirim-ayar {tur:boolean} uygulama bildirimi kanalı (profil.js BILDIRIM ile aynı), su-sessiz {bas, bit} sessiz saatler (DD.suHatirlatma, DD.ogun.sessiz ile ortak),
  *   bagli-uygulamalar {gastro, fit} (kanon/dd-menu.js bagliSheet ile aynı), veri-izinleri {riza, esitle} (esitle = Apple Health / Health Connect).
  * Yeni hesapta (DD.yeniHesap) kişisel alanlar boş, oturum yalnız bu cihaz, kayıt sayıları sıfır. ?hal=hata bağlantı hatası. */
 (() => {
   const H = () => DDV.hesap;
-  const BOLUM = {profil: 'Profil', bildirim: 'Bildirim tercihleri', guvenlik: 'Güvenlik', dil: 'Dil ve bölge', bagli: 'Bağlı uygulamalar', veri: 'Veri ve hesap yönetimi', hesap: 'Hesabı dondur veya sil'};
+  const BOLUM = {profil: 'Profil bilgilerim', gizlilik: 'Profil görünürlüğü', bildirim: 'Bildirim tercihleri', guvenlik: 'Güvenlik', dil: 'Dil ve bölge', bagli: 'Bağlı uygulamalar', veri: 'Verilerim', dondur: 'Hesabı dondur', sil: 'Hesabımı sil'};
+  // Eski bölüm adları yeni bölüme yönlenir.
+  const YONLEN = {hesap: '#/ayarlar/dondur', ogun: '#/ogun-saatleri'};
   // Yeni hesapta örnek kişisel veri görünmez.
-  const BOS = {profil: {kullaniciAdi: '', telefon: '', dogum: '', hakkimda: '', guncelleme: null}, guvenlik: {sso: {apple: false, google: false}, sifreTarih: null, ikiAdim: false, biyometrik: false}, bagli: {sonEsitleme: {}}};
+  const BOS = {profil: {kullaniciAdi: '', telefon: '', dogum: '', hakkimda: '', guncelleme: null}, guvenlik: {sso: {apple: false, google: false}, sifreTarih: null, ikiAdim: false, biyometrik: false}, bagli: {sonEsitleme: {}}, besin: {sevmedik: []}};
   const tum = () => DD.durum.oku('hesap-ayar', {});
   const ayar = b => ({...H().varsayilan[b], ...(DD.yeniHesap() ? BOS[b] : {}), ...(tum()[b] || {})});
   const ayarYaz = (b, ek) => DD.durum.yaz('hesap-ayar', {...tum(), [b]: {...(tum()[b] || {}), ...ek}});
@@ -29,38 +32,79 @@
   const izinler = () => DD.durum.oku('veri-izinleri', {riza: DD.durum.oku('onboarding')?.kvkk !== 'sonra'});
   const oturumlar = () => (DD.yeniHesap() ? H().oturumlar.filter(o => o.bu) : H().oturumlar.filter(o => !ayar('guvenlik').kapatilan.includes(o.id)));
   const sheetSec = (baslik, secenekler, secili, sec) => DD.siralaSheet({baslik, secenekler, secili, sec});
+  // Gastro secimBolum: başlıklı radyo grubu.
+  const radyolar = (ad, baslik, secenekler, secili) => `<div class="dd-yigin-8" role="radiogroup" aria-label="${DD.esc(baslik)}">${secenekler.map(([deger, etiket]) => DD.radio({ad, deger, etiket, secili: deger === secili})).join('')}</div>`;
+  // Akordiyon açık paneli yeniden çizimde korunur (ctx.akAcik).
+  const akIzle = (kok, ctx) => { const h = ev => { const b = ev.target.closest?.('.dd-bolum-bas'); if (!b) return; setTimeout(() => { const l = [...kok.querySelectorAll('.dd-bolum-bas')]; ctx.akAcik = l.findIndex(x => x.getAttribute('aria-expanded') === 'true'); }); }; kok.addEventListener('click', h); return () => kok.removeEventListener('click', h); };
+  const SURUM = () => DD.SURUM;
 
-  // ---------- Hub ----------
+  // ---------- Hub (Gastro ayarlar.js 58-70) ----------
   const hub = () => {
-    const p = kisi(), g = ayar('guvenlik'), d = ayar('dil'), b = bagliDurum(), oa = DD.ogun.ayar(), k = K(), dz = ayar('hesap').dondurma, H_ = H();
+    const p = kisi(), g = ayar('guvenlik'), d = ayar('dil'), b = bagliDurum(), oa = DD.ogun.ayar(), k = K(), dz = ayar('hesap').dondurma, H_ = H(), v = ayar('veri'), bs = ayar('besin');
     const acik = H_.bildirimTurleri.filter(t => t.id !== 'su' && !t.sabit && push()[t.id]).length;
     const bagliAd = [izinler().esitle && 'Apple Health', b.gastro && 'Dada Gastro', b.fit && 'Dada Fit'].filter(Boolean);
-    const ad = `${p.ad} ${p.soyad}`.trim();
-    return DD.bolumler([
-      `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar([{avatar: {ad: ad || 'D', gorsel: p.foto, boyut: 56}, baslik: ad || 'Adını ekle', alt: p.eposta || 'Profil bilgilerini tamamla', git: '#/ayarlar/profil'}]))}${DD.p('Profilin, bildirimlerin, güvenliğin ve **bağlı uygulamaların** burada. Paketin Paketlerim’de, ödemelerin Ödemelerim’de.', {ton: 'ikincil', meta: true})}</div>`,
-      {baslik: 'Hesabım', html: DD.yuzey(DD.satirlar([
-        {ikon: 'user', baslik: 'Profil', alt: p.kullaniciAdi ? `@${p.kullaniciAdi} · görünürlük ${p.gorunurluk.acik ? 'herkese açık' : 'gizli'}` : 'Ad, kullanıcı adı ve fotoğraf', git: '#/ayarlar/profil'},
-        {ikon: 'sliders', baslik: 'Tercihlerim', alt: k.hedefAd ? `${k.hedefAd} · ${DD.sayi(k.hedefKcal)} kcal` : 'Hedef ve beslenme tercihlerin', git: '#/tercihler'},
-        {ikon: 'lock', baslik: 'Güvenlik', alt: `İki adımlı doğrulama ${g.ikiAdim ? 'açık' : 'kapalı'} · ${oturumlar().length} oturum`, git: '#/ayarlar/guvenlik'},
-        {ikon: 'globe', baslik: 'Dil ve bölge', alt: `${secAd(H_.dil.dil, d.dil)} · ${d.agirlik} · ${d.enerji === 'kj' ? 'kJ' : 'kcal'}`, git: '#/ayarlar/dil'}
-      ]))},
-      {baslik: 'Bildirimler', html: DD.yuzey(DD.satirlar([
+    const ad = `${p.ad} ${p.soyad}`.trim(), uyelik = DD.yeniHesap() ? 'Ücretsiz' : k.uyelik;
+    const plan = !!k.hedefAd, tercih = id => (plan ? `#/onboarding/${id}?duzenle=1` : '#/tercihler');
+    const kacinilan = bs.alerjen.length + bs.sevmedik.length;
+    return DD.gruplar([
+      {baslik: 'Hesap', satirlar: [
+        {ikon: 'user', baslik: 'Profil bilgilerim', alt: p.kullaniciAdi ? `@${p.kullaniciAdi} · ${p.eposta}` : 'Ad, kullanıcı adı, e-posta, telefon', git: '#/ayarlar/profil'},
+        {ikon: 'eye', baslik: 'Profil görünürlüğü', alt: p.gorunurluk.acik ? 'Profilin herkese açık' : 'Profilini yalnız diyetisyenin görür', git: '#/ayarlar/gizlilik'},
         {ikon: 'bell', baslik: 'Bildirim tercihleri', alt: `${acik} tür açık · sessiz ${sessizMetin()}`, git: '#/ayarlar/bildirim'},
-        {ikon: 'clock', baslik: 'Öğün saatlerim', alt: `Hatırlatıcı ${oa.acik ? 'açık' : 'kapalı'} · ${DD.ogun.hesap({duz: true}).ogunler.filter(o => o.durum !== 'kapali').length} öğün`, git: '#/ogun-saatleri'}
-      ]))},
-      {baslik: 'Veri ve bağlantılar', html: DD.yuzey(DD.satirlar([
-        {ikon: 'arrows-rotate', baslik: 'Bağlı uygulamalar', alt: bagliAd.length ? bagliAd.join(', ') : 'Bağlı uygulama yok', git: '#/ayarlar/bagli'},
-        {ikon: 'shield-halved', baslik: 'Veri izinlerim', alt: izinler().riza ? 'Açık rıza verildi' : 'Açık rıza verilmedi', git: '#/veri-izinleri'},
-        {ikon: 'database', baslik: 'Veri ve hesap yönetimi', alt: 'İndir, saklama süresi, önbellek', git: '#/ayarlar/veri'}
-      ]))},
-      {baslik: 'Üyelik', html: DD.yuzey(DD.satirlar([
+        {ikon: 'clock', baslik: 'Öğün saatlerim', alt: `Hatırlatıcı ${oa.acik ? 'açık' : 'kapalı'} · ${DD.ogun.hesap({duz: true}).ogunler.filter(o => o.durum !== 'kapali').length} öğün`, git: '#/ogun-saatleri'},
+        {ikon: 'lock', baslik: 'Güvenlik', alt: `İki adımlı doğrulama ${g.ikiAdim ? 'açık' : 'kapalı'} · ${oturumlar().length} oturum`, git: '#/ayarlar/guvenlik'}
+      ]},
+      {baslik: 'Beslenme tercihlerim', satirlar: [
+        {ikon: 'hedef', baslik: 'Hedefim', alt: plan ? `${k.hedefAd} · ${DD.sayi(k.hedefKcal)} kcal` : 'Seçilmedi', git: plan ? tercih('hedef') : '#/onboarding/hedef'},
+        {ikon: 'utensils', baslik: 'Beslenme tarzı', alt: (k.beslenmeTarziAd || []).join(', ') || 'Seçilmedi', git: tercih('tarz')},
+        {ikon: 'hourglass-half', baslik: 'Oruç ve ilk öğün', alt: !k.orucProtokolu ? 'Seçilmedi' : k.orucProtokolu === 'yok' ? 'Oruç yok' : `${k.orucProtokolu} · ilk öğün ${noktali(k.ilkOgunSaati)}`, git: tercih('ritim')},
+        {ikon: 'thumbs-down', baslik: 'Alerjen ve sevmediklerim', alt: kacinilan ? `${kacinilan} seçim` : 'Seçilmedi', git: '#/tercihler'}
+      ]},
+      {baslik: 'Dil ve bölge', satirlar: [
+        {ikon: 'globe', baslik: 'Dil, bölge ve birimler', alt: `${secAd(H_.dil.dil, d.dil)} · ${d.agirlik} · ${d.enerji === 'kj' ? 'kJ' : 'kcal'}`, git: '#/ayarlar/dil'}
+      ]},
+      {baslik: 'Üyelik', satirlar: [
         {ikon: 'box-open', baslik: 'Paketlerim', alt: DD.yeniHesap() ? 'Aktif paketin yok' : `${k.uyelik} · ${DDV.benimDiyetisyenim.paket.kalanSeans} görüşme hakkı`, git: '#/paketlerim'},
-        {ikon: 'credit-card', baslik: 'Ödemelerim', alt: 'Tahsilatlar ve kayıtlı kartın', git: '#/odemelerim'},
-        {ikon: 'user-slash', baslik: 'Hesabı dondur veya sil', alt: dz ? `${secAd(H_.dondurmaSure, dz.sure)} donduruldu` : 'Ara ver ya da kalıcı olarak kapat', git: '#/ayarlar/hesap'},
-        {ikon: 'right-from-bracket', baslik: 'Çıkış yap', veri: {eylem: 'cikis'}, ok: false, yikici: true}
-      ]))}
-    ]);
+        {ikon: 'credit-card', baslik: 'Ödemelerim', alt: 'Tahsilatlar ve kayıtlı kartın', git: '#/odemelerim'}
+      ]},
+      {baslik: 'Uygulama', satirlar: [
+        {ikon: 'arrows-rotate', baslik: 'Bağlı uygulamalar', alt: bagliAd.length ? bagliAd.join(', ') : 'Bağlı uygulama yok', git: '#/ayarlar/bagli'},
+        {ikon: 'broom', baslik: 'Önbelleği temizle', alt: `Görseller ve geçici dosyalar · ${DD.sayi(v.onbellekMb)} MB`, veri: {eylem: 'onbellek'}, ok: false},
+        {ikon: 'circle-info', baslik: 'Sürüm', deger: SURUM()}
+      ]},
+      {baslik: 'Veri ve hesap yönetimi', satirlar: [
+        {ikon: 'database', baslik: 'Verilerim', alt: 'Gör, indir, sil', git: '#/ayarlar/veri'},
+        {ikon: 'shield-halved', baslik: 'Veri izinlerim', alt: izinler().riza ? 'Açık rıza verildi' : 'Açık rıza verilmedi', git: '#/veri-izinleri'},
+        {ikon: 'snowflake', baslik: 'Hesabı dondur', alt: dz ? `${secAd(H_.dondurmaSure, dz.sure)} donduruldu` : 'Ara ver, verilerin kalsın', git: '#/ayarlar/dondur'},
+        {ikon: 'trash', baslik: 'Hesabımı sil', git: '#/ayarlar/sil', yikici: true}
+      ]},
+      {baslik: 'Yardım ve yasal', satirlar: [
+        {ikon: 'headset', baslik: 'Çözüm merkezi', alt: 'Sık sorulanlar ve destek taleplerin', git: '#/cozum-merkezi'},
+        {ikon: 'comment-dots', baslik: 'Görüş bildir', veri: {eylem: 'gorus'}},
+        {ikon: 'scale-balanced', baslik: 'Yasal metinler', veri: {eylem: 'yasal'}}
+      ]},
+      {baslik: 'Oturum', satirlar: [{ikon: 'right-from-bracket', baslik: 'Çıkış yap', veri: {eylem: 'cikis'}, ok: false, yikici: true}]}
+    ], {bas: DD.parcali([{avatar: {ad: ad || 'D', gorsel: p.foto}, baslik: ad || 'Adını ekle', alt: `${uyelik} · Profil bilgilerim`, git: '#/ayarlar/profil'}], {aria: 'Profil'})});
   };
+  const gorusSheet = () => DD.gorusSheet();
+  // Yasal metinler: açık rıza metni Veri izinlerim'de okunur; diğer metinler menü ayağındaki gibi yakında.
+  const yasalSheet = () => DD.sheet({
+    baslik: 'Yasal metinler',
+    html: DD.satirlar([
+      {ikon: 'shield-halved', baslik: 'Açık rıza metni', alt: 'Sağlık verilerinin işlenmesi', git: '#/veri-izinleri', attrs: 'data-sheet-kapat'},
+      {ikon: 'file-lines', baslik: 'KVKK aydınlatma metni', veri: {eylem: 'yasal-yakinda'}},
+      {ikon: 'file-contract', baslik: 'Üyelik sözleşmesi', veri: {eylem: 'yasal-yakinda'}},
+      {ikon: 'cookie-bite', baslik: 'Çerez ve gizlilik politikası', veri: {eylem: 'yasal-yakinda'}}
+    ]),
+    sonra: d => DD.eylem(d, 'yasal-yakinda', () => DD.toast('Yakında', {ikon: 'bilgi'}))
+  });
+  const onbellek = () => DD.dialog({baslik: 'Önbellek temizlensin mi?', metin: 'Görseller yeniden indirilir; **kayıtların ve ayarların** silinmez.', eylem: 'Temizle', iptal: 'Vazgeç'}).then(ok => { if (!ok) return; ayarYaz('veri', {onbellekMb: 0}); DD.tazele(); DD.toast('Önbellek **temizlendi**', {tur: 'basari'}); });
+  const hubBagla = kok => [
+    DD.eylem(kok, 'cikis', () => DD.dialog({baslik: 'Çıkış yapılsın mı?', metin: 'Bu cihazdaki **kayıtların ve tercihlerin** silinir.', eylem: 'Çıkış yap', iptal: 'Vazgeç'}).then(ok => { if (ok) DD.cikis(); })),
+    DD.eylem(kok, 'onbellek', onbellek),
+    DD.eylem(kok, 'gorus', gorusSheet),
+    DD.eylem(kok, 'yasal', yasalSheet)
+  ];
 
   // ---------- Profil ----------
   const profilForm = (t, h = {}) => `<div class="dd-yigin">
@@ -72,19 +116,28 @@
     ${DD.input({ad: 'hakkimda', etiket: 'Hakkımda', cokSatir: true, deger: t.hakkimda, yer: 'Kendinden kısaca bahset', hata: h.hakkimda, yardim: `${(t.hakkimda || '').length} / 160`})}
   </div>`;
   const GECMIS = [['ben', 'Yalnız ben', 'lock'], ['diyetisyen', 'Diyetisyenim', 'user-doctor'], ['grup', 'Destek grubum', 'users']];
-  const gorunurluk = p => { const g = p.gorunurluk; return `<div class="dd-yigin-12">${DD.yuzey(`<div class="dd-satirlar">${[
-    DD.toggle({ad: 'gor-acik', ikon: 'eye', etiket: 'Profilim herkese açık', alt: 'Kapalıyken yalnız diyetisyenin görür', secili: g.acik}),
-    DD.satir({ikon: 'clock-rotate-left', baslik: 'Takip geçmişimi görenler', alt: 'Öğün, program ve ölçüm', deger: secAd(GECMIS, g.gecmis), veri: {eylem: 'gecmis'}}),
-    DD.toggle({ad: 'gor-rozet', ikon: 'medal', etiket: 'Rozetlerim profilimde görünsün', alt: 'Rozetlerim ekranı etkilenmez', secili: g.rozet}),
-    DD.toggle({ad: 'gor-liderlik', ikon: 'ranking-star', etiket: 'Liderlikte adım görünsün', alt: 'Kapalıyken anonim görünürsün', secili: g.liderlik}),
-    DD.toggle({ad: 'gor-arama', ikon: 'magnifying-glass', etiket: 'Arama motorlarında görün', alt: g.acik ? 'Açık profilin dizinlenir' : 'Profil gizliyken kapalı', secili: g.acik && g.arama, pasif: !g.acik})
-  ].join('')}</div>`)}${DD.yuzey(DD.satirlar([{ikon: 'database', baslik: 'Verini indir ya da sil', alt: 'Veri ve hesap yönetimi', git: '#/ayarlar/veri'}]))}</div>`; };
   const profil = ctx => {
     const p = kisi(), k = K(), t = ctx.taslak || p, ad = `${p.ad} ${p.soyad}`.trim();
-    return DD.bolumler([
-      {baslik: 'Profil bilgilerim', html: `<div class="dd-yigin">${DD.yuzey(DD.satirlar([DD.satir({avatar: {ad: ad || 'D', gorsel: p.foto, boyut: 56}, baslik: 'Profil fotoğrafı', alt: 'JPG, PNG ya da WebP', sag: DD.btn({metin: 'Değiştir', tur: 'tonal', boyut: 'sm', veri: {eylem: 'foto'}}), duz: true})]))}${DD.p('Adın ve fotoğrafın **diyetisyenine**, destek gruplarında ve profilinde görünür.', {ton: 'ikincil', meta: true})}<div data-yuva="profil-form">${profilForm(t, ctx.hatalar)}</div>${p.guncelleme ? DD.veriYok(`Son güncelleme: **${once(p.guncelleme)}**`) : ''}</div>`},
-      {baslik: 'Beslenme hedefim', html: DD.yuzey(DD.satirlar([{ikon: 'hedef', baslik: k.hedefAd || 'Henüz seçilmedi', alt: k.hedefAd ? 'Tercihlerim ile aynı hedeftir' : 'Hedefini birkaç adımda seç', git: k.hedefAd ? '#/onboarding/hedef?duzenle=1' : '#/onboarding/hedef'}]))},
-      {baslik: 'Profil görünürlüğü', html: gorunurluk(p)}
+    return DD.gruplar([
+      {baslik: 'Profil fotoğrafı', html: `<div class="dd-yigin-12">${DD.satirlar([DD.satir({avatar: {ad: ad || 'D', gorsel: p.foto, boyut: 56}, baslik: ad || 'Adını ekle', alt: 'JPG, PNG ya da WebP', sag: DD.btn({metin: 'Değiştir', tur: 'tonal', boyut: 'sm', veri: {eylem: 'foto'}}), duz: true})])}${DD.p('Adın ve fotoğrafın **diyetisyenine**, destek gruplarında ve profilinde görünür.', {ton: 'ikincil', meta: true})}</div>`},
+      {baslik: 'Kişisel bilgiler', html: `<div class="dd-yigin"><div data-yuva="profil-form">${profilForm(t, ctx.hatalar)}</div>${p.guncelleme ? DD.veriYok(`Son güncelleme: **${once(p.guncelleme)}**`) : ''}</div>`},
+      {baslik: 'Beslenme hedefim', satirlar: [{ikon: 'hedef', baslik: k.hedefAd || 'Henüz seçilmedi', alt: k.hedefAd ? 'Tercihlerim ile aynı hedeftir' : 'Hedefini birkaç adımda seç', git: k.hedefAd ? '#/onboarding/hedef?duzenle=1' : '#/onboarding/hedef'}]},
+      {baslik: 'Profil görünürlüğü', satirlar: [{ikon: 'eye', baslik: p.gorunurluk.acik ? 'Profilin herkese açık' : 'Profilini yalnız diyetisyenin görür', alt: 'Rozet, liderlik ve arama görünürlüğü', git: '#/ayarlar/gizlilik'}]}
+    ]);
+  };
+  // ---------- Profil görünürlüğü (Gastro gizlilik bölümü) ----------
+  const gizlilik = () => {
+    const g = kisi().gorunurluk;
+    return DD.gruplar([
+      {html: DD.p('Profilinin ve takip geçmişinin **kimlere göründüğünü** buradan seç. Verinin indirilmesi ve silinmesi Verilerim’de yönetilir.', {ton: 'ikincil'})},
+      {satirlar: [DD.toggle({ad: 'gor-acik', ikon: 'eye', etiket: 'Profilim herkese açık', alt: 'Kapalıyken yalnız diyetisyenin görür', secili: g.acik})]},
+      {baslik: 'Takip geçmişimi kimler görebilir?', html: `<div class="dd-yigin-12"><small class="dd-yardim">Öğünlerin, programların ve ölçümlerin.</small>${radyolar('gor-gecmis', 'Takip geçmişimi kimler görebilir?', GECMIS, g.gecmis)}</div>`},
+      {baslik: 'Topluluk', satirlar: [
+        DD.toggle({ad: 'gor-rozet', ikon: 'medal', etiket: 'Rozetlerim profilimde görünsün', alt: 'Rozetlerim ekranı etkilenmez', secili: g.rozet}),
+        DD.toggle({ad: 'gor-liderlik', ikon: 'ranking-star', etiket: 'Liderlikte adım görünsün', alt: 'Kapalıyken anonim görünürsün', secili: g.liderlik}),
+        DD.toggle({ad: 'gor-arama', ikon: 'magnifying-glass', etiket: 'Arama motorlarında görün', alt: g.acik ? 'Açık profilin dizinlenir' : 'Profil gizliyken kapalı', secili: g.acik && g.arama, pasif: !g.acik})
+      ]},
+      {satirlar: [{ikon: 'download', baslik: 'Verilerimi indir', alt: 'Gör, indir, sil', git: '#/ayarlar/veri'}]}
     ]);
   };
   const profilKaydet = (kok, ctx) => {
@@ -139,15 +192,19 @@
   };
   const profilBagla = (kok, ctx) => {
     bagHakkimda(kok);
+    return [
+      DD.eylem(kok, 'foto', fotoSheet),
+      DD.eylem(kok, 'profil-kaydet', () => profilKaydet(kok, ctx))
+    ];
+  };
+  const gizlilikBagla = kok => {
     const gor = (alan, etiket) => DD.on(kok, `gor-${alan}`, v => {
       const g = {...kisi().gorunurluk, [alan]: v}; ayarYaz('profil', {gorunurluk: g});
       if (alan === 'acik') DD.tazele();
       DD.toast(`**${etiket}** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: v ? 'eye' : 'eye-slash'});
     });
     return [
-      DD.eylem(kok, 'foto', fotoSheet),
-      DD.eylem(kok, 'profil-kaydet', () => profilKaydet(kok, ctx)),
-      DD.eylem(kok, 'gecmis', () => sheetSec('Takip geçmişimi görenler', GECMIS, kisi().gorunurluk.gecmis, v => { ayarYaz('profil', {gorunurluk: {...kisi().gorunurluk, gecmis: v}}); DD.tazele(); DD.toast(`Takip geçmişini artık **${secAd(GECMIS, v).toLocaleLowerCase('tr')}** görür`, {ikon: 'clock-rotate-left'}); })),
+      DD.on(kok, 'gor-gecmis', v => { ayarYaz('profil', {gorunurluk: {...kisi().gorunurluk, gecmis: v}}); DD.toast(`Takip geçmişini artık **${secAd(GECMIS, v).toLocaleLowerCase('tr')}** görür`, {ikon: 'clock-rotate-left'}); }),
       gor('acik', 'Herkese açık profil'), gor('rozet', 'Rozet görünürlüğü'), gor('liderlik', 'Liderlik tablosu'), gor('arama', 'Arama motoru görünürlüğü')
     ];
   };
@@ -155,22 +212,22 @@
   // ---------- Bildirim ----------
   const turListe = kanal => {
     const d = kanal === 'eposta' ? eposta() : push();
-    return DD.yuzey(`<div class="dd-satirlar">${H().bildirimTurleri.filter(t => t.id !== 'su').map(t => DD.toggle({ad: `bt-${t.id}`, ikon: t.ikon, etiket: t.ad, alt: t.alt, secili: t.sabit || d[t.id], pasif: t.sabit})).join('')}</div>`);
+    return DD.satirlar(H().bildirimTurleri.filter(t => t.id !== 'su').map(t => DD.toggle({ad: `bt-${t.id}`, ikon: t.ikon, etiket: t.ad, alt: t.alt, secili: t.sabit || d[t.id], pasif: t.sabit})));
   };
   const bildirim = ctx => {
     const kanal = ctx.kanal ||= 'bildirim', oa = DD.ogun.ayar(), h = DD.ogun.hesap({duz: true}), izinYok = DD.ogun.izin() !== 'verildi';
-    return DD.bolumler([
+    return DD.gruplar([
       {baslik: 'Bildirim türleri', html: `<div class="dd-yigin">${DD.p('Hangi bildirimi **hangi kanaldan** alacağını seç. Diyetisyen planında öğün saati varsa hatırlatmalar plana göre gelir.', {ton: 'ikincil'})}${DD.segment({ad: 'kanal', etiket: 'Kanal', secili: kanal, ogeler: [{ad: 'Bildirim', deger: 'bildirim', ikon: 'bell'}, {ad: 'E-posta', deger: 'eposta', ikon: 'envelope'}]})}<div class="dd-yigin-12" data-yuva="turler">${kanal === 'bildirim' && izinYok ? DD.bant({ton: 'uyari', baslik: 'Telefon bildirimleri kapalı', metin: 'Bildirimlerin gelmesi için **sistem iznini** açman gerekir.', eylem: {metin: 'İzni aç', git: '#/bildirim-izni'}}) : ''}${turListe(kanal)}</div></div>`},
-      {baslik: 'Öğün hatırlatması', html: DD.yuzey(DD.satirlar([{ikon: 'utensils', baslik: `Öğün hatırlatıcısı ${oa.acik ? 'açık' : 'kapalı'}`, alt: DD.ogun.ozet(h) || 'Öğün saatlerini düzenle', git: '#/ogun-saatleri'}]))},
-      {baslik: 'Su hatırlatması', html: DD.kart({html: DD.suHatirlatma()})},
-      {baslik: 'Zamanlama', html: `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar([
+      {baslik: 'Öğün hatırlatması', satirlar: [{ikon: 'utensils', baslik: `Öğün hatırlatıcısı ${oa.acik ? 'açık' : 'kapalı'}`, alt: DD.ogun.ozet(h) || 'Öğün saatlerini düzenle', git: '#/ogun-saatleri'}]},
+      {baslik: 'Su hatırlatması', html: DD.suHatirlatma()},
+      {baslik: 'Zamanlama', html: `<div class="dd-yigin-12">${DD.satirlar([
         {ikon: 'clipboard-check', baslik: 'Günlük takip saati', alt: 'Öğün girmediğin günlerde', deger: noktali(ayar('bildirim').takipSaat), veri: {eylem: 'takip-saat'}},
         {id: 'sessiz-satir', ikon: 'moon', baslik: 'Sessiz saatler', alt: 'Su ve öğün hatırlatmaları dahil', deger: sessizMetin(), veri: {eylem: 'sessiz'}}
-      ]))}${DD.veriYok('Sessiz saatlerde **uygulama bildirimi** gelmez; e-posta etkilenmez.')}</div>`},
-      {baslik: 'Bildirimlerin', html: DD.yuzey(DD.satirlar([
+      ])}${DD.veriYok('Sessiz saatlerde **uygulama bildirimi** gelmez; e-posta etkilenmez.')}</div>`},
+      {baslik: 'Bildirimlerin', satirlar: [
         {ikon: 'inbox', baslik: 'Gelen bildirimler', alt: DD.bildirimSayi() ? `${DD.bildirimSayi()} okunmamış` : 'Hepsi okundu', git: '#/bildirimler'},
         {ikon: 'mobile-screen', baslik: 'Bildirim önizlemesi', alt: 'Kilit ekranında nasıl göründüğü', git: '#/bildirim-onizleme'}
-      ]))}
+      ]}
     ]);
   };
   const bildirimBagla = (kok, ctx) => {
@@ -200,13 +257,23 @@
   // Marka ikonu fa-brands ister (DD.btn marka gibi); satır, kanon satır ikonu ve anahtarla kurulur.
   const SSO = [['apple', 'Apple'], ['google', 'Google']];
   const ssoSatir = (k, ad, on) => DD.satir({sol: `<span class="dd-satir-ikon"><i class="icon fa-brands fa-${k}" aria-hidden="true"></i></span>`, baslik: `${ad} ile giriş`, alt: on ? 'Bağlı · tek dokunuşla giriş' : 'Bağlı değil', sag: DD.anahtar({ad: `sso-${k}`, etiket: `${ad} ile giriş`, secili: on}), duz: true});
-  const guvenlik = () => {
+  const guvenlik = ctx => {
     const g = ayar('guvenlik'), p = kisi(), o = oturumlar(), kodlar = g.kodlar || H().kurtarmaKodlari;
-    return DD.bolumler([
-      {baslik: 'Şifre ve giriş', html: DD.yuzey(`<div class="dd-satirlar">${DD.satir({ikon: 'key', baslik: 'Şifreni değiştir', alt: `Son değişiklik: ${once(g.sifreTarih)}`, veri: {eylem: 'sifre'}})}${DD.toggle({ad: 'biyometrik', ikon: 'fingerprint', etiket: 'Face ID ile giriş', alt: 'Açarken yüzünle doğrula', secili: g.biyometrik})}</div>`)},
-      {baslik: 'İki adımlı doğrulama', html: `<div class="dd-yigin-12">${DD.yuzey(`<div class="dd-satirlar">${DD.toggle({ad: 'iki-adim', ikon: 'shield-halved', etiket: 'İki adımlı doğrulama', alt: g.ikiAdim ? `Açık · ${YONTEM[g.yontem]}` : 'Kapalı · yalnız şifreyle giriş', secili: g.ikiAdim})}${g.ikiAdim ? [{ikon: 'list-ol', baslik: 'Kurtarma kodların', alt: `${kodlar.length} koddan ${g.kurtarmaKalan} tanesi kullanılmadı`, veri: {eylem: 'kodlar'}}, {ikon: 'mobile-screen', baslik: 'Doğrulama yöntemi', deger: YONTEM[g.yontem], veri: {eylem: 'kurulum'}}].map(DD.satir).join('') : ''}</div>`)}${DD.veriYok('Yeni cihazdan giriş ve şifre değişikliği her zaman **e-postayla** bildirilir.')}</div>`},
-      {baslik: 'Giriş yöntemleri', html: DD.yuzey(`<div class="dd-satirlar">${DD.satir({ikon: 'envelope', baslik: 'E-posta', alt: p.eposta || 'E-posta eklenmedi', sag: DD.durumRozet({metin: 'Birincil', ton: 'basari', ikon: 'onay'}), duz: true})}${SSO.map(([k, ad]) => ssoSatir(k, ad, g.sso[k])).join('')}</div>`)},
-      {baslik: 'Açık oturumlarım', html: `<div class="dd-yigin-12">${DD.p('Hesabına giriş yapılmış cihazlar. **Tanımadığın bir cihaz** varsa oturumu kapat ve şifreni değiştir.', {ton: 'ikincil'})}${DD.yuzey(DD.satirlar(o.map(x => DD.satir({ikon: x.ikon, baslik: x.ad, alt: `${x.yer} · ${x.zaman}`, sag: x.bu ? DD.durumRozet({metin: 'Bu cihaz', ton: 'basari'}) : DD.btn({metin: 'Kapat', tur: 'text', boyut: 'sm', veri: {eylem: 'oturum-kapat', id: x.id}}), duz: true}))))}${o.length > 1 ? DD.btn({metin: 'Diğer oturumları kapat', ikon: 'right-from-bracket', tur: 'secondary', tam: true, veri: {eylem: 'oturum-hepsi'}}) : DD.veriYok('Bu cihaz dışında **açık oturum** yok.')}</div>`}
+    return DD.gruplar([
+      {html: DD.p('Şifreni değiştir, **iki adımlı doğrulamayı** yönet, açık oturumlarını gör.', {ton: 'ikincil'})},
+      {html: DD.akordiyon([
+        {ikon: 'key', baslik: 'Şifre ve giriş', alt: `Son değişiklik: ${once(g.sifreTarih)}`, icerik: DD.satirlar([
+          DD.satir({ikon: 'key', baslik: 'Şifreni değiştir', alt: 'Mevcut şifrenle doğrula', veri: {eylem: 'sifre'}}),
+          DD.toggle({ad: 'biyometrik', ikon: 'fingerprint', etiket: 'Face ID ile giriş', alt: 'Açarken yüzünle doğrula', secili: g.biyometrik})
+        ])},
+        {ikon: 'shield-halved', baslik: 'İki adımlı doğrulama', alt: 'Giriş yöntemleri ve kurtarma kodları', sag: DD.durumRozet({metin: g.ikiAdim ? 'Açık' : 'Kapalı', ton: g.ikiAdim ? 'basari' : 'notr', ikon: g.ikiAdim ? 'onay' : 'lock-open'}), icerik: `<div class="dd-yigin-12">${DD.satirlar([
+          DD.toggle({ad: 'iki-adim', ikon: 'shield-halved', etiket: 'İki adımlı doğrulama', alt: g.ikiAdim ? `Açık · ${YONTEM[g.yontem]}` : 'Kapalı · yalnız şifreyle giriş', secili: g.ikiAdim}),
+          ...(g.ikiAdim ? [{ikon: 'list-ol', baslik: 'Kurtarma kodların', alt: `${kodlar.length} koddan ${g.kurtarmaKalan} tanesi kullanılmadı`, veri: {eylem: 'kodlar'}}, {ikon: 'mobile-screen', baslik: 'Doğrulama yöntemi', deger: YONTEM[g.yontem], veri: {eylem: 'kurulum'}}].map(DD.satir) : []),
+          DD.satir({ikon: 'envelope', baslik: 'E-posta', alt: p.eposta || 'E-posta eklenmedi', sag: DD.durumRozet({metin: 'Birincil', ton: 'basari', ikon: 'onay'}), duz: true}),
+          ...SSO.map(([k, ad]) => ssoSatir(k, ad, g.sso[k]))
+        ])}${DD.veriYok('Yeni cihazdan giriş ve şifre değişikliği her zaman **e-postayla** bildirilir.')}</div>`},
+        {ikon: 'mobile-screen', baslik: 'Açık oturumlarım', alt: 'Hesabına giriş yapılmış cihazlar', sag: DD.sayacRozet(o.length), icerik: `<div class="dd-yigin-12">${DD.p('**Tanımadığın bir cihaz** varsa oturumu kapat ve şifreni değiştir.', {ton: 'ikincil'})}${DD.satirlar(o.map(x => DD.satir({ikon: x.ikon, baslik: x.ad, alt: `${x.yer} · ${x.zaman}`, sag: x.bu ? DD.durumRozet({metin: 'Bu cihaz', ton: 'basari'}) : DD.btn({metin: 'Kapat', tur: 'text', boyut: 'sm', veri: {eylem: 'oturum-kapat', id: x.id}}), duz: true})))}${o.length > 1 ? DD.btn({metin: 'Diğer oturumları kapat', ikon: 'right-from-bracket', tur: 'secondary', tam: true, veri: {eylem: 'oturum-hepsi'}}) : DD.veriYok('Bu cihaz dışında **açık oturum** yok.')}</div>`}
+      ], {ad: 'gv', acik: ctx.akAcik ?? 0})}
     ]);
   };
   const sifreSheet = () => {
@@ -266,7 +333,8 @@
       }
     });
   };
-  const guvenlikBagla = kok => [
+  const guvenlikBagla = (kok, ctx) => [
+    akIzle(kok, ctx),
     DD.eylem(kok, 'sifre', sifreSheet),
     DD.eylem(kok, 'kodlar', kodSheet),
     DD.eylem(kok, 'kurulum', kurulumSheet),
@@ -283,35 +351,37 @@
   // ---------- Dil ve bölge ----------
   const DIL = [['dil', 'Arayüz dili', 'language'], ['bolge', 'Bölge', 'location-dot'], ['saatDilimi', 'Saat dilimi', 'clock'], ['haftaBasi', 'Haftanın ilk günü', 'calendar-week'], ['saat', 'Saat biçimi', 'stopwatch']];
   const BIRIM = [['agirlik', 'Ağırlık', 'weight-scale'], ['boy', 'Boy', 'ruler-vertical'], ['enerji', 'Enerji', 'fire'], ['sivi', 'Sıvı', 'glass-water'], ['tarih', 'Tarih biçimi', 'calendar']];
-  const dilSatir = d => ([alan, baslik, ikon]) => { const ad = secAd(H().dil[alan], d[alan]); return {ikon, baslik, deger: ['agirlik', 'boy', 'enerji', 'sivi', 'saatDilimi'].includes(alan) ? kisaAd(ad) : alan === 'saat' ? ad.split(' · ')[0] : alan === 'tarih' ? ad.split(' ')[0] : ad, veri: {eylem: 'dil-sec', id: alan}}; };
-  const dil = () => { const d = ayar('dil'); return DD.bolumler([
-    {baslik: 'Dil ve bölge', html: `<div class="dd-yigin-12">${DD.p('Arayüz dili ve bölge; tarih ve **saat gösterimin** buna göre kurulur.', {ton: 'ikincil'})}${DD.yuzey(DD.satirlar(DIL.map(dilSatir(d))))}</div>`},
-    {baslik: 'Birimler', html: `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar(BIRIM.map(dilSatir(d))))}${DD.veriYok('Birim değişikliği geçmiş kayıtlarını silmez, **yalnız gösterimi** çevirir.')}</div>`}
+  // Gastro dil bölümü: akordiyon; arayüz dili radyo grubu, diğer alanlar seçim alanı (sheet).
+  const dilAlan = d => ([alan, baslik]) => DD.secAlan({ad: `dil-${alan}`, etiket: baslik, secenekler: H().dil[alan], deger: d[alan]});
+  const dil = ctx => { const d = ayar('dil'), ozet = l => l.map(([alan]) => { const ad = secAd(H().dil[alan], d[alan]); return ['agirlik', 'boy', 'enerji', 'sivi', 'saatDilimi'].includes(alan) ? kisaAd(ad) : alan === 'saat' ? ad.split(' · ')[0] : alan === 'tarih' ? ad.split(' ')[0] : ad; }).join(' · '); return DD.gruplar([
+    {html: DD.p('Arayüz dili, bölge ve ölçü birimleri; tarih ve **saat gösterimin** buna göre kurulur.', {ton: 'ikincil'})},
+    {html: DD.akordiyon([
+      {ikon: 'language', baslik: 'Arayüz dili', alt: secAd(H().dil.dil, d.dil), icerik: radyolar('dil-dil', 'Arayüz dili', H().dil.dil, d.dil)},
+      {ikon: 'clock', baslik: 'Bölge ve saat', alt: ozet(DIL.slice(1)), icerik: `<div class="dd-yigin">${DIL.slice(1).map(dilAlan(d)).join('')}</div>`},
+      {ikon: 'scale-balanced', baslik: 'Ölçü birimleri', alt: ozet(BIRIM.slice(0, 3)), icerik: `<div class="dd-yigin">${BIRIM.map(dilAlan(d)).join('')}${DD.veriYok('Birim değişikliği geçmiş kayıtlarını silmez, **yalnız gösterimi** çevirir.')}</div>`}
+    ], {ad: 'dl', acik: ctx.akAcik ?? 0})}
   ]); };
-  const dilBagla = kok => [DD.eylem(kok, 'dil-sec', el => {
-    const alan = el.dataset.id, [, baslik] = [...DIL, ...BIRIM].find(x => x[0] === alan);
-    sheetSec(baslik, H().dil[alan], ayar('dil')[alan], v => {
-      if (H().yakinda.includes(v)) { DD.toast(`**${secAd(H().dil[alan], v)}** yakında`, {ikon: 'bilgi'}); return; }
-      ayarYaz('dil', {[alan]: v}); DD.tazele(); DD.toast(`${baslik}: **${kisaAd(secAd(H().dil[alan], v))}**`, {tur: 'basari'});
-    });
-  })];
+  const dilBagla = (kok, ctx) => [akIzle(kok, ctx), ...[...DIL, ...BIRIM].map(([alan, baslik]) => DD.on(kok, `dil-${alan}`, v => {
+    if (H().yakinda.includes(v)) { DD.toast(`**${secAd(H().dil[alan], v)}** yakında`, {ikon: 'bilgi'}); DD.tazele(); return; }
+    ayarYaz('dil', {[alan]: v}); DD.tazele(); DD.toast(`${baslik}: **${kisaAd(secAd(H().dil[alan], v))}**`, {tur: 'basari'});
+  }))];
 
   // ---------- Bağlı uygulamalar (K6) ----------
   const saglikIzin = () => ({...Object.fromEntries(H().saglikIzinleri.map(x => [x.id, x.acik])), ...ayar('bagli').izin});
   const bagli = () => {
     const b = bagliDurum(), a = ayar('bagli'), son = a.sonEsitleme, es = !!izinler().esitle, n = Object.values(saglikIzin()).filter(Boolean).length;
     const durumAlt = (acik, s) => (acik ? `Bağlı · son eşitleme ${s || 'az önce'}` : 'Bağlı değil');
-    return DD.bolumler([
-      {baslik: 'Dada uygulamaları', html: `<div class="dd-yigin-12">${DD.p('**Profilin ve hedefin** bağladığın uygulamalarla eşitlenir. Sağlık verilerin eşitlenmez.')}${DD.yuzey(`<div class="dd-satirlar">${DD.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', alt: durumAlt(b.gastro, son.gastro), secili: !!b.gastro})}${DD.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', alt: durumAlt(b.fit, son.fit), secili: !!b.fit})}</div>`)}${DD.maddeler([['user', 'Eşitlenen: profilin', 'Ad, fotoğraf ve kullanıcı adı'], ['hedef', 'Eşitlenen: hedefin', 'Hedef, hedef kilo ve günlük kalori']])}</div>`},
-      {baslik: 'Sağlık uygulaması', html: `<div class="dd-yigin-12">${DD.yuzey(`<div class="dd-satirlar">${DD.toggle({ad: 'saglik-esitle', ikon: 'heart-pulse', etiket: 'Apple Health / Health Connect', alt: durumAlt(es, son.saglik), secili: es})}${es ? [{ikon: 'sliders', baslik: 'Verilen izinler', alt: `${n} izin açık · her biri ayrı kapatılabilir`, veri: {eylem: 'saglik-izin'}}, {ikon: 'arrows-rotate', baslik: 'Eşitleme sıklığı', deger: secAd(H().siklik, a.siklik), veri: {eylem: 'siklik'}}].map(DD.satir).join('') : ''}</div>`)}${es ? DD.btn({metin: 'Şimdi eşitle', ikon: 'arrows-rotate', tur: 'secondary', tam: true, veri: {eylem: 'esitle'}}) : DD.veriYok('Bağlanınca **hangi verinin** okunacağını tek tek seçersin.')}</div>`},
-      {baslik: 'Hiçbir koşulda gitmeyen', html: `<div class="dd-yigin-12">${DD.maddeler(H().esitlenmeyen)}${DD.gizlilikBant('Diyetisyeninin bu veriyi görmesi **ayrı bir karardır**; Veri izinlerim’den yönetilir.')}${DD.yuzey(DD.satirlar([{ikon: 'shield-halved', baslik: 'Veri izinlerim', alt: 'Diyetisyenle paylaşım ve açık rıza', git: '#/veri-izinleri'}]))}</div>`}
+    return DD.gruplar([
+      {baslik: 'Dada uygulamaları', html: `<div class="dd-yigin-12">${DD.p('**Profilin ve hedefin** bağladığın uygulamalarla eşitlenir. Sağlık verilerin eşitlenmez.', {ton: 'ikincil'})}${DD.satirlar([DD.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', alt: durumAlt(b.gastro, son.gastro), secili: !!b.gastro}), DD.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', alt: durumAlt(b.fit, son.fit), secili: !!b.fit})])}${DD.maddeler([['user', 'Eşitlenen: profilin', 'Ad, fotoğraf ve kullanıcı adı'], ['hedef', 'Eşitlenen: hedefin', 'Hedef, hedef kilo ve günlük kalori']])}</div>`},
+      {baslik: 'Sağlık uygulaması', html: `<div class="dd-yigin-12">${DD.satirlar([DD.toggle({ad: 'saglik-esitle', ikon: 'heart-pulse', etiket: 'Apple Health / Health Connect', alt: durumAlt(es, son.saglik), secili: es}), ...(es ? [{ikon: 'sliders', baslik: 'Verilen izinler', alt: `${n} izin açık · her biri ayrı kapatılabilir`, veri: {eylem: 'saglik-izin'}}, {ikon: 'arrows-rotate', baslik: 'Eşitleme sıklığı', deger: secAd(H().siklik, a.siklik), veri: {eylem: 'siklik'}}].map(DD.satir) : [])])}${es ? DD.btn({metin: 'Şimdi eşitle', ikon: 'arrows-rotate', tur: 'secondary', tam: true, veri: {eylem: 'esitle'}}) : DD.veriYok('Bağlanınca **hangi verinin** okunacağını tek tek seçersin.')}</div>`},
+      {baslik: 'Hiçbir koşulda gitmeyen', html: `<div class="dd-yigin-12">${DD.maddeler(H().esitlenmeyen)}${DD.gizlilikBant('Diyetisyeninin bu veriyi görmesi **ayrı bir karardır**; Veri izinlerim’den yönetilir.')}${DD.satirlar([{ikon: 'shield-halved', baslik: 'Veri izinlerim', alt: 'Diyetisyenle paylaşım ve açık rıza', git: '#/veri-izinleri'}])}</div>`}
     ]);
   };
   const izinSheet = () => {
     const i = saglikIzin();
     DD.sheet({
       baslik: 'Verilen izinler',
-      html: `<div class="dd-yigin">${DD.p('Gelen veriler **bu cihazdaki** sağlık uygulamasından okunur; tek çıkış izni su ve enerji toplamıdır.')}${DD.yuzey(`<div class="dd-satirlar">${H().saglikIzinleri.map(x => DD.toggle({ad: `si-${x.id}`, ikon: x.yon === 'giden' ? 'arrow-up-from-bracket' : 'arrow-down', etiket: x.ad, alt: x.alt, secili: i[x.id]})).join('')}</div>`)}</div>`,
+      html: `<div class="dd-yigin">${DD.p('Gelen veriler **bu cihazdaki** sağlık uygulamasından okunur; tek çıkış izni su ve enerji toplamıdır.')}${DD.satirlar(H().saglikIzinleri.map(x => DD.toggle({ad: `si-${x.id}`, ikon: x.yon === 'giden' ? 'arrow-up-from-bracket' : 'arrow-down', etiket: x.ad, alt: x.alt, secili: i[x.id]})))}</div>`,
       kapaninca: () => DD.tazele(),
       sonra: d => { const c = H().saglikIzinleri.map(x => DD.on(d, `si-${x.id}`, v => { ayarYaz('bagli', {izin: {...saglikIzin(), [x.id]: v}}); DD.toast(`**${x.ad}** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: 'heart-pulse', yerine: true}); })); return () => c.forEach(f => f()); }
     });
@@ -346,69 +416,78 @@
   };
   const veri = () => {
     const v = ayar('veri'), p = kisi();
-    return DD.bolumler([
-      {baslik: 'Tuttuğumuz veriler', html: `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar(H().veriGruplari.map(g => { const n = sayim(g.id); return {ikon: g.ikon, baslik: g.ad, alt: n ? `${g.saklama} · ilk kayıt ${DD.tarihUzun(g.ilk)}` : 'Henüz kayıt yok', deger: DD.sayi(n), ok: false}; })))}${DD.veriYok('Hesabını silersen bu grupların tamamı **30 gün içinde** silinir; faturalar yasal süre boyunca saklanır.')}</div>`},
+    return DD.gruplar([
+      {html: DD.p('Verini **gör, indir, sil**. Hesabın tamamı için dondurma ve silme ayrı seçeneklerdir.', {ton: 'ikincil'})},
+      {baslik: 'Tuttuğumuz veriler', html: `<div class="dd-yigin-12">${DD.satirlar(H().veriGruplari.map(g => { const n = sayim(g.id); return {ikon: g.ikon, baslik: g.ad, alt: n ? `${g.saklama} · ilk kayıt ${DD.tarihUzun(g.ilk)}` : 'Henüz kayıt yok', deger: DD.sayi(n), ok: false}; }))}${DD.veriYok('Hesabını silersen bu grupların tamamı **30 gün içinde** silinir; faturalar yasal süre boyunca saklanır.')}</div>`},
       {baslik: 'Verini indir', html: `<div class="dd-yigin-12">${DD.p('Planların, kayıtların ve ölçümlerin **makine okunur dosya** olarak hazırlanır; indirme bağlantısı e-postana gelir.', {ton: 'ikincil'})}${DD.btn({metin: 'Verilerimi indir', ikon: 'download', tur: 'secondary', tam: true, veri: {eylem: 'indir'}})}${v.sonIndirme ? DD.veriYok(`Son paket **${v.sonIndirme}** hazırlandı ve **${p.eposta}** adresine gönderildi; bağlantı 48 saat geçerli.`) : ''}</div>`},
-      {baslik: 'Saklama ve erişim', html: DD.yuzey(DD.satirlar([
+      {baslik: 'Saklama ve erişim', satirlar: [
         {ikon: 'box-archive', baslik: 'Saklama', alt: 'Takip kayıtların', deger: secAd(H().saklamaSecenek, v.saklama), veri: {eylem: 'saklama'}},
         {ikon: 'user-lock', baslik: 'Rol bazlı erişim', alt: 'Yalnız izin verdiğin veri', deger: 'Açık', ok: false},
         {ikon: 'clock-rotate-left', baslik: 'Erişim kaydı', alt: 'Verine kimin ne zaman eriştiği', git: '#/veri-izinleri?gecmis=erisim'},
         {ikon: 'children', baslik: 'Yaş ve veli onayı', alt: '18 yaş altında veli onayı', deger: 'Uygulanıyor', ok: false}
-      ]))},
-      {baslik: 'Bu cihaz', html: DD.yuzey(DD.satirlar([
-        {ikon: 'broom', baslik: 'Önbelleği temizle', alt: `Görseller ve geçici dosyalar · ${DD.sayi(v.onbellekMb)} MB`, veri: {eylem: 'onbellek'}},
-        {ikon: 'pen', baslik: 'Kaydı düzelt', alt: 'Yanlış girdiğin öğün kaydını düzenle', git: '#/tabaklarim'}
-      ]))},
-      {baslik: 'Silme', html: `<div class="dd-yigin-12">${v.silmeTalebi ? DD.bant({ton: 'uyari', baslik: 'Silme talebin alındı', metin: `Takip verilerinin silme talebi **${DD.tarihUzun(v.silmeTalebi)}** tarihinde alındı; 30 gün içinde geri alabilirsin.`, eylem: {metin: 'Talebi geri al', veri: {eylem: 'sil-geri'}}}) : ''}${DD.yuzey(DD.satirlar([
+      ]},
+      {baslik: 'Düzelt ve sil', html: `<div class="dd-yigin-12">${v.silmeTalebi ? DD.bant({ton: 'uyari', baslik: 'Silme talebin alındı', metin: `Takip verilerinin silme talebi **${DD.tarihUzun(v.silmeTalebi)}** tarihinde alındı; 30 gün içinde geri alabilirsin.`, eylem: {metin: 'Talebi geri al', veri: {eylem: 'sil-geri'}}}) : ''}${DD.satirlar([
+        {ikon: 'pen', baslik: 'Kaydı düzelt', alt: 'Yanlış girdiğin öğün kaydını düzenle', git: '#/tabaklarim'},
         !v.silmeTalebi && {ikon: 'trash', baslik: 'Takip verilerimi sil', alt: 'Öğün, su ve ölçüm kayıtların; hesabın kalır', veri: {eylem: 'takip-sil'}, yikici: true},
-        {ikon: 'user-slash', baslik: 'Hesabı dondur veya sil', alt: 'Hesabın tamamı için ayrı seçenek', git: '#/ayarlar/hesap'}
-      ].filter(Boolean)))}</div>`}
+        {ikon: 'snowflake', baslik: 'Hesabı dondur', alt: 'Ara ver, verilerin kalsın', git: '#/ayarlar/dondur'},
+        {ikon: 'user-slash', baslik: 'Hesabımı sil', alt: 'Hesabın tamamı 30 gün sonra silinir', git: '#/ayarlar/sil'}
+      ].filter(Boolean))}</div>`}
     ]);
   };
   const veriBagla = kok => [
     DD.eylem(kok, 'indir', el => DD.mesgul(el, DD.azHareket() ? 0 : DD.TK.motion.reveal * 4).then(() => { ayarYaz('veri', {sonIndirme: `bugün ${noktali(DDV.bugun.simdi)}`}); DD.tazele(); DD.toast(`Veri paketin hazır; bağlantı **${kisi().eposta}** adresine gönderildi`, {tur: 'basari'}); })),
     DD.eylem(kok, 'saklama', () => sheetSec('Takip verisi saklama', H().saklamaSecenek, ayar('veri').saklama, v => { ayarYaz('veri', {saklama: v}); DD.tazele(); DD.toast(`Saklama süresi: **${secAd(H().saklamaSecenek, v).toLocaleLowerCase('tr')}**`, {tur: 'basari'}); })),
-    DD.eylem(kok, 'onbellek', () => DD.dialog({baslik: 'Önbellek temizlensin mi?', metin: 'Görseller yeniden indirilir; **kayıtların ve ayarların** silinmez.', eylem: 'Temizle', iptal: 'Vazgeç'}).then(ok => { if (!ok) return; ayarYaz('veri', {onbellekMb: 0}); DD.tazele(); DD.toast('Önbellek **temizlendi**', {tur: 'basari'}); })),
     DD.eylem(kok, 'takip-sil', () => DD.dialog({baslik: 'Takip verilerin silinsin mi?', metin: 'Öğün, su ve ölçüm kayıtların **30 gün sonra** kalıcı olarak silinir. Hesabın ve planın kalır.', eylem: 'Silme talebi oluştur', iptal: 'Vazgeç', yikici: true}).then(ok => { if (!ok) return; ayarYaz('veri', {silmeTalebi: DD.bugunIso()}); DD.tazele(); DD.toast('Silme talebin **alındı**', {tur: 'uyari'}); })),
     DD.eylem(kok, 'sil-geri', () => { ayarYaz('veri', {silmeTalebi: null}); DD.tazele(); DD.toast('Silme talebin **geri alındı**', {tur: 'basari'}); })
   ];
 
-  // ---------- Hesabı dondur, sil ----------
-  const hesap = ctx => {
-    const h = ayar('hesap'), d = h.dondurma, r = DD.yeniHesap() ? null : DDV.benimDiyetisyenim.sonrakiRandevu, seans = DD.yeniHesap() ? 0 : DDV.benimDiyetisyenim.paket.kalanSeans, neden = ctx.neden || H().ayrilmaNedeni[0][0];
-    const dondur = d
-      ? `<div class="dd-yigin-12">${DD.bant({ton: 'bilgi', baslik: 'Hesabın donduruldu', metin: `**${secAd(H().dondurmaSure, d.sure)}** süreyle, ${DD.tarihUzun(d.tarih)} tarihinden beri. Giriş yaptığında kendiliğinden açılır.`})}${DD.btn({metin: 'Dondurmayı kaldır', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'dondur-kaldir'}})}</div>`
-      : `<div class="dd-yigin">${DD.p('Bir süre ara vermek istersen hesabını **kapatmadan dondurabilirsin**. Verilerin silinmez.', {ton: 'ikincil'})}${DD.maddeler([
+  // ---------- Hesabı dondur (Gastro dondur bölümü) ----------
+  const dondur = ctx => {
+    const d = ayar('hesap').dondurma, r = DD.yeniHesap() ? null : DDV.benimDiyetisyenim.sonrakiRandevu;
+    if (d) return DD.gruplar([{html: `<div class="dd-yigin-12">${DD.bant({ton: 'bilgi', baslik: 'Hesabın donduruldu', metin: `**${secAd(H().dondurmaSure, d.sure)}** süreyle, ${DD.tarihUzun(d.tarih)} tarihinden beri. Giriş yaptığında kendiliğinden açılır.`})}${DD.btn({metin: 'Dondurmayı kaldır', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'dondur-kaldir'}})}</div>`}]);
+    return DD.gruplar([
+      {html: `<div class="dd-yigin">${DD.p('Bir süre ara vermek istersen hesabını **kapatmadan dondurabilirsin**. Verilerin silinmez.', {ton: 'ikincil'})}${DD.maddeler([
         ['eye-slash', 'Profilin ve diyetisyen paylaşımın gizlenir', 'Planların, ölçümlerin ve rozetlerin yerinde kalır'],
         ['calendar-xmark', r ? `${r.tarihMetin} ${noktali(r.saat)} randevun iptal edilir` : 'Yaklaşan randevuların iptal edilir', 'Görüşme haklarının süresi işlemeye devam eder'],
         ['bell-slash', 'Bildirimler ve hatırlatmalar durur', 'Giriş yaptığın anda hesabın açılır']
-      ])}<div class="dd-yigin-12"><span class="dd-t-card">Dondurma süresi</span>${DD.cipler({ad: 'dondur-sure', tur: 'tek', serit: false, secili: ctx.dondurSure || '2h', ogeler: H().dondurmaSure.map(([deger, metin]) => ({deger, metin}))})}</div>${DD.checkbox({ad: 'dondur-onay', etiket: 'Profilimin gizleneceğini ve randevularımın iptal edileceğini anladım'})}${DD.btn({metin: 'Hesabı dondur', ikon: 'snowflake', tur: 'tonal', tam: true, pasif: true, veri: {eylem: 'dondur'}})}</div>`;
-    return DD.bolumler([
-      {baslik: 'Hesabı dondur', html: dondur},
-      {baslik: 'Hesabımı sil', html: `<div class="dd-yigin">${DD.bant({ton: 'hata', baslik: 'Bu işlem geri alınamaz', metin: '**30 gün sonunda** planların, ölçümlerin, öğün kayıtların ve rozetlerin kalıcı olarak silinir.'})}${DD.maddeler([
+      ])}</div>`},
+      {baslik: 'Dondurma süresi', html: radyolar('dondur-sure', 'Dondurma süresi', H().dondurmaSure, ctx.dondurSure || '2h')},
+      {html: `<div class="dd-yigin">${DD.checkbox({ad: 'dondur-onay', etiket: 'Profilimin gizleneceğini ve randevularımın iptal edileceğini anladım'})}${DD.btn({metin: 'Hesabı dondur', ikon: 'snowflake', tam: true, pasif: true, veri: {eylem: 'dondur'}})}${DD.btn({metin: 'Kalıcı olarak silmek istiyorum', tur: 'text', tam: true, yerine: '#/ayarlar/sil'})}</div>`}
+    ]);
+  };
+  const dondurBagla = (kok, ctx) => [
+    DD.on(kok, 'dondur-sure', v => { ctx.dondurSure = v; }),
+    DD.on(kok, 'dondur-onay', v => { const b = kok.querySelector('[data-eylem="dondur"]'); if (b) b.disabled = !v; }),
+    DD.eylem(kok, 'dondur', () => DD.dialog({baslik: 'Hesabın dondurulsun mu?', metin: `Hesabın **${secAd(H().dondurmaSure, ctx.dondurSure || '2h')}** süreyle dondurulur. Verilerin silinmez.`, eylem: 'Dondur', iptal: 'Vazgeç'}).then(ok => { if (!ok) return; ayarYaz('hesap', {dondurma: {sure: ctx.dondurSure || '2h', tarih: DD.bugunIso()}}); DD.tazele(); DD.toast('Hesabın **donduruldu**', {tur: 'uyari'}); })),
+    DD.eylem(kok, 'dondur-kaldir', () => { ayarYaz('hesap', {dondurma: null}); DD.tazele(); DD.toast('Hesabın **yeniden açıldı**', {tur: 'basari'}); })
+  ];
+
+  // ---------- Hesabımı sil (Gastro sil bölümü) ----------
+  const sil = ctx => {
+    const seans = DD.yeniHesap() ? 0 : DDV.benimDiyetisyenim.paket.kalanSeans, neden = ctx.neden || H().ayrilmaNedeni[0][0];
+    return DD.gruplar([
+      {html: `<div class="dd-yigin">${DD.p('Hesabını kalıcı olarak kapatır. Ara vermek istiyorsan **dondurma** geri alınabilir bir seçenektir.', {ton: 'ikincil'})}${DD.bant({ton: 'hata', baslik: 'Bu işlem geri alınamaz', metin: '**30 gün sonunda** planların, ölçümlerin, öğün kayıtların ve rozetlerin kalıcı olarak silinir.'})}${DD.maddeler([
         ['rotate-left', 'İlk 30 gün içinde dönebilirsin', 'Giriş yaparsan silme iptal edilir'],
         ['ticket', seans ? `Kalan ${seans} görüşme hakkın kapanır` : 'Kalan görüşme hakların kapanır', 'İade talebini silmeden önce açabilirsin'],
         ['file-invoice', 'Faturaların yasal süre boyunca saklanır', 'Profiline bağlı kalmaz']
-      ])}${DD.yuzey(DD.satirlar([{ikon: 'download', baslik: 'Önce verilerini indir', alt: 'Planların ve kayıtların tek dosyada', git: '#/ayarlar/veri'}, {ikon: 'comment-dots', baslik: 'Ayrılma nedenin', alt: secAd(H().ayrilmaNedeni, neden), veri: {eylem: 'neden'}}]))}${DD.checkbox({ad: 'sil-onay', etiket: 'Hesabımın ve takip verilerimin 30 gün sonra geri alınamaz şekilde silineceğini anladım'})}${DD.uzunBas({ad: 'hesap-sil', metin: 'Hesabımı sil', ikon: 'trash', tur: 'yikici', pasif: true, yardim: 'Silmek için basılı tut', onayBaslik: 'Hesabın silinsin mi?', onayMetin: '30 gün içinde giriş yapmazsan hesabın kalıcı olarak silinir.', onayEylem: 'Hesabımı sil'})}${DD.p('Kararsızsan silmek yerine **bildirimleri kapatabilir** ya da hesabını dondurabilirsin.', {ton: 'ikincil', meta: true})}</div>`}
+      ])}</div>`},
+      {satirlar: [{ikon: 'download', baslik: 'Önce verilerini indir', alt: 'Planların ve kayıtların tek dosyada', git: '#/ayarlar/veri'}, {ikon: 'snowflake', baslik: 'Yerine hesabını dondur', alt: 'Verilerin silinmez', git: '#/ayarlar/dondur'}]},
+      {html: `<div class="dd-yigin">${DD.secAlan({ad: 'neden', etiket: 'Ayrılma nedenin', secenekler: H().ayrilmaNedeni, deger: neden})}${DD.checkbox({ad: 'sil-onay', etiket: 'Hesabımın ve takip verilerimin 30 gün sonra geri alınamaz şekilde silineceğini anladım'})}${DD.uzunBas({ad: 'hesap-sil', metin: 'Hesabımı sil', ikon: 'trash', tur: 'yikici', pasif: true, yardim: 'Silmek için basılı tut', onayBaslik: 'Hesabın silinsin mi?', onayMetin: '30 gün içinde giriş yapmazsan hesabın kalıcı olarak silinir.', onayEylem: 'Hesabımı sil'})}${DD.p('Kararsızsan silmek yerine **bildirimleri kapatabilir** ya da hesabını dondurabilirsin.', {ton: 'ikincil', meta: true})}</div>`}
     ]);
   };
-  const hesapBagla = (kok, ctx) => {
+  const silBagla = (kok, ctx) => {
     const onay = ev => { if (ev.detail?.ad !== 'hesap-sil') return; DD.toast('Silme talebin alındı; **30 gün** içinde giriş yaparsan hesabın geri gelir', {tur: 'uyari'}); setTimeout(DD.cikis, DD.azHareket() ? 0 : DD.TK.motion.reveal * 5); };
     kok.addEventListener('dd-onay', onay);
     return [
       () => kok.removeEventListener('dd-onay', onay),
-      DD.on(kok, 'dondur-sure', v => { ctx.dondurSure = v; }),
-      DD.on(kok, 'dondur-onay', v => { const b = kok.querySelector('[data-eylem="dondur"]'); if (b) b.disabled = !v; }),
       DD.on(kok, 'sil-onay', v => { const b = kok.querySelector('[data-uzunbas]'); if (b) b.disabled = !v; }),
-      DD.eylem(kok, 'dondur', () => DD.dialog({baslik: 'Hesabın dondurulsun mu?', metin: `Hesabın **${secAd(H().dondurmaSure, ctx.dondurSure || '2h')}** süreyle dondurulur. Verilerin silinmez.`, eylem: 'Dondur', iptal: 'Vazgeç'}).then(ok => { if (!ok) return; ayarYaz('hesap', {dondurma: {sure: ctx.dondurSure || '2h', tarih: DD.bugunIso()}}); DD.tazele(); DD.toast('Hesabın **donduruldu**', {tur: 'uyari'}); })),
-      DD.eylem(kok, 'dondur-kaldir', () => { ayarYaz('hesap', {dondurma: null}); DD.tazele(); DD.toast('Hesabın **yeniden açıldı**', {tur: 'basari'}); }),
-      DD.eylem(kok, 'neden', () => sheetSec('Ayrılma nedenin', H().ayrilmaNedeni, ctx.neden || H().ayrilmaNedeni[0][0], v => { ctx.neden = v; DD.tazele(); }))
+      DD.on(kok, 'neden', v => { ctx.neden = v; })
     ];
   };
 
   // ---------- Ekran ----------
-  const CIZ = {profil, bildirim, guvenlik, dil, bagli, veri, hesap};
-  const BAGLA = {profil: profilBagla, bildirim: bildirimBagla, guvenlik: guvenlikBagla, dil: dilBagla, bagli: bagliBagla, veri: veriBagla, hesap: hesapBagla};
+  const CIZ = {profil, gizlilik, bildirim, guvenlik, dil, bagli, veri, dondur, sil};
+  const BAGLA = {profil: profilBagla, gizlilik: gizlilikBagla, bildirim: bildirimBagla, guvenlik: guvenlikBagla, dil: dilBagla, bagli: bagliBagla, veri: veriBagla, dondur: dondurBagla, sil: silBagla};
   let hataGosterildi = false;
 
   DD.ekran('ayarlar', {
@@ -425,14 +504,14 @@
     ciz: ctx => {
       const b = ctx.param.bolum;
       if (!b) return hub();
-      if (b === 'ogun') return DD.iskelet('liste');
+      if (YONLEN[b]) return DD.iskelet('liste');
       return CIZ[b] ? CIZ[b](ctx) : DD.bos({tam: true, ikon: 'bilgi', baslik: 'Bu bölüm bulunamadı', metin: 'Aradığın ayar **Hesap ayarları** altında olabilir.', eylem: {metin: 'Hesap ayarları', yerine: '#/ayarlar'}});
     },
     altBar: ctx => (ctx.param.bolum === 'profil' ? DD.altEylem({dugmeler: [{metin: 'Değişiklikleri kaydet', ikon: 'onay', tam: true, veri: {eylem: 'profil-kaydet'}}]}) : ''),
     sonra: (kok, ctx) => {
       const b = ctx.param.bolum;
-      if (b === 'ogun') { setTimeout(() => DD.yerine('#/ogun-saatleri')); return null; }
-      const c = b ? (BAGLA[b]?.(kok, ctx) || []) : [DD.eylem(kok, 'cikis', () => DD.dialog({baslik: 'Çıkış yap', metin: 'Bu cihazdaki **kayıtların ve tercihlerin** silinir.', eylem: 'Çıkış yap', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) DD.cikis(); }))];
+      if (YONLEN[b]) { setTimeout(() => DD.yerine(YONLEN[b])); return null; }
+      const c = b ? (BAGLA[b]?.(kok, ctx) || []) : hubBagla(kok);
       return () => c.forEach(f => f?.());
     }
   });

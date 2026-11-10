@@ -88,4 +88,5 @@
     });
   };
   DD.menu = {ac, kapat};
+  DD.gorusSheet = gorusSheet;
 })();

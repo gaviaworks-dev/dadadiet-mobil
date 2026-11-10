@@ -214,7 +214,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | API | Seçenek |
 |---|---|
 | `DD.ustBar`, `DD.ustBtn`, `DD.altMenu` | Çekirdek çizer |
-| `DD.menu.ac()`, `.kapat()` | Sağ çekmece: kullanıcı alanı, kısayollar, gruplar. `data-menu` açar |
+| `DD.menu.ac()`, `.kapat()`, `DD.gorusSheet()` (Görüş Bildir sheet'i, ekranlardan da açılır), `DD.SURUM` (uygulama sürümü) | Sağ çekmece: kullanıcı alanı, kısayollar, gruplar. `data-menu` açar |
 | `DD.sheet({baslik, html, altBar, tam, sinif, sonra:(d)=>temizle, kapaninca})` → `d` | `d.kapat()`, `close` olayı; tutamaktan sürüklenir, Esc, geri tuşu. `data-sheet-kapat` |
 | `DD.filtreSheet({baslik, gruplar:[{baslik, ad, ikon, tur, ogeler:[{metin, deger, gorsel, ikon, sayi}]}], secili, eylem, degisti, uygula})` | Gastro facet: seçili çipler, tek açık akordeon |
 | `DD.siralaSheet({baslik, secenekler:[[deger, ad, ikon]], secili, sec})` | Sağda onay ikonlu tek seçim |
@@ -251,7 +251,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.oneriNot({ad, etiket, yer, deger, oneriler, secili})` | Girdi + öneri çipleri. `DD.on(k, ad, (not, {oneriler, serbest}) => {})`: `not` birleşik metin, `oneriler` seçili çipler |
 | `DD.besinSatir(b, {swipe, eylemler, git, veri, sag, alt, ok})` | |
 | `DD.suKart({icilen, hedef, adimlar, kayitEylem, ad})` (`adimlar` ml ya da `{ml, metin}`; 1 bardak `DD.SU_BARDAK`; `DD.suBardaklar(icilen, hedef)` bardak dizisi; hedef aşılınca bardak eklenir, boş bardak ekler, dolu bardak bir bardak geri alır, `dd-degisim` `eklenen` eksi olabilir, bardaktan gelen dokunuşta `bardak: true`), `DD.suMiktarlar({ogeler, eylem})`, `DD.suHafta({gunler, hedef})`, `DD.suHatirlatma()` + `DD.suHatirlatmaBagla(kok)`, `DD.saatSec({ad, etiket, deger, adim, yardim})` (Gastro saat alanı: dokununca alttan kadran sheet'i; gizli input'a yazar, `change` + `dd-degisim`), `DD.tabakBolme({bolme, skor})`, `DD.hedefsiz()`, `DD.uye()`, `DD.yeniHesap()`, `DD.uyeDuvar({baslik, metin})`, `DD.kanca({metin, ikon})`, `DD.UYE_KILIT` (misafire kapalı ekranlar), `data-uye-ol` (duvarı açar), `DD.kilitEkrani({saat, tarih, baslik, metin})`, `DD.saglikUyari({seviye, belirti, ikon, metin})`, `DD.menuDeger({kcal, puan})`, `DD.duygu({soru, secenekler, secili, ad})`, `DD.paketler({ad, ogeler, secili})` | `DDV.bugun.su`, `.duygu`, `d.paketler` |
-| `DD.bildirimSatir(b, {git})`, `DD.yorum({ad, metin, meta})`, `DD.yorumBolumu({baslik, yorumlar, ozet, bos})`, `DD.paylas({baslik, url, alt})` | |
+| `DD.bildirimSatir(b, {git, meta})` (Gastro `.ar-bil-meta`: okunmamışta "Yeni" rozeti kendiliğinden; `meta` ya da `b.tur_ad` zamanın önüne "Su · 17.00"), `DD.yorum({ad, metin, meta})`, `DD.yorumBolumu({baslik, yorumlar, ozet, bos})`, `DD.paylas({baslik, url, alt})` | |
 | `DD.icgoruKart({baslik, metin, yanitlar})`, `DD.soruCipleri({sorular})`, `DD.randevuSatir({gun, ay, baslik, alt, saat, durum, git})`, `DD.belgeSatir(o)`, `DD.gizlilikBant(metin)`, `DD.gorevSatir({baslik, alt, tamam, id, sil, cizgi})`, `DD.gorevListe(ogeler, {cizgi, etiket})` (Gastro `.pf-kalem`: kartsız ince ayraçlı liste, tamamlanınca soluk + üstü çizili; `cizgi:false` seçim listesi), `DD.slotlar({ad, gruplar, secili})`, `DD.modulListe({ozet, ogeler})`, `DD.fotoIzgara(l)` | |
 
 ### Veri görselleri

@@ -47,12 +47,12 @@
     const a = O().ayar(), izin = O().izin(), s = O().sessiz()?.split('-');
     return `<div class="dd-yigin">
       ${DD.p('Öğün saatin gelince **bildirimle** haber verir; günün öğünleri Profil’de sıralanır. E-postayla öğün hatırlatması gönderilmez.', {ton: 'ikincil'})}
-      ${DD.yuzey(DD.toggle({ad: 'oh-acik', ikon: 'bildirim', etiket: 'Öğün hatırlatıcısı', alt: durumMetin(), secili: a.acik}))}
+      ${DD.satirlar([DD.toggle({ad: 'oh-acik', ikon: 'bildirim', etiket: 'Öğün hatırlatıcısı', alt: durumMetin(), secili: a.acik})])}
       <div class="dd-yigin-8"><span class="dd-t-card">Ne zaman hatırlatsın?</span>${DD.segment({ad: 'oh-once', etiket: 'Hatırlatma zamanı', secili: String(a.once_dk || 0), ogeler: (O().sablon().once_dk_secenek || [0, 15, 30]).map(d => ({ad: d ? `${d} dk önce` : 'Saatinde', deger: String(d)}))})}<small class="dd-yardim">Öğünün planlanan saatine göre.</small></div>
-      ${DD.yuzey(DD.satirlar([
+      ${DD.satirlar([
         {ikon: 'mobile-screen', baslik: 'Telefon bildirimi', alt: izin === 'verildi' ? 'İzin verildi' : izin === 'reddedildi' ? 'İzin kapalı; telefon ayarlarından açılır' : 'İzin henüz istenmedi', git: izin === 'verildi' ? '#/bildirim-onizleme' : izinYolu()},
         {ikon: 'moon', baslik: 'Sessiz saatler', alt: s ? `${nok(s[0])}–${nok(s[1])} arası hatırlatma gönderilmez` : 'Kapalı; hatırlatma her saatte gelir', git: '#/ayarlar/bildirim'}
-      ]))}
+      ])}
     </div>`;
   };
 
@@ -80,8 +80,7 @@
     return `<div class="dd-yigin">
       ${DD.p('Kahvaltı **çapadır**: onu değiştirdiğinde elle girmediğin öğünler zincirle kayar. Bir öğünün saatini değiştirirsen **yalnız o öğün** sabitlenir.', {ton: 'ikincil'})}
       ${notlar(t)}
-      <div class="dd-yigin-8">${DD.yuzey(kahvaltiSatir(t))}${zincir()}</div>
-      ${DD.yuzey(DD.satirlar(digerleri.map(x => ogunSatir(x, ps))))}
+      <div class="dd-yigin-8">${DD.satirlar([kahvaltiSatir(t), ...digerleri.map(x => ogunSatir(x, ps))])}${zincir()}</div>
       <div class="dd-ikili">${DD.btn({metin: 'Ara öğün ekle', ikon: 'ekle', tur: 'secondary', pasif: araSay >= enCok(), veri: {eylem: 'ara-ekle'}})}${DD.btn({metin: 'Şablona dön', ikon: 'rotate-left', tur: 'secondary', veri: {eylem: 'sablon'}})}</div>
       ${araSay >= enCok() ? `<small class="dd-yardim">En çok ${enCok()} ara öğün eklenebilir.</small>` : ''}
       ${DD.bilgi({etiket: 'Kaydedince', ikon: 'saat', metin: `**Bugün:** ${O().ozet(h)}`})}
@@ -117,7 +116,7 @@
       html: `<div class="dd-yigin">
         ${DD.saatKadran({ad: 'oh-saat', deger: kahvalti && o ? o.ilk_ogun_saati : x.planlanan, etiket: kahvalti && o ? 'İlk öğün' : x.ad, adim: 5, noktali: true})}
         ${DD.p(acik)}
-        ${DD.yuzey(DD.toggle({ad: 'oh-aktif', ikon: 'bildirim', etiket: 'Hatırlatma', alt: kahvalti ? 'Zincir yine buradan kurulur' : 'Bu öğün için bildirim gönder', secili: x.aktif !== false}))}
+        ${DD.satirlar([DD.toggle({ad: 'oh-aktif', ikon: 'bildirim', etiket: 'Hatırlatma', alt: kahvalti ? 'Zincir yine buradan kurulur' : 'Bu öğün için bildirim gönder', secili: x.aktif !== false})])}
         ${dugmeler.length ? `<div class="${dugmeler.length > 1 ? 'dd-ikili' : 'dd-yigin'}">${dugmeler.join('')}</div>` : ''}
       </div>`,
       altBar: DD.btn({metin: 'Tamam', ikon: 'onay', tam: true, attrs: 'data-sheet-kapat'}),
@@ -148,7 +147,7 @@
       if (ctx.sorgu.hal === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
       return new Promise(tamam => setTimeout(tamam, DD.azHareket() ? 0 : DD.TK.motion.reveal));
     },
-    ciz: ctx => DD.bolumler([
+    ciz: ctx => DD.gruplar([
       {baslik: 'Öğün hatırlatıcım', html: hatirlaticiBolum()},
       {baslik: 'Öğün saatlerim', html: saatlerBolum(taslak(ctx))},
       {baslik: 'Bildirim önizlemesi', html: onizlemeBolum()}
