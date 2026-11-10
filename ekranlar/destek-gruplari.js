@@ -69,9 +69,9 @@
     DD.sheet({
       baslik: g.ad, tam: g.saglik,
       html: `<div class="dd-yigin">${DD.p(g.aciklama, {ton: 'ikincil'})}${g.saglik ? DD.bant({ton: 'uyari', metin: 'Bu grup sağlık durumunu belli edebilir; üyeliğin **sağlık verisi** sayılır. Takma adla katılmayı seçebilirsin.'}) : ''}
-        <div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">Grupta nasıl görüneceksin</span>${DD.radio({ad: 'kip', deger: 'gercek', etiket: 'Gerçek adımla', alt: `${gorunenAd()} olarak görünürsün`, secili: true})}${DD.radio({ad: 'kip', deger: 'takma', etiket: 'Takma adla', alt: 'Yalnız seçtiğin takma ad görünür'})}</div>
+        ${DD.alan({etiket: 'Grupta nasıl görüneceksin', html: `<div class="dd-yigin-8">${DD.radio({ad: 'kip', deger: 'gercek', etiket: 'Gerçek adımla', alt: `${gorunenAd()} olarak görünürsün`, secili: true})}${DD.radio({ad: 'kip', deger: 'takma', etiket: 'Takma adla', alt: 'Yalnız seçtiğin takma ad görünür'})}</div>`})}
         <div data-takma hidden>${DD.input({ad: 'takma-ad', etiket: 'Takma ad', yer: 'En az 3 harf'})}</div>
-        <div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">Grup kuralları</span>${kurallar()}</div>
+        <div class="dd-yigin-8"><p class="dd-t-label dd-ton-ikincil">Grup kuralları</p>${kurallar()}</div>
         ${DD.checkbox({ad: 'kural-onay', etiket: 'Grup kurallarını okudum ve uyacağım'})}${g.saglik ? DD.checkbox({ad: 'riza-onay', etiket: 'Sağlık grubu üyeliğimin işlenmesine açık rıza veriyorum', alt: 'Rızanı Veri izinlerim ekranından geri alabilirsin', secili: DD.durum.oku('grup-riza', false)}) : ''}</div>`,
       altBar: DD.btn({metin: 'Gruba katıl', ikon: 'ekle', tam: true, veri: {eylem: 'katil-onay'}}),
       sonra: s => {
@@ -115,7 +115,7 @@
   };
   const sikayetSheet = (x, bitti) => DD.sheet({
     baslik: 'Gönderiyi şikâyet et',
-    html: `<div class="dd-yigin">${DD.p(`**“${x.metin.length > 90 ? `${x.metin.slice(0, 89)}…` : x.metin}”**`, {ton: 'ikincil'})}<div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">Şikâyet nedeni</span>${U().sikayetNedenleri.map(n => DD.radio({ad: 'neden', deger: n, etiket: n})).join('')}</div>${DD.input({ad: 'sikayet-not', etiket: 'Açıklama (isteğe bağlı)', cokSatir: true})}${DD.p('Şikâyetin moderasyon ekibine **kimliğin gizli tutularak** iletilir.', {ton: 'ikincil', meta: true})}</div>`,
+    html: `<div class="dd-yigin">${DD.p(`**“${x.metin.length > 90 ? `${x.metin.slice(0, 89)}…` : x.metin}”**`, {ton: 'ikincil'})}${DD.alan({etiket: 'Şikâyet nedeni', html: `<div class="dd-yigin-8">${U().sikayetNedenleri.map(n => DD.radio({ad: 'neden', deger: n, etiket: n})).join('')}</div>`})}${DD.input({ad: 'sikayet-not', etiket: 'Açıklama (isteğe bağlı)', cokSatir: true})}${DD.p('Şikâyetin moderasyon ekibine **kimliğin gizli tutularak** iletilir.', {ton: 'ikincil', meta: true})}</div>`,
     altBar: DD.btn({metin: 'Şikâyet et', ikon: 'flag', tam: true, tur: 'yikici', veri: {eylem: 'sikayet-gonder'}}),
     sonra: s => DD.eylem(s, 'sikayet-gonder', () => {
       const n = s.querySelector('[name="neden"]:checked')?.value;

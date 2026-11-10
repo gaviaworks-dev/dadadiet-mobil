@@ -3,6 +3,7 @@
  * #/tabaklarim?hal=bos hiç kaydı olmayan hal, ?hal=hata bağlantı hatası.
  */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const {sayi} = DD;
   const ogunAd = id => DDV.bugun.ogunler.find(o => o.id === id)?.ad || 'Öğün';
   const gunBaslik = iso => {
@@ -15,7 +16,7 @@
   const tumu = ctx => (ctx.sorgu.hal === 'bos' ? [] : DDKayit.liste());
   const suz = (l, s) => l.filter(k => (!s.ogun || k.ogun === s.ogun) && (!s.tarih || k.tarih === s.tarih));
   // Bugünün kaydında ad öğün adıyla aynıdır; kartta iki kez yazılmaz.
-  const kart = k => ({id: k.id, foto: k.foto, kcal: k.kcal, saat: k.saat, ogun: ogunAd(k.ogun), ad: k.ad === ogunAd(k.ogun) ? '' : k.ad});
+  const kart = k => ({id: k.id, foto: k.foto, kcal: k.kcal, saat: nk(k.saat), ogun: ogunAd(k.ogun), ad: k.ad === ogunAd(k.ogun) ? '' : k.ad});
   const gunler = l => [...new Set(l.map(k => k.tarih))].map(t => { const g = l.filter(k => k.tarih === t); return {baslik: gunBaslik(t), ozet: `${sayi(g.length)} tabak`, kayitlar: g.map(kart)}; });
   const filtre = (s, l) => DD.cipler({ad: 'ogun', tur: 'tek', etiket: 'Öğün', secili: s.ogun, ogeler: [{metin: 'Tümü', deger: '', sayi: l.filter(k => !s.tarih || k.tarih === s.tarih).length}, ...DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))]});
   const tarihCip = s => (s.tarih ? `<div class="dd-sira">${DD.cip({metin: gunBaslik(s.tarih), kapat: true, etiket: 'Tarih seçimini kaldır', veri: {eylem: 'tarih-temizle'}})}</div>` : '');

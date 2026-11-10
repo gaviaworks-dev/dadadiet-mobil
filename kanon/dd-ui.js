@@ -93,6 +93,9 @@
     const [yol, q = ''] = hash.split('?');
     const sorgu = Object.fromEntries(new URLSearchParams(q));
     const tablo = window.DD_ROTALAR || {};
+    // Kaldırılan ekran adresi: tam ya da önek eşleşmesiyle yeni adrese
+    const eski = Object.entries(window.DD_YONLENDIR || {}).find(([k]) => yol === k || (k.endsWith('/') && yol.startsWith(k)));
+    if (eski && eski[1] !== yol) { history.replaceState(null, '', eski[1]); return rotaBul(eski[1]); }
     if (tablo[yol]) return {ad: tablo[yol], param: {}, sorgu, hash};
     for (const [desen, ad] of Object.entries(tablo)) {
       if (!desen.includes(':')) continue;
@@ -190,8 +193,9 @@
     const k = g.el.querySelector('.dd-kaydir'), bar = g.el.querySelector('.dd-header'), panel = g.el.querySelector('.dd-panel');
     const altbar = g.el.querySelector('.dd-altbar');
     if (altbar) {
-      const olc = () => { g.el.style.setProperty('--dd-altbar-h', `${altbar.offsetHeight}px`); if (ust() === g) DD.tabagim._bar(); };
-      olc(); new ResizeObserver(olc).observe(altbar);
+      // Kayan çubuk (DD.kayanBar) mutlak konumlu: kap 0 ölçülür, çocuğun yüksekliği alınır.
+      const olc = () => { g.el.style.setProperty('--dd-altbar-h', `${Math.max(altbar.offsetHeight, ...[...altbar.children].map(c => c.offsetHeight))}px`); if (ust() === g) DD.tabagim._bar(); };
+      olc(); const gozcu = new ResizeObserver(olc); gozcu.observe(altbar); [...altbar.children].forEach(c => gozcu.observe(c));
     }
     const foto = bar?.classList.contains('is-photo');
     const esikEl = () => g.el.querySelector('.dd-banner-metin .dd-t-label,.dd-banner-metin h1,.dd-hero-top h1,.dd-gkapak [data-dd-veil-from],.dd-gkapak h1') || g.el.querySelector('.dd-banner-metin');
@@ -223,7 +227,7 @@
     return {i: R.idx, hash: r.hash, ad: r.ad, e, ctx, el, temizle: null};
   };
 
-  // Geçiş: ileri sağdan, geri soldan, modal aşağıdan, sekme çapraz solma.
+  // Geçiş: ileri sağdan, geri soldan, modal aşağıdan, sekme çapraz solma (ölçü ve eğri Gastro).
   const bitir = () => { R.anim.splice(0).forEach(a => { try { a.finish(); } catch { /* bitmiş */ } }); };
   const oynat = (el, kf, ms, easing) => {
     const a = el.animate(kf, {duration: azHareket() ? 0 : ms, easing, fill: 'none'});
@@ -234,19 +238,24 @@
   const goster = el => { el.classList.remove('is-gizli'); el.inert = false; el.querySelector('.dd-kaydir')?.setAttribute('data-scroll', ''); };
 
   const gecis = (yeni, eski, yon) => {
-    const E = M.easing, X = 'translateX(100%)', G = 'translateX(-24%)', Y = 'translateY(100%)', S = 'translate(0)';
+    // Gastro dg-hareket.css §6 + Flutter DgPageRoute: ileri yeni sayfa 24 sağdan solarak (page, emphasizedDecel), eski 24 sola solarak (pageExit, emphasizedAccel);
+    // geri alttaki sayfa 24 soldan gelir, kapanan aynı çıkışla gider; modal 32 aşağıdan, kapanırken aynı yola döner; sekme çapraz solma.
+    const E = M.easing, d = TK.space[24], S = {opacity: 1, transform: 'none'};
+    const sag = {opacity: 0, transform: `translateX(${d}px)`}, sol = {opacity: 0, transform: `translateX(${-d}px)`}, alt = {opacity: 0, transform: `translateY(${TK.space[32]}px)`};
+    // Çıkış pageExit'te biter, giriş page sürer: çıkan sayfa girişin sonuna dek görünmez kalır (fill yok, geri gelmesin).
+    const cik = son => [{...S, easing: E.emphasizedAccel}, {...son, offset: M.pageExit / M.page}, son];
     const isler = [];
     if (yon === 'ileri') {
-      isler.push(oynat(yeni, [{transform: X}, {transform: S}], M.page, E.emphasizedDecel));
-      if (eski) isler.push(oynat(eski, [{transform: S, filter: 'brightness(1)'}, {transform: G, filter: 'brightness(.92)'}], M.page, E.emphasizedDecel));
+      isler.push(oynat(yeni, [sag, S], M.page, E.emphasizedDecel));
+      if (eski) isler.push(oynat(eski, cik(sol), M.page, 'linear'));
     } else if (yon === 'geri') {
-      if (eski) { eski.style.zIndex = 2; isler.push(oynat(eski, [{transform: S}, {transform: X}], M.pageExit + M.stagger, E.standard)); }
-      isler.push(oynat(yeni, [{transform: G, filter: 'brightness(.92)'}, {transform: S, filter: 'brightness(1)'}], M.pageExit + M.stagger, E.standard));
+      if (eski) { eski.style.zIndex = 2; isler.push(oynat(eski, cik(sol), M.page, 'linear')); }
+      isler.push(oynat(yeni, [sol, S], M.page, E.emphasizedDecel));
     } else if (yon === 'modal') {
       yeni.style.zIndex = 2;
-      isler.push(oynat(yeni, [{transform: Y}, {transform: S}], M.page, E.emphasizedDecel));
+      isler.push(oynat(yeni, [alt, S], M.page, E.emphasizedDecel));
     } else if (yon === 'modal-kapat') {
-      if (eski) { eski.style.zIndex = 2; isler.push(oynat(eski, [{transform: S}, {transform: Y}], M.pageExit, E.emphasizedAccel)); }
+      if (eski) { eski.style.zIndex = 2; isler.push(oynat(eski, [S, alt], M.pageExit, E.emphasizedAccel)); }
     } else {
       isler.push(oynat(yeni, [{opacity: 0}, {opacity: 1}], M.quick, E.standard));
     }
@@ -431,7 +440,8 @@
     const kat = katmanEl(), onceki = belge.activeElement;
     const kap = belge.createElement('div');
     kap.className = 'dd-dialog-kap';
-    kap.innerHTML = `<div class="dd-perde" data-dlg-iptal></div><div class="dd-diyalog" open role="alertdialog" aria-modal="true" aria-label="${esc(o.baslik || '')}" tabindex="-1"><h2 class="dd-t-sheet">${esc(o.baslik || '')}</h2>${o.metin ? `<p>${vurgu(o.metin)}</p>` : ''}${o.html || ''}<div class="${o.iptal === false ? '' : 'dd-ikili'}">${o.iptal === false ? '' : DD.btn({metin: o.iptal || 'İptal', tur: 'secondary', veri: {'dlg-iptal': 1}})}${DD.btn({metin: o.eylem || 'Tamam', tur: o.yikici ? 'yikici' : 'primary', tam: o.iptal === false, veri: {'dlg-tamam': 1}})}</div></div>`;
+    // Gastro DG.onay: perdeye dokunmak kapatmaz; yalnız düğmeler ve Esc (geri = false).
+    kap.innerHTML = `<div class="dd-perde"></div><div class="dd-diyalog" open role="alertdialog" aria-modal="true" aria-label="${esc(o.baslik || '')}" tabindex="-1"><h2 class="dd-t-sheet">${esc(o.baslik || '')}</h2>${o.metin ? `<p>${vurgu(o.metin)}</p>` : ''}${o.html || ''}<div class="${o.iptal === false ? '' : 'dd-ikili'}">${o.iptal === false ? '' : DD.btn({metin: o.iptal || 'İptal', tur: 'secondary', veri: {'dlg-iptal': 1}})}${DD.btn({metin: o.eylem || 'Tamam', tur: o.yikici ? 'yikici' : 'primary', tam: o.iptal === false, veri: {'dlg-tamam': 1}})}</div></div>`;
     kat.append(kap);
     const d = kap.querySelector('.dd-diyalog');
     const h = {kapat(v = false) { acik.splice(acik.indexOf(h), 1); kap.remove(); if (onceki?.isConnected) onceki.focus?.({preventScroll: true}); coz(v); }};
@@ -454,7 +464,8 @@
     el.className = 'dd-snack'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
     el.innerHTML = `${ikon ? ik(ikon) : ''}<span>${vurgu(metin)}</span>${o.eylem ? `<button type="button">${esc(o.eylem)}</button>` : ''}`;
     const g = ust();
-    if (g) el.style.setProperty('--dd-snack-alt', `${(R.sahne.classList.contains('has-dock') ? TK.size.navBar + TK.size.navBottom + TK.space[12] : TK.space[16]) + (g.el.querySelector('.dd-altbar')?.offsetHeight || 0) + (R.sahne.classList.contains('has-tabagim') && !R.sahne.classList.contains('has-tabagim-ust') ? TK.size.tabagimBar + TK.space[8] : 0)}px`);
+    // Gastro .dgu-snack: dock varken sayfa sonu boşluğu (pageEnd), yokken 24; alt eylem çubuğu varsa çubuğun 24 üstü.
+    if (g) el.style.setProperty('--dd-snack-alt', `${(R.sahne.classList.contains('has-dock') ? TK.size.pageEnd : TK.space[24]) + (g.el.querySelector('.dd-altbar')?.offsetHeight || 0) + (R.sahne.classList.contains('has-tabagim') && !R.sahne.classList.contains('has-tabagim-ust') ? TK.size.tabagimBar + TK.space[8] : 0)}px`);
     kat.append(el);
     requestAnimationFrame(() => el.classList.add('is-on'));
     let bitti = false;

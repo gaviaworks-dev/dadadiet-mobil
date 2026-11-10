@@ -6,6 +6,7 @@
  * #/ritim?hal=bos ilk kullanım, #/ritim?hal=hata bağlantı hatası. 5:2 planında günlük sayaç yerine kısıtlı gün seçimi çizilir.
  */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const {sayi, ondalik} = DD;
   const GUNLER = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
   const GUN_MS = 864e5;
@@ -95,39 +96,39 @@
   const bilgi = (k, d) => {
     if (d === 'bos') return `Sıradaki oruç **${planBul(k).orucSaat} saat**. Hazır olduğunda başlat; sayaç o andan itibaren işler.`;
     const bitis = basMs(k, d) + hedefSaat(k, d) * 36e5;
-    if (d === 'oruc') return `İlk öğün saatin **${saat(bitis)}**. Bu sürede **su ve şekersiz içecekler** serbest.`;
+    if (d === 'oruc') return `İlk öğün saatin **${nk(saat(bitis))}**. Bu sürede **su ve şekersiz içecekler** serbest.`;
     const o = planliOgun();
-    return `Pencerenin kapanışı **${saat(bitis)}**.${o ? ` Planlı öğünün **${o.ad}, ${o.saat}**.` : ' Bugünkü öğünlerin tamam.'}`;
+    return `Pencerenin kapanışı **${nk(saat(bitis))}**.${o ? ` Planlı öğünün **${o.ad}, ${nk(o.saat)}**.` : ' Bugünkü öğünlerin tamam.'}`;
   };
   const zamanlar = (k, d) => {
     const bas = basMs(k, d), bitis = bas + hedefSaat(k, d) * 36e5;
     return DD.zamanHucreler([
-      {etiket: d === 'oruc' ? 'Oruç başladı' : 'Pencere açıldı', deger: zaman(bas), id: 'bas'},
-      {etiket: d === 'oruc' ? 'Hedef bitiş' : 'Pencere kapanır', deger: zaman(bitis), eylem: 'Planı değiştir', id: 'plan'}
+      {etiket: d === 'oruc' ? 'Oruç başladı' : 'Pencere açıldı', deger: nk(zaman(bas)), id: 'bas'},
+      {etiket: d === 'oruc' ? 'Hedef bitiş' : 'Pencere kapanır', deger: nk(zaman(bitis)), eylem: 'Planı değiştir', id: 'plan'}
     ]);
   };
   const gecisMetin = (k, d) => {
-    if (d !== 'oruc') { const o = planliOgun(); return {baslik: 'Orucu başlat', metin: `${planBul(k).orucSaat} saatlik orucun şimdi başlar.${o ? ` ${o.ad} ${o.saat} için planlı.` : ''}`, eylem: 'Başlat', dugme: DDV.ritim.durumlar.pencere.eylem, yardim: DDV.ritim.durumlar.pencere.eylemYardim, ikon: 'oruc'}; }
+    if (d !== 'oruc') { const o = planliOgun(); return {baslik: 'Orucu başlat', metin: `${planBul(k).orucSaat} saatlik orucun şimdi başlar.${o ? ` ${o.ad} ${nk(o.saat)} için planlı.` : ''}`, eylem: 'Başlat', dugme: DDV.ritim.durumlar.pencere.eylem, yardim: DDV.ritim.durumlar.pencere.eylemYardim, ikon: 'oruc'}; }
     return {baslik: 'Orucu bitir', metin: 'Geçen süre haftana kaydedilir, yeme penceren açılır.', eylem: 'Bitir', dugme: DDV.ritim.durumlar.oruc.eylem, yardim: DDV.ritim.durumlar.oruc.eylemYardim, ikon: 'pencere'};
   };
   const eylemler = (k, d) => {
     const m = gecisMetin(k, d);
     return `<div class="dd-yigin-4">${DD.uzunBas({ad: 'ritim-gecis', metin: m.dugme, ikon: m.ikon, yardim: m.yardim, onayBaslik: m.baslik, onayMetin: m.metin, onayEylem: m.eylem})}${DD.btn({metin: 'Basılı tutmadan onayla', tur: 'text', tam: true, veri: {eylem: 'gecis-onay'}})}</div>`;
   };
-  const bittiGovde = s => `<div class="dd-yigin">${DD.orucSayac({durum: 'bitti', gecenDk: s.sureDk, hedefSaat: s.hedefSaat, canli: false, fazlar: DDV.ritim.fazlar, altMetin: `${s.hedefSaat} saatlik oruç`})}${DD.tamamlanmaKart({baslik: `${s.hedefSaat} saati tamamladın`, alt: 'Bugün kendine iyi baktın.', bas: s.bas, bit: s.bit, eylem: {metin: 'Orucu açan öğünü ekle', ikon: 'ekle', veri: {eylem: 'acis-ogun'}}})}${DD.btn({metin: 'Pencereye dön', tur: 'text', tam: true, veri: {eylem: 'son-kapat'}})}</div>`;
+  const bittiGovde = s => `<div class="dd-yigin">${DD.orucSayac({durum: 'bitti', gecenDk: s.sureDk, hedefSaat: s.hedefSaat, canli: false, fazlar: DDV.ritim.fazlar, altMetin: `${s.hedefSaat} saatlik oruç`})}${DD.tamamlanmaKart({baslik: `${s.hedefSaat} saati tamamladın`, alt: 'Bugün kendine iyi baktın.', bas: nk(s.bas), bit: nk(s.bit), eylem: {metin: 'Orucu açan öğünü ekle', ikon: 'ekle', veri: {eylem: 'acis-ogun'}}})}${DD.btn({metin: 'Pencereye dön', tur: 'text', tam: true, veri: {eylem: 'son-kapat'}})}</div>`;
 
   // ---------- 5:2 ----------
   const haftaIso = g => { const b = DD.simdi(), i = (b.getDay() + 6) % 7; return new Date(b.getFullYear(), b.getMonth(), b.getDate() - i + GUNLER.indexOf(g)).toLocaleDateString('sv'); };
   const haftalikGovde = k => {
     const bugun = GUNLER[(DD.simdi().getDay() + 6) % 7], kisitli = k.kisitli.includes(bugun);
     const noktalar = Object.fromEntries(k.kisitli.map(g => [haftaIso(g), ['uyari']]));
-    return `<div class="dd-yigin">${DD.p(ilkCumle(planBul(k).aciklama), {ton: 'ikincil'})}<div class="dd-sira">${DD.durumRozet(kisitli ? {metin: 'Bugün kısıtlı gün', ton: 'uyari', ikon: 'takvim'} : {metin: 'Bugün olağan gün', ton: 'basari', ikon: 'onay'})}</div>${DD.kart({html: `<div class="dd-yigin-12"><span class="dd-t-card">Kısıtlı iki günün</span>${DD.cipler({ad: 'kisitli', tur: 'coklu', serit: false, etiket: 'Kısıtlı günler', ogeler: GUNLER.map(g => ({metin: g, deger: g})), secili: k.kisitli})}</div>`})}${DD.takvim({ad: 'ritim-52', gorunum: 'hafta', noktalar})}</div>`;
+    return `<div class="dd-yigin">${DD.p(ilkCumle(planBul(k).aciklama), {ton: 'ikincil'})}<div class="dd-sira">${DD.durumRozet(kisitli ? {metin: 'Bugün kısıtlı gün', ton: 'uyari', ikon: 'takvim'} : {metin: 'Bugün olağan gün', ton: 'basari', ikon: 'onay'})}</div>${DD.kart({html: DD.alan({etiket: 'Kısıtlı iki günün', html: DD.cipler({ad: 'kisitli', tur: 'coklu', serit: false, etiket: 'Kısıtlı günler', ogeler: GUNLER.map(g => ({metin: g, deger: g})), secili: k.kisitli})})})}${DD.takvim({ad: 'ritim-52', gorunum: 'hafta', noktalar})}</div>`;
   };
 
   // ---------- Hafta ----------
   const kayitlar = k => [...DDV.ritim.sonYediGun, ...k.gecmis];
   const halkalar = l => l.reduce((h, g) => ({...h, [g.tarih]: Math.max(h[g.tarih] || 0, Math.min(g.sureSaat / g.hedefSaat, 1))}), {});
-  const gunSatir = g => DD.satir({sol: DD.halkaMini({oran: Math.min(g.sureSaat / g.hedefSaat, 1), boyut: 'sm'}), baslik: `${ondalik(g.sureSaat, 1)} saat`, alt: `${g.baslangic} - ${g.bitis} · hedef ${g.hedefSaat} saat`, sag: DD.durumRozet(g.tamamlandi ? {metin: 'Hedefte', ton: 'basari', ikon: 'onay'} : {metin: 'Kısa sürdü', ton: 'notr', ikon: 'saat'}), ok: false, duz: true});
+  const gunSatir = g => DD.satir({sol: DD.halkaMini({oran: Math.min(g.sureSaat / g.hedefSaat, 1), boyut: 'sm'}), baslik: `${ondalik(g.sureSaat, 1)} saat`, alt: `${nk(g.baslangic)} - ${nk(g.bitis)} · hedef ${g.hedefSaat} saat`, sag: DD.durumRozet(g.tamamlandi ? {metin: 'Hedefte', ton: 'basari', ikon: 'onay'} : {metin: 'Kısa sürdü', ton: 'notr', ikon: 'saat'}), ok: false, duz: true});
   const gunDetay = k => { const l = kayitlar(k).filter(g => g.tarih === (secili || DD.bugunIso())); return l.length ? DD.yuzey(DD.satirlar(l.map(gunSatir))) : DD.veriYok('Bu gün için **oruç kaydı** yok.'); };
   const ozet = k => {
     const l = kayitlar(k).slice(-7), tamam = l.filter(g => g.tamamlandi).length, ort = l.reduce((t, g) => t + g.sureSaat, 0) / l.length;
@@ -195,7 +196,7 @@
         const denetle = () => {
           const ileri = ms() > simdi;
           dugme.disabled = ileri;
-          d.querySelector('[data-yuva="saat-uyari"]').innerHTML = ileri ? DD.bant({ton: 'uyari', metin: `Başlangıç **şu andan sonra** olamaz. Şimdi saat ${saat(simdi)}.`}) : '';
+          d.querySelector('[data-yuva="saat-uyari"]').innerHTML = ileri ? DD.bant({ton: 'uyari', metin: `Başlangıç **şu andan sonra** olamaz. Şimdi saat ${nk(saat(simdi))}.`}) : '';
         };
         const c1 = DD.on(d, 'bas-gun', v => { gun = v; denetle(); });
         const c2 = DD.on(d, 'bas-saat', (_, x) => { dk = x.dakika; denetle(); });
@@ -203,7 +204,7 @@
           const eski = anlik();
           yaz({...k, bas: ms()});
           d.kapat(); DD.tazele();
-          DD.toast(`Başlangıç **${zaman(ms())}** oldu`, {tur: 'basari', eylem: 'Geri al', onEylem: () => geriYukle(eski)});
+          DD.toast(`Başlangıç **${nk(zaman(ms()))}** oldu`, {tur: 'basari', eylem: 'Geri al', onEylem: () => geriYukle(eski)});
         });
         return () => { c1(); c2(); c3(); };
       }
@@ -276,7 +277,7 @@
     const o = DD.yeniHesap() ? null : DDV.bugun.ogunler.find(x => x.durum === 'planli'), an = DD.simdi();
     const kalan = o && (([h, m]) => h * 60 + m - an.getHours() * 60 - an.getMinutes())(o.saat.split(':').map(Number));
     const sure = n => `${n >= 60 ? `${Math.floor(n / 60)} sa ` : ''}${n % 60} dk sonra`;
-    const l = [o && {ikon: 'ogun', baslik: `${o.ad} · ${o.saat.replace(':', '.')}`, alt: kalan > 0 ? sure(kalan) : 'Şimdi', git: `#/ogun/${o.id}`}, {ikon: 'su', baslik: 'Su aralığı', alt: `Saat başı · sıradaki ${DD.suSonrakiSaat()}`, git: '#/bugun'}].filter(Boolean);
+    const l = [o && {ikon: 'ogun', baslik: `${o.ad} · ${nk(o.saat)}`, alt: kalan > 0 ? sure(kalan) : 'Şimdi', git: `#/ogun/${o.id}`}, {ikon: 'su', baslik: 'Su aralığı', alt: `Saat başı · sıradaki ${DD.suSonrakiSaat()}`, git: '#/bugun'}].filter(Boolean);
     return `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar(l))}${DD.uye() ? '' : DD.kanca({metin: 'Yeme penceren açıldığında bildirim almak için hesabını bağla', ikon: 'bell'})}</div>`;
   };
   const govde = () => {

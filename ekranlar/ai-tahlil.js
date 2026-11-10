@@ -26,7 +26,7 @@
     const l = tahlil().degerler.filter(x => !sadeceDisinda || x.durum !== 'normal');
     return [...l].sort((a, b) => (a.durum === 'normal') - (b.durum === 'normal'));
   };
-  const liste = ctx => DD.kart({html: `<div class="dd-satirlar">${satirlar(ctx.filtre === 'disinda').map(x => DD.tahlilSatir({...x, aciklama: aciklama(x)})).join('')}</div>`});
+  const liste = ctx => DD.kart({html: DD.satirlar(satirlar(ctx.filtre === 'disinda').map(x => DD.tahlilSatir({...x, aciklama: aciklama(x)})))});
 
   const gonderSheet = kok => {
     const u = uzman(), disinda = satirlar(true);

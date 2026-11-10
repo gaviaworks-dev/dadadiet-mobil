@@ -6,6 +6,7 @@
  * #/ogun/:id?hal=hata bağlantı hatası.
  */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const {sayi, ondalik} = DD;
   const MAKRO = [['P', 'Protein'], ['K', 'Karbonhidrat'], ['Y', 'Yağ'], ['Lif', 'Lif']];
   const OGUN_PAY = {kahvalti: .25, ogle: .35, aksam: .3, ara: .1};   // DD.ogunKart ile aynı: kart ve detay aynı hedefi gösterir.
@@ -162,7 +163,7 @@
   };
   // Kayıtlı fotoğraf: en yeni fotoğraflı kayıt. Boş gün kipinde yalnız o gün çekilenler sayılır.
   const fotoKayit = x => DDKayit.ogunun(DD.bugunIso(), x.id).find(k => k.foto && (!yeni() || /^k\d/.test(k.id)));
-  const fotoBanner = k => DD.banner({gorsel: k.foto, etiket: k.saat, baslik: k.ad, git: `#/kayit/${k.id}`});
+  const fotoBanner = k => DD.banner({gorsel: k.foto, etiket: nk(k.saat), baslik: k.ad, git: `#/kayit/${k.id}`});
   const tabaklarGiris = () => DD.eylemKart({ikon: 'galeri', baslik: 'Tabaklarım', alt: 'Çektiğin tabaklar gün gün', git: '#/tabaklarim'});
   const bosHal = x => (x.durum === 'atlandi'
     ? DD.bos({ikon: 'forward', tam: true, baslik: 'Bu öğünü atladın', metin: 'Yediklerini **dilediğin an** ekleyebilirsin.', eylem: {metin: 'Besin ekle', ikon: 'ekle', git: ekleRota(x.id)}, ikincil: {metin: 'Plana dön', ikon: 'yenile', veri: {eylem: 'plana-don'}}})

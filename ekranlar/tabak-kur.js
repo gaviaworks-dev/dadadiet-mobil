@@ -76,7 +76,7 @@
   };
   const besinSheet = x => DD.sheet({
     baslik: x.ad,
-    html: `<div class="dd-yigin"><div class="dd-ara"><span class="dd-t-card">Miktar</span>${DD.stepper({ad: 'gram', deger: bolmesi(x) === 'yag' ? 10 : 50, min: 5, max: 400, adim: bolmesi(x) === 'yag' ? 5 : 10, birim: 'g', aria: 'Miktar'})}</div></div>`,
+    html: `${DD.alan({etiket: 'Miktar', html: DD.stepper({ad: 'gram', deger: bolmesi(x) === 'yag' ? 10 : 50, min: 5, max: 400, adim: bolmesi(x) === 'yag' ? 5 : 10, birim: 'g', aria: 'Miktar'})})}`,
     altBar: DD.btn({metin: 'Tabağa ekle', ikon: 'ekle', tam: true, veri: {eylem: 'tabaga'}}),
     sonra: h => DD.eylem(h, 'tabaga', () => { const g = +h.querySelector('input[name="gram"]').value; yaz([...tabak(), {slug: x.slug, tur: 'besin', miktar: g, etiket: `${sayi(g)} g`}]); h.kapat(); DD.tazele(); DD.toast(`**${x.ad}** tabağa eklendi`, {tur: 'basari'}); })
   });
@@ -89,8 +89,8 @@
       ctx.kat ||= 'yemek';
       return `<div class="dd-ic dd-yigin">
         ${durumHtml(tabak())}
-        <div class="dd-yigin-8"><span class="dd-t-card">Hazır tabaklar</span><div class="dd-serit">${T().hazir.map((t, i) => DD.cip({metin: t.ad, veri: {eylem: 'hazir', id: i}})).join('')}</div></div>
-        <div class="dd-yigin-12"><span class="dd-t-card">Tabağına ekle</span>${DD.segment({ad: 'kat', etiket: 'Tür', secili: ctx.kat, ogeler: [{ad: 'Yemekler', deger: 'yemek'}, {ad: 'Yan öğeler', deger: 'besin'}]})}${DD.arama({ad: 'q', yer: ctx.kat === 'besin' ? 'Ekmek, ceviz, yoğurt ara' : 'Karnıyarık, mercimek köftesi ara', deger: ctx.q})}<div data-yuva="sonuc">${sonucHtml(ctx)}</div></div>
+        ${DD.alan({etiket: 'Hazır tabaklar', html: DD.yatay(T().hazir.map((t, i) => DD.cip({metin: t.ad, veri: {eylem: 'hazir', id: i}})))})}
+        ${DD.alan({etiket: 'Tabağına ekle', html: `${DD.segment({ad: 'kat', etiket: 'Tür', secili: ctx.kat, ogeler: [{ad: 'Yemekler', deger: 'yemek'}, {ad: 'Yan öğeler', deger: 'besin'}]})}${DD.arama({ad: 'q', yer: ctx.kat === 'besin' ? 'Ekmek, ceviz, yoğurt ara' : 'Karnıyarık, mercimek köftesi ara', deger: ctx.q})}<div data-yuva="sonuc">${sonucHtml(ctx)}</div>`})}
       </div>`;
     },
     altBar: () => (tabak().length ? DD.altEylem({dugmeler: [{metin: 'Temizle', tur: 'secondary', veri: {eylem: 'temizle'}}, {metin: 'Öğüne ekle', ikon: 'ekle', veri: {eylem: 'ogune'}}]}) : ''),

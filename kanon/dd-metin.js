@@ -37,7 +37,7 @@
   const PARAGRAF = 'p,blockquote,.dd-metin,[class*=govde],[class*=aciklama]';
   // Kısa mutfak etiketi (bayrakla birlikte millet adı: “Türk”, “Amerikan” — Beyar V4 A3): hecelenmez, tek satır + “…” (dd-metin.css).
   const MUTFAK = '.dd-bayrak-metin b,.v3-cuisine .v3-cuisine-text b,.dd-uz-feature .dd-uz-flag ~ span,.dd-mark--flag ~ span,.dd-mutfak-ad';
-  const ATLA = 'script,style,textarea,input,select,option,code,pre,svg,[contenteditable],[data-dd-hece="yok"],.dd-girdi,.dd-satir-metin>span,.dd-satir-metin>b,.dd-rozet-ad,.dd-zc-bas,' + BASLIK_KUME + ',' + MUTFAK;
+  const ATLA = 'script,style,textarea,input,select,option,code,pre,svg,[contenteditable],[data-dd-hece="yok"],.dd-girdi,.dd-satir-metin>span,.dd-satir-metin>b,.dd-rozet-ad,.dd-zc-bas,.dd-veri-yok,.dd-izin-maddeler small,.dd-yorum-metin p,.dd-kunye span,' + BASLIK_KUME + ',' + MUTFAK;
   function isle(kok = document.body) {
     if (!kok) return;
     const w = document.createTreeWalker(kok, NodeFilter.SHOW_TEXT, {acceptNode: n => !n.nodeValue || n.nodeValue.length < 5 || n.nodeValue.includes(SHY) || !n.parentElement || n.parentElement.closest(ATLA) || (n.parentElement.matches('b,strong') && !n.parentElement.closest(PARAGRAF)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});

@@ -78,11 +78,11 @@
     const bas = DD.satirKap(DD.satir({sol: DD.gorsel({src: x.gorsel, ad: x.ad, ton: DD.makroTon(x)}), baslik: x.ad, alt: x.kategori}), DD.ikonBtn(kalpAyar(k)));
     const v = yemek ? null : varsayilan(x);
     const secici = yemek
-      ? `<div class="dd-yigin-12">${DD.kesirIzgara({ad: 'kesir', secili: 1})}<div class="dd-ara"><span class="dd-t-card">Porsiyon</span><b class="dd-t-stat" data-yuva="kcal">${sayi(kalem.kcal)} kcal</b></div></div>`
+      ? DD.alan({etiket: 'Kaç porsiyon?', html: `${DD.kesirIzgara({ad: 'kesir', secili: 1})}<div class="dd-porsiyon-ozet"><b class="dd-t-stat" data-yuva="kcal">${sayi(kalem.kcal)} kcal</b></div>`})
       : DD.porsiyon({ad: 'porsiyon', birimler: x.porsiyonlar, secili: v.birim, miktar: v.miktar, kcal100: x.kcal});
     DD.sheet({
       baslik: 'Porsiyon',
-      html: `<div class="dd-yigin">${bas}${secici}<div data-yuva="makro">${makroOzet(kalem)}</div><div data-yuva="not">${yemek ? DD.p(`**1 porsiyon** ${sayi(x.porsiyonKcal)} kcal, tarif ${sayi(x.kisi)} kişilik.`, {ton: 'ikincil', meta: true}) : olcuNot(x, v.birim)}</div></div>`,
+      html: `<div class="dd-yigin">${bas}${secici}<div data-yuva="makro">${makroOzet(kalem)}</div><div data-yuva="not">${yemek ? DD.p(`**1 porsiyon** ${sayi(x.porsiyonKcal)} kcal.`, {ton: 'ikincil', meta: true}) : olcuNot(x, v.birim)}</div></div>`,
       altBar: DD.btn({metin: 'Tabağıma ekle', ikon: 'ekle', tam: true, veri: {eylem: 'ekle'}}),
       sonra: d => {
         const tazele = () => { d.querySelector('[data-yuva="makro"]').innerHTML = makroOzet(kalem); };

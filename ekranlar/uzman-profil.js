@@ -3,6 +3,7 @@
  * Kendi diyetisyeninde paket seçilmez, saat 'uzman-randevu'ya yazılır (s.kendi). ?ertele=1 doğrudan takvime iner. ?paket=1ay paketi seçili açar; kendi diyetisyeninde bu, paket yenileme talebidir.
  * Boş saatler veride yok: uygunSaatler slug ve tarihten türetir (uzman-bul.js aynı kuralı kullanır). */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const KAPAK = 'assets/gorsel/hero/uzman-masa.webp', ONGORU_GUN = 30;
   const B = () => DDV.benimDiyetisyenim;
   const bul = slug => DDV.diyetisyenler.find(d => d.slug === slug);
@@ -35,12 +36,12 @@
     return DD.slotlar({ad: 'saat', secili: s.saat, gruplar: g});
   };
   const takvimHtml = (d, s) => `<div class="dd-yigin" id="randevu-saat">${DD.takvim({ad: 'tarih', gorunum: 'hafta', secili: s.tarih, odak: s.tarih, min: DD.bugunIso(), max: gunEkle(DD.bugunIso(), ONGORU_GUN), kapali: pazarlar()})}<div data-yuva="slot">${slotHtml(d, s)}</div></div>`;
+  // Profil başı: liste kartıyla aynı diyetisyen kartı (DD.diyetisyenKart liste); kendi sayfasına bağlanmaz.
   const kartHtml = d => DD.diyetisyenKart(d, {
-    tur: 'tam',
-    git: benimMi(d) ? '#/uzman' : `#/uzman/profil/${d.slug}`,
+    tur: 'liste',
+    git: benimMi(d) ? '#/uzman' : null,
     eylem: {metin: benimMi(d) ? 'Görüşme planla' : 'Randevu al', ikon: 'takvim', veri: {eylem: 'takvime-in'}},
-    ikincil: benimMi(d) ? {metin: 'Mesaj', ikon: 'sohbet', git: '#/uzman/sohbet'} : {metin: 'Paylaş', ikon: 'paylas', veri: {eylem: 'paylas'}},
-    sayaclar: [{deger: `${d.deneyimYil} yıl`, etiket: 'Deneyim'}, {deger: d.sehir, etiket: 'Şehir'}, {deger: DD.paraTL(d.paketler.find(p => p.id === 'tek').fiyat), etiket: 'Tek seans'}]
+    ikincil: benimMi(d) ? {metin: 'Mesaj', ikon: 'sohbet', git: '#/uzman/sohbet'} : {metin: 'Paylaş', ikon: 'paylas', veri: {eylem: 'paylas'}}
   });
   const hakkinda = d => {
     const tek = d.paketler.find(p => p.id === 'tek');
@@ -57,7 +58,7 @@
   const turSecim = (d, s) => (d.gorusmeTurleri.length > 1 ? DD.segment({ad: 'tur', etiket: 'Görüşme türü', secili: s.tur, ogeler: d.gorusmeTurleri.map(t => ({ad: t, deger: t}))}) : '');
   const altHtml = (d, s) => {
     const p = paketBul(d, s), sol = s.kendi
-      ? `<small class="dd-yardim">${DD.esc(s.saat ? tarihMetin(s.tarih) : 'Kalan görüşme')}</small><b class="dd-t-card">${DD.esc(s.saat || String(B().paket.kalanSeans))}</b>`
+      ? `<small class="dd-yardim">${DD.esc(s.saat ? tarihMetin(s.tarih) : 'Kalan görüşme')}</small><b class="dd-t-card">${DD.esc(nk(s.saat) || String(B().paket.kalanSeans))}</b>`
       : `<small class="dd-yardim">${DD.esc(p.ad)}</small><b class="dd-t-card">${DD.esc(DD.paraTL(p.fiyat))}</b>`;
     return DD.altEylem({sol, dugmeler: [s.saat ? {metin: s.kendi ? 'Saati onayla' : 'Randevu iste', ikon: 'onay', veri: {eylem: 'onay'}} : {metin: 'Saat seç', ikon: 'takvim', veri: {eylem: 'takvime-in'}}]});
   };
@@ -67,7 +68,7 @@
     {ikon: 'uzman', etiket: 'Diyetisyen', deger: d.ad},
     ...(s.kendi ? [] : [{ikon: 'program', etiket: 'Paket', deger: `${paketBul(d, s).ad} · ${paketBul(d, s).seans} görüşme`}]),
     {ikon: 'takvim', etiket: 'Tarih', deger: tarihMetin(s.tarih)},
-    {ikon: 'saat', etiket: 'Saat', deger: s.saat},
+    {ikon: 'saat', etiket: 'Saat', deger: nk(s.saat)},
     {ikon: 'video', etiket: 'Görüşme', deger: s.tur},
     ...(s.kendi ? [] : [{ikon: 'tag', etiket: 'Tutar', deger: DD.paraTL(paketBul(d, s).fiyat)}])
   ];
@@ -75,7 +76,7 @@
     const r = randevu() || B().sonrakiRandevu;
     DD.durum.yaz('uzman-randevu', {...r, tarih: s.tarih, tarihMetin: tarihMetin(s.tarih), saat: s.saat, iso: `${s.tarih}T${s.saat}:00+03:00`, tur: s.tur});
     DD.yerine('#/uzman');
-    DD.toast(`Görüşmen **${DD.tarihKisa(s.tarih)} ${s.saat}** için planlandı`, {tur: 'basari', ikon: 'takvim'});
+    DD.toast(`Görüşmen **${DD.tarihKisa(s.tarih)} ${nk(s.saat)}** için planlandı`, {tur: 'basari', ikon: 'takvim'});
   };
   const onaySheet = (d, s) => {
     const benim = s.kendi, eski = DD.durum.oku('uzman-talep', null), metin = benim

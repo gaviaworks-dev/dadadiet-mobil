@@ -561,7 +561,7 @@ DDV.saglik = {
    "tarihMetin": "18 Eylül 2026",
    "tahlil": "t-2026-09",
    "baslik": "Eylül tahlilin okundu",
-   "ozet": "12 değerin 11'i referans aralığında. **D vitamini** referansın altında görünüyor. Kolesterol ve trigliserid değerlerin martla kıyaslandığında düşmüş.",
+   "ozet": "12 değerin 11'i referans aralığında. **D vitamini** referansın altında görünüyor. Kolesterol ve trigliserid değerlerin Mart'la kıyaslandığında düşmüş.",
    "maddeler": [
     "D vitamini sonucunu diyetisyeninle ve hekiminle görüş.",
     "Yağlı balık ve süt ürünlerini haftana yaymayı diyetisyeninle planlayabilirsin.",

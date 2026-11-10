@@ -31,7 +31,7 @@
   };
   const istekBolum = () => {
     const u = uzman(), l = istekler();
-    return `<div class="dd-yigin-12">${DD.p('Karar senin; onaylamazsan diyetisyenin **bu veriyi göremez**.', {ton: 'ikincil'})}${l.map(i => { const t = TUR().find(x => x.id === i.tur); return DD.kart({html: `<div class="dd-yigin-12">${DD.satir({avatar: {harf: u.harf, boyut: 40}, baslik: t.etiket, alt: `${u.kisaAd || u.ad} · ${DD.tarihUzun(i.tarih)}`})}${DD.p(`${i.not} Onaylarsan **${t.alt.toLocaleLowerCase('tr')}** paylaşılır.`, {meta: true})}<div class="dd-ikili">${DD.btn({metin: 'Reddet', tur: 'secondary', veri: {eylem: 'istek-red', id: i.tur}})}${DD.btn({metin: 'Onayla', ikon: 'onay', veri: {eylem: 'istek-onay', id: i.tur}})}</div></div>`}); }).join('')}</div>`;
+    return `<div class="dd-yigin-12">${DD.p('Karar senin; onaylamazsan diyetisyenin **bu veriyi göremez**.', {ton: 'ikincil'})}<div class="dd-yigin-24">${l.map(i => { const t = TUR().find(x => x.id === i.tur); return `<article class="dd-yigin-12">${DD.satir({avatar: {harf: u.harf, boyut: 40}, baslik: t.etiket, alt: `${u.kisaAd || u.ad} · ${DD.tarihUzun(i.tarih)}`})}${DD.p(`${i.not} Onaylarsan **${t.alt.toLocaleLowerCase('tr')}** paylaşılır.`, {meta: true})}<div class="dd-ikili">${DD.btn({metin: 'Reddet', tur: 'secondary', veri: {eylem: 'istek-red', id: i.tur}})}${DD.btn({metin: 'Onayla', ikon: 'onay', veri: {eylem: 'istek-onay', id: i.tur}})}</div></article>`; }).join('')}</div></div>`;
   };
   const paylasimBolum = () => {
     const u = uzman();
@@ -66,7 +66,7 @@
     let sure = 'surekli';
     DD.sheet({
       baslik: 'Süreli izin ver',
-      html: `<div class="dd-yigin">${DD.p(`**${uzman().ad}** seçtiğin verileri seçtiğin süre boyunca görür; istediğin an geri çekebilirsin.`, {ton: 'ikincil'})}<div class="dd-yigin-8">${kapali.map(t => DD.checkbox({ad: `yeni-${t.id}`, etiket: t.etiket, alt: t.alt})).join('')}</div><div class="dd-yigin-12"><span class="dd-t-card">İzin süresi</span>${DD.cipler({ad: 'izin-sure', tur: 'tek', serit: false, secili: sure, ogeler: H().izinSureleri.map(([deger, metin]) => ({deger, metin}))})}</div><div data-yuva="hata"></div></div>`,
+      html: `<div class="dd-yigin">${DD.p(`**${uzman().ad}** seçtiğin verileri seçtiğin süre boyunca görür; istediğin an geri çekebilirsin.`, {ton: 'ikincil'})}${DD.alan({etiket: 'Paylaşılacak veriler', html: kapali.map(t => DD.checkbox({ad: `yeni-${t.id}`, etiket: t.etiket, alt: t.alt})).join('')})}${DD.alan({etiket: 'İzin süresi', html: DD.cipler({ad: 'izin-sure', tur: 'tek', serit: false, secili: sure, ogeler: H().izinSureleri.map(([deger, metin]) => ({deger, metin}))})})}<div data-yuva="hata"></div></div>`,
       altBar: DD.btn({metin: 'İzni ver', ikon: 'onay', tam: true, veri: {eylem: 'izin-ver'}}),
       sonra: d => {
         const c = [

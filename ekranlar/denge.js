@@ -1,6 +1,6 @@
 /* SCR-40 Denge & Tabak (#/denge): Akıllı tabak ve Denge Skoru. Referans: Lifesum, Apple Health, Zero, Fastic, Simple (tasks/referanslar.md Denge, §2.5).
  * Yargısız: kırmızı yok, sözcük sayıdan önce okunur. Haftalık ortalama ve en iyi gün DDV.denge.tabak.haftalik'ten türetilir.
- * Durum: 'denge-oneri' seçilen öneri indeksleri, 'denge-icgoru' 'kapali' içgörü kartı kapatıldı. #/denge?hal=bos hazırlanıyor, #/denge?hal=hata hata hali.
+ * Durum: 'denge-oneri' seçilen öneri indeksleri. #/denge?hal=bos hazırlanıyor, #/denge?hal=hata hata hali.
  */
 (() => {
   const {sayi} = DD;
@@ -9,7 +9,7 @@
   const GUN_UZUN = {Pzt: 'Pazartesi', Sal: 'Salı', Çar: 'Çarşamba', Per: 'Perşembe', Cum: 'Cuma', Cmt: 'Cumartesi', Paz: 'Pazar'};
   const tabak = () => DDV.denge.tabak;
   const seciliOneri = () => DD.durum.oku('denge-oneri', []);
-  const imza = () => JSON.stringify([hal(), seciliOneri(), DD.durum.oku('denge-icgoru', null), DD.durum.oku('bugun-ogun', null)]);
+  const imza = () => JSON.stringify([hal(), seciliOneri(), DD.durum.oku('bugun-ogun', null)]);
   const ortalama = () => { const l = tabak().haftalik; return Math.round(l.reduce((t, g) => t + g.skor, 0) / l.length); };
   const enDengeli = () => [...tabak().haftalik].sort((a, b) => b.skor - a.skor)[0];
   const enAcik = () => [...tabak().bilesenler].sort((a, b) => a.puan / a.enCok - b.puan / b.enCok)[0];
@@ -35,14 +35,10 @@
     const t = tabak(), s = seciliOneri(), artis = s.reduce((a, i) => a + t.oneriler[i].puanArtisi, 0);
     return s.length
       ? DD.bant({ton: 'basari', ikon: 'onay', metin: `Seçtiklerinle bu tabağın tahmini skoru **${Math.min(100, t.skor + artis)}**. Küçük bir değişiklik yeterli.`})
-      : DD.veriYok('Denemek istediklerini işaretle; **tahmini etkisini** burada gör.');
+      : '';
   };
-  const oneriListe = () => DD.gorevListe(tabak().oneriler.map((o, i) => ({id: `oneri-${i}`, baslik: `${o.baslik} (+${o.puanArtisi})`, alt: o.metin, tamam: seciliOneri().includes(i)})), {cizgi: false, etiket: 'Denemek istediğin öneriler'});
-  const icgoru = () => {
-    if (DD.durum.oku('denge-icgoru', null) === 'kapali') return '';
-    const b = enAcik();
-    return DD.icgoruKart({baslik: `${b.ad} tarafında yer var.`, metin: `Tabağında **%${b.oran}**, kılavuz **%${b.hedefOran}**. ${tabak().oneriler[0].metin}`, yanitlar: [{metin: 'Deneyelim', veri: {eylem: 'deneyelim'}}, {metin: 'Şimdi değil', veri: {eylem: 'simdi-degil'}}]});
-  };
+  const oneriListe = () => DD.alan({etiket: 'Denemek istediklerini seç', html: DD.secimler({ad: 'oneriler', coklu: true, duzen: 'tek', secili: seciliOneri().map(String), ogeler: tabak().oneriler.map((o, i) => ({k: String(i), ad: o.baslik, alt: `+${o.puanArtisi} puan · ${o.metin}`, ikon: o.ikon}))})});
+
   const haftaKart = () => {
     const l = tabak().haftalik, e = enDengeli(), once = l[l.length - 2].skor, son = l[l.length - 1].skor, fark = son - once;
     return DD.grafikKart({
@@ -60,7 +56,7 @@
       `<div class="dd-yigin">${kur}${skorKart()}</div>`,
       {baslik: 'Araçlar', html: araclar()},
       {baslik: 'Tabağın', eylem: 'Öğüne git', git: `#/ogun/${ogunId()}`, html: kirilim()},
-      {baslik: 'Öneriler', html: `<div class="dd-yigin"><div data-yuva="icgoru">${icgoru()}</div><div data-yuva="oneri">${oneriListe()}</div><div data-yuva="tahmin">${tahmin()}</div></div>`},
+      {baslik: 'Öneriler', html: `<div class="dd-yigin"><div data-yuva="oneri">${oneriListe()}</div><div data-yuva="tahmin">${tahmin()}</div></div>`},
       {baslik: 'Bu hafta', html: haftaKart()},
       {baslik: 'Aklındaki sorular', html: DD.soruCipleri({sorular: ['Akşam ne yesem?', 'Sebzeyi nasıl artırırım?']})},
       {baslik: t.rehber.baslik, html: rehber()}
@@ -89,11 +85,7 @@
   };
 
   // ---------- Bağlar ----------
-  const oneriGuncelle = (kok, i, acik) => {
-    const l = seciliOneri().filter(x => x !== i);
-    DD.durum.yaz('denge-oneri', acik ? [...l, i] : l);
-    yuva(kok, 'tahmin', tahmin()); cizilen = imza();
-  };
+
 
   DD.ekran('denge', {
     tur: 'sekme',
@@ -111,9 +103,7 @@
       const baglar = [
         DD.eylem(kok, 'ayrinti', ayrintiSheet),
         DD.eylem(kok, 'soru', el => soruSheet(el.dataset.soru)),
-        DD.eylem(kok, 'deneyelim', () => { oneriGuncelle(kok, 0, true); yuva(kok, 'oneri', oneriListe()); DD.durum.yaz('denge-icgoru', 'kapali'); yuva(kok, 'icgoru', ''); cizilen = imza(); DD.toast(`**${tabak().oneriler[0].baslik}** listene eklendi`, {tur: 'basari'}); }),
-        DD.eylem(kok, 'simdi-degil', () => { DD.durum.yaz('denge-icgoru', 'kapali'); yuva(kok, 'icgoru', ''); cizilen = imza(); }),
-        ...tabak().oneriler.map((_, i) => DD.on(kok, `oneri-${i}`, v => oneriGuncelle(kok, i, v)))
+        DD.on(kok, 'oneriler', l => { DD.durum.yaz('denge-oneri', l.map(Number)); yuva(kok, 'tahmin', tahmin()); cizilen = imza(); })
       ];
       return () => baglar.forEach(c => c());
     },

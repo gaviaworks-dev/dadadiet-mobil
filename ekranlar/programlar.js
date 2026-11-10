@@ -114,14 +114,7 @@
           return dilim.map(p => kart(p, s)).join('');
         });
       };
-      const rozet = () => {
-        const n = secimSayi(s), d = arac.querySelector('.dd-liste-search-filter');
-        d.classList.toggle('is-active', n > 0);
-        let b = d.querySelector('.dd-badge');
-        if (!n) { b?.remove(); return; }
-        if (!b) { b = document.createElement('span'); b.className = 'dd-badge dd-liste-search-filter__badge'; d.append(b); }
-        b.textContent = n;
-      };
+      const rozet = () => DD.filtreSayiYaz(arac, secimSayi(s));
       // Seçili çip şeridin dışında kalmasın.
       const secileGit = () => {
         const r = rail.firstElementChild, c = r?.querySelector('[aria-pressed=true]');

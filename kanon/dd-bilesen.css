@@ -188,6 +188,9 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 .dd-satir-metin small{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
 .dd-satir > .icon:last-child{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
 .dd-satir.is-yikici,.dd-satir.is-yikici > .icon{color:var(--dd-danger)}
+/* Diet ekleri (L, 10 Kasım): .is-ozet alt satırı 2 satırda keser; metin sütunundaki durum rozeti (DD.satir ek) içerik genişliğinde, alt satırdan 4 ara. */
+.dd-satir.is-ozet .dd-satir-metin small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dd-satir-metin>:is(.dd-durum-rozet,.dd-rozet){justify-self:start}
 .dd-grup-baslik{padding:var(--dd-s-24) 0 var(--dd-s-4);color:var(--dd-slate)}
 
 /* ---------- Kartlar ---------- */
@@ -201,6 +204,8 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 .dd-eylem-ikon{display:grid;place-items:center;width:var(--dd-size-action-icon);height:var(--dd-size-action-icon);border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-dark);font-size:var(--dd-size-icon-md)}
 .dd-eylem-metin{display:grid;gap:var(--dd-s-4);min-width:0}
 .dd-eylem-metin b{display:flex;align-items:baseline;gap:var(--dd-s-8);font-size:var(--dd-t-subheading-size);font-weight:var(--dd-t-subheading-weight);line-height:var(--dd-t-subheading-line)}
+/* Diet eki (L, 10 Kasım): aktif program eylem kartı (DD.programKart tur:aktif) başlığı tek satır; altındaki ilerleme ile kart Gastro eylem yüksekliğine (80) yakın kalır (2 satırda 113'tü). */
+.dd-eylem-program .dd-eylem-metin>b{-webkit-line-clamp:1}
 .dd-eylem-metin small{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:var(--dd-t-meta-size);color:var(--dd-slate)}
 .dd-eylem > .icon:last-child{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
 .dd-eylem.is-secili{border-color:var(--dd-primary-dark);background:var(--dd-primary-tint)}

@@ -97,7 +97,7 @@
           <div class="dd-sira">${DD.durumRozet({kod: 'taslak'})}${DD.durumRozet({metin: ogunAd(hedefOgun()), ikon: 'ogun'})}${DD.durumRozet({metin: `Güven %${ort}`, ton: ort >= 90 ? 'basari' : 'notr', ikon: 'wand-magic-sparkles'})}</div>
           <h1 class="dd-t-section">${DD.esc(baslik)}</h1>
         </div>
-        ${DD.segment({ad: 'ai-porsiyon', etiket: 'Porsiyon', secili: String(durum().oran || 1), ogeler: PORSIYON})}
+        ${DD.alan({etiket: 'Porsiyon', html: DD.segment({ad: 'ai-porsiyon', etiket: 'Porsiyon', secili: String(durum().oran || 1), ogeler: PORSIYON})})}
         ${ozetHtml(l)}
         ${kalanBant(l)}
       </div>
@@ -120,8 +120,8 @@
     DD.sheet({
       baslik: b.ad,
       html: `<div class="dd-yigin">
-        ${alt ? `<div class="dd-yigin-8"><span class="dd-t-card">Bu ne?</span>${DD.cipler({ad: 'ai-tur', tur: 'tek', secili: secilen, ogeler: [{metin: ana.ad, deger: ''}, {metin: alt.ad, deger: alt.ad}]})}</div>` : ''}
-        <div class="dd-yigin-8"><span class="dd-t-card">Porsiyon</span>${DD.porsiyon({ad: 'ai-porsiyon', birimler: birimler(ana), secili: 'gram', miktar: gram, kcal100: gorunen() * 100})}</div>
+        ${alt ? DD.alan({etiket: 'Bu ne?', html: DD.cipler({ad: 'ai-tur', tur: 'tek', secili: secilen, ogeler: [{metin: ana.ad, deger: ''}, {metin: alt.ad, deger: alt.ad}]})}) : ''}
+        ${DD.alan({etiket: 'Porsiyon', html: DD.porsiyon({ad: 'ai-porsiyon', birimler: birimler(ana), secili: 'gram', miktar: gram, kcal100: gorunen() * 100})})}
       </div>`,
       altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', veri: {eylem: 'cikar'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'kaydet-kalem'}})}</div>`,
       sonra: h => {

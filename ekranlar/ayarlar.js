@@ -131,7 +131,7 @@
     return DD.gruplar([
       {html: DD.p('Profilinin ve takip geçmişinin **kimlere göründüğünü** buradan seç. Verinin indirilmesi ve silinmesi Verilerim’de yönetilir.', {ton: 'ikincil'})},
       {satirlar: [DD.toggle({ad: 'gor-acik', ikon: 'eye', etiket: 'Profilim herkese açık', alt: 'Kapalıyken yalnız diyetisyenin görür', secili: g.acik})]},
-      {baslik: 'Takip geçmişimi kimler görebilir?', html: `<div class="dd-yigin-12"><small class="dd-yardim">Öğünlerin, programların ve ölçümlerin.</small>${radyolar('gor-gecmis', 'Takip geçmişimi kimler görebilir?', GECMIS, g.gecmis)}</div>`},
+      {baslik: 'Takip geçmişimi kimler görebilir?', html: `<div class="dd-yigin-12"><p class="dd-yardim">Öğünlerin, programların ve ölçümlerin.</p>${radyolar('gor-gecmis', 'Takip geçmişimi kimler görebilir?', GECMIS, g.gecmis)}</div>`},
       {baslik: 'Topluluk', satirlar: [
         DD.toggle({ad: 'gor-rozet', ikon: 'medal', etiket: 'Rozetlerim profilimde görünsün', alt: 'Rozetlerim ekranı etkilenmez', secili: g.rozet}),
         DD.toggle({ad: 'gor-liderlik', ikon: 'ranking-star', etiket: 'Liderlikte adım görünsün', alt: 'Kapalıyken anonim görünürsün', secili: g.liderlik}),
@@ -430,7 +430,7 @@
         {ikon: 'pen', baslik: 'Kaydı düzelt', alt: 'Yanlış girdiğin öğün kaydını düzenle', git: '#/tabaklarim'},
         !v.silmeTalebi && {ikon: 'trash', baslik: 'Takip verilerimi sil', alt: 'Öğün, su ve ölçüm kayıtların; hesabın kalır', veri: {eylem: 'takip-sil'}, yikici: true},
         {ikon: 'snowflake', baslik: 'Hesabı dondur', alt: 'Ara ver, verilerin kalsın', git: '#/ayarlar/dondur'},
-        {ikon: 'user-slash', baslik: 'Hesabımı sil', alt: 'Hesabın tamamı 30 gün sonra silinir', git: '#/ayarlar/sil'}
+        {ikon: 'user-slash', baslik: 'Hesabımı sil', alt: 'Hesabın tamamı 30 gün sonra silinir', git: '#/ayarlar/sil', yikici: true}
       ].filter(Boolean))}</div>`}
     ]);
   };

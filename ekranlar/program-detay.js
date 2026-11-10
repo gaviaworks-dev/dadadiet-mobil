@@ -95,7 +95,7 @@
     const eklenir = k.deger || k.yemek;
     return DD.sheet({
       baslik,
-      html: `<div class="dd-yigin">${ust(k.miktar, `${DD.sayi(d.kcal)} kcal`)}<div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">${DD.esc(d.temel)} için</span>${DD.ozetSerit(makro)}</div>${b.aciklama ? DD.p(ilkKelimeler(b.aciklama)) : ''}${DD.kunye(kunye)}</div>`,
+      html: `<div class="dd-yigin">${ust(k.miktar, `${DD.sayi(d.kcal)} kcal`)}<div class="dd-yigin-8"><p class="dd-t-label dd-ton-ikincil">${DD.esc(d.temel)} için</p>${DD.ozetSerit(makro)}</div>${b.aciklama ? DD.p(ilkKelimeler(b.aciklama)) : ''}${DD.kunye(kunye)}</div>`,
       altBar: eklenir ? DD.btn({metin: 'Tabağıma ekle', ikon: 'ekle', tam: true, veri: {'kalem-ekle': 1}}) : '',
       sonra: h => {
         h.addEventListener('click', ev => {

@@ -22,7 +22,7 @@
   const hedefSayisi = () => { const k = kazanilan(); return R().aileler.find(a => a.ad === 'Hedef').rozetler.filter(r => k[r.id]).length; };
   const kayitSayisi = tur => {
     const v = t => (yeni() ? [] : DDV.uye.kayitli[t]);
-    const l = {tarifler: DD.durum.oku('kayitli-tarifler', v('tarifler')), besinler: DD.durum.oku('kayitli-besinler', v('besinler')), ipuclari: DD.durum.oku('kayitli-ipuclari', v('ipuclari')), uzmanlar: DD.durum.oku('kayitli-uzmanlar', v('uzmanlar')), programlar: DD.durum.oku('kayitliProgramlar', [])};
+    const l = {besinler: DD.durum.oku('kayitli-besinler', v('besinler')), ipuclari: DD.durum.oku('kayitli-ipuclari', v('ipuclari')), uzmanlar: DD.durum.oku('kayitli-uzmanlar', v('uzmanlar')), programlar: DD.durum.oku('kayitliProgramlar', [])};
     return tur ? l[tur].length : Object.values(l).reduce((t, x) => t + x.length, 0);
   };
   const olcumSayisi = () => {
@@ -101,7 +101,7 @@
     const aday = l.map((a, i) => [i, say(a) / a.rozetler.length]).filter(([, o]) => o < 1).sort((x, y) => y[1] - x[1])[0];
     const kaz = hepsi().filter(r => k[r.id]).length, yolda = hepsi().filter(r => !k[r.id] && hal(r) === 'ilerliyor').length;
     const giris = kaz ? '' : DD.bos({ikon: 'medal', baslik: 'İlk rozetin yakın', metin: 'Günlük takibini girdiğinde, ilk ölçümünü kaydettiğinde ya da bir program başlattığında **ilk rozetlerin** gelir.', eylem: {metin: 'Bugün’e git', ikon: 'bugun', tur: 'secondary', git: '#/bugun'}});
-    return `<div class="dd-yigin">${basBlok('Rozet koleksiyonun', `Her rozet ölçülebilir bir kayıttan doğar: **${kaz} kazanıldı**, ${yolda} yolda, ${hepsi().length - kaz - yolda} ölçü bekliyor.`)}${giris}${DD.akordiyon(l.map(a => ({baslik: a.ad, alt: a.not, ikon: a.ikon, sag: `<span class="dd-t-meta dd-ton-ikincil">${say(a)} / ${a.rozetler.length}</span>`, icerik: DD.rozetIzgara({ogeler: a.rozetler.map(izgaraOge)})})), {ad: 'rozet-ak', acik: aday ? aday[0] : 0})}</div>`;
+    return `<div class="dd-yigin">${basBlok('Rozet koleksiyonun', `Her rozet ölçülebilir bir kayıttan doğar: **${kaz} kazanıldı**, ${yolda} yolda, ${hepsi().length - kaz - yolda} ölçü bekliyor.`)}${giris}${DD.akordiyon(l.map(a => ({baslik: a.ad, alt: `${say(a)} / ${a.rozetler.length} rozet`, ikon: a.ikon, sag: `<span class="dd-t-meta dd-ton-ikincil">${say(a)} / ${a.rozetler.length}</span>`, icerik: (a.not ? DD.p(a.not.replace(/^([^.]+)/, '**$1**'), {ton: 'ikincil', meta: true}) : '') + DD.rozetIzgara({ogeler: a.rozetler.map(izgaraOge)})})), {ad: 'rozet-ak', acik: aday ? aday[0] : 0})}</div>`;
   };
   const rozetSheet = id => {
     const r = hepsi().find(x => x.id === id), h = hal(r), n = ilerleme(r), meydan = r.olcu?.startsWith('meydan:');

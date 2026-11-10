@@ -57,6 +57,8 @@
 :root .dd-liste-status .dd-liste-sayi{margin:0;flex-shrink:0;white-space:nowrap;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
 :root .dd-liste-status .dd-liste-sayi b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);color:var(--dd-ink)}
 :root .dd-liste-status__controls{display:flex;align-items:stretch;justify-content:flex-end;gap:var(--dd-s-8);flex:0 1 auto;min-width:0}
+:root .dd-liste-status>.dd-liste-status__controls.dd-liste-status__controls{margin-top:0}
+/* Üstteki satır Diet eki (L, 10 Kasım): dd-bilesen.css dikey yığın kuralı (p → düğmeli öğe 20) sonuç sayısı <p>'sinden sonra gelen düğme grubunu 20 aşağı itiyordu; durum satırı 52 yerine 72 oluyor, sayı ile düğmeler hizasız kalıyordu. liste-v2'de bu kural yüklü değil. Kuralın özgüllüğü (0,3,0) olduğu için sınıf iki kez yazıldı. */
 :root .dd-liste-status__controls .dd-gorunum{flex-shrink:0}
 :root .dd-liste-sort-group{display:flex;padding:var(--dd-s-4);border-radius:var(--dd-r-media);background:var(--dd-bg);min-width:0}
 /* Sıralama: yalnız ikon, 44×44 (docs/47: tek tasarım, eski ?siralama=a). Varsayılan dışı sıralamada primary. */

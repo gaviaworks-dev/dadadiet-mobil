@@ -50,7 +50,7 @@ DDV.hesap = {
     {id: 'ozet', ad: 'Haftalık özetim', alt: 'Pazar akşamı haftanın özeti', ikon: 'chart-line', bildirim: false, eposta: true},
     {id: 'rozet', ad: 'Rozet ve meydan okuma', alt: 'Rozet kazandığında', ikon: 'medal', bildirim: true, eposta: false},
     {id: 'grup', ad: 'Destek grupları', alt: 'Gönderine yorum geldiğinde', ikon: 'users', bildirim: true, eposta: false},
-    {id: 'icerik', ad: 'Yeni tarif ve program', alt: 'Sana uygun içerik eklendiğinde', ikon: 'book-open', bildirim: false, eposta: false},
+    {id: 'icerik', ad: 'Yeni program', alt: 'Sana uygun içerik eklendiğinde', ikon: 'book-open', bildirim: false, eposta: false},
     {id: 'kampanya', ad: 'Kampanya ve Pro fırsatları', alt: 'Paket indirimleri ve seçkiler', ikon: 'tag', bildirim: false, eposta: false},
     {id: 'guvenlik', ad: 'Güvenlik uyarıları', alt: 'Yeni cihaz girişi; kapatılamaz', ikon: 'shield-halved', bildirim: true, eposta: true, sabit: true}
   ],
@@ -114,7 +114,7 @@ DDV.hesap = {
   paylasimTurleri: [
     {id: 'olcum', etiket: 'Ölçümlerim', alt: 'Kilo, bel ve yağ oranı', ikon: 'kilo', varsayilan: true},
     {id: 'tahlil', etiket: 'Kan tahlillerim', alt: 'Yüklediğin tahlil sonuçları', ikon: 'tahlil', varsayilan: true},
-    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Dada AI okuma notları', ikon: 'wand-magic-sparkles', varsayilan: true},
+    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Tahlil okuma notları', ikon: 'wand-magic-sparkles', varsayilan: true},
     {id: 'tabaklar', etiket: 'Tabak fotoğraflarım', alt: 'Fotoğraf, öğün, kalori ve notun', ikon: 'tabak', varsayilan: true},
     {id: 'gunluk', etiket: 'Günlük takibim', alt: 'Su, duygu ve öğün işaretlerin', ikon: 'clipboard-check', varsayilan: false},
     {id: 'test', etiket: 'Test sonuçlarım', alt: 'Çözdüğün sağlık testleri', ikon: 'clipboard-question', varsayilan: false}

@@ -48,7 +48,7 @@
     return `<div class="dd-yigin">
       ${DD.p('Öğün saatin gelince **bildirimle** haber verir; günün öğünleri Profil’de sıralanır. E-postayla öğün hatırlatması gönderilmez.', {ton: 'ikincil'})}
       ${DD.satirlar([DD.toggle({ad: 'oh-acik', ikon: 'bildirim', etiket: 'Öğün hatırlatıcısı', alt: durumMetin(), secili: a.acik})])}
-      <div class="dd-yigin-8"><span class="dd-t-card">Ne zaman hatırlatsın?</span>${DD.segment({ad: 'oh-once', etiket: 'Hatırlatma zamanı', secili: String(a.once_dk || 0), ogeler: (O().sablon().once_dk_secenek || [0, 15, 30]).map(d => ({ad: d ? `${d} dk önce` : 'Saatinde', deger: String(d)}))})}<small class="dd-yardim">Öğünün planlanan saatine göre.</small></div>
+      ${DD.alan({etiket: 'Ne zaman hatırlatsın?', yardim: 'Öğünün planlanan saatine göre.', html: DD.segment({ad: 'oh-once', etiket: 'Hatırlatma zamanı', secili: String(a.once_dk || 0), ogeler: (O().sablon().once_dk_secenek || [0, 15, 30]).map(d => ({ad: d ? `${d} dk önce` : 'Saatinde', deger: String(d)}))})})}
       ${DD.satirlar([
         {ikon: 'mobile-screen', baslik: 'Telefon bildirimi', alt: izin === 'verildi' ? 'İzin verildi' : izin === 'reddedildi' ? 'İzin kapalı; telefon ayarlarından açılır' : 'İzin henüz istenmedi', git: izin === 'verildi' ? '#/bildirim-onizleme' : izinYolu()},
         {ikon: 'moon', baslik: 'Sessiz saatler', alt: s ? `${nok(s[0])}–${nok(s[1])} arası hatırlatma gönderilmez` : 'Kapalı; hatırlatma her saatte gelir', git: '#/ayarlar/bildirim'}
@@ -82,7 +82,7 @@
       ${notlar(t)}
       <div class="dd-yigin-8">${DD.satirlar([kahvaltiSatir(t), ...digerleri.map(x => ogunSatir(x, ps))])}${zincir()}</div>
       <div class="dd-ikili">${DD.btn({metin: 'Ara öğün ekle', ikon: 'ekle', tur: 'secondary', pasif: araSay >= enCok(), veri: {eylem: 'ara-ekle'}})}${DD.btn({metin: 'Şablona dön', ikon: 'rotate-left', tur: 'secondary', veri: {eylem: 'sablon'}})}</div>
-      ${araSay >= enCok() ? `<small class="dd-yardim">En çok ${enCok()} ara öğün eklenebilir.</small>` : ''}
+      ${araSay >= enCok() ? `<p class="dd-yardim">En çok ${enCok()} ara öğün eklenebilir.</p>` : ''}
       ${DD.bilgi({etiket: 'Kaydedince', ikon: 'saat', metin: `**Bugün:** ${O().ozet(h)}`})}
     </div>`;
   };

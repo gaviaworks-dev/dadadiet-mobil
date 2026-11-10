@@ -32,7 +32,7 @@
       ${DD.kilitEkrani({saat: nok(x.hat), tarih: tarih(), gorsel: GORSEL[x.o.tur] || 'assets/gorsel/hero/ritim-sofra.webp', baslik: x.b.baslik, metin: x.b.metin})}
       ${DD.p(`**${x.o.ad}** ${nok(x.o.planlanan)}${DDOgun.ekDe(x.o.planlanan)}; hatırlatma **${nok(x.hat)}${DDOgun.ekDe(x.hat)}** gelir.${durum ? ` ${durum}` : ''}`, {ton: 'ikincil'})}
       ${not}
-      <div class="dd-yigin-8"><span class="dd-t-card">Uygulama içinde</span>${DD.yuzey(DD.bildirimSatir({id: `ogn-onizleme-${x.o.tur}`, ikon: x.o.ikon, baslik: x.b.baslik, metin: x.b.metin, zaman: nok(x.hat), okundu: false}, {git: '#/profil'}))}<small class="dd-yardim">Saati gelen hatırlatma Bildirimler listesine de düşer.</small></div>
+      ${DD.alan({etiket: 'Uygulama içinde', yardim: 'Saati gelen hatırlatma Bildirimler listesine de düşer.', html: DD.bildirimSatir({id: `ogn-onizleme-${x.o.tur}`, ikon: x.o.ikon, baslik: x.b.baslik, metin: x.b.metin, zaman: nok(x.hat), okundu: false}, {git: '#/profil'})})}
     </div>`;
   };
 
@@ -44,7 +44,7 @@
     ciz: ctx => {
       const l = liste(), x = secili(ctx), a = O().ayar();
       const uyari = O().etkin() ? '' : DD.bant({ton: 'bilgi', ikon: 'bildirim', baslik: a.acik ? 'Bildirim izni yok' : 'Hatırlatıcı kapalı', metin: a.acik ? 'Hatırlatmaların telefonuna gelmesi için **bildirim izni** ver.' : 'Açtığında öğün hatırlatmaları **böyle görünür**.', eylem: a.acik ? {metin: 'Bildirimleri aç', git: O().izin() === 'reddedildi' ? '#/bildirim-izni?hal=red' : '#/bildirim-izni'} : {metin: 'Öğün saatlerim', git: '#/ogun-saatleri'}});
-      return DD.bolumler([
+      return DD.gruplar([
         {html: `<div class="dd-yigin">
           ${DD.p(`Hatırlatma öğünden ${a.once_dk ? `**${a.once_dk} dk önce**` : '**saatinde**'} kilit ekranına düşer. Öğün seç, nasıl görüneceğine bak.`, {ton: 'ikincil'})}
           ${uyari}

@@ -28,7 +28,7 @@
 
   const bos = () => DD.bos({ikon: 'bildirim', tam: true, baslik: 'Şimdilik sessiz', metin: 'Yeni bir **hatırlatma ya da mesaj** geldiğinde burada görünür.', eylem: {metin: 'Bildirim ayarları', ikon: 'ayar', tur: 'secondary', git: '#/ayarlar/bildirim'}});
   // Satır: Gastro .dgu-satir-kap = bildirim + üç nokta. Okunmamışta "Yeni" rozeti ve "tür · zaman" metası kanondan (DD.bildirimSatir meta).
-  const satir = b => DD.satirKap(DD.bildirimSatir({...b, metin: saatNokta(b.metin), zaman: saatNokta(b.zaman)}, {meta: turAd(b.tur)}), DD.ikonBtn({ikon: 'more', etiket: `${b.baslik}: seçenekler`, veri: {eylem: 'b-daha', id: String(b.id)}}));
+  const satir = b => DD.satirKap(DD.bildirimSatir({...b, baslik: saatNokta(b.baslik), metin: saatNokta(b.metin), zaman: saatNokta(b.zaman)}, {meta: turAd(b.tur)}), DD.ikonBtn({ikon: 'more', etiket: `${saatNokta(b.baslik)}: seçenekler`, veri: {eylem: 'b-daha', id: String(b.id)}}));
   const basBlok = (l, suz) => {
     const n = l.filter(b => !b.okundu).length;
     const cip = DD.cipler({ad: 'bildirim-tur', tur: 'tek', etiket: 'Bildirim türü süzgeci', secili: suz, ogeler: [{metin: 'Tümü', deger: '', sayi: l.length}, ...TURLER.map(([deger, metin, ikon]) => ({metin, ikon, deger}))]});
@@ -84,7 +84,7 @@
           if (!b) return;
           const okundu = b.okundu || okunan().includes(b.id), geriAlinir = !b.okundu && okunan().includes(b.id);
           DD.sheet({
-            baslik: b.baslik,
+            baslik: saatNokta(b.baslik),
             html: DD.satirlar([
               {ikon: 'arrow-right', baslik: 'İlgili sayfaya git', veri: {eylem: 's-ac'}, attrs: 'data-sheet-kapat'},
               !okundu ? {ikon: 'onay', baslik: 'Okundu olarak işaretle', veri: {eylem: 's-okundu'}, attrs: 'data-sheet-kapat', ok: false}

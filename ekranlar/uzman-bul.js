@@ -3,6 +3,7 @@
  * Durum: uzman-liste {seg, q, gorunum, sira, f}, uzman-eslesme {goal, mode, gender}. Boş saatler uzman-profil.js ile aynı kuraldan türer.
  * #/uzman/bul?durum=hata bağlantı hatası. */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const LISTE = 'uzman-liste', ESLESME = 'uzman-eslesme', ONGORU_GUN = 30;
   const GRUPLAR = [{ad: 'uzmanlik', baslik: 'Uzmanlık', ikon: 'award'}, {ad: 'gorusme', baslik: 'Görüşme', ikon: 'video'}, {ad: 'sehir', baslik: 'Şehir', ikon: 'location-dot'}];
   const SIRALAR = [['onerilen', 'Önerilen', 'wand-magic-sparkles'], ['fiyat', 'En uygun fiyat', 'tag'], ['deneyim', 'En deneyimli', 'award']];
@@ -24,7 +25,9 @@
     }
     return null;
   };
-  const ilkMetin = slug => { const x = ilkUygun(slug); return x ? `${x.gun} ${x.saat}` : 'Takvimde'; };
+  const ilkMetin = slug => { const x = ilkUygun(slug); return x ? `${x.gun} ${nk(x.saat)}` : 'Takvimde'; };
+  // Liste kartı uygunluk rozeti: "Bugün 17.45" (görünen saat nk ile noktalı).
+  const ilkRozet = slug => { const x = ilkUygun(slug); return x ? {metin: `${x.gun} ${nk(x.saat)}`} : null; };
 
   // ---------- Vitrin durumu ----------
   const oku = () => { const d = DD.durum.oku(LISTE, {}) || {}; return {seg: GRUPLAR.some(g => g.ad === d.seg) ? d.seg : 'uzmanlik', q: d.q || '', gorunum: d.gorunum === 'izgara' ? 'izgara' : 'liste', sira: SIRALAR.some(x => x[0] === d.sira) ? d.sira : 'onerilen', f: {...bosF(), ...(d.f || {})}}; };
@@ -44,10 +47,10 @@
   const sirala = (l, sira) => [...l].sort({onerilen: (a, b) => yakinlik(b) - yakinlik(a), fiyat: (a, b) => tekSeans(a) - tekSeans(b), deneyim: (a, b) => b.deneyimYil - a.deneyimYil}[sira]);
 
   // ---------- Kartlar ----------
-  const randevuEylem = d => (d.slug === benim() ? {metin: 'Diyetisyenin', ikon: 'onay', git: '#/uzman'} : {metin: 'Paket seç', ikon: 'program', veri: {eylem: 'paket-sec', id: d.slug}});
+  const randevuEylem = d => (d.slug === benim() ? {metin: 'Diyetisyenin', ikon: 'onay', git: '#/uzman', secili: true} : {metin: 'Paket seç', ikon: 'program', veri: {eylem: 'paket-sec', id: d.slug}});
   const kart = (d, s) => (s.gorunum === 'izgara'
-    ? DD.diyetisyenKart(d, {eylem: randevuEylem(d)})
-    : DD.diyetisyenKart(d, {tur: 'tam', eylem: randevuEylem(d), ikincil: {metin: 'Profil', ikon: 'profil', git: `#/uzman/profil/${d.slug}`}, sayaclar: [{deger: DD.paraTL(tekSeans(d)), etiket: 'Tek seans'}, {deger: ilkMetin(d.slug), etiket: 'İlk uygun'}, {deger: d.sehir, etiket: 'Şehir'}]}));
+    ? DD.diyetisyenKart(d, {eylem: d.slug === benim() ? randevuEylem(d) : undefined})
+    : DD.diyetisyenKart(d, {tur: 'liste', eylem: randevuEylem(d), ikincil: {metin: 'Profil', git: `#/uzman/profil/${d.slug}`}, uygun: ilkRozet(d.slug)}));
   const sonuc = (l, s) => `<div class="dd-liste-results"><div class="${s.gorunum === 'izgara' ? 'dd-uzman-izgara' : 'dd-yigin-12'}">${l.map(d => kart(d, s)).join('')}</div></div>`;
   const eslesmeKart = () => { const c = cevaplar(); return tamam(c) ? DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: 'Son eşleşmen', alt: `${eslestir(c).l.length} uzman sana yakın`, git: '#/uzman/bul?adim=sonuc'}) : DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: 'Sana uygun uzmanı bul', alt: 'Üç soruda en yakın eşleşme', git: '#/uzman/bul?adim=1'}); };
   const secimler = s => DD.listeTema({ad: 'secimler', baslik: 'Seçimlerin', ogeler: GRUPLAR.flatMap(g => s.f[g.ad].map(v => ({metin: v, kapat: true, etiket: `${v} seçimini kaldır`, veri: {eylem: 'kaldir', id: `${g.ad}|${v}`}})))});
@@ -122,14 +125,7 @@
   const vitrinBagla = (kok, ctx) => {
     const s = ctx.liste, govde = kok.querySelector('.dd-liste-icerik'), rail = kok.querySelector('.dd-liste-rail'), arac = kok.querySelector('.dd-liste-arac'), kaydir = kok.querySelector('.dd-kaydir'), girdi = arac.querySelector('input');
     let bekle = 0, zaman = 0;
-    const rozet = () => {
-      const n = secimSayi(s), b0 = arac.querySelector('.dd-liste-search-filter');
-      b0.classList.toggle('is-active', n > 0);
-      let b = b0.querySelector('.dd-badge');
-      if (!n) { b?.remove(); return; }
-      if (!b) { b = document.createElement('span'); b.className = 'dd-badge dd-liste-search-filter__badge'; b0.append(b); }
-      b.textContent = n;
-    };
+    const rozet = () => DD.filtreSayiYaz(arac, secimSayi(s));
     const secileGit = () => { const r = rail.firstElementChild, c = r?.querySelector('[aria-pressed=true]'); if (c) r.scrollLeft += c.getBoundingClientRect().left - r.getBoundingClientRect().left - (r.clientWidth - c.offsetWidth) / 2; };
     const seritCiz = sifirla => { const x = rail.firstElementChild?.scrollLeft || 0; rail.innerHTML = serit(s); if (sifirla) secileGit(); else if (rail.firstElementChild) rail.firstElementChild.scrollLeft = x; };
     const listeCiz = () => { govde.innerHTML = icerik(s, sirala(suz(s), s.sira), ctx.hazir); };

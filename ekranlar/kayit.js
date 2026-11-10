@@ -7,6 +7,7 @@
  * Diyetisyen paylaşımı 'saglik-paylasim'.tabaklar iznine bağlıdır; izin kapalıyken anahtar pasiftir, kullanıcının tercihi korunur.
  */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const DURUM = 'ogun-kayitlari', SILINEN = 'ogun-kayit-silinen';
   const yeni = () => DD.durum.oku(DURUM, []);
   const silinen = () => DD.durum.oku(SILINEN, []);
@@ -134,7 +135,7 @@
     const aciklama = acik ? '' : `${DD.p('Bu kayıt **paylaşılmıyor**. Tabak fotoğrafı iznini Sağlık dosyamdan açabilirsin.', {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Sağlık dosyam', ikon: 'tahlil', tur: 'secondary', boyut: 'sm', tam: true, git: '#/saglik'})}`;
     return DD.bolum({ic: false, baslik: 'Paylaşım', html: `<div class="dd-yigin-12">${DD.yuzey(anahtar)}${aciklama}</div>`});
   };
-  const kunye = k => DD.kunye([{ikon: 'saat', etiket: 'Saat', deger: k.saat}, {ikon: 'ogun', etiket: 'Öğün', deger: ogunAd(k.ogun)}, k.lif != null && {ikon: 'lif', etiket: 'Lif', deger: `${ondalik(k.lif, 1)} g`}].filter(Boolean));
+  const kunye = k => DD.kunye([{ikon: 'saat', etiket: 'Saat', deger: nk(k.saat)}, {ikon: 'ogun', etiket: 'Öğün', deger: ogunAd(k.ogun)}, k.lif != null && {ikon: 'lif', etiket: 'Lif', deger: `${ondalik(k.lif, 1)} g`}].filter(Boolean));
   const govde = k => `<div class="dd-yigin-24"><div class="dd-sira">${DD.kayitKaynak(k.kaynak, k.guven)}</div>${bilesenBolum(k)}${notBolum(k)}${diyetisyenNotu(k)}${paylasimBolum(k)}</div>`;
   const yok = () => DD.bos({ikon: 'tabak', tam: true, baslik: 'Kayıt bulunamadı', metin: 'Bu tabak **silinmiş** olabilir.', eylem: {metin: 'Tabaklarım', ikon: 'galeri', yerine: '#/tabaklarim'}});
   // Fotoğrafsız kayıt banner değildir: düz üst bar, aynı gövde.
@@ -182,7 +183,7 @@
     let ogun = k.ogun;
     DD.sheet({
       baslik: 'Kaydı düzelt',
-      html: `<div class="dd-yigin">${DD.input({ad: 'ad', etiket: 'Tabağın adı', deger: k.ad})}<div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">Öğün</span>${DD.cipler({ad: 'k-ogun', tur: 'tek', etiket: 'Öğün', secili: k.ogun, ogeler: DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))})}</div>${DD.input({ad: 'saat', etiket: 'Saat', tur: 'time', deger: k.saat})}</div>`,
+      html: `<div class="dd-yigin">${DD.input({ad: 'ad', etiket: 'Tabağın adı', deger: k.ad})}${DD.alan({etiket: 'Öğün', html: DD.cipler({ad: 'k-ogun', tur: 'tek', etiket: 'Öğün', secili: k.ogun, ogeler: DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))})})}${DD.input({ad: 'saat', etiket: 'Saat', tur: 'time', deger: k.saat})}</div>`,
       altBar: DD.btn({metin: 'Kaydet', ikon: 'onay', tam: true, veri: {eylem: 'd-kaydet'}}),
       sonra: d => {
         DD.on(d, 'k-ogun', v => { ogun = v; });

@@ -1,7 +1,7 @@
 /* Ekran dosyaları ve rota tablosu (ortak dosya, yalnız lead değiştirir). 404 olan dosya sessizce atlanır. */
 window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun', 'kayit', 'tabaklarim', 'besin-ara', 'programlar', 'program-bul', 'program-detay', 'ritim', 'fazlar', 'ai-kamera', 'ai-tabak', 'ai-menu', 'ai-ses', 'ai-tahlil', 'barkod', 'etiket', 'denge', 'tabak-kur', 'testler', 'muadil', 'kacamak', 'kiyasla', 'uzman', 'uzman-bul', 'uzman-profil', 'uzman-sohbet', 'saglik', 'bildirimler', 'ara', 'hata', 'profil',
   /* Üye alanı (web Hesabım eşi) */ 'ogun-saatleri', 'bildirim-izni', 'bildirim-onizleme', 'ayarlar', 'tercihler', 'veri-izinleri', 'giris', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim',
-  /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'tarifler', 'tarif'];
+  /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'ipuclari', 'ipucu', 'hesaplayicilar'];
 window.DD_ROTALAR = {
   '#/splash': 'splash',
   '#/karsilama': 'karsilama',
@@ -62,6 +62,10 @@ window.DD_ROTALAR = {
   '#/odemelerim': 'odemelerim',
   '#/besinler': 'besinler',
   '#/besin/:slug': 'besin',
-  '#/tarifler': 'tarifler',
-  '#/tarif/:slug': 'tarif'
+  '#/ipuclari': 'ipuclari',
+  '#/ipucu/:slug': 'ipucu',
+  '#/hesaplayicilar': 'hesaplayicilar',
+  '#/hesaplayici/:slug': 'hesaplayicilar'
 };
+/* Kaldırılan ekranların eski adresleri: ölü sayfa kalmasın, verilen adrese yönlenir (önek eşleşmesi). Sağlıklı Tarifler Dada Diet'te yok (Beyar kararı, 10 Kasım). */
+window.DD_YONLENDIR = {'#/tarifler': '#/bugun', '#/tarif/': '#/bugun'};

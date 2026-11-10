@@ -99,7 +99,7 @@
   // ---------- Çizim ----------
   const alerjiHtml = c => `<div class="dd-yigin-12">${DD.metinBlok({baslik: B().alerjiSoru.soru, metin: vurgula(B().alerjiSoru.altMetin, 'listeden çıkarıyoruz'), rol: 'section', h: 2})}${DD.cipler({ad: 'alerjen', tur: 'coklu', serit: false, etiket: 'Alerjenler', secili: c.alerjen || [], ogeler: B().alerjiler.map(a => ({metin: a, deger: a}))})}</div>`;
   const grupHtml = (a, c) => {
-    if (a.gruplar.length > 1) return `<div class="dd-yigin-24">${a.gruplar.map(g => `<div class="dd-yigin-12"><h2 class="dd-t-card">${DD.esc(g.baslik)}</h2>${DD.secimler({ad: g.alan, ogeler: g.secenekler, secili: c[g.alan], duzen: 'orta', sinif: 'is-uc'})}</div>`).join('')}</div>`;
+    if (a.gruplar.length > 1) return `<div class="dd-yigin-24">${a.gruplar.map(g => DD.alan({etiket: g.baslik, html: DD.secimler({ad: g.alan, ogeler: g.secenekler, secili: c[g.alan], duzen: 'orta', sinif: 'is-uc'})})).join('')}</div>`;
     const g = a.gruplar[0], ogeler = g.alan === 'sure' ? sureler(c.hedef) : g.secenekler;
     const not = g.alan === 'sure' && c.hedef === 'kilo' ? DD.ipucu({metin: vurgula(a.notKilo, 'daha uzun planları')}) : '';
     return `<div class="dd-yigin-24">${DD.secimler({ad: g.alan, ogeler, secili: c[g.alan], duzen: 'tek'})}${not}${g.alan === 'ozel' ? `<div data-alerji>${c.ozel === 'alerji' ? alerjiHtml(c) : ''}</div>` : ''}</div>`;

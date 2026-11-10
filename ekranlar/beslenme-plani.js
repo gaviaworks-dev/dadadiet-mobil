@@ -1,5 +1,5 @@
 /* Beslenme planım (#/beslenme-plani). Gastro alt sayfa kalıbı: DD.gruplar, kartsız satırlar; bugünün öğünleri Bugün'deki öğün kartıyla aynı
- *   (DD.ogunListe + "Plana göre" segmenti Uydum · Değiştirdim · Atladım; Değiştirdim alternatif tarif seçtirir).
+ *   (DD.ogunListe + "Plana göre" segmenti Uydum · Değiştirdim · Atladım; Değiştirdim alternatif yemek seçtirir).
  * Web karşılığı: hesabim/beslenme-planim (uye-beslenme-planim.js): diyetisyenin gönderdiği plan, bugünün öğünleri,
  * alternatifler, diyetisyen notu, plana not, plan geçmişi. Plan künyesi DDV.uye.plan; bugünün öğün içeriği DDV.bugun.ogunler; saat ve durum DD.ogun.hesap().
  * Durum: öğün işaretleri DD.ogun.isaretle(tur, 'yedi'|'atladi'|null) ile yazılır (bugun-ogun, ogun-zaman; Bugün ekranıyla ortak).
@@ -18,7 +18,7 @@
   const altOku = () => DD.durum.oku('plan-alternatif', {})[DD.bugunIso()] || {};
   const altYaz = (tur, slug) => { const t = DD.durum.oku('plan-alternatif', {}), g = {...(t[DD.bugunIso()] || {})}; if (slug) g[tur] = slug; else delete g[tur]; DD.durum.yaz('plan-alternatif', {...t, [DD.bugunIso()]: g}); };
   const yemek = slug => DDV.yemekler.find(y => y.slug === slug);
-  // Öğünün geçerli değeri: alternatif seçildiyse tarifin bir porsiyonu, değilse plandaki öğün.
+  // Öğünün geçerli değeri: alternatif seçildiyse yemeğin bir porsiyonu, değilse plandaki öğün.
   const deger = tur => { const a = yemek(altOku()[tur]); if (a) return {kcal: a.porsiyonKcal, P: a.P || 0, K: a.K || 0, Y: a.Y || 0, Lif: a.Lif || 0}; const b = icerik(tur); return b ? {kcal: b.kcal, P: b.P, K: b.K, Y: b.Y, Lif: b.Lif} : null; };
   const ogunler = () => DD.ogun.hesap().ogunler.filter(o => o.durum !== 'kapali' && icerik(o.tur));
   // Öğün kartı: plan öğünü + bugünün işareti. Yedin + alternatif = Değiştirdim; Uydum alternatifi kaldırır.
@@ -54,7 +54,7 @@
     const d = benim(), a = DDV.kullanici.aktifProgram;
     DD.sheet({
       baslik: 'Diyetisyenine not',
-      html: `<div class="dd-yigin" data-not-form>${DD.p(`Notun **${d.ad}** adlı diyetisyenine${a ? `, programının **${a.gun}. günü** bağlamıyla,` : ''} iletilir.`, {ton: 'ikincil'})}<div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">Konu</span>${DD.cipler({ad: 'not-konu', tur: 'tek', serit: false, secili: DDV.uye.notKonulari[0], ogeler: DDV.uye.notKonulari.map(k => ({metin: k, deger: k}))})}</div>${DD.input({ad: 'not-metin', etiket: 'Notun', cokSatir: true, yer: 'Diyetisyenine iletmek istediğini yaz', zorunlu: true})}</div>`,
+      html: `<div class="dd-yigin" data-not-form>${DD.p(`Notun **${d.ad}** adlı diyetisyenine${a ? `, programının **${a.gun}. günü** bağlamıyla,` : ''} iletilir.`, {ton: 'ikincil'})}${DD.alan({etiket: 'Konu', html: DD.cipler({ad: 'not-konu', tur: 'tek', serit: false, secili: DDV.uye.notKonulari[0], ogeler: DDV.uye.notKonulari.map(k => ({metin: k, deger: k}))})})}${DD.input({ad: 'not-metin', etiket: 'Notun', cokSatir: true, yer: 'Diyetisyenine iletmek istediğini yaz', zorunlu: true})}</div>`,
       altBar: DD.btn({metin: 'Gönder', ikon: 'gonder', tam: true, veri: {eylem: 'not-gonder'}}),
       sonra: s => DD.eylem(s, 'not-gonder', () => {
         const metin = s.querySelector('[name="not-metin"]').value.trim(), konu = s.querySelector('[data-ad="not-konu"] [aria-pressed="true"]')?.dataset.cip || DDV.uye.notKonulari[0];
@@ -68,7 +68,7 @@
     });
   };
 
-  // ---------- Alternatif: plandaki öğüne enerjisi en yakın tarifler ----------
+  // ---------- Alternatif: plandaki öğüne enerjisi en yakın yemekler ----------
   const KATEGORI = {kahvalti: ['Kahvaltılık'], ara1: ['Ara Öğün', 'İçecek'], ara2: ['Ara Öğün', 'İçecek'], ogle: ['Izgara & Et', 'Balık', 'Baklagil', 'Sebze Yemeği', 'Salata', 'Çorba'], aksam: ['Izgara & Et', 'Balık', 'Baklagil', 'Sebze Yemeği', 'Salata']};
   const adaylar = tur => { const k = icerik(tur).kcal; return DDV.yemekler.filter(y => KATEGORI[tur]?.includes(y.kategori)).sort((a, b) => Math.abs(a.porsiyonKcal - k * .6) - Math.abs(b.porsiyonKcal - k * .6)).slice(0, 3); };
   // karar: Değiştirdim'den açıldı; seçim öğünü yenmiş sayar (plandaki öğün = Uydum).
@@ -94,7 +94,7 @@
   const alternatifBolum = () => {
     const l = ogunler().filter(o => o.durum !== 'yedi' && o.durum !== 'atladi');
     if (!l.length) return DD.p('Bugünün bütün öğünleri **işaretlendi**; alternatif seçilecek öğün kalmadı.', {ton: 'ikincil'});
-    return `<div class="dd-yigin-12">${DD.p('Plandaki öğünün yerine **enerjisi yakın bir tarif** seçebilirsin; seçim yalnız bugüne yazılır.', {ton: 'ikincil'})}${DD.satirlar(l.map(o => { const a = yemek(altOku()[o.tur]); return {ikon: o.ikon, baslik: o.ad, alt: a ? `Alternatif: ${a.ad}` : 'Plandaki öğün', deger: nk(o.planlanan), veri: {eylem: 'alternatif', id: o.tur}}; }))}</div>`;
+    return `<div class="dd-yigin-12">${DD.p('Plandaki öğünün yerine **enerjisi yakın bir yemek** seçebilirsin; seçim yalnız bugüne yazılır.', {ton: 'ikincil'})}${DD.satirlar(l.map(o => { const a = yemek(altOku()[o.tur]); return {ikon: o.ikon, baslik: o.ad, alt: a ? `Alternatif: ${a.ad}` : 'Plandaki öğün', deger: nk(o.planlanan), veri: {eylem: 'alternatif', id: o.tur}}; }))}</div>`;
   };
 
   // ---------- Plan geçmişi ----------

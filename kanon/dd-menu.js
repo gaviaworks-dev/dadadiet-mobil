@@ -1,43 +1,49 @@
-/* Sağ çekmece menü: Gastro mobil 1.0.1 dg_drawer.dart + app_drawer.dart (güncel ekran görüntüsüyle 10 Kasım'da yeniden kıyaslandı). %86 / en çok 360, hesap kartı, kayan kısayollar, başlıksız gezinme blokları, tek açık akordeon, dil, sosyal ve yasal ayak. API: DD.menu.ac(), DD.menu.kapat(). */
+/* Sağ çekmece menü: Gastro ortak-menu.js (V4) + mobil 1.0.1 dg_drawer.dart / app_drawer.dart (10 Kasım Gastro geçişinde yeniden kıyaslandı). %86 / en çok 360, hesap kartı, kayan kısayollar, başlıksız gezinme blokları, tek açık akordeon, dil, sosyal ve yasal ayak. API: DD.menu.ac(), DD.menu.kapat(). */
 (() => {
   const esc = s => DD.esc(s), ik = DD.ik;
-  // Gezinme Gastro mobilin güncel çekmecesiyle aynı kalıptır (Beyar, 10 Kasım): hesap kartı + 4 kısayol, 6 satırlık ana blok, Hesabım + Görüş Bildir bloğu, ayak.
-  // Şartname 2c maddeleri (Akıllı Tabak, Oruç, Kütüphane, Etiket Okuma) alt satır olarak korunur. uye:true satır misafirde görünmez.
-  const hesapGrubu = {id: 'hesap', label: 'Hesabım', icon: 'user', uye: true, children: [
-    {id: 'tercihler', label: 'Tercihlerim', icon: 'bullseye', git: '#/tercihler'},
-    {id: 'ayarlar', label: 'Hesap Ayarları', icon: 'sliders', git: '#/ayarlar'},
+  // Gezinme Gastro mobil 1.0.1 çekmecesinin kalıbıdır (app_drawer.dart): hesap kartı + 4 kısayol, başlıksız iki blok (ana modüller · Hesabım + Görüş Bildir), ayak.
+  // Ana blok sırası web prototipin menüsüyle aynı (_src/kabuk/menu.mjs anaMenu): Sağlık Araçları · Beslenme · Programlar · Diyetisyenler; başta Ana Sayfa (Gastro).
+  // Web satırının mobilde ekranı yoksa satır konmaz (Kaç Kalori?, Beslenme Rehberi). Sağlıklı Tarifler yok (ürün kaldırıldı, 10 Kasım).
+  // Dışarıda Ne Yesem? Beslenme grubunda (lead kararı, 10 Kasım). Etiket Okuma şartname 2c gereği Sağlık Araçları'nın sonunda kalır.
+  // Hesabım web üye menüsünün sırasıyla (uyeMenu); kısayollarda olanlar (Beslenme Planım, Sağlık Dosyam) tekrar edilmez; grup yalnız üyede çizilir.
+  const hesapGrubu = {id: 'hesap', label: 'Hesabım', icon: 'user', children: [
+    {id: 'programlarim', label: 'Programlarım', icon: 'list-check', git: '#/programlarim'},
+    {id: 'diyetisyenim', label: 'Diyetisyenim', icon: 'user-doctor', git: '#/uzman'},
+    {id: 'sohbet', label: 'Mesajlarım', icon: 'comment-dots', git: '#/uzman/sohbet'},
+    {id: 'izinler', label: 'Veri İzinlerim', icon: 'user-shield', git: '#/veri-izinleri'},
+    {id: 'rozetler', label: 'Rozetlerim', icon: 'medal', git: '#/rozetler'},
+    {id: 'tercihler', label: 'Tercihlerim', icon: 'user-pen', git: '#/tercihler'},
     {id: 'ogun-saat', label: 'Öğün Saatlerim', icon: 'clock', git: '#/ogun-saatleri'},
     {id: 'tabaklarim', label: 'Tabaklarım', icon: 'images', git: '#/tabaklarim'},
-    {id: 'rozetler', label: 'Rozetlerim', icon: 'medal', git: '#/rozetler'},
-    {id: 'paketler', label: 'Paketlerim', icon: 'box-open', git: '#/paketlerim'},
-    {id: 'odemeler', label: 'Ödemelerim', icon: 'credit-card', git: '#/odemelerim'},
-    {id: 'izinler', label: 'Veri İzinlerim', icon: 'shield-halved', git: '#/veri-izinleri'},
+    {id: 'paketler', label: 'Paketlerim', icon: 'crown', git: '#/paketlerim'},
+    {id: 'odemeler', label: 'Ödemelerim', icon: 'receipt', git: '#/odemelerim'},
+    {id: 'ayarlar', label: 'Hesap Ayarları', icon: 'sliders', git: '#/ayarlar'},
     {id: 'bagli', label: 'Bağlı Uygulamalar', icon: 'arrows-rotate', git: '#/ayarlar/bagli'},
-    {id: 'cozum', label: 'Çözüm Merkezi', icon: 'life-ring', git: '#/cozum-merkezi'}]};
+    {id: 'cozum', label: 'Çözüm Merkezi', icon: 'headset', git: '#/cozum-merkezi'},
+    {id: 'cikis', label: 'Çıkış', icon: 'right-from-bracket', eylem: 'cikis'}]};
   const BLOKLAR = () => [[
     {id: 'bugun', label: 'Ana Sayfa', icon: 'house', git: '#/bugun'},
-    {id: 'programlar', label: 'Programlar', icon: 'clipboard-list', children: [
+    {id: 'araclar', label: 'Sağlık Araçları', icon: 'toolbox', children: [
+      {id: 'hesapla', label: 'Hesaplayıcılar', icon: 'calculator', git: '#/hesaplayicilar'},
+      {id: 'testler', label: 'Sağlık Testleri', icon: 'clipboard-question', git: '#/testler'},
+      {id: 'denge', label: 'Akıllı Tabak ve Değişim', icon: 'chart-pie', git: '#/denge'},
+      {id: 'oruc', label: 'Aralıklı Oruç Rehberi', icon: 'clock', git: '#/ritim'},
+      {id: 'etiket', label: 'Etiket Okuma', icon: 'barcode', git: '#/etiket'}]},
+    {id: 'beslenme', label: 'Beslenme', icon: 'book-open', children: [
+      {id: 'besin', label: 'Besin Kütüphanesi', icon: 'magnifying-glass', git: '#/besinler'},
+      {id: 'kiyasla', label: 'Besin Karşılaştır', icon: 'scale-balanced', git: '#/denge/kiyasla'},
+      {id: 'ipuclari', label: 'İpuçları & Püf Noktaları', icon: 'lightbulb', git: '#/ipuclari'},
+      {id: 'disarida', label: 'Dışarıda Ne Yesem?', icon: 'location-dot', git: '#/ai/menu'}]},
+    {id: 'programlar', label: 'Programlar', icon: 'list-check', children: [
       {id: 'tum', label: 'Tüm Programlar', icon: 'clipboard-list', git: '#/programlar'},
-      {id: 'hedefe', label: 'Hedefe Göre', icon: 'bullseye', git: '#/programlar?seg=hedef'},
-      {id: 'yasama', label: 'Yaşam Biçimine Göre', icon: 'person-walking', git: '#/programlar?seg=yasam'},
       {id: 'bul', label: 'Program Bul', icon: 'wand-magic-sparkles', git: '#/program-bul'},
-      {id: 'programlarim', label: 'Programlarım', icon: 'list-check', git: '#/programlarim', uye: true}]},
-    {id: 'tarifler', label: 'Sağlıklı Tarifler', icon: 'utensils', git: '#/tarifler'},
-    {id: 'araclar', label: 'Araçlar', icon: 'wand-magic-sparkles', children: [
-      {id: 'tabak-kur', label: 'Tabak Kur', icon: 'plate-wheat', git: '#/denge/tabak'},
-      {id: 'tabak-cek', label: 'Tabağını Çek', icon: 'camera', git: '#/ai/kamera?mod=tabak'},
-      {id: 'degisim', label: 'Değişim Önerileri', icon: 'right-left', git: '#/denge/muadil'},
-      {id: 'kiyasla', label: 'Besin Kıyasla', icon: 'scale-balanced', git: '#/denge/kiyasla'},
-      {id: 'etiket', label: 'Etiket Okuma', icon: 'barcode', git: '#/etiket'},
-      {id: 'oruc', label: 'Oruç & Öğün Saatleri', icon: 'hourglass-half', git: '#/ritim'}]},
-    {id: 'uzman', label: 'Diyetisyenler', icon: 'user-doctor', children: [
-      {id: 'bul2', label: 'Diyetisyen Bul', icon: 'magnifying-glass', git: '#/uzman/bul'},
-      {id: 'randevu', label: 'Diyetisyenim', icon: 'calendar-check', git: '#/uzman'},
-      {id: 'sohbet', label: 'Mesajlarım', icon: 'comment-dots', git: '#/uzman/sohbet'}]},
-    {id: 'rehber', label: 'Beslenme Rehberi', icon: 'book-open', children: [
-      {id: 'besin', label: '541 Besin Değeri', icon: 'apple-whole', git: '#/besinler'},
-      {id: 'testler', label: '58 Sağlık Testi', icon: 'clipboard-check', git: '#/testler'}]}
-  ].map(x => (x.children ? {...x, children: x.children.filter(c => !c.uye || DD.uye())} : x)), [
+      {id: 'hedefe', label: 'Hedefe Göre', icon: 'bullseye', git: '#/programlar?seg=hedef'},
+      {id: 'yasama', label: 'Yaşam Biçimine Göre', icon: 'people-roof', git: '#/programlar?seg=yasam'},
+      {id: 'tercihe', label: 'Beslenme Tercihine Göre', icon: 'seedling', git: '#/programlar?seg=tercih'},
+      {id: 'ihtiyaca', label: 'İhtiyacına Göre', icon: 'list-check', git: '#/programlar?seg=ihtiyac'},
+      {id: 'sureye', label: 'Süreye Göre', icon: 'calendar', git: '#/programlar?seg=sure'}]},
+    {id: 'uzman', label: 'Diyetisyenler', icon: 'user-doctor', git: '#/uzman/bul'}
+  ], [
     ...(DD.uye() ? [hesapGrubu] : []),
     {id: 'gorus', label: 'Görüş Bildir', icon: 'comment-dots', eylem: 'gorus'}
   ]];
@@ -48,8 +54,8 @@
   const aktif = () => (DD.aktif()?.hash || location.hash).split('?')[0];
   const satir = (x, alt) => { const on = x.git === aktif(); return `<a class="dd-menu-row${alt ? ' dd-menu-subrow' : ''}${on ? ' is-active' : ''}" href="${esc(x.git || '')}" data-menu-git="${esc(x.git || '')}"${x.yakinda ? ' data-menu-yakinda' : ''}${x.eylem ? ` data-menu-eylem="${esc(x.eylem)}"` : ''}${on ? ' aria-current="page"' : ''}><span class="dd-menu-ic">${ik(x.icon)}</span><span class="dd-menu-label">${esc(x.label)}</span></a>`; };
   const grup = x => { const acik = x.children.some(c => c.git === aktif()); return `<div class="dd-menu-item dd-menu-group${acik ? ' is-open' : ''}"><button class="dd-menu-row dd-menu-toggle" type="button" aria-expanded="${acik}"><span class="dd-menu-ic">${ik(x.icon)}</span><span class="dd-menu-label">${esc(x.label)}</span><span class="dd-menu-chev">${ik('chevron-down')}</span></button><div class="dd-menu-sub"${acik ? '' : ' inert'}><div class="dd-menu-sub-in">${x.children.map(c => satir(c, true)).join('')}</div></div></div>`; };
-  const kullanici = () => { if (!DD.uye()) return `<p class="dd-menu-hello"><b>Merhaba</b><span>Verilerini korumak ve geçmişini görmek için giriş yap.</span></p><div class="dd-menu-auth">${DD.btn({metin: 'Giriş Yap', boyut: 'sm', attrs: 'data-menu-git="#/giris"'})}${DD.btn({metin: 'Üye Ol', tur: 'secondary', boyut: 'sm', attrs: 'data-menu-eylem="uye" data-menu-git=""'})}</div>`; const k = window.DDV?.kullanici || {}; return `<a class="dd-menu-profile" href="#/profil" data-menu-git="#/profil"><span class="dd-menu-avatar" aria-hidden="true">${esc(String(k.ad || 'D').slice(0, 1))}</span><span class="dd-menu-who"><b>${esc([k.ad, k.soyad].filter(Boolean).join(' ') || 'Profilim')}</b><small>${ik('hedef')} ${esc(String(k.hedefAd || '').split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr') + w.slice(1)).join(' '))}</small></span><span class="dd-menu-go">Profilim ${ik('chevron-right')}</span></a><div class="dd-menu-shortcuts">${kisayollar().map(([g, i, t, n]) => `<a class="dd-menu-short" href="${g}" data-menu-git="${g}">${ik(i)}<span>${esc(t)}</span>${n ? `<b class="dd-menu-sayac">${n}</b>` : ''}</a>`).join('')}</div>`; };
-  const ayak = () => `<footer class="dd-menu-foot"><div class="dd-menu-item dd-menu-group dd-menu-lang"><button class="dd-menu-row dd-menu-toggle" type="button" aria-expanded="false"><span class="dd-menu-ic">${ik('globe')}</span><span class="dd-menu-label">Dil: <b>${esc(DILLER[0])}</b></span><span class="dd-menu-chev">${ik('chevron-down')}</span></button><div class="dd-menu-sub" inert><div class="dd-menu-sub-in" role="radiogroup" aria-label="Dil">${DILLER.map((d, i) => `<button class="dd-menu-row dd-menu-subrow dd-menu-lang-opt" type="button" role="radio" aria-checked="${!i}"${i ? ' data-menu-yakinda' : ''}><span class="dd-menu-label">${esc(d)}</span>${i ? '' : `<span class="dd-menu-ic">${ik('onay')}</span>`}</button>`).join('')}</div></div></div><div class="dd-menu-meta"><div class="dd-menu-social">${SOSYAL.map(([i, ad]) => `<a href="" data-menu-yakinda aria-label="Dada Diet ${esc(ad)}"><i class="dd-menu-brand fa-brands fa-${i}" aria-hidden="true"></i></a>`).join('')}</div><div class="dd-menu-legal">${YASAL.map(t => `<a href="" data-menu-yakinda>${esc(t)}</a>`).join('')}</div></div></footer>`;
+  const kullanici = () => { if (!DD.uye()) return `<p class="dd-menu-hello"><b>Merhaba</b><span>Verilerini korumak ve takip etmek için giriş yap.</span></p><div class="dd-menu-auth">${DD.btn({metin: 'Giriş Yap', boyut: 'sm', attrs: 'data-menu-git="#/giris"'})}${DD.btn({metin: 'Üye Ol', tur: 'secondary', boyut: 'sm', attrs: 'data-menu-eylem="uye" data-menu-git=""'})}</div>`; const k = window.DDV?.kullanici || {}; return `<a class="dd-menu-profile" href="#/profil" data-menu-git="#/profil"><span class="dd-menu-avatar" aria-hidden="true">${esc(String(k.ad || 'D').slice(0, 1))}</span><span class="dd-menu-who"><b>${esc([k.ad, k.soyad].filter(Boolean).join(' ') || 'Profilim')}</b><small>${ik('hedef')} ${esc(String(k.hedefAd || '').split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr') + w.slice(1)).join(' '))}</small></span><span class="dd-menu-go">Profilim ${ik('chevron-right')}</span></a><div class="dd-menu-shortcuts">${kisayollar().map(([g, i, t, n]) => `<a class="dd-menu-short" href="${g}" data-menu-git="${g}">${ik(i)}<span>${esc(t)}</span>${n ? `<b class="dd-menu-sayac">${n}</b>` : ''}</a>`).join('')}</div>`; };
+  const ayak = () => `<footer class="dd-menu-foot"><div class="dd-menu-item dd-menu-group dd-menu-lang"><button class="dd-menu-row dd-menu-toggle" type="button" aria-expanded="false"><span class="dd-menu-ic">${ik('globe')}</span><span class="dd-menu-label">Dil: <b>${esc(DILLER[0])}</b></span><span class="dd-menu-chev">${ik('chevron-down')}</span></button><div class="dd-menu-sub" inert><div class="dd-menu-sub-in" role="radiogroup" aria-label="Dil">${DILLER.map((d, i) => `<button class="dd-menu-row dd-menu-subrow dd-menu-lang-opt" type="button" role="radio" aria-checked="${!i}"${i ? ' data-menu-yakinda' : ''}><span class="dd-menu-ic">${i ? '' : ik('onay')}</span><span class="dd-menu-label">${esc(d)}</span></button>`).join('')}</div></div></div><div class="dd-menu-meta"><div class="dd-menu-social">${SOSYAL.map(([i, ad]) => `<a href="" data-menu-yakinda aria-label="Dada Diet ${esc(ad)}"><i class="dd-menu-brand fa-brands fa-${i}" aria-hidden="true"></i></a>`).join('')}</div><div class="dd-menu-legal">${YASAL.map(t => `<a href="" data-menu-yakinda>${esc(t)}</a>`).join('')}</div></div></footer>`;
   // K6: yalnız profil ve hedef eşitlenir, sağlık verisi kapsam dışıdır.
   const bagliSheet = () => { const d = DD.durum.oku('bagli-uygulamalar', {}); return DD.sheet({
     baslik: 'Bağlı Uygulamalar',
@@ -79,7 +85,7 @@
     k.addEventListener('click', e => {
       if (e.target.closest('[data-menu-kapat]')) { kapat(); return; }
       const t = e.target.closest('.dd-menu-toggle');
-      if (t) { const g = t.closest('.dd-menu-group'), on = !g.classList.contains('is-open'); g.closest('.dd-menu-nav,.dd-menu-foot').querySelectorAll('.dd-menu-group').forEach(x => { const a = x === g && on; x.classList.toggle('is-open', a); x.querySelector('.dd-menu-toggle').setAttribute('aria-expanded', a); x.querySelector('.dd-menu-sub').inert = !a; }); return; }
+      if (t) { const g = t.closest('.dd-menu-group'), on = !g.classList.contains('is-open'); g.closest('.dd-menu-nav,.dd-menu-foot').querySelectorAll('.dd-menu-group').forEach(x => { const a = x === g && on; x.classList.toggle('is-open', a); x.querySelector('.dd-menu-toggle').setAttribute('aria-expanded', a); x.querySelector('.dd-menu-sub').inert = !a; }); if (on && g.classList.contains('dd-menu-lang')) setTimeout(() => g.scrollIntoView({block: 'end', behavior: DD.azHareket() ? 'auto' : 'smooth'}), DD.TK.motion.base); return; }
       if (e.target.closest('[data-menu-yakinda]')) { e.preventDefault(); kapat(); DD.toast('Yakında', {ikon: 'bilgi'}); return; }
       const a = e.target.closest('[data-menu-git]');
       if (a) { e.preventDefault(); e.stopPropagation(); kapat(); if (a.dataset.menuEylem === 'cikis') DD.cikis(); else if (a.dataset.menuEylem === 'gorus') gorusSheet(); else if (a.dataset.menuEylem === 'bagli') bagliSheet(); else if (a.dataset.menuEylem === 'uye') DD.uyeDuvar(); else if (a.dataset.menuGit) DD.git(a.dataset.menuGit); }

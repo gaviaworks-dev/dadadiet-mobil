@@ -182,7 +182,7 @@
         {ikon: 'saat', baslik: 'Öğün saatlerim', alt: a.acik ? `Hatırlatıcı açık · ${a.once_dk ? `${a.once_dk} dk önce` : 'saatinde'}` : 'Hatırlatıcı kapalı', git: '#/ogun-saatleri'},
         {ikon: 'calendar-week', baslik: 'Haftalık Menüm', alt: 'Menün ve alışveriş listen', git: '#/haftalik-menu'},
         {ikon: 'program', baslik: 'Programlarım', alt: aktifProgram() ? `${aktifProgram().gun}. gün · ${aktifProgram().toplamGun} günlük program` : 'Aktif programın yok', git: '#/programlarim'},
-        {ikon: 'kaydet', baslik: 'Kaydedilenler', alt: 'Programlar, tarifler ve ipuçları', git: '#/kaydedilenler'}
+        {ikon: 'kaydet', baslik: 'Kaydedilenler', alt: 'Programlar, besinler ve ipuçları', git: '#/kaydedilenler'}
       ]},
       {baslik: 'Gelişimim', satirlar: [
         {ikon: 'tahlil', baslik: 'Sağlık dosyam', alt: 'Ölçümler, tahliller, notlar', git: '#/saglik'},

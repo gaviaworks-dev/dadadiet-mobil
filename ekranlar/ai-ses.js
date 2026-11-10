@@ -45,7 +45,7 @@
   </div>`});
   const sessizHtml = () => `<div class="dd-ic dd-yigin">
     ${DD.bos({ikon: 'mikrofon', baslik: 'Seni duyamadık', metin: 'Telefonu biraz **yaklaştırıp** yeniden dene ya da aşağıdaki cümlelerden birini seç.', eylem: {metin: 'Tekrar dinle', ikon: 'mikrofon', veri: {eylem: 'tekrar'}}, ikincil: {metin: 'Yazarak ekle', git: '#/besin-ara'}})}
-    <div class="dd-yigin-8"><span class="dd-t-card">Hazır cümleler</span>${DD.satirlar(S().hazirCumleler.map((c, i) => DD.satir({ikon: 'mikrofon', baslik: c, veri: {eylem: 'cumle', id: i}})))}</div>
+    <div class="dd-yigin-8"><p class="dd-t-label dd-ton-ikincil">Hazır cümleler</p>${DD.satirlar(S().hazirCumleler.map((c, i) => DD.satir({ikon: 'mikrofon', baslik: c, veri: {eylem: 'cumle', id: i}})))}</div>
   </div>`;
   const sonucHtml = ctx => {
     const l = ctx.kalem.map(gorselli), r = sonuc(ctx);
@@ -55,7 +55,7 @@
       <div class="dd-sira">${DD.durumRozet({kod: 'taslak'})}${DD.durumRozet({metin: ogunAd(r.ogun), ikon: 'ogun'})}</div>
       ${DD.ozetSerit([{ikon: 'kalori', etiket: 'Enerji', deger: sayi(toplam(l, 'kcal')), birim: 'kcal'}, {ikon: 'protein', etiket: 'Protein', deger: sayi(toplam(l, 'P')), birim: 'g'}, {ikon: 'karb', etiket: 'Karb.', deger: sayi(toplam(l, 'K')), birim: 'g'}, {ikon: 'yag', etiket: 'Yağ', deger: sayi(toplam(l, 'Y')), birim: 'g'}])}
       <div class="dd-yigin-8">
-        <span class="dd-t-card">Ayırdığımız besinler</span>
+        <p class="dd-t-label dd-ton-ikincil">Ayırdığımız besinler</p>
         ${DD.satirlar(l.map((b, i) => DD.besinSatir(b, {sag: DD.ikonBtn({ikon: 'duzenle', etiket: `${b.ad} düzenle`, veri: {eylem: 'duzenle', id: i}})})))}
       </div>
       ${DD.btn({metin: 'Başka besin ekle', ikon: 'ekle', tur: 'text', git: '#/besin-ara'})}

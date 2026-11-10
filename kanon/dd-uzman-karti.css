@@ -56,3 +56,46 @@
 
 /* Üyelik yılı (revize eki 13 Ekim): sayaç değil, ad altında anlaşılır ifade — “2026'dan beri üye”. */
 .dd-ukart .dd-ukart-uyelik{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+
+/* === Diyetisyen kartı (Diet; L ajanı, 10 Kasım, Beyar revize: şef kartı kalıbı reddedildi, web vitrin kartı onaylı) ===
+   Gastro'da karşılığı yok; yüzey Gastro .dd-kart (24 köşe, 16 iç, 1 çizgi), tipografi rolleri, avatar ve rozet ölçüleri kanondan. */
+/* Ton: dolu zemin + beyaz harf (web KART_TONLARI); --dd-uz-ton kapak bandını da boyar. */
+.dd-uz-ton-0{--dd-uz-ton:var(--dd-primary-dark)}
+.dd-uz-ton-1{--dd-uz-ton:var(--dd-primary)}
+.dd-uz-ton-2{--dd-uz-ton:var(--dd-primary-deep)}
+:is(.dd-avatar,.dd-uz-avatar):is(.dd-uz-ton-0,.dd-uz-ton-1,.dd-uz-ton-2){background:var(--dd-uz-ton);color:var(--dd-paper)}
+/* Kartın tamamı profil bağlantısı: başlıktaki düğmenin ::after'ı kartı kaplar; düğmeler üstte ayrı hedef. */
+:is(.dd-uzk,.dd-uzk-kart){position:relative;min-width:0;border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-surface);background:var(--dd-paper);color:var(--dd-ink)}
+.dd-uzk-link{position:static;display:flex;align-items:center;gap:var(--dd-s-4);min-width:0;max-width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
+.is-link .dd-uzk-link::after{content:'';position:absolute;inset:0;z-index:0;border-radius:var(--dd-r-surface)}
+.dd-uzk-link:focus-visible{outline:none}
+.is-link .dd-uzk-link:focus-visible::after{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
+:is(.dd-uzk,.dd-uzk-kart) :is(.dd-btn,.dd-durum-rozet){position:relative;z-index:1}
+.dd-uzk-ad{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-family:var(--dd-font);font-size:var(--dd-t-card-size);font-weight:var(--dd-t-card-weight);line-height:var(--dd-t-card-line);letter-spacing:var(--dd-t-card-track)}
+.dd-uzk-onay{flex:none;color:var(--dd-primary-dark);font-size:var(--dd-size-icon-sm);line-height:1}
+.dd-uzk-cipler{display:flex;gap:var(--dd-s-4);min-width:0;overflow:hidden}
+.dd-uzk-cip{flex:none;display:inline-flex;align-items:center;height:var(--dd-s-20);padding:0 var(--dd-s-8);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-badge-sm);background:var(--dd-bg);color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1;white-space:nowrap}
+.dd-uzk-cip:first-child{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;display:block;line-height:calc(var(--dd-s-20) - var(--dd-size-border) * 2)}
+/* LİSTE: üst satır (avatar 56 · kimlik · fiyat), çipler (20), meta (rozet 20), eşit iki düğme (44 dokunma); satırlar arası 8 → kart 198. */
+.dd-uzk{display:grid;gap:var(--dd-s-8);padding:var(--dd-s-16)}
+.dd-uzk .dd-avatar.s56{box-shadow:none}
+.dd-uzk-ust{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-12)}
+.dd-uzk-kim{display:grid;gap:var(--dd-s-4);min-width:0}
+.dd-uzk-kim small,.dd-uzk-fiyat small{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-uzk-fiyat{display:grid;justify-items:end;gap:var(--dd-s-4);text-align:end}
+.dd-uzk-fiyat b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-card-size);line-height:var(--dd-t-card-line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dd-uzk-meta{display:flex;align-items:center;gap:var(--dd-s-12);min-width:0;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-uzk-meta>span:not(.dd-durum-rozet){display:inline-flex;align-items:center;gap:var(--dd-s-4);min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.dd-uzk-meta>span:not(.dd-durum-rozet) .icon{flex:none;font-size:var(--dd-t-label-size);color:var(--dd-primary-dark)}
+.dd-uzk-meta>.dd-durum-rozet{flex:none;height:var(--dd-s-20);margin-inline-start:auto}
+/* IZGARA (web vitrin kartı): kapak bandı 64 + uzmanlık ikonu, banda yarı binen avatar 64 (kâğıt halka), ortalı metin, altta "Profili gör". */
+.dd-uzk-kart{display:grid;justify-items:center;align-content:start;gap:var(--dd-s-4);padding:calc(var(--dd-s-32) + var(--dd-s-64) + var(--dd-s-4)) var(--dd-s-12) var(--dd-s-16);overflow:hidden;text-align:center}
+.dd-uzk-bant{position:absolute;top:0;left:0;right:0;height:var(--dd-s-64);overflow:hidden;background:var(--dd-uz-ton)}
+.dd-uzk-bant .icon{position:absolute;top:50%;right:var(--dd-s-12);font-size:var(--dd-size-icon-xl);color:var(--dd-paper);opacity:.32;transform:translateY(-50%) rotate(-8deg)}
+.dd-uzk-kart-avatar{position:absolute;top:var(--dd-s-32);left:50%;display:grid;place-items:center;width:var(--dd-s-64);height:var(--dd-s-64);border:calc(var(--dd-size-border) * 3) solid var(--dd-paper);border-radius:var(--dd-r-round);background:var(--dd-uz-ton);color:var(--dd-paper);box-shadow:var(--dd-sh-sm);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-page-size);line-height:1;transform:translateX(-50%)}
+.dd-uzk-kart .dd-uzk-link{justify-content:center;width:100%}
+.dd-uzk-unvan,.dd-uzk-kart-meta{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-uzk-kart .dd-uzk-cipler{justify-content:center;max-width:100%;margin:var(--dd-s-4) 0}
+.dd-uzk-git{display:inline-flex;align-items:center;gap:var(--dd-s-8);margin-top:var(--dd-s-8);color:var(--dd-primary-dark);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
+.dd-uzk-git .icon{font-size:var(--dd-t-label-size)}
+.dd-uzk-kart>.dd-durum-rozet{margin-top:var(--dd-s-4)}

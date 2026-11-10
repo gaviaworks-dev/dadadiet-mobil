@@ -66,7 +66,7 @@
       ] : [
         {ikon: 'lock', baslik: 'Hassasiyet ve alerjenler', alt: 'Açık rıza vermediğin için kullanılmıyor', git: '#/veri-izinleri'},
         {ikon: 'thumbs-down', baslik: 'Sevmediklerim', alt: b.sevmedik.length ? b.sevmedik.join(', ') : 'Eklenmedi', veri: {eylem: 'sevmedik'}}
-      ])}${DD.veriYok('Önerilerin bu seçimlere göre **süzülür**; sevmediklerin tarif ve menülerde geri planda kalır.')}</div>`},
+      ])}${DD.veriYok('Önerilerin bu seçimlere göre **süzülür**; sevmediklerin menü önerilerinde geri planda kalır.')}</div>`},
       {baslik: 'Günlük hedefin', html: `<div class="dd-yigin-12">${DD.kunye([
         {ikon: 'kalori', etiket: 'Kalori', deger: `${kc} ${kb}`},
         {ikon: 'egg', etiket: 'Protein', deger: `${DD.sayi(m.P)} g`},
@@ -100,7 +100,7 @@
     const cipler = () => DD.cipler({ad: 'sevmedik', tur: 'coklu', serit: false, etiket: 'Sevmediklerim', secili: secim, ogeler: [...new Set([...H().sevmedikOneri, ...secim])].map(x => ({metin: x, deger: x}))});
     DD.sheet({
       baslik: 'Sevmediklerim',
-      html: `<div class="dd-yigin">${DD.p('Sevmediğin besinler **tarif ve menü** önerilerinde geri planda kalır.', {ton: 'ikincil'})}<div data-yuva="cipler">${cipler()}</div>${DD.input({ad: 'yeni-besin', etiket: 'Listede yok mu?', ikon: 'ekle', yer: 'Besin adı yaz', sag: DD.btn({metin: 'Ekle', tur: 'text', boyut: 'sm', veri: {eylem: 'besin-ekle'}})})}</div>`,
+      html: `<div class="dd-yigin">${DD.p('Sevmediğin besinler **menü** önerilerinde geri planda kalır.', {ton: 'ikincil'})}<div data-yuva="cipler">${cipler()}</div>${DD.input({ad: 'yeni-besin', etiket: 'Listede yok mu?', ikon: 'ekle', yer: 'Besin adı yaz', sag: DD.btn({metin: 'Ekle', tur: 'text', boyut: 'sm', veri: {eylem: 'besin-ekle'}})})}</div>`,
       altBar: DD.btn({metin: 'Kaydet', ikon: 'onay', tam: true, veri: {eylem: 'kaydet-sevmedik'}}),
       sonra: d => {
         const ekle = () => {

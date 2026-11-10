@@ -25,7 +25,8 @@
   const olcuNot = (b, p) => {
     const x = b.porsiyonlar.find(y => y.birim === p.birim);
     if (!x || p.birim === 'gram') return DD.p(`Değerler **100 gram** kaydından orantılanır. Gramı adımlayıcıyla değiştirebilirsin.`, {ton: 'ikincil', meta: true});
-    return DD.p(`**1 ${x.birim}:** ${x.etiket.replace(/^1 /, '')}, ${DD.sayi(x.gram)} g${x.kaynak === 'varsayılan' ? ' (ev ölçüsü, yaklaşık)' : ''}.`, {ton: 'ikincil', meta: true});
+    const tanim = x.etiket.replace(/^1 /, '');   // etiket birimle aynıysa ("porsiyon: porsiyon") tekrar yazılmaz
+    return DD.p(`**1 ${x.birim}:** ${tanim === x.birim ? '' : `${tanim}, `}${DD.sayi(x.gram)} g${x.kaynak === 'varsayılan' ? ' (ev ölçüsü, yaklaşık)' : ''}.`, {ton: 'ikincil', meta: true});
   };
   const porsiyonMakro = (b, p) => {
     const d = deger(b, p.gram), h = hedefMakro();
@@ -91,7 +92,7 @@
     const k = kalem(b, p);
     DD.sheet({
       baslik: 'Öğüne ekle',
-      html: `<div class="dd-yigin">${DD.besinSatir(k, {alt: `${p.birim === 'gram' ? '' : `${DD.ondalik(p.miktar, 2)} ${p.birim} · `}${DD.sayi(p.gram)} g`})}<div class="dd-yigin-8"><span class="dd-t-label dd-ton-ikincil">Hangi öğünün?</span>${DD.cipler({ad: 'ogun', tur: 'tek', etiket: 'Hedef öğün', serit: false, secili: ogun, ogeler: DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))})}</div>${DD.p('Besin önce **Tabağım**’a eklenir; tabağı kaydettiğinde seçtiğin öğüne yazılır.', {ton: 'ikincil', meta: true})}</div>`,
+      html: `<div class="dd-yigin">${DD.besinSatir(k, {alt: `${p.birim === 'gram' ? '' : `${DD.ondalik(p.miktar, 2)} ${p.birim} · `}${DD.sayi(p.gram)} g`})}${DD.alan({etiket: 'Hangi öğünün?', html: DD.cipler({ad: 'ogun', tur: 'tek', etiket: 'Hedef öğün', serit: false, secili: ogun, ogeler: DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))})})}${DD.p('Besin önce **Tabağım**’a eklenir; tabağı kaydettiğinde seçtiğin öğüne yazılır.', {ton: 'ikincil', meta: true})}</div>`,
       altBar: DD.btn({metin: 'Tabağıma ekle', ikon: 'ekle', tam: true, veri: {eylem: 'tabaga'}}),
       sonra: d => {
         const a = DD.on(d, 'ogun', v => { ogun = [].concat(v)[0] || ogun; });

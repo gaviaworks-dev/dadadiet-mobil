@@ -2,6 +2,7 @@
  * Durum: uzman-sohbet (DDV mesajlarının üstüne eklenenler, {id, kim, saat:'Bugün 17:10', metin, ek?:{tur, ad}}), uzman-okundu (son okunan id).
  * saglik.js ve ai-tahlil de uzman-sohbet'e yazar. #/uzman/sohbet?hal=bos diyetisyen yok, ?hal=hata bağlantı hatası. */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const B = () => DDV.benimDiyetisyenim;
   const benim = () => DDV.diyetisyenler.find(d => d.slug === B().diyetisyen);
   const hal = () => new URLSearchParams(location.hash.split('?')[1] || '').get('hal');
@@ -25,7 +26,7 @@
   const cevapBul = metin => { const n = DD.katla(metin), x = CEVAPLAR().find(([re]) => re.test(n)); return x ? x[1] : `Mesajını aldım ${DDV.kullanici.ad}. Müsait olunca **ayrıntılı dönüş** yapacağım.`; };
 
   const parca = s => { const i = s.lastIndexOf(' '); return [s.slice(0, i), s.slice(i + 1)]; };
-  const balon = m => DD.balon({kim: m.kim === 'ben' ? 'ben' : 'o', harf: benim().harf, metin: m.metin, saat: parca(m.saat)[1], ek: m.ek && {ad: m.ek.ad, ikon: EK_IKON[m.ek.tur]}});
+  const balon = m => DD.balon({kim: m.kim === 'ben' ? 'ben' : 'o', harf: benim().harf, metin: nk(m.metin), saat: nk(parca(m.saat)[1]), ek: m.ek && {ad: m.ek.ad, ikon: EK_IKON[m.ek.tur]}});
   const yaziyor = () => DD.balon({kim: 'o', harf: benim().harf, metin: 'Yazıyor', saat: ''});
   const liste = bekliyor => {
     let gun = '';
@@ -49,10 +50,9 @@
       return `<div class="dd-ic dd-yigin">
         <div class="dd-yigin-12">${DD.diyetisyenKart(d, {tur: 'satir'})}<div class="dd-gun-ayrac">${DD.sifreliRozet({metin: S.sifreMetni})}</div></div>
         <div class="dd-yigin-12" data-mesajlar>${liste(false)}</div>
-        ${DD.soruCipleri({sorular: SORULAR})}
       </div>`;
     },
-    altBar: () => (hal() ? '' : DD.mesajGiris({ad: 'mesaj', yer: 'Mesaj yaz'})),
+    altBar: () => (hal() ? '' : DD.mesajGiris({ad: 'mesaj', yer: 'Mesaj yaz', oneriler: SORULAR})),
     sonra: kok => {
       if (hal()) return undefined;
       const kap = kok.querySelector('[data-mesajlar]'), kaydir = kok.querySelector('.dd-kaydir'), girdi = kok.querySelector('input[name="mesaj"]'), form = kok.querySelector('[data-mesaj]');
@@ -86,7 +86,7 @@
             {ikon: 'tahlil', baslik: 'Son tahlilim', alt: t.tarihMetin, veri: {eylem: 'ek-gonder', id: 'tahlil'}},
             {ikon: 'kilo', baslik: 'Son ölçümüm', alt: `${DD.ondalik(kilo, 1)} kg`, veri: {eylem: 'ek-gonder', id: 'olcum'}},
             {ikon: 'ogun', baslik: 'Bugünkü öğünlerim', alt: DD.tarihKisa(DD.bugunIso()), veri: {eylem: 'ek-gonder', id: 'ogun'}},
-            {ikon: 'kamera', baslik: 'Tabağımı fotoğrafla', alt: 'Dada AI ile tara', git: '#/ai/kamera?mod=tabak'}
+            {ikon: 'kamera', baslik: 'Tabağımı fotoğrafla', alt: 'Fotoğraftan kalori ve makro', git: '#/ai/kamera?mod=tabak'}
           ])}${DD.gizlilikBant('Eklediğin dosyaları **yalnız sen ve diyetisyenin** görürsün.')}</div>`,
           sonra: s => DD.eylem(s, 'ek-gonder', el => {
             const x = secenekler[el.dataset.id];

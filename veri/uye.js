@@ -1,10 +1,10 @@
 /* veri/uye.js — üye alanı (web Hesabım eşi) ekranlarının verisi. Oturum açmış Zeynep Kaya'ya aittir; misafir ve yeni hesapta ekranlar bu veriyi okumaz (boş hal).
  * Kaynak: web dadadiet-prototip hesabim/* sayfaları ve _src/veri/demo.json (rozet kataloğu, kademeler, SSS, talep konuları, grup kuralları, meydan okumalar canlı tohumdan).
  * Kullanıcı kayıtları (rozet tarihleri, ödemeler, talepler, grup gönderileri, plan sürümleri) kurgudur; kişi adları gerçek kişilere ait değildir.
- * Slug'lar: tarif DDV.yemekler, besin DDV.besinler, ipucu DDV.icerikler, uzman DDV.diyetisyenler, program DDV.programlar.
+ * Slug'lar: besin DDV.besinler, ipucu DDV.icerikler, uzman DDV.diyetisyenler, program DDV.programlar.
  *
  * DDV.uye: {
- *   kayitli: { tarifler[], besinler[], ipuclari[], uzmanlar[], tarihler:{'tur|slug':iso} }   // DD.durum 'kayitli-<tur>' varsayılanı (programlar: 'kayitliProgramlar', varsayılan [])
+ *   kayitli: { besinler[], ipuclari[], uzmanlar[], tarihler:{'tur|slug':iso} }   // DD.durum 'kayitli-<tur>' varsayılanı (programlar: 'kayitliProgramlar', varsayılan [])
  *   programGecmisi: [{ slug, baslangic, bitis, durum ('tamamlandi'|'birakildi'), tamam, toplam }]   // aktif program DDV.kullanici.aktifProgram
  *   aktifUyum: [[iso, tamam, toplam]]   // aktif programın bugünden önceki günleri; bugün DD.ogun'dan okunur
  *   rozet: { aileler:[{ad, ikon, not, rozetler:[{id, ad, puan, ikon, aciklama, olcu?}]}], kazanilan:[{id, tarih}],
@@ -24,12 +24,11 @@
 window.DDV = window.DDV || {};
 DDV.uye = {
   kayitli: {
-    tarifler: ['menemen', 'mercimek-corbasi', 'firinda-sebzeli-tavuk', 'kisir', 'naneli-meyve-salatasi'],
     besinler: ['mercimek-haslanmis', 'ispanak-haslanmis', 'badem'],
     ipuclari: ['aralikli-oruc-kimin-icin-uygun', 'ara-ogunde-ne-yenir', 'gunde-ne-kadar-su-icmek-gerekir'],
     uzmanlar: ['dyt-ceren-soylu'],
     tarihler: {
-      'tarif|menemen': '2026-08-24', 'tarif|mercimek-corbasi': '2026-09-03', 'tarif|firinda-sebzeli-tavuk': '2026-09-12', 'tarif|kisir': '2026-10-05', 'tarif|naneli-meyve-salatasi': '2026-10-29',
+      
       'besin|mercimek-haslanmis': '2026-08-21', 'besin|ispanak-haslanmis': '2026-09-08', 'besin|badem': '2026-10-18',
       'ipucu|aralikli-oruc-kimin-icin-uygun': '2026-10-24', 'ipucu|ara-ogunde-ne-yenir': '2026-10-30', 'ipucu|gunde-ne-kadar-su-icmek-gerekir': '2026-11-02',
       'uzman|dyt-ceren-soylu': '2026-08-18'
@@ -144,7 +143,7 @@ DDV.uye = {
         {yazar: 'Okan T.', metin: 'Pazar günü bir saat geç açıyorum, sonra yine düzene dönüyorum.', zaman: '4 Kasım'}]}
     ],
     'akdeniz-mutfagi': [
-      {id: 'am-1', yazar: 'Dada Diet moderatörü', moderator: true, metin: 'Hoş geldin! Akdeniz sofralarından tarif ve alışveriş önerilerini burada paylaşıyoruz.', zaman: '2 Eylül', begeni: 31, yorumlar: []},
+      {id: 'am-1', yazar: 'Dada Diet moderatörü', moderator: true, metin: 'Hoş geldin! Akdeniz sofralarından öğün ve alışveriş önerilerini burada paylaşıyoruz.', zaman: '2 Eylül', begeni: 31, yorumlar: []},
       {id: 'am-2', yazar: 'Nur Y.', metin: 'Bu hafta zeytinyağlı pırasayı bol limonla yaptım, yanına yoğurt koyunca tam bir akşam yemeği oldu.', zaman: 'Bugün 12.20', begeni: 14, yorumlar: []},
       {id: 'am-3', yazar: 'Kerem A.', metin: 'Semt pazarında mevsim sonu domatesleri çok uygundu; kurutup kışa sakladım. Kısırda harika oluyor.', zaman: '5 Kasım', begeni: 21, yorumlar: [
         {yazar: 'Nur Y.', metin: 'Fırında mı kuruttun, güneşte mi?', zaman: '5 Kasım'}]}
@@ -160,7 +159,7 @@ DDV.uye = {
       {id: 'pc-2', yazar: 'Gül E.', metin: 'Öğünleri düzenli saatlere oturtunca gün içindeki enerji düşüşlerim azaldı. Diyetisyenimle birlikte planladık.', zaman: '5 Kasım', begeni: 12, yorumlar: []}
     ],
     'veganliga-adim-atanlar': [
-      {id: 'vg-1', yazar: 'Dada Diet moderatörü', moderator: true, metin: 'Hoş geldin! Bitkisel beslenmeye geçişte tarif ve deneyimlerini paylaşabilirsin.', zaman: '1 Ekim', begeni: 19, yorumlar: []},
+      {id: 'vg-1', yazar: 'Dada Diet moderatörü', moderator: true, metin: 'Hoş geldin! Bitkisel beslenmeye geçişte deneyimlerini paylaşabilirsin.', zaman: '1 Ekim', begeni: 19, yorumlar: []},
       {id: 'vg-2', yazar: 'İpek C.', metin: 'Nohutlu ve mercimekli yemekleri haftaya yaydım, protein tarafında rahatladım. Mercimek köftesi favorim.', zaman: '2 Kasım', begeni: 15, yorumlar: []}
     ]
   },
@@ -179,7 +178,7 @@ DDV.uye = {
       {ikon: 'fire', soru: 'Günlük kalori hedefim nasıl belirleniyor?', yanit: 'Hedefin boyun, kilon ve hareket düzeninden hesaplanır; diyetisyenin varsa **onun belirlediği hedef** geçerlidir. Bu değer genel bilgi amaçlıdır.'}]},
     {kategori: 'Araçlar ve sağlık dosyası', ikon: 'file-medical', sorular: [
       {ikon: 'weight-scale', soru: 'Ölçümlerimi nereye girerim?', yanit: 'Kilo, bel ve yağ oranını **Sağlık dosyam** ekranından girersin.'},
-      {ikon: 'file-medical', soru: 'Tahlil sonuçlarımı yükleyebilir miyim?', yanit: 'Evet. Dada AI ile **tahlilini tarayabilirsin**; okunan değerler onaylamadan kayda geçmez. Yorum için hekimine ya da diyetisyenine başvur.'},
+      {ikon: 'file-medical', soru: 'Tahlil sonuçlarımı yükleyebilir miyim?', yanit: 'Evet. Alt menüdeki **Ne Yedim?** ile **tahlilini tarayabilirsin**; okunan değerler onaylamadan kayda geçmez. Yorum için hekimine ya da diyetisyenine başvur.'},
       {ikon: 'carrot', soru: 'Besin değerleri nereden geliyor?', yanit: 'Değerler **güncel besin veri tabanlarına** dayanır; her besinin kaynağı detay ekranında yazar.'}]},
     {kategori: 'Diyetisyen ve randevu', ikon: 'user-doctor', sorular: [
       {ikon: 'user-doctor', soru: 'Diyetisyenimi nasıl seçerim?', yanit: 'Diyetisyen bul ekranında **uzmanlık, şehir ve görüşme biçimine** göre süzersin. Diploma ve belgeler doğrulanır.'},

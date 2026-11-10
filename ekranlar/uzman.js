@@ -4,6 +4,7 @@
  * Tabak şeridi saglik-paylasim.tabaklar iznine bağlıdır; kayıtlar DDKayit (ekranlar/kayit.js) yüklenmemişse DDV.ogunKayitlari'ndan okunur.
  * #/uzman?hal=bos diyetisyeni olmayan kullanıcı, ?hal=hata bağlantı hatası, ?hal=seans görüşme saati gelmiş hal. */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const KAPAK = 'assets/gorsel/hero/uzman-masa.webp';
   const B = () => DDV.benimDiyetisyenim;
   const bul = slug => DDV.diyetisyenler.find(d => d.slug === slug);
@@ -38,17 +39,17 @@
   const randevuKart = r => {
     const {gun, ay} = gunAy(r.tarih), acik = katilAcik(r);
     return `<div class="dd-yigin">
-      ${DD.randevuSatir({gun, ay, baslik: r.baslik, saat: `${r.tarihMetin} ${r.saat}`, durum: r.tur})}
+      ${DD.randevuSatir({gun, ay, baslik: r.baslik, saat: `${r.tarihMetin} ${nk(r.saat)}`, durum: r.tur})}
       ${DD.geriSayim({saniye: Math.max(0, kalanSn(r))})}
       <div class="dd-yigin-8">
         ${DD.btn({metin: 'Seansa katıl', ikon: 'video', tam: true, pasif: !acik, veri: {eylem: 'seans'}})}
-        <small class="dd-yardim dd-orta-metin">${DD.esc(acik ? 'Diyetisyenin görüşmede seni bekliyor' : `Görüşme günü ${acilisSaat(r)} itibarıyla açılır`)}</small>
+        <small class="dd-yardim dd-orta-metin">${DD.esc(acik ? 'Diyetisyenin görüşmede seni bekliyor' : `Görüşme günü ${nk(acilisSaat(r))} itibarıyla açılır`)}</small>
       </div>
       ${DD.btn({metin: 'Görüşme detayı', tur: 'tonal', tam: true, veri: {eylem: 'detay'}})}
     </div>`;
   };
   const randevuYok = () => DD.bos({ikon: 'takvim', baslik: 'Planlı görüşmen yok', metin: `**${B().paket.kalanSeans} görüşme hakkın** duruyor. Takvimden sana uyan saati seçebilirsin.`, eylem: {metin: 'Görüşme planla', ikon: 'takvim', git: `#/uzman/profil/${B().diyetisyen}?ertele=1`}});
-  const gecmisListe = () => `<div class="dd-yigin-12">${B().gecmisRandevular.map(x => { const {gun, ay} = gunAy(x.tarih); return DD.randevuSatir({gun, ay, baslik: 'Haftalık takip görüşmesi', saat: x.saat, alt: x.tur, durum: x.durum}); }).join('')}</div>`;
+  const gecmisListe = () => `<div class="dd-yigin-12">${B().gecmisRandevular.map(x => { const {gun, ay} = gunAy(x.tarih); return DD.randevuSatir({gun, ay, baslik: 'Haftalık takip görüşmesi', saat: nk(x.saat), alt: x.tur, durum: x.durum}); }).join('')}</div>`;
   const randevuPanel = sekme => { const r = randevuOku(); return sekme === 'gecmis' ? gecmisListe() : r ? randevuKart(r) : randevuYok(); };
 
   // ---------- Haftalık menü ----------
@@ -56,8 +57,8 @@
   const kalemAd = k => k.match(/^[^\d½¼¾(]+/)[0].trim();
   const menuPanel = gun => {
     const g = H().gunler.find(x => x.gun === gun);
-    const satirlar = g.ogunler.map((o, i) => ({ikon: 'ogun', baslik: `${o.ad} · ${o.saat}`, alt: o.kalemler.slice(0, 2).map(kalemAd).join(', '), deger: `${DD.sayi(o.kcal)} kcal`, veri: {eylem: 'menu-ogun', id: `${g.gun}.${i}`}}));
-    return `<div class="dd-yigin-12"><div class="dd-ara"><span class="dd-t-card">${DD.esc(buyukBas(g.baslik))}</span><span class="dd-t-meta dd-ton-ikincil">${DD.sayi(g.kcal)} kcal</span></div>${DD.yuzey(DD.satirlar(satirlar))}</div>`;
+    const satirlar = g.ogunler.map((o, i) => ({ikon: 'ogun', baslik: `${o.ad} · ${nk(o.saat)}`, alt: o.kalemler.slice(0, 2).map(kalemAd).join(', '), deger: `${DD.sayi(o.kcal)} kcal`, veri: {eylem: 'menu-ogun', id: `${g.gun}.${i}`}}));
+    return `<div class="dd-yigin-12"><div class="dd-ara"><p class="dd-t-label dd-ton-ikincil">${DD.esc(buyukBas(g.baslik))}</p><span class="dd-t-meta dd-ton-ikincil">${DD.sayi(g.kcal)} kcal</span></div>${DD.yuzey(DD.satirlar(satirlar))}</div>`;
   };
   const menuBolum = () => {
     const bugun = H().gunler.find(x => x.bugun) || H().gunler[0];
@@ -68,7 +69,7 @@
     const parca = k => k.match(/^(.*?)\s+((?:\d|[½¼¾⅓⅔]|yarım\s|çeyrek\s).*)$/i) || [null, k, ''];
     DD.sheet({
       baslik: o.ad,
-      html: `<div class="dd-yigin">${DD.p(`Bu öğün **${o.saat}** için planlandı ve **${DD.sayi(o.kcal)} kcal** tutuyor.`, {ton: 'ikincil'})}${DD.satirlar(o.kalemler.map(k => { const [, ad, miktar] = parca(k); return {baslik: ad, alt: miktar || null, ok: false}; }))}</div>`,
+      html: `<div class="dd-yigin">${DD.p(`Bu öğün **${nk(o.saat)}** için planlandı ve **${DD.sayi(o.kcal)} kcal** tutuyor.`, {ton: 'ikincil'})}${DD.satirlar(o.kalemler.map(k => { const [, ad, miktar] = parca(k); return {baslik: ad, alt: miktar || null, ok: false}; }))}</div>`,
       altBar: DD.btn({metin: 'Programı aç', ikon: 'program', tur: 'secondary', tam: true, git: `#/program/${H().program}`})
     });
   };
@@ -78,7 +79,7 @@
   const saatParca = s => s.slice(s.lastIndexOf(' ') + 1);
   const mesajBolum = () => {
     const l = mesajlar(), d = benim(), yeni = okunmamis(l);
-    const baloncuklar = l.slice(-2).map(m => DD.balon({kim: m.kim === 'ben' ? 'ben' : 'o', harf: d.harf, metin: m.metin, saat: saatParca(m.saat), ek: m.ek?.ad})).join('');
+    const baloncuklar = l.slice(-2).map(m => DD.balon({kim: m.kim === 'ben' ? 'ben' : 'o', harf: d.harf, metin: nk(m.metin), saat: nk(saatParca(m.saat)), ek: m.ek?.ad})).join('');
     return `<div class="dd-yigin-12">${DD.kart({html: `<div class="dd-yigin-12">${baloncuklar}</div>`})}${DD.eylemKart({ikon: 'sifreli', baslik: 'Şifreli sohbet', alt: B().sohbet.sifreMetni, rozet: yeni ? `${yeni} yeni` : null, git: '#/uzman/sohbet'})}</div>`;
   };
   const notlarBolum = () => DD.yuzey(DD.satirlar(B().notlar.map((n, i) => ({ikon: 'duzenle', baslik: n.baslik, alt: n.tarihMetin, veri: {eylem: 'not', id: i}}))));
@@ -106,7 +107,7 @@
   // ---------- Bekleyen talep ----------
   const talepKart = t => {
     const d = bul(t.slug), p = d.paketler.find(x => x.id === t.paket), {gun, ay} = gunAy(t.tarih);
-    return `<div class="dd-yigin-12">${DD.randevuSatir({gun, ay, baslik: d.kisaAd, saat: t.saat, alt: p.ad, durum: 'Onay bekliyor'})}${DD.p('Diyetisyen **onayladığında** bildirim alırsın. Bu adımda ödeme alınmaz.', {ton: 'ikincil'})}${DD.btn({metin: 'Talebi geri çek', tur: 'text', tam: true, veri: {eylem: 'talep-iptal'}})}</div>`;
+    return `<div class="dd-yigin-12">${DD.randevuSatir({gun, ay, baslik: d.kisaAd, saat: nk(t.saat), alt: p.ad, durum: 'Onay bekliyor'})}${DD.p('Diyetisyen **onayladığında** bildirim alırsın. Bu adımda ödeme alınmaz.', {ton: 'ikincil'})}${DD.btn({metin: 'Talebi geri çek', tur: 'text', tam: true, veri: {eylem: 'talep-iptal'}})}</div>`;
   };
 
   // ---------- Görüşme ----------
@@ -131,13 +132,13 @@
     const r = randevuOku(), slug = B().diyetisyen;
     DD.sheet({
       baslik: r.baslik,
-      html: `<div class="dd-yigin">${DD.kunye([{ikon: 'takvim', etiket: 'Tarih', deger: r.tarihMetin}, {ikon: 'saat', etiket: 'Saat', deger: `${r.saat} · ${r.sureDk} dk`}, {ikon: 'video', etiket: 'Görüşme', deger: r.tur}])}${DD.p(`Bu görüşmede **${r.konu.toLocaleLowerCase('tr')}** konuşulacak.`)}<div class="dd-yigin-12"><h3 class="dd-t-card">Hazırlık</h3>${gorevler()}</div>${DD.btn({metin: 'Ölçüm ekle', ikon: 'ekle', tur: 'tonal', tam: true, git: '#/saglik?olcum=1'})}</div>`,
+      html: `<div class="dd-yigin">${DD.kunye([{ikon: 'takvim', etiket: 'Tarih', deger: r.tarihMetin}, {ikon: 'saat', etiket: 'Saat', deger: `${nk(r.saat)} · ${r.sureDk} dk`}, {ikon: 'video', etiket: 'Görüşme', deger: r.tur}])}${DD.p(`Bu görüşmede **${r.konu.toLocaleLowerCase('tr')}** konuşulacak.`)}<div class="dd-yigin-8"><p class="dd-t-label dd-ton-ikincil">Hazırlık</p>${gorevler()}</div>${DD.btn({metin: 'Ölçüm ekle', ikon: 'ekle', tur: 'tonal', tam: true, git: '#/saglik?olcum=1'})}</div>`,
       altBar: `<div class="dd-ikili">${DD.btn({metin: 'İptal et', tur: 'yikici', veri: {eylem: 'randevu-iptal'}})}${DD.btn({metin: 'Saati değiştir', ikon: 'takvim', tur: 'secondary', git: `#/uzman/profil/${slug}?ertele=1`})}</div>`,
       sonra: s => {
         const c = [
           ...GOREVLER.map(g => DD.on(s, `gorev-${g.id}`, v => DD.durum.yaz('uzman-hazirlik', {...hazirlik(), [g.id]: v}))),
           DD.eylem(s, 'randevu-iptal', async () => {
-            const evet = await DD.dialog({baslik: 'Görüşmeyi iptal et', metin: `**${r.tarihMetin} ${r.saat}** görüşmen iptal edilecek. Görüşme hakkın **paketinde kalır**.`, eylem: 'İptal et', iptal: 'Vazgeç', yikici: true});
+            const evet = await DD.dialog({baslik: 'Görüşmeyi iptal et', metin: `**${r.tarihMetin} ${nk(r.saat)}** görüşmen iptal edilecek. Görüşme hakkın **paketinde kalır**.`, eylem: 'İptal et', iptal: 'Vazgeç', yikici: true});
             if (!evet) return;
             s.kapat();
             DD.durum.yaz('uzman-randevu', null);
@@ -159,7 +160,7 @@
   const dolu = () => {
     const d = benim(), p = B().paket, tanim = d.paketler.find(x => x.id === p.id), t = talepOku();
     return DD.profilBas({
-      ad: d.kisaAd, alt: `${d.unvan} · ${d.sehir}`, kapak: KAPAK, ust: true,
+      ad: d.kisaAd, alt: `${d.unvan} · ${d.sehir}`, kapak: KAPAK, ust: true, avatarSinif: DD.uzmanTon(d),
       eylem: DD.btn({metin: 'Profili gör', tur: 'tonal', boyut: 'sm', git: `#/uzman/profil/${d.slug}`}),
       sayaclar: [{deger: String(p.kalanSeans), etiket: 'Kalan görüşme'}, {deger: String(tanim.seans - p.kalanSeans), etiket: 'Tamamlanan'}, {deger: p.ad, etiket: 'Paket'}]
     }) + DD.bolumler([
@@ -175,7 +176,7 @@
     ]);
   };
   // K7: onay değil görülme bilgisi; diyetisyenin notu varsa "gördü" sayılır.
-  const geriBildirim = () => { const l = DDV.ogunKayitlari.filter(k => k.foto && k.diyetisyenGorsun); return DD.yuzey(DD.satirlar([...l.filter(k => !k.diyetisyenNotu).slice(0, 1), ...l.filter(k => k.diyetisyenNotu).slice(0, 3)].map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu?.metin ?? 'Paylaşıldı', sag: DD.durumRozet(k.diyetisyenNotu ? {metin: 'Diyetisyen gördü', ton: 'basari', ikon: 'onay'} : {metin: 'Bekliyor', ton: 'notr', ikon: 'clock'}), git: `#/kayit/${k.id}`})))); };
+  const geriBildirim = () => { const l = DDV.ogunKayitlari.filter(k => k.foto && k.diyetisyenGorsun); return DD.yuzey(DD.satirlar([...l.filter(k => !k.diyetisyenNotu).slice(0, 1), ...l.filter(k => k.diyetisyenNotu).slice(0, 3)].map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu?.metin ?? 'Paylaşıldı', ozet: true, ek: DD.durumRozet(k.diyetisyenNotu ? {metin: 'Diyetisyen gördü', ton: 'basari', ikon: 'onay'} : {metin: 'Bekliyor', ton: 'notr', ikon: 'clock'}), git: `#/kayit/${k.id}`})))); };
   const bos = () => {
     const t = talepOku();
     return DD.gulucuk({gorsel: KAPAK, etiket: 'Uzmanım', baslik: 'Yanında bir diyetisyen', alt: 'Görüşme, menü ve mesaj tek yerde', ust: true}) + DD.bolumler([

@@ -3,6 +3,7 @@
  * 2 haftalık dönem DDV.gecmis'ten gelir: soluk çizgi ham tartı, kalın çizgi üç günlük ortalama (veride ayrı eğilim yok, türetildi).
  * #/saglik?hal=bos hiç kaydı olmayan dosya (ölçümler 'yeni-' önekiyle), ?hal=hata bağlantı hatası, ?olcum=1 ölçüm sheet'i açık gelir, ?izin=1 paylaşım iznine iner. */
 (() => {
+  const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const S = () => DDV.saglik, K = () => DDV.kullanici;
   const hal = () => new URLSearchParams(location.hash.split('?')[1] || '').get('hal');
   const bosMu = () => hal() === 'bos' || DD.yeniHesap();
@@ -15,7 +16,7 @@
   const PAYLASIM = [
     {id: 'olcum', etiket: 'Ölçümlerim', alt: 'Kilo, bel ve yağ oranı', ikon: 'kilo'},
     {id: 'tahlil', etiket: 'Kan tahlillerim', alt: 'Yüklediğin tahlil sonuçları', ikon: 'tahlil'},
-    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Dada AI okuma notları', ikon: 'wand-magic-sparkles'},
+    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Tahlil okuma notları', ikon: 'wand-magic-sparkles'},
     {id: 'tabaklar', etiket: 'Tabak fotoğraflarım', alt: 'Fotoğraf, öğün, kalori ve notun', ikon: 'tabak'}
   ];
 
@@ -93,7 +94,7 @@
     const t = tahliller().find(x => x.id === id), l = [...t.degerler].sort((a, b) => (a.durum === 'normal') - (b.durum === 'normal')), a = S().aiAnalizleri.find(x => x.tahlil === t.id);
     DD.sheet({
       baslik: `Kan tahlili · ${t.tarihMetin}`, tam: true,
-      html: `<div class="dd-yigin">${DD.p(`**${t.degerler.length} değerin ${araliktaSay(t)} tanesi** referans aralığında. Sonuçlarını diyetisyeninle ve hekiminle değerlendir.`)}${DD.kart({html: `<div class="dd-satirlar">${l.map(x => DD.tahlilSatir(x)).join('')}</div>`})}${a ? DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: a.baslik, alt: a.tarihMetin, veri: {eylem: 'analiz-ac', id: a.id}}) : ''}${genelNot(a?.uyari || 'Bu okuma bilgilendirme amaçlıdır; teşhis değildir.')}</div>`,
+      html: `<div class="dd-yigin">${DD.p(`**${t.degerler.length} değerin ${araliktaSay(t)} tanesi** referans aralığında. Sonuçlarını diyetisyeninle ve hekiminle değerlendir.`)}${DD.kart({html: DD.satirlar(l.map(x => DD.tahlilSatir(x)))})}${a ? DD.eylemKart({ikon: 'wand-magic-sparkles', baslik: a.baslik, alt: a.tarihMetin, veri: {eylem: 'analiz-ac', id: a.id}}) : ''}${genelNot(a?.uyari || 'Bu okuma bilgilendirme amaçlıdır; teşhis değildir.')}</div>`,
       altBar: DD.btn({metin: 'Diyetisyenime gönder', ikon: 'gonder', tam: true, veri: {eylem: 'tahlil-gonder'}}),
       sonra: h => {
         const c = [DD.eylem(h, 'tahlil-gonder', () => { h.kapat(); tahlilGonder(t); }), DD.eylem(h, 'analiz-ac', el => { h.kapat(); analizSheet(el.dataset.id); })];
@@ -125,10 +126,10 @@
     const D = DDV.bugun.duygu.secenekler, bugun = DD.durum.oku('bugun-duygu', null), gunler = DDV.gecmis.map((y, i, a) => (bugun && i === a.length - 1 ? {...y, duygu: bugun} : y)), l = D.map(x => { const g = gunler.filter(y => y.duygu === x.id && y.kcal); return {...x, n: g.length, ort: g.length ? Math.round(g.reduce((t, y) => t + y.kcal, 0) / g.length) : 0}; }).filter(x => x.n), ust = Math.max(...l.map(x => x.ort));
     return DD.kart({html: `<div class="dd-yigin-12">${l.map(x => DD.ilerleme({n: x.ort, hedef: ust, etiket: `${x.ad} · ${x.n} gün`, deger: `${DD.sayi(x.ort)} kcal`})).join('')}${DD.p('Son 14 günde hissettiklerin ve **ortalama kalorin** yan yana. Bir sonuç değil, diyetisyeninle konuşabileceğin bir ipucu.', {ton: 'ikincil', meta: true})}</div>`});
   };
-  const notBolum = () => DD.akordiyon(notlar().map(n => ({baslik: n.baslik, alt: n.tarihMetin, ikon: 'duzenle', icerik: DD.p(n.metin.replace(/^([^.;]+[.;])/, '**$1**'))})));
+  const notBolum = () => DD.akordiyon(notlar().map(n => ({baslik: n.baslik, alt: n.tarihMetin, ikon: 'duzenle', icerik: DD.p(nk(n.metin).replace(/^([^.;]+[.;])/, '**$1**'))})));
   const paylasimBolum = () => {
     const p = paylasim(), d = DDV.diyetisyenler.find(x => x.slug === K().diyetisyen);
-    return `<div class="dd-yigin-12">${DD.p(`Bu bilgileri **${d.ad}** görebilir. Tabakta “Diyetisyenim görsün” anahtarını kapattığın kayıt **paylaşılmaz**.`, {ton: 'ikincil'})}${DD.yuzey(`<div class="dd-satirlar">${PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]})).join('')}</div>`)}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
+    return `<div class="dd-yigin-12">${DD.p(`Bu bilgileri **${d.ad}** görebilir. Tabakta “Diyetisyenim görsün” anahtarını kapattığın kayıt **paylaşılmaz**.`, {ton: 'ikincil'})}${DD.yuzey(DD.satirlar(PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]}))))}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
   };
 
   const tabakGiris = () => { const n = bosMu() ? 0 : (window.DDKayit?.liste() ?? DDV.ogunKayitlari ?? []).filter(k => k.foto).length; return DD.eylemKart({ikon: 'tabak', baslik: 'Tabaklarım', alt: n ? `${DD.sayi(n)} fotoğraflı öğün kaydı` : 'Fotoğraflı öğün kayıtların', git: '#/tabaklarim'}); };
@@ -136,7 +137,7 @@
   // ---------- Ölçüm ekle ----------
   const olcumSheet = kok => {
     const son = {kilo: guncel('kilo') ?? K().kiloKg, bel: guncel('bel') ?? S().ozet.belCm, yag: guncel('yag') ?? S().ozet.yagYuzde};
-    const satir = ad => { const M = METRIK[ad]; return `<div class="dd-ara"><span class="dd-t-card">${DD.esc(M.ad)}</span>${DD.stepper({ad: `olcum-${ad}`, deger: son[ad], min: M.min, max: M.max, adim: .1, birim: M.birim, aria: M.ad})}</div>`; };
+    const satir = ad => { const M = METRIK[ad]; return DD.alan({etiket: M.ad, html: DD.stepper({ad: `olcum-${ad}`, deger: son[ad], min: M.min, max: M.max, adim: .1, birim: M.birim, aria: M.ad})}); };
     DD.sheet({
       baslik: 'Ölçüm ekle',
       html: `<div class="dd-yigin">${DD.takvimAlan({ad: 'olcum-tarih', etiket: 'Tarih', deger: DD.bugunIso(), max: DD.bugunIso(), hizli: [['Bugün', 0]]})}${Object.keys(METRIK).map(satir).join('')}${DD.veriYok('Değerler **son ölçümünden** dolduruldu.')}</div>`,

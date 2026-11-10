@@ -48,8 +48,8 @@
         ${DD.p(yorum(u))}
         ${DD.varsayim({metin: 'Skor **nasıl hesaplanır**?', eylem: 'Aç', veri: {eylem: 'skor'}})}
       </div>
-      ${u.uyarilar.length ? DD.bolum({baslik: 'Dikkat edilecekler', html: `<div class="dd-satirlar">${u.uyarilar.map(m => uyariSatir(m, 'dikkat')).join('')}</div>`}) : ''}
-      ${u.olumlu.length ? DD.bolum({baslik: 'İyi yanlar', html: `<div class="dd-satirlar">${u.olumlu.map(m => uyariSatir(m, 'iyi')).join('')}</div>`}) : ''}
+      ${u.uyarilar.length ? DD.bolum({baslik: 'Dikkat edilecekler', html: DD.satirlar(u.uyarilar.map(m => uyariSatir(m, 'dikkat')))}) : ''}
+      ${u.olumlu.length ? DD.bolum({baslik: 'İyi yanlar', html: DD.satirlar(u.olumlu.map(m => uyariSatir(m, 'iyi')))}) : ''}
       ${DD.bolum({baslik: 'Besin değerleri', html: `<div class="dd-yigin-12">${DD.segment({ad: 'kip', secili: ctx.kip, ogeler: [{ad: `Porsiyon (${sayi(u.porsiyonGram)} g)`, deger: 'porsiyon'}, {ad: '100 g', deger: '100'}]})}<div data-yuva="deger">${degerTablo(u, ctx.kip)}</div></div>`})}
       ${DD.bolum({baslik: 'Katkı maddeleri', html: katkiHtml(u)})}
       ${DD.bolum({baslik: 'İçindekiler', html: `<div class="dd-yigin-12">${DD.p(`**${u.icindekiler[0]}**${u.icindekiler.length > 1 ? `, ${u.icindekiler.slice(1).join(', ')}` : ''}.`)}${etiket ? DD.btn({metin: 'Etiketi satır satır oku', ikon: 'menu', tur: 'tonal', tam: true, git: '#/etiket'}) : ''}</div>`})}

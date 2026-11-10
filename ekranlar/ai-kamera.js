@@ -109,7 +109,7 @@
   const galeriTahlil = () => DD.satirlar(DDV.saglik.kanTahlilleri.slice(0, 1).map(t => DD.belgeSatir({baslik: 'Kan tahlili', alt: t.kaynak, tarih: t.tarihMetin, veri: {eylem: 'galeri-sec', id: 'net'}})));
   const galeriBarkod = () => {
     const son = DD.durum.oku('barkod-son', []).map(e => urunler().find(u => u.ean === e)).filter(Boolean);
-    return `<div class="dd-yigin">${DD.input({ad: 'ean', etiket: 'Barkod numarası', yer: '13 haneli numara', mod: 'numeric', ikon: 'barkod', yardim: 'Barkodun altındaki numarayı yaz.'})}${son.length ? `<div class="dd-yigin-8"><span class="dd-t-card">Son taramalar</span>${DD.satirlar(son.map(u => DD.satir({ikon: 'barkod', baslik: u.ad, alt: u.kategori, sag: DD.skorRozet({skor: u.skor}), git: `#/barkod/${u.ean}`})))}</div>` : ''}</div>`;
+    return `<div class="dd-yigin">${DD.input({ad: 'ean', etiket: 'Barkod numarası', yer: '13 haneli numara', mod: 'numeric', ikon: 'barkod', yardim: 'Barkodun altındaki numarayı yaz.'})}${son.length ? `<div class="dd-yigin-8"><p class="dd-t-label dd-ton-ikincil">Son taramalar</p>${DD.satirlar(son.map(u => DD.satir({ikon: 'barkod', baslik: u.ad, alt: u.kategori, sag: DD.skorRozet({skor: u.skor}), git: `#/barkod/${u.ean}`})))}</div>` : ''}</div>`;
   };
   const galeri = (kok, ctx) => {
     const barkod = ctx.mod === 'barkod';
@@ -141,15 +141,16 @@
     sec: v => { ctx.ogun = v; ctx.ogunSecildi = true; DD.durum.yaz('tabagim-ogun', v); yenidenCiz(kok, ctx); }
   });
 
+  const bulanikMi = ctx => (ctx.sorgu.hal === 'bulanik' && !ctx.temiz) || !!ctx.bulanik;
   DD.ekran('ai-kamera', {
     tur: 'tam',
     tabagim: 'ust',
-    baslik: 'Dada AI',
+    baslik: 'Ne Yedim?',
     ciz: ctx => {
       ctx.mod ||= MOD[ctx.sorgu.mod] ? ctx.sorgu.mod : 'tabak';
       ctx.ogun ||= varsayilanOgun(ctx);
       ctx.sira ??= 0;
-      if (ctx.sorgu.hal === 'bulanik' && !ctx.temiz || ctx.bulanik) {
+      if (bulanikMi(ctx)) {
         return DD.durumSahne({tema: 'koyu', gorsel: `${HERO}kamera-tabak-2.webp`, isaret: 'bulanik', baslik: 'Görüntü net değil', metin: 'Tabağı **ışığa** yaklaştırıp yeniden dene.', ana: {metin: 'Tekrar çek', ikon: 'kamera', veri: {eylem: 'tekrar'}}, ikinciller: [{metin: 'Elle ekle', ikon: 'ekle', git: '#/besin-ara'}]});
       }
       const izin = izinHal(ctx);
@@ -157,7 +158,7 @@
       if (izin === 'red') return izinRed();
       return kameraHtml(ctx);
     },
-    altBar: ctx => (izinHal(ctx) === 'sor' && !ctx.bulanik ? izinIstem().bar : ''),
+    altBar: ctx => (izinHal(ctx) === 'sor' && !bulanikMi(ctx) ? izinIstem().bar : ''),   // net olmayan görüntü sahnesinde izin çubuğu çıkmaz (kendi düğmeleri var)
     sonra: (kok, ctx) => {
       const kamera = ev => {
         const a = ev.detail.eylem;

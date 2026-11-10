@@ -11,7 +11,8 @@
   const kalanSatirlar = () => E().satirlar.filter(s => !silinen().includes(s.metin));
   const adim = ctx => { const n = +ctx.sorgu.adim || 1; return n >= 1 && n <= 3 ? n : 1; };
 
-  const adimBas = n => `<div class="dd-yigin-8"><div class="dd-ara"><span class="dd-t-card">${ADLAR[n - 1]}</span><small class="dd-t-meta dd-ton-ikincil">${n} / 3</small></div>${DD.adimGosterge({adim: n, toplam: 3})}</div>`;
+  // Gastro bul.js adım başı: gösterge + "Adım n / 3 · ad" etiketi.
+  const adimBas = n => `<div class="dd-yigin-8">${DD.adimGosterge({adim: n, toplam: 3})}<p class="dd-t-label dd-ton-ikincil">Adım ${n} / 3 · ${ADLAR[n - 1]}</p></div>`;
 
   // Etiket kâğıdı: besin tablosu + içindekiler, ürün verisinden.
   const kagit = () => {
@@ -37,11 +38,7 @@
   const icerik = () => `<div class="dd-ic dd-yigin">
     ${adimBas(2)}
     ${kagit()}
-    <div class="dd-yigin-8">
-      <span class="dd-t-card">Okuduğumuz içerik</span>
-      ${DD.p('Yanlış okunan maddeyi **çarpıyla sil**, analiz buna göre yapılır.', {ton: 'ikincil', meta: true})}
-    </div>
-    <div data-yuva="jeton">${jetonlar()}</div>
+    ${DD.alan({etiket: 'Okuduğumuz içerik', yardim: 'Yanlış okunanı sil; analiz buna göre yapılır.', html: `<div data-yuva="jeton">${jetonlar()}</div>`})}
   </div>`;
 
   const analiz = () => {
@@ -53,11 +50,11 @@
         <div class="dd-yigin-8"><h1 class="dd-t-section">${esc(E().baslik)}</h1>${DD.p(E().ozet.replace(/(30 g, 139 kcal)/, '**$1**'))}</div>
         <div class="dd-sira">${DD.durumRozet({metin: `${l.length} madde`, ikon: 'menu'})}${dikkat ? DD.durumRozet({metin: `${dikkat} dikkat noktası`, ton: 'uyari', ikon: 'uyari'}) : ''}</div>
       </div>
-      ${DD.bolum({baslik: 'Satır satır', html: `<div class="dd-satirlar">${l.map(s => {
+      ${DD.bolum({baslik: 'Satır satır', html: DD.satirlar(l.map(s => {
         const kod = s.metin.match(/E\d{3}/);
         const satir = DD.icerikUyari({metin: s.metin, aciklama: s.aciklama, durum: s.durum});
         return kod ? DD.satirKap(satir, DD.ikonBtn({ikon: 'bilgi', etiket: `${s.metin} nedir`, veri: {eylem: 'ekod', id: s.metin}})) : satir;
-      }).join('')}</div>`})}
+      }))})}
       ${DD.bolum({baslik: 'Daha iyi puanlı alternatif', html: `<div class="dd-yigin-12">${DD.skorKart({ad: a.ad, skor: a.skor, etiket: 'İyi seçim', git: `#/barkod/${a.ean}`})}${DD.p(a.neden.replace(/^([^,;.]+)/, '**$1**'), {ton: 'ikincil', meta: true})}</div>`})}`;
   };
 

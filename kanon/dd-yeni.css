@@ -39,7 +39,7 @@
 
 /* Makro */
 .dd-makro{display:grid;width:100%}
-.dd-makro.is-dort{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dd-s-12);padding:var(--dd-card-padding);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-media);background:var(--dd-paper)}
+.dd-makro.is-dort{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dd-s-12);padding:var(--dd-card-padding);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-surface);background:var(--dd-paper)}
 .dd-makro.is-dort.is-yalin{padding:0;border:0;border-radius:0}
 .dd-makro.is-liste{gap:var(--dd-s-16)}
 .dd-makro-oge{--renk:var(--dd-primary);--iz:var(--dd-primary-tint);position:relative;display:grid;gap:var(--dd-s-4);min-width:0}
@@ -82,18 +82,19 @@
 .dd-oruc-uc.is-canli{transform:rotate(var(--a))}
 .dd-oruc-uc i{position:absolute;top:4.39%;left:50%;width:var(--dd-s-12);height:var(--dd-s-12);margin:calc(-.5 * var(--dd-s-12)) 0 0 calc(-.5 * var(--dd-s-12));border-radius:var(--dd-r-round);background:var(--dd-paper);box-shadow:var(--dd-sh-sm)}
 
-/* Oruç pili */
-.dd-pil{position:relative;display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-s-64);padding:var(--dd-s-12);border-radius:var(--dd-r-media);background:var(--dd-bg);text-align:left;transition:transform var(--dd-m-press) var(--dd-e-standard)}
+/* Oruç pili: Gastro .dgu-eylem ölçüsü (80 yükseklik, 44 gösterge, 16 dolgu, r24, kenarlı kâğıt) */
+.dd-pil{position:relative;display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-size-action-card);padding:var(--dd-s-16);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-surface);background:var(--dd-paper);text-align:left;transition:transform var(--dd-m-press) var(--dd-e-standard)}
 .dd-pil:active{transform:scale(.98)}
-.dd-pil svg{flex:none;width:var(--dd-size-box-md);height:var(--dd-size-box-md)}
+.dd-pil svg{flex:none;width:var(--dd-size-action-icon);height:var(--dd-size-action-icon)}
 .dd-pil circle{fill:none;stroke-width:var(--dd-s-4)}
 .dd-pil-iz{stroke:var(--dd-line)}
 .dd-pil-dolu{stroke:var(--dd-primary);stroke-linecap:round}
 .dd-pil.is-pencere .dd-pil-dolu{stroke:var(--dd-karb)}
-.dd-pil-ikon{position:absolute;left:var(--dd-s-12);top:50%;display:grid;place-items:center;width:var(--dd-size-box-md);height:var(--dd-size-box-md);margin-top:calc(-.5 * var(--dd-size-box-md));color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
-.dd-pil-metin{display:grid;flex:1;min-width:0}
-.dd-pil-metin b{font-family:var(--dd-font);font-weight:var(--dd-weight-body);font-size:var(--dd-t-body-size);line-height:var(--dd-t-meta-line)}
+.dd-pil-ikon{position:absolute;left:var(--dd-s-16);top:50%;display:grid;place-items:center;width:var(--dd-size-action-icon);height:var(--dd-size-action-icon);margin-top:calc(-.5 * var(--dd-size-action-icon));color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
+.dd-pil-metin{display:grid;flex:1;gap:var(--dd-s-4);min-width:0}
+.dd-pil-metin b{font-size:var(--dd-t-subheading-size);font-weight:var(--dd-t-subheading-weight);line-height:var(--dd-t-subheading-line)}
 .dd-pil-metin small{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
+.dd-pil > .icon:last-child{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
 
 /* Denge Skoru */
 .dd-skor{--renk:var(--dd-primary);position:relative;width:min(100%,var(--dd-size-score-w));margin-inline:auto}
@@ -287,7 +288,7 @@
 .dd-su-dugmeler .dd-btn{flex:1 1 auto;padding-inline:var(--dd-s-12);white-space:nowrap}
 .dd-su .dd-btn{background:var(--dd-bilgi-bg);color:var(--dd-bilgi-fg)}
 .dd-su-miktarlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dd-s-8)}
-.dd-su-miktar{display:grid;justify-items:center;gap:var(--dd-s-4);padding:var(--dd-s-12) var(--dd-s-4);border:var(--dd-size-border) solid var(--dd-bilgi-line);border-radius:var(--dd-r-surface);background:var(--dd-bilgi-bg);color:var(--dd-ink);transition:transform var(--dd-m-fast) var(--dd-e-standard)}
+.dd-su-miktar{display:grid;justify-items:center;gap:var(--dd-s-4);padding:var(--dd-s-12) var(--dd-s-4);border:var(--dd-size-border) solid var(--dd-bilgi-line);border-radius:var(--dd-r-info-card);background:var(--dd-bilgi-bg);color:var(--dd-ink);transition:transform var(--dd-m-fast) var(--dd-e-standard)}
 .dd-su-miktar:active{transform:scale(.97)}
 .dd-su-miktar .icon{font-size:var(--dd-size-icon-md);color:var(--dd-bilgi)}
 .dd-su-miktar b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line)}
@@ -575,9 +576,6 @@
 .dd-kanca{display:flex;align-items:center;gap:var(--dd-s-8);width:100%;min-height:var(--dd-size-touch);padding:var(--dd-s-8) var(--dd-s-12);border:0;border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-deep);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);text-align:start;text-align-last:start;cursor:pointer}
 .dd-kanca>span{flex:1;min-width:0}
 .dd-kanca .icon{flex:none;font-size:var(--dd-size-icon-sm)}
-/* Rehber kartı: kategori görselin sol üstünde */
-.dd-puf-foto{position:relative}
-.dd-puf-rozet{position:absolute;top:var(--dd-s-8);left:var(--dd-s-8);max-width:calc(100% - var(--dd-s-16));overflow:hidden;padding:var(--dd-s-4) var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:var(--dd-floating-icon-bg);color:var(--dd-paper);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-label-size);line-height:var(--dd-t-label-line);white-space:nowrap;text-overflow:ellipsis;-webkit-backdrop-filter:blur(var(--dd-s-8));backdrop-filter:blur(var(--dd-s-8))}
 /* Öğün satırı: halka içinde tabak, gelecek öğün soluk */
 .dd-ogun-kcal{white-space:nowrap}
 .dd-ogun.is-planli .dd-ogun-ust{opacity:.6}
@@ -612,7 +610,8 @@
 .dd-rozet-izgara>li{min-width:0}
 
 /* İpucu ve bilgi kutusu dar sütundur: iki yana yaslama kelime arasını açıyordu; başa yaslı (Beyar, 10 Kasım) */
-body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin>span,.dd-satir-metin small,.dd-kalem-alt,.dd-kalem-ad){text-align:start!important;text-align-last:start!important}
+body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin>span,.dd-satir-metin small,.dd-kalem-alt,.dd-kalem-ad,.dd-veri-yok,.dd-veri-yok span,.dd-izin-maddeler small,.dd-yorum-metin p,textarea,.dd-kunye span,.dd-secim-kart small){text-align:start!important;text-align-last:start!important}
+body :is(.dd-veri-yok,.dd-izin-maddeler small,.dd-yorum-metin p,.dd-kunye span){-webkit-hyphens:manual!important;hyphens:manual!important}
 
 /* İşaretlenebilir kalem (Gastro .pf-kalem): satır dolgusu 4/0, metin ızgarası 4, tamamlanınca soluk + üstü çizili */
 .dd-kalem{display:flex;align-items:center;gap:var(--dd-s-8)}
@@ -626,3 +625,8 @@ body :is(.dd-ipucu p,.dd-bilgi p,.dd-zc-metin,.dd-satir-metin>span,.dd-satir-met
 .dd-grup{min-width:0}
 /* Bildirim meta satırı (Gastro arama.css .ar-bil-meta): okunmamışta Yeni rozeti + "tür · zaman" */
 .dd-bildirim-meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dd-s-4) var(--dd-s-8)}
+
+/* Hazır mesajlar: giriş çubuğunun hemen üstünde kayan küçük çip şeridi (DD.mesajGiris({oneriler})); ikon yok */
+.dd-mesaj-oneri{display:flex;gap:var(--dd-s-8);margin-inline:calc(-1 * var(--dd-size-nav-edge));padding:0 var(--dd-size-nav-edge) var(--dd-s-8);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+.dd-mesaj-oneri::-webkit-scrollbar{display:none}
+.dd-mesaj-oneri>.dd-chip{flex:none}

@@ -146,7 +146,7 @@
     const r = a.acikRiza, h = a.hassasiyet;
     return `<div class="dd-yigin-24">
       <div class="dd-yigin-12">${DD.p(vurgula(r.metin, 'açık rıza veriyorum'))}
-        ${DD.kart({html: `<div class="dd-satirlar">${DD.toggle({ad: 'aydinlatma', ikon: 'file-lines', etiket: 'Aydınlatma Metni’ni okudum', secili: c.aydinlatma})}${DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Açık rıza veriyorum', secili: c.riza})}</div>`})}
+        ${DD.kart({html: DD.satirlar([DD.toggle({ad: 'aydinlatma', ikon: 'file-lines', etiket: 'Aydınlatma Metni’ni okudum', secili: c.aydinlatma}), DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Açık rıza veriyorum', secili: c.riza})])})}
         <div class="dd-sira">${r.baglantilar.map(b => DD.btn({metin: b, tur: 'text', boyut: 'sm', veri: {eylem: 'metin', id: b}})).join('')}</div>
         ${DD.p(vurgula(r.detay, 'dilediğin an geri alabilirsin'), {meta: true, ton: 'ikincil'})}</div>
       <div class="dd-yigin-12">${DD.metinBlok({baslik: h.baslik, metin: vurgula(h.altMetin, 'Opsiyonel'), rol: 'section', h: 2})}<div data-yuva="hassas">${hassasGovde(c)}</div></div>

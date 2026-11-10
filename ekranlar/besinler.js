@@ -56,7 +56,7 @@
   const serit = s => DD.cipSerit({ad: 'cip', etiket: 'Kategori', secili: s.f.kategori.length ? s.f.kategori : [''], ogeler: [{metin: 'Tümü', deger: '', ikon: 'ogun', sayi: suz(s, s.f, 'kategori').length}, ...SECENEK.kategori().map(x => ({metin: x.ad, deger: x.deger, gorsel: katGorsel(x.deger), sayi: say(s, s.f, 'kategori', x.deger)}))]});
   const ozellik = b => `Protein ${DD.ondalik(b.P, 1)} g · Karb. ${DD.ondalik(b.K, 1)} g`;
   const satir = b => DD.besinSatir({ad: b.ad, gorsel: b.gorsel, kcal: b.kcal, P: b.P, K: b.K, Y: b.Y}, {alt: ozellik(b), git: `#/besin/${b.slug}`, ok: true});
-  const kart = b => DD.icerikKart({gorsel: b.gorsel, kategori: `${DD.sayi(b.kcal)} kcal`, baslik: b.ad, git: `#/besin/${b.slug}`});
+  const kart = b => DD.icerikKart({gorsel: b.gorsel, kategori: b.kategori, baslik: b.ad, meta: `100 g · ${DD.sayi(b.kcal)} kcal`, metaIkon: 'kalori', git: `#/besin/${b.slug}`});
   const ogeler = (l, s) => (s.gorunum === 'liste' ? l.map(satir) : l.map(kart));
   const sonuc = (l, s) => DD.listeSonuc(s.gorunum === 'liste' ? [DD.satirlar(ogeler(l, s))] : ogeler(l, s), {gorunum: s.gorunum});
   const ad = (g, v) => SECENEK[g]().find(x => x.deger === v)?.ad ?? v;
@@ -120,14 +120,7 @@
           return ogeler(dilim, s).join('');
         });
       };
-      const rozet = () => {
-        const n = secimSayi(s), d = arac.querySelector('.dd-liste-search-filter');
-        d.classList.toggle('is-active', n > 0);
-        let b = d.querySelector('.dd-badge');
-        if (!n) { b?.remove(); return; }
-        if (!b) { b = document.createElement('span'); b.className = 'dd-badge dd-liste-search-filter__badge'; d.append(b); }
-        b.textContent = n;
-      };
+      const rozet = () => DD.filtreSayiYaz(arac, secimSayi(s));
       const secileGit = () => {
         const r = rail.firstElementChild, c = r?.querySelector('[aria-pressed=true]');
         if (c) r.scrollLeft += c.getBoundingClientRect().left - r.getBoundingClientRect().left - (r.clientWidth - c.offsetWidth) / 2;

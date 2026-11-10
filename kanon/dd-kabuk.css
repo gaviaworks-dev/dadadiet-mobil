@@ -7,7 +7,6 @@ body.dd.dd-uygulama{position:fixed;inset:0;overflow:hidden;-webkit-user-select:n
 body.dd.dd-uygulama :is(input,textarea){-webkit-user-select:text;user-select:text}
 .dd-orta-metin{text-align:justify;text-align-last:center}
 button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;text-align:justify;text-align-last:left}
-.dd-secim small{display:block}
 .dd-tabagim .dd-satir-metin{text-align:justify;text-align-last:left}
 .dd-yigin-4{display:grid;gap:var(--dd-s-4)}
 .dd-yigin-24{display:grid;gap:var(--dd-s-24)}
@@ -25,16 +24,18 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 .dd-ekran.has-ust:not(.has-saydam) :is(.dd-cevrimdisi,.dd-liste-arac,.dd-sekme-bar){top:0}
 :is(.dd-ekran--sekme,.dd-ekran.has-dock) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) + var(--dd-s-40) + env(safe-area-inset-bottom,0px))}
 .dd-ekran.has-altbar .dd-icerik{padding-bottom:calc(var(--dd-altbar-h,var(--dd-size-control-lg)) + var(--dd-s-16))}
-.dd-kok.has-tabagim .dd-ekran:not(.is-gizli):not(.dd-ekran--tam) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) * 2 + var(--dd-s-48))}
+.dd-kok.has-tabagim .dd-ekran:not(.is-gizli):not(.dd-ekran--tam) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) * 2 + var(--dd-s-48) + env(safe-area-inset-bottom,0px))}
 .dd-ekran--tam .dd-icerik{height:100%;padding-bottom:0}
 .dd-altbar{position:absolute;left:0;right:0;bottom:0;z-index:32}
 
 /* Gastro fixed katmanları kolon içinde */
 .dd-header{position:absolute;left:0;width:100%;transform:none;z-index:30}
 .dd-header .dd-logo img{width:var(--dd-size-logo)}
-.dd-dock{position:absolute;left:0;width:100%;height:calc(var(--dd-size-nav-bar) + var(--dd-s-16) + env(safe-area-inset-bottom,0px));transform:translateY(100%);opacity:0;z-index:40;background:transparent;transition:transform var(--dd-m-page) var(--dd-e-emphasized-decel),opacity var(--dd-m-base) var(--dd-e-standard)}
+.dd-dock{position:absolute;left:0;width:100%;transform:translateY(100%);opacity:0;z-index:var(--dd-z-dock);transition:transform var(--dd-m-page) var(--dd-e-emphasized-decel),opacity var(--dd-m-base) var(--dd-e-standard)}
 .dd-kok.has-dock .dd-dock{transform:none;opacity:1}
-.dd-nav{background:color-mix(in srgb,var(--dd-paper) 92%,transparent)}
+/* Dock Gastro .dgu-dock gibi kâğıt zeminli (nav + 40 + safe-area; V4 ana-v3 ekranında da içerik dock'un üstünde kesilir): kayan içerik nav'ın arkasından görünmez.
+   İçerik alt boşluğu aynı yükseklik (.dd-icerik kuralı aşağıda), en alttaki içerik dock'un üstünde kalır. Tabağım çubuğu dock'un üstünde çizilir. */
+.dd-kok .dd-tabagim-kat{z-index:var(--dd-z-tabagim)}
 .dd-nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
 .dd-bar{position:relative;left:auto;width:100%;transform:none;z-index:auto}
 .dd-bar.dd-kayan{position:absolute;bottom:0;transform:translateY(calc(100% + var(--dd-s-16)))}
@@ -49,9 +50,12 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 .dd-sheet{position:absolute;inset:auto 0 0;width:100%;outline:0;display:none}
 .dd-sheet.is-tam{height:calc(var(--dd-ekran-h) * .85)}
 .dd-dialog-kap{display:grid;place-items:center}
+.dd-dialog-kap .dd-perde{animation:none}
 .dd-diyalog{position:relative;outline:0}
-.dd-snack{position:absolute;bottom:calc(var(--dd-snack-alt,var(--dd-s-16)) + env(safe-area-inset-bottom,0px));width:calc(100% - var(--dd-gutter) * 2)}
+.dd-snack{position:absolute;bottom:calc(var(--dd-snack-alt,var(--dd-s-24)) + env(safe-area-inset-bottom,0px));width:calc(100% - var(--dd-gutter) * 2)}
 .dd-menu{position:absolute;display:block;outline:0}
+/* Gastro <dialog>.showModal odağı kabın kendisinde halka çizmez; katman kapları programla odaklanır, halka içteki denetimlerde kalır. */
+body.dd :is(.dd-sheet,.dd-diyalog,.dd-menu):focus-visible{outline:0}
 .dd-yenile{position:absolute}
 .dd-kamera{height:100%;min-height:100%}
 .dd-kamera.is-ornek{height:calc(var(--dd-s-48) * 15);min-height:0}

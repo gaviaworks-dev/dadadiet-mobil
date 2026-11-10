@@ -1,7 +1,7 @@
 /* Haftalık menüm (#/haftalik-menu). Gastro alt sayfa kalıbı: DD.gruplar, kartsız satırlar; alışveriş listesi DD.gorevListe (alınan soluk + üstü çizili).
  * Web karşılığı: hesabim/haftalik-menum (uye-haftalik-menum.js) ve Beslenme Planım'ın haftalık menü + alışveriş listesi bölümü.
  * Menü diyetisyenin gönderdiğidir: DDV.benimDiyetisyenim.haftalikMenu (Uzmanım'daki "Bu haftanın menüsü" ile aynı kaynak). Kalemler DDV.besinler / DDV.yemekler'e çözülür;
- * dokununca #/besin/:slug ya da #/tarif/:slug açılır. Günün makrosu bütün kalemlerin gramı biliniyorsa hesaplanır.
+ * dokununca besin kalemi #/besin/:slug açar (yemek kalemi bağlantısızdır; tarif ürünü yok). Günün makrosu bütün kalemlerin gramı biliniyorsa hesaplanır.
  * Durum: alisveris {'<program>-<hafta>': {malzeme: true}} (alındı işaretleri hafta başına). #/haftalik-menu?ac=alisveris listeyi açar, ?hal=bos, ?hal=hata. */
 (() => {
   const B = () => DDV.benimDiyetisyenim;
@@ -39,7 +39,7 @@
 
   // ---------- Gün paneli ----------
   const kalemSatir = k => DD.besinSatir({ad: k.ad, gorsel: k.kaynak?.gorsel || null, kcal: k.deger ? Math.round(k.deger.kcal) : k.yemek ? k.kaynak.porsiyonKcal : null, ...(k.kaynak ? {P: k.kaynak.P, K: k.kaynak.K, Y: k.kaynak.Y} : {})},
-    {alt: k.miktar, ok: !!k.kaynak, git: k.kaynak ? `#/${k.yemek ? 'tarif' : 'besin'}/${k.kaynak.slug}` : undefined});
+    {alt: k.miktar, ok: !!k.kaynak && !k.yemek, git: k.kaynak && !k.yemek ? `#/besin/${k.kaynak.slug}` : undefined});
   const gunPanel = g => {
     const t = tarih(g), makro = gunMakro(g), hedef = DDV.kullanici.hedefKcal;
     const bas = `<div class="dd-yigin-8"><div class="dd-ara"><h3 class="dd-t-sub">${DD.esc(gunAdi(t))}</h3>${g.bugun ? DD.rozet({metin: 'Bugün'}) : t < DD.bugunIso() ? DD.durumRozet({metin: 'Geçti', ton: 'notr', ikon: 'onay'}) : ''}</div><span class="dd-t-meta dd-ton-ikincil">${DD.esc(`${buyukBas(g.baslik)} · ${g.ogunler.length} öğün · ${DD.sayi(g.kcal)} / ${DD.sayi(hedef)} kcal`)}</span></div>`;
