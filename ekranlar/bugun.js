@@ -370,6 +370,8 @@
     if (DD.aktif()?.ad === 'bugun' && hazir) DD.tazele();
   });
   document.addEventListener('dd-kayit', () => { if (!kayitYaziliyor && DD.aktif()?.ad === 'bugun' && hazir) DD.tazele(); });
+  // Öğün Hatırlatıcı işareti (Profil'de Yedim / Atladım) Bugün'ün öğün durumuna yazar; öğün bölümü yerinde yenilenir, kalan parçalar dönüşte (imza).
+  document.addEventListener('dd-ogun', () => { const kok = document.querySelector('.dd-ekran[data-ekran="bugun"]'); if (kok && hazir && secili === DD.bugunIso()) yuva(kok, 'ogun', ogunBlok(gunOzet())); });
 
   DD.ekran('bugun', {
     tur: 'sekme',
