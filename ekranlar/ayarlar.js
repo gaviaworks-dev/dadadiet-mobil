@@ -129,8 +129,8 @@
     ]},
     // Telefon ve cihaz entegrasyonları (#/telefon, #/cihazlar); açıklama cihaz platformuna göre (DD.uygulamaKilidi.cihaz, kilit.js).
     {baslik: 'Telefon ve cihazlar', satirlar: [
-      {ikon: 'table-cells-large', baslik: 'Telefon özellikleri', alt: androidMi() ? 'Widget, kalıcı bildirim ve Google Asistan' : 'Widget, canlı etkinlik ve Siri Kısayolları', git: '#/telefon'},
-      {ikon: 'heart-pulse', baslik: 'Bağlı uygulamalar ve cihazlar', alt: androidMi() ? 'Health Connect, akıllı saat ve tartı' : 'Apple Health, Apple Watch ve akıllı tartı', git: '#/cihazlar'}
+      {ikon: 'table-cells-large', baslik: 'Telefon özellikleri', alt: androidMi() ? 'Widget, kalıcı bildirim ve Gemini' : 'Widget, canlı etkinlik ve Siri Kısayolları', git: '#/telefon'},
+      {ikon: 'heart-pulse', baslik: 'Bağlı uygulamalar ve cihazlar', alt: androidMi() ? 'Health Connect ve akıllı saat · tartı yakında' : 'Apple Health ve Apple Watch · tartı yakında', git: '#/cihazlar'}
     ]},
     {baslik: 'Bildirimler', satirlar: [
       {ikon: 'bell', baslik: 'Bildirim izni', alt: izinAlt(), git: '#/bildirim-izni'},
@@ -278,7 +278,7 @@
       ])}${DD.veriYok('Sessiz saatlerde **uygulama bildirimi** gelmez; e-posta etkilenmez.')}</div>`},
       {baslik: 'Bildirimlerin', satirlar: [
         {ikon: 'inbox', baslik: 'Gelen bildirimler', alt: DD.bildirimSayi() ? `${DD.bildirimSayi()} okunmamış` : 'Hepsi okundu', git: '#/bildirimler'},
-        {ikon: 'mobile-screen', baslik: 'Bildirim önizlemesi', alt: 'Kilit ekranında nasıl göründüğü', git: '#/bildirim-onizleme'}
+        {ikon: 'mobile-screen', baslik: 'Bildirim görünümü', alt: 'Kilit ekranında nasıl göründüğü', git: '#/bildirim-onizleme'}
       ]}
     ]);
   };

@@ -38,7 +38,7 @@
 
   DD.ekran('bildirim-onizleme', {
     tur: 'alt',
-    baslik: 'Bildirim önizlemesi',
+    baslik: 'Bildirim görünümü',
     ust: '#/ogun-saatleri',
     yenile: true,
     ciz: ctx => {

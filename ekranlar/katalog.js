@@ -143,7 +143,7 @@
     const satirsiz = [...atanan].filter(([d, [b]]) => !B.find(x => x.id === b)?.satirlar.some(s => rotaCoz(s.git)?.desen === d)).map(([d]) => d);
     return {rota: T.length, atanmamis: T.filter(d => !atanan.has(d) && !KENDI.includes(d)), cift: [...atanan].filter(([, b]) => b.length > 1).map(([d]) => d), fazla: [...atanan.keys()].filter(d => !T.includes(d)), satirsiz};
   };
-  const dil = () => 'tr';   // Beyar: prototip TR çalışır; diller Flutter aşamasında (EN sözlükleri en-ceviri-arsiv dalında)
+  const dil = () => 'tr';   // Beyar: uygulama TR çalışır; diller Flutter aşamasında (EN sözlükleri en-ceviri-arsiv dalında)
   const gorsel = s => `assets/katalog/${dil()}/${s.id}.webp`;
   DD.katalog = {BOLUMLER, ESLEME, AD, EK, satirlar, kontrol, kimlik};
 

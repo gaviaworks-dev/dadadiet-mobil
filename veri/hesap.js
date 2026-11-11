@@ -83,7 +83,7 @@ DDV.hesap = {
     sivi: [['ml', 'Mililitre (ml)'], ['bardak', 'Bardak'], ['floz', 'Ons (fl oz)']],
     tarih: [['gg.aa.yyyy', '06.11.2026 (gg.aa.yyyy)'], ['yyyy-aa-gg', '2026-11-06 (yyyy-aa-gg)']]
   },
-  yakinda: ['en'],
+  yakinda: [],
 
   saglikIzinleri: [
     {id: 'yaz', ad: 'Su ve enerji toplamımı yaz', alt: 'Tek çıkış izni: günlük su ve enerji toplamın sağlık uygulamasına eklenir', yon: 'giden', acik: true},

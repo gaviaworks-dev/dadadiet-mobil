@@ -151,7 +151,7 @@
     ciz: ctx => DD.gruplar([
       {baslik: 'Öğün hatırlatıcım', html: hatirlaticiBolum()},
       {baslik: 'Öğün saatlerim', html: saatlerBolum(taslak(ctx))},
-      {baslik: 'Bildirim önizlemesi', html: onizlemeBolum()}
+      {baslik: 'Bildirim görünümü', html: onizlemeBolum()}
     ]),
     altBar: ctx => DD.altEylem({dugmeler: [{metin: 'Kaydet', ikon: 'onay', tam: true, pasif: !degisti(ctx), veri: {eylem: 'kaydet'}}]}),
     sonra: (kok, ctx) => {
