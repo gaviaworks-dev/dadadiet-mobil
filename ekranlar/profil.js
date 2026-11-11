@@ -253,7 +253,7 @@
           DD.tazele();
           DD.toast(`Su kaydın eklendi: **${DD.sayi(toplam(kayitlar, 'ml'))} / ${DD.sayi(suHedef())} ml**`, {ikon: 'su', eylem: 'Geri al', onEylem: () => { DD.durum.yaz(`${onek()}-su`, once); if (DD.aktif()?.ad === 'profil') DD.tazele(); }});
         }),
-        DD.eylem(kok, 'cikis', () => DD.dialog({baslik: 'Çıkış yapılsın mı?', metin: 'Bu cihazdaki **kayıtların ve tercihlerin** silinir.', eylem: 'Çıkış yap', iptal: 'Vazgeç'}).then(ok => { if (ok) DD.cikis(); }))
+        DD.eylem(kok, 'cikis', () => DD.dialog({baslik: 'Çıkış yapılsın mı?', metin: 'Bu cihazdaki **kayıtların ve tercihlerin** silinir.', eylem: 'Çıkış yap', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) DD.cikis(); }))
       ];
       return () => c.forEach(f => f());
     }
