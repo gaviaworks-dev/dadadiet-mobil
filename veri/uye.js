@@ -20,6 +20,8 @@
  *   odemeler: [{ id, no, tarih, tur ('abonelik'|'paket'|'tek'|'iade'), baslik, tutar, durum ('odendi'|'iade-edildi'|'iade-surecinde'), kart }]
  *   gecmisPaketler: [{ diyetisyen, paket, ad, seans, alinma, bitis }]
  *   plan: { ad, surum, tarih, hedefKcal, makro:{P,K,Y,Lif}, not, revizyonlar:[{surum, tarih, baslik, degisiklikler[]}] }, planNotlari:[{tarih, konu, metin}], notKonulari[]
+ *   gorus: { konular:[{k, ad, ikon}], alanlar[], soruKonulari[], teknikYerler[], ihlalTurleri[] }   // Görüş Bildir; gönderimler DD.durum 'gorus-gonderimleri'
+ *   oneri: { turler[], alanlar[], mesajEnAz, mesajEnCok }   // Çözüm Merkezi Öneri ve şikâyet; gönderimler DD.durum 'oneri-gonderimleri'
  * } */
 window.DDV = window.DDV || {};
 DDV.uye = {
@@ -195,7 +197,7 @@ DDV.uye = {
       {ikon: 'database', soru: 'Verilerimi nasıl indiririm?', yanit: 'Veri izinlerim ekranından **indirme paketi** hazırlatırsın; bağlantı e-postana gelir.'},
       {ikon: 'stethoscope', soru: 'Dada Diet tıbbi tavsiye verir mi?', yanit: 'Hayır. Araçlar ve içerikler **genel bilgi** amaçlıdır; tanı ve tedavi için hekimine başvur.'}]}
   ],
-  talepKonulari: ['Hesap sorunu', 'Günlük takip', 'Program sorunu', 'Diyetisyen ve randevu', 'Mesajlaşma sorunu', 'Pro abonelik', 'Ödeme sorunu', 'Fatura talebi', 'İptal ve iade', 'Veri ve gizlilik', 'Teknik sorun', 'Sağlık içeriği bildirimi', 'Öneri ve şikâyet'],
+  talepKonulari: ['Hesap sorunu', 'Günlük takip', 'Program sorunu', 'Diyetisyen ve randevu', 'Mesajlaşma sorunu', 'Pro abonelik', 'Ödeme sorunu', 'Fatura talebi', 'İptal ve iade', 'Veri ve gizlilik', 'Teknik sorun', 'Sağlık içeriği bildirimi'],
   talepler: [
     {id: 'DD-2026-01000F', baslik: 'Akşam öğünü işareti kalkıyor', konu: 'Günlük takip', durum: 'acik', tarih: '2026-11-04', mesajlar: [
       {kim: 'ben', tarih: '2026-11-04', saat: '21.12', metin: 'Akşam öğününü işaretliyorum ama uygulamayı kapatıp açınca işaret kalkıyor.'}]},
@@ -251,5 +253,21 @@ DDV.uye = {
     {tarih: '2026-11-03', konu: 'Alternatif öğün', metin: 'Kahvaltıda yumurta yerine peynirli bir seçenek olabilir mi?'},
     {tarih: '2026-11-05', konu: 'Soru', metin: 'Pencere dışında şekersiz bitki çayı içebilir miyim?'}
   ],
-  notKonulari: ['Alternatif öğün', 'Porsiyon', 'Öğün saati', 'Soru', 'Diğer']
+  notKonulari: ['Alternatif öğün', 'Porsiyon', 'Öğün saati', 'Soru', 'Diğer'],
+
+  // Görüş Bildir (#/gorus-bildir) ve Çözüm Merkezi Öneri ve şikâyet sekmesi. Kaynak: web _src/kabuk/canli-ogeler.mjs (gorusBildir) ve _src/sayfalar/uye-gastro/cozum-merkezi.mjs (oneri).
+  gorus: {
+    konular: [
+      {k: 'oneri', ad: 'Önerim var', ikon: 'lightbulb'},
+      {k: 'soru', ad: 'Bir sorum var', ikon: 'circle-question'},
+      {k: 'teknik', ad: 'Teknik sorun', ikon: 'bug'},
+      {k: 'ihlal', ad: 'İhlal bildirimi', ikon: 'shield-halved'},
+      {k: 'puan', ad: 'Puan ver', ikon: 'face-smile'}
+    ],
+    alanlar: ['Beslenme', 'Programlar', 'Sağlık Araçları', 'Diyetisyenler', 'Beslenme Planım', 'Günlük Takibim', 'Diğer'],
+    soruKonulari: ['Üyelik ve Hesap', 'Beslenme ve Program', 'Diyetisyen randevusu', 'Dada Diet Pro ve Ödeme', 'Diğer'],
+    teknikYerler: ['Ana sayfa', 'Beslenme / Besin sayfası', 'Arama', 'Üyelik ve Giriş', 'Beslenme Planım / Günlük Takibim', 'Sağlık Dosyam / Veri İzinlerim'],
+    ihlalTurleri: ['Telif hakkı', 'Uygunsuz içerik', 'Spam / yanıltıcı içerik', 'Diğer']
+  },
+  oneri: {turler: ['Öneri', 'Şikâyet'], alanlar: ['Besinler', 'Programlar', 'Hesaplayıcılar', 'Diyetisyenler', 'Beslenme Planım', 'Diğer'], mesajEnAz: 10, mesajEnCok: 1000}
 };
