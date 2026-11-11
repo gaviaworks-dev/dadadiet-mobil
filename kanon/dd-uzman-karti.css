@@ -73,11 +73,12 @@
 :is(.dd-uzk,.dd-uzk-kart) :is(.dd-btn,.dd-durum-rozet){position:relative;z-index:1}
 .dd-uzk-ad{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-family:var(--dd-font);font-size:var(--dd-t-card-size);font-weight:var(--dd-t-card-weight);line-height:var(--dd-t-card-line);letter-spacing:var(--dd-t-card-track)}
 .dd-uzk-onay{flex:none;color:var(--dd-primary-dark);font-size:var(--dd-size-icon-sm);line-height:1}
-.dd-uzk-cipler{display:flex;gap:var(--dd-s-4);min-width:0;overflow:hidden}
+.dd-uzk-cipler{display:flex;gap:var(--dd-chip-gap);min-width:0;overflow:hidden}
 .dd-uzk-cip{flex:none;display:inline-flex;align-items:center;height:var(--dd-s-20);padding:0 var(--dd-s-8);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-badge-sm);background:var(--dd-bg);color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1;white-space:nowrap}
 .dd-uzk-cip:first-child{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;display:block;line-height:calc(var(--dd-s-20) - var(--dd-size-border) * 2)}
 /* LİSTE: üst satır (avatar 56 · kimlik · fiyat), çipler (20), meta (rozet 20), eşit iki düğme (44 dokunma); satırlar arası 8 → kart 198. */
 .dd-uzk{display:grid;gap:var(--dd-s-8);padding:var(--dd-s-16)}
+.dd-uzk>.dd-uzk-cipler{margin-block:var(--dd-s-4)}
 .dd-uzk .dd-avatar.s56{box-shadow:none}
 .dd-uzk-ust{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-12)}
 .dd-uzk-kim{display:grid;gap:var(--dd-s-4);min-width:0}

@@ -63,6 +63,8 @@
 .dd-panel.dd-detay-panel{padding-top:0}
 .dd-detay-bas{position:relative;padding:var(--dd-panel-top-space) var(--dd-gutter) 0;background:var(--dd-paper);border-radius:inherit}
 .dd-detay-icerik{position:relative;padding:0 var(--dd-gutter) var(--dd-s-24);background:var(--dd-paper)}
+/* Gövde sekmesiz doğrudan başın (özet şeridinin alt çizgisi) altına gelirse ilk öğe çizgiye yapışmaz: 24 (etiket–ayırıcı kuralı, 11 Kasım). Kuyruk kendi 40'ını korur (.dd-kuyruk aşağıda, aynı özgüllük). */
+:where(.dd-detay-bas+.dd-detay-icerik)>:first-child{margin-top:var(--dd-s-24)}
 .dd-facts{padding:0 0 var(--dd-s-16);border-bottom:var(--dd-size-border) solid var(--dd-line)}
 .dd-facts dl{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));margin:0}
 .dd-facts dl>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);min-width:0;padding:var(--dd-s-4) var(--dd-s-8);text-align:justify;text-align-last:center;--dd-baslik-hiza:center}

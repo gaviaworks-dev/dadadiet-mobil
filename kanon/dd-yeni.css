@@ -626,7 +626,8 @@ body.dd .dd-btn.dd-btn--ikincil.is-yikici[aria-busy=true]::after,body.dd .dd-btn
 .dd-halka.is-foto.is-ustunde .dd-halka-orta small{padding:0 var(--dd-s-8);border-radius:var(--dd-r-chip-sm);background:var(--dd-uyari-bg);color:var(--dd-uyari-fg);text-shadow:none}
 /* Sohbet balonu kısa mesajdır, paragraf değil: yaslanmaz, hecelenmez. */
 .dd-balon p{text-align:start;text-align-last:start}
-/* İçerik uyarısı: ton yalnız ikon kutusunda; yargısız, kırmızı yok */
+/* İçerik uyarısı: ton yalnız ikon kutusunda; yargısız, kırmızı yok. İkon kutusu (32) satır ayracından en az 12 (etiket–ayırıcı kuralı, 2. tur). */
+.dd-icerik-uyari{padding-block:var(--dd-s-12)}
 .dd-icerik-uyari>.dd-satir-ikon{width:var(--dd-size-box-sm);height:var(--dd-size-box-sm);border-radius:var(--dd-r-control);background:var(--dd-bg);color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
 .dd-icerik-uyari.is-dikkat>.dd-satir-ikon{background:var(--dd-uyari-bg);color:var(--dd-uyari-fg)}
 .dd-icerik-uyari.is-iyi>.dd-satir-ikon{background:var(--dd-basari-bg);color:var(--dd-basari-fg)}
@@ -778,7 +779,7 @@ body :is(.dd-veri-yok,.dd-izin-maddeler small,.dd-yorum-metin p,.dd-kunye span){
 
 /* Mesaj yazma çubuğu: kart içinde kutu yok; ince üst çizgi, hap giriş, yuvarlak eylemler. Gönder yalnız yazı varken görünür, o zaman mikrofon çekilir. */
 .dd-bar.dd-mesaj-bar{padding:var(--dd-s-8) var(--dd-s-12) calc(var(--dd-s-8) + env(safe-area-inset-bottom,0px));border-top:var(--dd-size-border) solid var(--dd-line);background:var(--dd-paper)}
-.dd-mesaj-bar .dd-mesaj-oneri{margin-inline:calc(-1 * var(--dd-s-12));padding-inline:var(--dd-s-12)}
+.dd-mesaj-bar .dd-mesaj-oneri{margin-inline:calc(-1 * var(--dd-s-12));padding-inline:var(--dd-s-12);padding-top:var(--dd-s-4)}
 .dd-mesaj{display:flex;align-items:center;gap:var(--dd-s-8);margin:0}
 .dd-mesaj .dd-ibtn{flex:none;width:var(--dd-size-touch);height:var(--dd-size-touch);border-radius:var(--dd-r-round)}
 .dd-mesaj-kutu{display:flex;align-items:center;flex:1;min-width:0;min-height:var(--dd-size-touch);padding:0 var(--dd-s-4) 0 var(--dd-s-16);border:var(--dd-size-border) solid transparent;border-radius:calc(var(--dd-size-touch) / 2);background:var(--dd-bg);cursor:text;transition:border-color var(--dd-m-quick) var(--dd-ease),background-color var(--dd-m-quick) var(--dd-ease)}

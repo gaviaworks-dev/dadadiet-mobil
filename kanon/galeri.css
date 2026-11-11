@@ -24,7 +24,7 @@ html,body{height:auto}
 .g-sira{display:flex;flex-wrap:wrap;gap:var(--dd-s-8);align-items:center}
 .g-telefon{position:relative;height:var(--g-h,420px);overflow:hidden;background:var(--dd-paper);border-radius:var(--dd-r-media)}
 .g-telefon .dd-ekran{position:absolute}
-.g-telefon .dd-dock{transform:none;opacity:1}
+.g-telefon .dd-dock{transform:none;opacity:1;visibility:visible}
 .g-telefon .dd-kaydir{position:absolute}
 .g-telefon .dd-header{position:absolute}
 .g-telefon>.dd-photo{position:absolute;inset:0;background-size:cover;background-position:center}

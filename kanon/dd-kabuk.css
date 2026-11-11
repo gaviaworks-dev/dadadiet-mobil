@@ -34,8 +34,9 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 /* Gastro fixed katmanları kolon içinde */
 .dd-header{position:absolute;left:0;width:100%;transform:none;z-index:30}
 .dd-header .dd-logo img{width:var(--dd-size-logo)}
-.dd-dock{position:absolute;left:0;width:100%;transform:translateY(100%);opacity:0;z-index:var(--dd-z-dock);transition:transform var(--dd-m-page) var(--dd-e-emphasized-decel),opacity var(--dd-m-base) var(--dd-e-standard)}
-.dd-kok.has-dock .dd-dock{transform:none;opacity:1}
+/* Gizli dock görünmez ve odaklanamaz (visibility, solma bitince): nav'ı olmayan ekranda ekran dışındaki FAB ikonu ölçümlerde ayraca yapışık sayılmaz, Tab ile de ulaşılmaz (11 Kasım). */
+.dd-dock{position:absolute;left:0;width:100%;transform:translateY(100%);opacity:0;visibility:hidden;z-index:var(--dd-z-dock);transition:transform var(--dd-m-page) var(--dd-e-emphasized-decel),opacity var(--dd-m-base) var(--dd-e-standard),visibility 0s linear var(--dd-m-base)}
+.dd-kok.has-dock .dd-dock{transform:none;opacity:1;visibility:visible;transition-delay:0s}
 /* Dock Gastro .dgu-dock gibi kâğıt zeminli (nav + 40 + safe-area; V4 ana-v3 ekranında da içerik dock'un üstünde kesilir): kayan içerik nav'ın arkasından görünmez.
    İçerik alt boşluğu aynı yükseklik (.dd-icerik kuralı aşağıda), en alttaki içerik dock'un üstünde kalır. Tabağım çubuğu dock'un üstünde çizilir. */
 .dd-kok .dd-tabagim-kat{z-index:var(--dd-z-tabagim)}

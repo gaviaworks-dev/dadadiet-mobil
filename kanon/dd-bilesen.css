@@ -124,6 +124,12 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 .dd-serit::-webkit-scrollbar{display:none}
 .dd-serit > *{flex-shrink:0;scroll-snap-align:start}
 .dd-satirlar > * + *{border-top:var(--dd-size-border) solid var(--dd-line)}
+/* Etiket–ayırıcı kuralı (11 Kasım): çip/rozet sırası satır ayracına en az 16 değmez. Kendi dolgusu olmayan liste öğesi (gönderi gibi) çip sırasıyla bitiyor ya da başlıyorsa 16 nefes;
+   satır metninin altındaki rozet sırası metinden 8, satır ayracından 16 (satırın 8 dolgusu + 8). */
+.dd-satirlar > :not(.dd-satir) > .dd-sira:last-child{padding-bottom:var(--dd-s-16)}
+.dd-satirlar > :not(.dd-satir) > .dd-sira:first-child{padding-top:var(--dd-s-16)}
+.dd-satir-metin > :is(.dd-sira,.dd-rozet,.dd-durum-rozet):not(:first-child){margin-top:var(--dd-s-4)}
+.dd-satir-metin > :is(.dd-sira,.dd-rozet,.dd-durum-rozet):last-child{margin-bottom:var(--dd-s-8)}
 
 /* ---------- Düğmeler ---------- */
 .dd-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--dd-icon-text);min-height:var(--dd-size-control-lg);padding:var(--dd-s-12) var(--dd-s-24);border:var(--dd-size-border) solid transparent;border-radius:var(--dd-r-control);background:var(--dd-primary-dark);color:var(--dd-paper);font-family:var(--dd-font);font-size:var(--dd-t-button-size);font-weight:var(--dd-t-button-weight);line-height:var(--dd-t-button-line);text-align:justify;text-align-last:center;--dd-baslik-hiza:center;transition:background-color var(--dd-m-base) var(--dd-ease),transform var(--dd-m-base) var(--dd-ease)}
