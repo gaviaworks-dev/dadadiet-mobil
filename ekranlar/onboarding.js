@@ -142,12 +142,13 @@
     if (!c.riza) return DD.veriYok('Bu bölüm **açık rızanı** verdiğinde açılır.');
     return `<div class="dd-yigin-12"><div data-yuva="hassas-cip">${hassasCipler(c)}</div><div data-yuva="hassas-not">${hassasNot(c)}</div></div>`;
   };
+  // Veri iki bağlantı verir (Aydınlatma Metni, KVKK Metni); ikisi aynı metni (#/yasal/kvkk) açtığı için tek düğme.
   const onayGovde = (a, c) => {
     const r = a.acikRiza, h = a.hassasiyet;
     return `<div class="dd-yigin-24">
       <div class="dd-yigin-12">${DD.p(vurgula(r.metin, 'açık rıza veriyorum'))}
         ${DD.kart({html: DD.satirlar([DD.toggle({ad: 'aydinlatma', ikon: 'file-lines', etiket: 'Aydınlatma Metni’ni okudum', secili: c.aydinlatma}), DD.toggle({ad: 'riza', ikon: 'shield-halved', etiket: 'Açık rıza veriyorum', secili: c.riza})])})}
-        <div class="dd-sira">${r.baglantilar.map(b => DD.btn({metin: b, tur: 'text', boyut: 'sm', veri: {eylem: 'metin', id: b}})).join('')}</div>
+        ${DD.btn({metin: 'KVKK Aydınlatma Metni’ni oku', tur: 'text', boyut: 'sm', ikon: 'file-lines', veri: {eylem: 'metin', id: 'KVKK Aydınlatma Metni'}})}
         ${DD.p(vurgula(r.detay, 'dilediğin an geri alabilirsin'), {meta: true, ton: 'ikincil'})}</div>
       <div class="dd-yigin-12">${DD.metinBlok({baslik: h.baslik, metin: vurgula(h.altMetin, 'Opsiyonel'), rol: 'section', h: 2})}<div data-yuva="hassas">${hassasGovde(c)}</div></div>
     </div>`;
@@ -232,7 +233,7 @@
 
   // ---------- Sheet'ler ----------
   const nedenSheet = a => DD.sheet({baslik: 'Neden soruyoruz?', html: DD.p(NEDEN[a.id])});
-  const metinSheet = ad => { const r = adim('kvkk').acikRiza; DD.sheet({baslik: ad, html: `<div class="dd-yigin">${DD.p(vurgula(r.detay, 'belirtilen amaç'))}${DD.p('Verilerin **Dada Diet** tarafından planını kurmak için kullanılır; izin vermediğin sürece diyetisyeninle ya da üçüncü kişilerle paylaşılmaz.')}</div>`}); };
+  const metinSheet = ad => { const r = adim('kvkk').acikRiza; DD.sheet({baslik: ad, html: `<div class="dd-yigin">${DD.p(vurgula(r.detay, 'belirtilen amaç'))}${DD.p('Verilerin **Dada Diet** tarafından planını kurmak için kullanılır; izin vermediğin sürece diyetisyeninle ya da üçüncü kişilerle paylaşılmaz.')}</div>`, altBar: DD.btn({metin: 'Tam metni oku', ikon: 'file-lines', tur: 'secondary', tam: true, git: '#/yasal/kvkk'})}); };
 
   // ---------- Bağlar ----------
   const yuva = (kok, ad, html) => { const el = kok.querySelector(`[data-yuva="${ad}"]`); if (el) el.innerHTML = html; return el; };

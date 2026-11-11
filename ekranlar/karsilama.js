@@ -17,6 +17,9 @@
     ${DD.input({ad: 'eposta', etiket: 'E-posta', ikon: 'envelope', tur: 'email', mod: 'email', yer: 'ad@posta.com', deger: d.eposta, hata: h.eposta})}
     ${DD.input({ad: 'sifre', etiket: 'Şifre', ikon: 'lock', tur: 'password', yer: `En az ${SIFRE_EN_AZ} karakter`, deger: d.sifre, hata: h.sifre})}
   </div>`;
+  // kvkkKisa içindeki metin adları yasal metne bağlanır (Paket 1); DD.makale bağlantı rengini verir, paragraf ortalı ve meta kalır.
+  const YASAL_BAG = [['Kullanım Koşulları', '#/yasal/kullanim-kosullari'], ['Aydınlatma Metni', '#/yasal/kvkk']];
+  const yasalNot = metin => DD.makale(YASAL_BAG.reduce((p, [ad, git]) => p.replace(DD.esc(ad), `<a href="${git}" data-git="${git}">${DD.esc(ad)}</a>`), DD.p(metin, {orta: true, meta: true, ton: 'ikincil'})));
   const epostaSheet = () => DD.sheet({
     baslik: 'E-posta ile devam et',
     html: formHtml(),
@@ -37,7 +40,7 @@
       const g = G();
       return DD.karsilamaKabuk({
         gorsel: g.gorsel, baslik: g.baslik, metin: g.altMetin.replace('kalori ve öğün düzenini', '**kalori ve öğün düzenini**'),
-        html: `<div class="dd-yigin-12"><div class="dd-yigin-8">${g.butonlar.map(dugme).join('')}${DD.btn({metin: 'Zaten hesabım var', tur: 'text', tam: true, veri: {eylem: 'hesabim-var'}})}${DD.btn({metin: 'Üye olmadan devam et', tur: 'text', tam: true, git: '#/bugun'})}</div>${DD.p(g.kvkkKisa.replace('Aydınlatma Metni', '**Aydınlatma Metni**'), {orta: true, meta: true, ton: 'ikincil'})}</div>`
+        html: `<div class="dd-yigin-12"><div class="dd-yigin-8">${g.butonlar.map(dugme).join('')}${DD.btn({metin: 'Zaten hesabım var', tur: 'text', tam: true, veri: {eylem: 'hesabim-var'}})}${DD.btn({metin: 'Üye olmadan devam et', tur: 'text', tam: true, git: '#/bugun'})}</div>${yasalNot(g.kvkkKisa)}</div>`
       });
     },
     sonra: kok => {
