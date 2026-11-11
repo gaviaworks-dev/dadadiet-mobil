@@ -159,7 +159,7 @@ DDV.icerikler = [
   "ozet": "İçindekiler listesi ağırlığa göre sıralanır, bu yüzden ilk üç satır ürünün ne olduğunu ön yüzdeki metinden daha doğru anlatır.",
   "kategori": "Alışveriş",
   "ikon": "barcode",
-  "gorsel": "assets/gorsel/hero/mutfak-raf.webp",
+  "gorsel": "assets/gorsel/rehber/etiketteki-ilk-uc-malzeme-neden-onemli.webp",
   "okumaDk": 2
  },
  {

@@ -1,11 +1,14 @@
 /* Genel arama (#/ara). Gastro arama.html: son aramalar, popüler aramalar, sekmeli sonuç. Referans: tasks/referanslar.md Arama (Truecaller keşif, Nextdoor gruplu sonuç, stoic. boş sonuç).
- * Kapsam: besin, yemek, program, diyetisyen, araç, yazı. Besin ve yemek besin-ara porsiyon sheet'ine gider; kayıt Tabağım üzerindendir.
+ * Kapsam: besin, yemek, program, diyetisyen, araç, yazı, rehber (DDV.rehber: Beslenme ve Makro Rehberi; ipucu/püf/kaç kalori ailesinden hub kartları
+ * Yazı ve kendi ekranlarında kaldığı için yalnız rehber ve makro ailesi, #/rehber/:slug). Besin ve yemek besin-ara porsiyon sheet'ine gider; kayıt Tabağım üzerindendir.
+ * Sonuç yoksa Gastro arama.js kalıbı: "Şunu mu demek istedin?" (dizindeki ad, kelime ve popüler aramalardan en yakın tek terim; Türkçe katlama +
+ * düzenleme mesafesi, eşik uzunluğun üçte biri) ve popüler aramalar.
  * Kalıcı: ara-son (metin listesi). #/ara?q=metin hazır arama, ?hal=hata bağlantı hatası.
  */
 (() => {
   const {sayi} = DD;
   const SON_EN = 6, GRUP_EN = 3, LISTE_EN = 30;
-  const SEKMELER = [['tumu', 'Tümü'], ['besin', 'Besin'], ['program', 'Program'], ['diyetisyen', 'Diyetisyen'], ['arac', 'Araç'], ['yazi', 'Yazı']];
+  const SEKMELER = [['tumu', 'Tümü'], ['besin', 'Besin'], ['program', 'Program'], ['diyetisyen', 'Diyetisyen'], ['arac', 'Araç'], ['yazi', 'Yazı'], ['rehber', 'Rehber']];
   const POPULER = ['mercimek', 'yüksek protein', '16:8', 'kahvaltı', 'barkod', 'su'];
   const ARACLAR = [
     ['Tabak tara', 'Fotoğraftan kalori ve makro', 'kamera', '#/ai/kamera?mod=tabak', 'fotoğraf yemek'],
@@ -39,24 +42,55 @@
     program: DDV.programlar.map(p => ({m: DD.katla(`${p.ad} ${p.kategori} ${p.aciklama}`), a: DD.katla(p.ad), baslik: p.ad, alt: `${p.kategori} · ${sayi(p.sureGun)} gün`, gorsel: p.kapak, git: `#/program/${p.slug}`})),
     diyetisyen: DDV.diyetisyenler.map(d => ({m: DD.katla(`${d.ad} ${d.unvan} ${d.sehir} ${d.uzmanliklar.join(' ')}`), a: DD.katla(d.ad), baslik: d.ad, alt: `${d.uzmanliklar[0]} · ${d.sehir}`, avatar: {harf: d.harf, boyut: 40}, git: `#/uzman/profil/${d.slug}`})),
     arac: ARACLAR.map(x => ({...x, m: DD.katla(`${x.baslik} ${x.alt} ${x.ek}`), a: DD.katla(x.baslik)})),
-    yazi: DDV.icerikler.map(x => ({m: DD.katla(`${x.baslik} ${x.ozet} ${x.kategori}`), a: DD.katla(x.baslik), baslik: x.baslik, alt: `${x.kategori} · ${x.okumaDk} dk okuma`, gorsel: x.gorsel, veri: {eylem: 'yazi', id: x.slug}}))
+    yazi: DDV.icerikler.map(x => ({m: DD.katla(`${x.baslik} ${x.ozet} ${x.kategori}`), a: DD.katla(x.baslik), baslik: x.baslik, alt: `${x.kategori} · ${x.okumaDk} dk okuma`, gorsel: x.gorsel, veri: {eylem: 'yazi', id: x.slug}})),
+    rehber: rehberler().map(x => { const tur = DDV.rehber.turler.find(t => t.deger === x.tur)?.ad || ''; return {m: DD.katla([x.baslik, x.ozet, tur, ...(x.bolumler || [])].join(' ')), a: DD.katla(x.baslik), baslik: x.baslik, alt: [tur, x.okunma != null ? `${sayi(x.okunma)} okunma` : null].filter(Boolean).join(' · '), gorsel: x.gorsel, git: `#/rehber/${x.slug}`}; })
   });
+  // Hub kartlarındaki ipucu, püf ve kaç kalori yazıları rehber sayılmaz (Yazı grubunda ya da kendi ekranlarında).
+  const rehberler = () => (DDV.rehber?.liste || []).filter(x => x.aile === 'rehber' || x.aile === 'makro');
   const ara = q => {
     dizin ||= kur();
     const t = DD.katla(q).split(/\s+/).filter(Boolean), puan = x => (x.a.startsWith(t[0]) ? 3 : x.a.includes(` ${t[0]}`) ? 2 : x.a.includes(t[0]) ? 1 : 0);
     return Object.fromEntries(Object.entries(dizin).map(([tur, l]) => [tur, l.filter(x => t.every(p => x.m.includes(p))).sort((a, b) => puan(b) - puan(a))]));
   };
 
+  // ---------- "Şunu mu demek istedin?" (Gastro arama.js oneri) ----------
+  // Sözlük: dizindeki her başlığın tamamı ve 3+ harfli kelimeleri, popüler aramalar. Sorguya en yakın tek aday; uzaklık eşiği uzunluğun üçte biri.
+  let sozluk = null;
+  const sozlukKur = () => {
+    dizin ||= kur();
+    const l = new Map(), ekle = (k, goster) => { if (k.length >= 3 && !l.has(k)) l.set(k, goster); };
+    [...POPULER, ...Object.values(dizin).flat().map(x => x.baslik)].forEach(b => {
+      ekle(DD.katla(b), b);
+      b.split(/[\s()·,.:;?!'"“”‘’/-]+/).forEach(w => ekle(DD.katla(w), w.toLocaleLowerCase('tr')));
+    });
+    return [...l];
+  };
+  const uzaklik = (a, b) => {
+    const d = Array.from({length: b.length + 1}, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) { let onceki = d[0]; d[0] = i; for (let j = 1; j <= b.length; j++) { const g = d[j]; d[j] = Math.min(d[j] + 1, d[j - 1] + 1, onceki + (a[i - 1] === b[j - 1] ? 0 : 1)); onceki = g; } }
+    return d[b.length];
+  };
+  const oneri = q => {
+    const k = DD.katla(q).trim();
+    if (k.length < 3) return '';
+    sozluk ||= sozlukKur();
+    let en = '', enD = Infinity;
+    for (const [a, goster] of sozluk) { if (Math.abs(a.length - k.length) >= enD) continue; const d = uzaklik(k, a); if (d < enD) { enD = d; en = goster; } }
+    return enD > 0 && enD <= Math.max(1, Math.floor(k.length / 3)) ? en : '';
+  };
+
   // ---------- Parçalar ----------
   const satir = (x, q) => DD.satir({...(x.gorsel !== undefined ? {sol: DD.gorsel({src: x.gorsel, ad: x.baslik, ton: x.ton})} : {}), ikon: x.ikon, avatar: x.avatar, baslik: x.baslik, baslikHtml: DD.vurguluEsles(x.baslik, q), alt: x.alt, git: x.git, veri: x.veri, attrs: 'data-sonuc', ok: false});
   const liste = (l, q) => DD.satirlar(l.map(x => satir(x, q)));
   const sekmeBar = (s, r) => DD.segment({ad: 'sekme', kaydir: true, etiket: 'Sonuç türü', secili: s.sekme, ogeler: SEKMELER.map(([deger, ad]) => ({ad, deger, sayi: deger === 'tumu' ? undefined : r[deger].length}))});
+  const populer = () => DD.bolum({ic: false, baslik: 'Popüler aramalar', html: `<div class="dd-sira">${POPULER.map(x => DD.cip({metin: x, veri: {eylem: 'terim', id: x}})).join('')}</div>`});
+  const oneriBolum = s => { const o = oneri(s.q); return o ? DD.bolum({ic: false, baslik: 'Şunu mu demek istedin?', html: `<div class="dd-sira">${DD.cip({metin: o, ikon: 'ara_', veri: {eylem: 'terim', id: o}})}</div>`}) : ''; };
   const bosSonuc = (s, ad) => DD.listeBos({baslik: 'Sonuç yok', metin: ad ? `“**${s.q}**” için ${ad} bulamadık. Tümü sekmesine ya da **başka bir aramaya** bakabilirsin.` : `“**${s.q}**” için bir şey bulamadık. Daha kısa yazmayı ya da **başka bir sözcüğü** dene.`, eylem: {metin: 'Başka bir arama dene', tur: 'secondary', veri: {eylem: 'yeni-arama'}}});
   const sonuclar = s => {
     const r = ara(s.q), n = Object.values(r).reduce((t, l) => t + l.length, 0), bar = sekmeBar(s, r);
     const ad = SEKMELER.find(([d]) => d === s.sekme)[1];
     const say = m => `<span class="dd-t-meta dd-ton-ikincil" role="status">${m}</span>`;
-    if (!n) return `<div class="dd-yigin">${bar}${bosSonuc(s)}</div>`;
+    if (!n) return `<div class="dd-yigin">${bar}${bosSonuc(s)}<div class="dd-yigin-24">${oneriBolum(s)}${populer()}</div></div>`;
     if (s.sekme === 'tumu') {
       const gruplar = SEKMELER.slice(1).filter(([d]) => r[d].length).map(([d, g]) => DD.bolum({ic: false, baslik: g, eylem: r[d].length > GRUP_EN ? {html: DD.btn({metin: `Tümü (${sayi(r[d].length)})`, tur: 'text', boyut: 'sm', veri: {eylem: 'sekme-ac', id: d}})} : null, html: liste(r[d].slice(0, GRUP_EN), s.q)}));
       return `<div class="dd-yigin">${bar}${say(`${sayi(n)} sonuç`)}<div class="dd-yigin-24 dd-arama-sonuc">${gruplar.join('')}</div></div>`;
@@ -70,7 +104,7 @@
     if (!l.length) return '';
     return DD.bolum({ic: false, baslik: 'Son aramalar', eylem: {html: DD.btn({metin: 'Temizle', tur: 'text', boyut: 'sm', veri: {eylem: 'son-temizle'}})}, html: DD.satirlar(l.map((x, i) => DD.satirKap({ikon: 'gecmis', baslik: x, veri: {eylem: 'terim', id: x}, ok: false}, DD.ikonBtn({ikon: 'kapat', etiket: `${x} aramasını sil`, veri: {eylem: 'son-sil', id: i}}))))});
   };
-  const acilis = () => `<div class="dd-yigin-24">${sonBolum()}${DD.bolum({ic: false, baslik: 'Popüler aramalar', html: `<div class="dd-sira">${POPULER.map(x => DD.cip({metin: x, veri: {eylem: 'terim', id: x}})).join('')}</div>`})}${DD.bolum({ic: false, baslik: 'Keşfet', html: DD.parcali(KESIF.map(x => ({ikon: x.ikon, baslik: x.baslik, git: x.git})), {aria: 'Araçlar', kutu: 'izgara'})})}${DD.bolum({ic: false, baslik: 'Programlar', eylem: 'Tümü', git: '#/programlar', html: DD.ikiliSerit(DDV.programlar.slice(0, 2).map(p => DD.programKart(p, {tur: 'tile'})), 'Programlar')})}</div>`;
+  const acilis = () => `<div class="dd-yigin-24">${sonBolum()}${populer()}${DD.bolum({ic: false, baslik: 'Keşfet', html: DD.parcali(KESIF.map(x => ({ikon: x.ikon, baslik: x.baslik, git: x.git})), {aria: 'Araçlar', kutu: 'izgara'})})}${DD.bolum({ic: false, baslik: 'Programlar', eylem: 'Tümü', git: '#/programlar', html: DD.ikiliSerit(DDV.programlar.slice(0, 2).map(p => DD.programKart(p, {tur: 'tile'})), 'Programlar')})}</div>`;
   const govde = s => (s.q ? sonuclar(s) : acilis());
 
   const yaziSheet = slug => {
@@ -94,12 +128,20 @@
     },
     ciz: ctx => {
       const s = ctx.s ||= {q: ctx.sorgu.q || '', sekme: 'tumu'};
-      return `<div class="dd-ic dd-yigin">${DD.arama({ad: 'genel', yer: 'Besin, program, diyetisyen ara', deger: s.q, mikrofon: true, sonuc: false})}<div data-yuva="govde">${govde(s)}</div></div>`;
+      return `<div class="dd-ic dd-yigin">${DD.arama({ad: 'genel', yer: 'Besin, rehber, program, diyetisyen ara', deger: s.q, mikrofon: true, sonuc: false})}<div data-yuva="govde">${govde(s)}</div></div>`;
     },
     sonra: (kok, ctx) => {
       const s = ctx.s, yer = kok.querySelector('[data-yuva="govde"]'), girdi = kok.querySelector('.dd-arama input');
       if (!yer) return null;
-      const ciz = () => { yer.innerHTML = govde(s); };
+      // Sekme şeridi yeniden çizilince kaydırması korunur; seçili sekme görünmüyorsa yalnız şerit kaydırılır (sayfa kaymaz).
+      const sekmeGoster = x => {
+        const sg = yer.querySelector('.dd-seg'); if (!sg) return;
+        sg.scrollLeft = x;
+        const c = sg.querySelector('[aria-selected=true]'); if (!c) return;
+        const r = sg.getBoundingClientRect(), b = c.getBoundingClientRect();
+        if (b.left < r.left || b.right > r.right) sg.scrollLeft += b.left - r.left - (sg.clientWidth - c.offsetWidth) / 2;
+      };
+      const ciz = () => { const x = yer.querySelector('.dd-seg')?.scrollLeft || 0; yer.innerHTML = govde(s); sekmeGoster(x); };
       const sorgula = q => { s.q = q; s.sekme = 'tumu'; girdi.value = q; girdi.closest('.dd-girdi').classList.toggle('has-text', !!q); ciz(); };
       let zaman = 0;
       const yazildi = () => { clearTimeout(zaman); zaman = setTimeout(() => { s.q = girdi.value.trim(); if (!s.q) s.sekme = 'tumu'; ciz(); }, DD.TK.motion.oneri.inputDebounce); };
