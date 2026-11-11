@@ -119,10 +119,10 @@ DDV.hesap = {
   sevmedikOneri: ['Bamya', 'Ciğer', 'Patlıcan', 'Kereviz', 'Pırasa', 'Brokoli', 'Lahana', 'Mantar', 'Hamsi', 'Kuzu eti', 'Nohut', 'Kinoa', 'Avokado', 'Lor peyniri', 'Zeytin', 'Tahin'],
 
   paylasimTurleri: [
-    {id: 'olcum', etiket: 'Ölçümlerim', alt: 'Kilo, bel ve yağ oranı', ikon: 'kilo', varsayilan: true},
-    {id: 'tahlil', etiket: 'Kan tahlillerim', alt: 'Yüklediğin tahlil sonuçları', ikon: 'tahlil', varsayilan: true},
-    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Tahlil okuma notları', ikon: 'wand-magic-sparkles', varsayilan: true},
-    {id: 'tabaklar', etiket: 'Tabak fotoğraflarım', alt: 'Fotoğraf, öğün, kalori ve notun', ikon: 'tabak', varsayilan: true},
+    {id: 'olcum', etiket: 'Ölçümlerim', alt: 'Kilo, bel ve yağ oranı', ikon: 'kilo', varsayilan: false},
+    {id: 'tahlil', etiket: 'Kan tahlillerim', alt: 'Yüklediğin tahlil sonuçları', ikon: 'tahlil', varsayilan: false},
+    {id: 'analiz', etiket: 'AI analizlerim', alt: 'Tahlil okuma notları', ikon: 'wand-magic-sparkles', varsayilan: false},
+    {id: 'tabaklar', etiket: 'Tabak fotoğraflarım', alt: 'Fotoğraf, öğün, kalori ve notun', ikon: 'tabak', varsayilan: false},
     {id: 'gunluk', etiket: 'Günlük takibim', alt: 'Su, duygu ve öğün işaretlerin', ikon: 'clipboard-check', varsayilan: false},
     {id: 'test', etiket: 'Test sonuçlarım', alt: 'Çözdüğün sağlık testleri', ikon: 'clipboard-question', varsayilan: false}
   ],

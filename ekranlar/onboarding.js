@@ -45,6 +45,8 @@
   const tutar = (k, c) => !k || k.deger.includes(c[k.alan]);
   const gorunen = c => O().adimlar.filter(a => tutar(a.kosul, c));
   const rota = a => (a.id === 'beslenme' ? 'tarz' : a.id);
+  // Sıradaki adım güncel yanıtla hesaplanır: KVKK onayı Alerji adımını (kosul kvkk = onay) sonradan görünür yapar; çizimdeki liste eskir.
+  const sonraki = (a, c) => { const l = gorunen(c); return l[l.findIndex(x => x.id === a.id) + 1]; };
   const yanitli = (a, c) => (a.tur === 'sonuc' || (a.tur === 'protokol' && c.ritimAtlandi) ? true : a.tur === 'onay' ? c.kvkk != null : c[a.alan] != null);
   // Adres ileri bir adımı gösterse de yanıtlanmamış ilk adımda durulur; düzenlemede istenen adım açılır.
   const konum = (ctx, c) => {
@@ -192,7 +194,9 @@
     return a.id !== 'kilo' || !hedefSorun(c);
   };
   const atla = a => ({beslenme: 'Atla', kvkk: 'Sonra', ritim: 'Atla', alerjen: 'Alerjim yok', bildirim: 'Şimdi değil', saglik: 'Şimdi değil'}[a.id]);
+  // KVKK adımında sıradaki adım rıza seçimine bağlı (onayda Alerji, retçe Öğün ritmi): yazılmaz.
   const altYazi = (a, c, son) => {
+    if (a.tur === 'onay') return '';
     if (a.id === 'beslenme' && c.beslenmeTarzi?.length) return `${c.beslenmeTarzi.length} seçili`;
     if (a.id === 'alerjen' && c.alerjenler?.length) return `${c.alerjenler.length} seçili`;
     return son ? `Sıradaki: ${KISA[son.id]}` : '';
@@ -205,7 +209,7 @@
       baslik: a.baslik, alt: ALT[a.id] || vurgula(a.altMetin, VURGU[a.id]), neden: NEDEN[a.id] ? 'Neden soruyoruz?' : null,
       atla: !duzen && atla(a) ? {metin: atla(a), veri: {eylem: 'atla'}} : null,
       devam: {metin: duzen ? 'Kaydet' : a.izin === 'saglik' ? `${saglikServis().ad}’i bağla` : a.buton || 'Devam', pasif: !gecerli(a, c), veri: {eylem: 'devam'}},
-      altMetin: duzen ? '' : altYazi(a, c, l[i + 1]),
+      altMetin: duzen ? '' : altYazi(a, c, sonraki(a, c)),
       html: GOVDE[a.tur](a, c)
     });
   };
@@ -261,12 +265,17 @@
     yenile: true,
     ciz: ctx => adimHtml(ctx, cevaplar()),
     sonra: (kok, ctx) => {
-      const c0 = cevaplar(), {a, i, l} = konum(ctx, c0), offs = [], duzen = !!ctx.sorgu.duzenle;
+      const c0 = cevaplar(), {a} = konum(ctx, c0), offs = [], duzen = !!ctx.sorgu.duzenle;
       const hazirla = () => { const b = kok.querySelector('[data-eylem="devam"]'); if (b) b.disabled = !gecerli(a, cevaplar()); };
       const alerjenYaz = c => { if (!c.alerjenler) return; const h = DD.durum.oku('hesap-ayar', {}); DD.durum.yaz('hesap-ayar', {...h, besin: {...(h.besin || {}), alerjen: c.alerjenler}}); };
       const planYaz = c => { DD.durum.yaz('plan', hesapla(c)); document.dispatchEvent(new CustomEvent('dd-plan')); };
       const ileri = () => {
-        if (!duzen) { DD.git(`#/onboarding/${rota(l[i + 1])}`); return; }
+        // Adres ileri bir adımı gösterirken eksik adım çizildiyse (konum) hedef adres şimdikiyle aynı olabilir: o zaman yerinde yeniden çizilir. ?platform taşınır.
+        if (!duzen) {
+          const h = `#/onboarding/${rota(sonraki(a, cevaplar()))}${ctx.sorgu.platform ? `?platform=${encodeURIComponent(ctx.sorgu.platform)}` : ''}`;
+          if (location.hash === h) DD.yerine(h); else DD.git(h);
+          return;
+        }
         planYaz(cevaplar()); alerjenYaz(cevaplar());
         DD.toast('**Planın** güncellendi', {tur: 'basari'});
         DD.geri('#/profil');
@@ -341,7 +350,7 @@
       if (a.tur === 'coklu-secim') offs.push(DD.on(kok, a.alan, v => {
         const c = guncelle({[a.alan]: v}), alt = kok.querySelector('.dd-onb-alt small');
         hazirla();
-        if (alt) alt.textContent = altYazi(a, c, l[i + 1]);
+        if (alt) alt.textContent = altYazi(a, c, sonraki(a, c));
       }));
       if (a.tur === 'slider') {
         // Uyarı ilk çıktığında düğmesi kaydırma alanının altında kalmasın.
@@ -371,7 +380,7 @@
           yuva(kok, 'hassas-cip', hassasCipler(c)); yuva(kok, 'hassas-not', hassasNot(c));
         }));
       }
-      if (a.tur === 'alerjen') offs.push(DD.on(kok, a.alan, v => { const c = guncelle({[a.alan]: v}), alt = kok.querySelector('.dd-onb-alt small'); if (alt) alt.textContent = altYazi(a, c, l[i + 1]); }));
+      if (a.tur === 'alerjen') offs.push(DD.on(kok, a.alan, v => { const c = guncelle({[a.alan]: v}), alt = kok.querySelector('.dd-onb-alt small'); if (alt) alt.textContent = altYazi(a, c, sonraki(a, c)); }));
       if (a.tur === 'protokol') {
         offs.push(DD.on(kok, a.alan, v => { const c = guncelle({[a.alan]: v}); yuva(kok, 'kadran', kadran(c)); hazirla(); }));
         offs.push(DD.on(kok, a.saatAlani.alan, v => guncelle({[a.saatAlani.alan]: v})));

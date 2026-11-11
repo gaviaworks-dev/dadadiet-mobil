@@ -1,10 +1,11 @@
 /* İzin açıklamaları (#/izin/:tur, tam): kamera, bildirim, konum, saglik, hareket. Ortak açıklama sayfası; kalıp DD.izinIstemi (bildirim-izni, ai-kamera, disarida ile aynı).
  * Tek ekranda tek mesaj: illüstrasyon + neden (3 madde) + "İzin ver" / "Şimdi değil".
- *   kamera, bildirim, konum, hareket: "İzin ver" sistem uyarısını DD.dialog ile açar. İzin ver → 'verildi', toast, dönüş; İzin verme → 'reddedildi', reddedildi hali.
+ *   kamera, bildirim, konum, hareket: "İzin ver" telefonun sistem uyarısını açar (kanon DD.sistemUyari, platforma göre). İzin ver → 'verildi', toast, dönüş; İzin verme → 'reddedildi', reddedildi hali.
  *   saglik: önce açık rıza (E5 window.DDCihazIzin.rizaAl({kaynak:'izin'}); false → bağlanmaz), sonra telefonun izin sayfası (E1 DD.sistemIzinPenceresi, tür listesi DDV.cihazlar).
  *     İzin verilirse 'cihaz-baglanti' {<servis id>: {bagli, izin:{oku, yaz}, sonEsitleme}} (E1 ile aynı alanlar), 'veri-izinleri'.esitle true, 'saglik-izin' verildi.
  * Reddedildi hali (?hal=red ya da durum 'reddedildi'): Diet'in kamera izin sahnesi kalıbı (DD.durumSahne koyu + numaralı Ayarlar adımları, iPhone / Android ayrı) + Ayarları aç / Şimdi değil.
  *   Ayarları aç burada izni verilmiş sayar; sağlıkta yine rıza + izin sayfası akışından geçer.
+ * Misafir: sağlık türünde DD.girisGerekli (bağlantı hesaba bağlı). Sağlık rozeti servis tonunda (DD.cihazIzinAdim). Hareket türünde fotoğraf yok: açık sahne, red hali de açık.
  * ?donus=#/x: Şimdi değil ve izin sonrası dönülecek ekran (yığında önceki ekran varsa geri gidilir). Platform: ?platform=ios|android → DD.uygulamaKilidi.cihaz() (E4) → tarayıcı.
  * Durum anahtarları mevcut ekranlarla ortak: kamera-izin (ai-kamera), bildirim-izin (DD.ogun.izin), konum-izin (disarida), saglik-izin, hareket-izin. */
 (() => {
@@ -92,9 +93,10 @@
   const redMi = ctx => ctx.sorgu.hal === 'red' || t(ctx).izin.oku() === 'reddedildi';
   const donus = ctx => (/^#\//.test(ctx.sorgu.donus || '') ? ctx.sorgu.donus : null);
 
+  // Sağlık türü E1'in DD.cihazIzinAdim gövdesiyle çizilir: rozet servis tonunda (Apple Health protein, Health Connect bilgi), bar DD.izinIstemi ile aynı.
   const istem = ctx => {
-    const x = t(ctx);
-    return DD.izinIstemi({gorsel: x.gorsel, ikon: deger(x.ikon, ctx), baslik: x.baslik(ctx), metin: x.metin(ctx), maddeler: x.maddeler(ctx), izin: x.dugme});
+    const x = t(ctx), o = {gorsel: x.gorsel, ikon: deger(x.ikon, ctx), baslik: x.baslik(ctx), metin: x.metin(ctx), maddeler: x.maddeler(ctx)}, z = DD.izinIstemi({...o, izin: x.dugme});
+    return ctx.param.tur === 'saglik' ? {html: DD.cihazIzinAdim({...o, ton: servis(ctx).ton}), bar: z.bar} : z;
   };
   // Görsel kitaplığında hareket fotoğrafı yok: hareket türü fotoğrafsız açık durum sahnesi (rozet + maddeler + düğmeler) ile çizilir.
   const sahne = ctx => {
@@ -104,14 +106,17 @@
       ipucuBaslik: 'Ne için kullanılır', ipucuParcali: true, ipuclari: x.maddeler(ctx)});
   };
   // Reddedildi: DD.kameraIzinSahne ile aynı düzen (koyu sahne, numaralı adımlar parçalı listede); Şimdi değil ikincil.
+  // Fotoğrafı olmayan türde (hareket) koyu vizör boş çerçeve çizerdi: açık sahne, yalnız rozet.
   const redSahne = ctx => {
     const x = t(ctx), r = x.red;
     return DD.durumSahne({
-      tema: 'koyu', gorsel: x.gorsel, isaret: deger(x.ikon, ctx), baslik: r.baslik, metin: r.metin,
+      tema: x.gorsel ? 'koyu' : 'acik', gorsel: x.gorsel, isaret: deger(x.ikon, ctx), baslik: r.baslik, metin: r.metin,
       ana: {metin: 'Ayarları aç', ikon: 'ayar', attrs: 'data-izin-ayar'}, ikinciller: [{metin: 'Şimdi değil', geri: true}],
       ipucuBaslik: r.ipucu, ipucuParcali: true, ipuclari: r[platform(ctx)].map(([b, a], i) => [String(i + 1), b, a])
     });
   };
+  // Misafir sağlık bağlantısını sonradan yönetemez (#/cihazlar, #/veri-izinleri giriş ister): sağlık türünde giriş duvarı; öteki türler açık.
+  const misafirSaglik = ctx => ctx.param.tur === 'saglik' && !DD.uye();
   const yok = () => DD.hataEkran({tur: 'bulunamadi', eylem: {metin: 'Bugün’e dön', yerine: '#/bugun'}});
 
   // ---------- Sağlık: rıza → telefonun izin sayfası (E1 ile aynı zincir) ----------
@@ -124,7 +129,7 @@
     if (!ok) { DD.toast('Açık rıza olmadan **bağlantı kurulmaz**', {ikon: 'bilgi'}); return; }
     const p = platform(ctx), s = servis(ctx), b = DD.durum.oku('cihaz-baglanti', {}), once = b[s.id]?.izin;
     const m = y => C().turler.filter(x => x.yon === y).map(x => ({id: x.id, ad: x.ad, ikon: x.ikon, acik: once?.[y]?.[x.id] ?? x.acik}));
-    DD.sistemIzinPenceresi({platform: p, servis: {ad: s.ad, ikon: s.ikon}, uygulama: {ad: 'Dada Diet'}, oku: m('oku'), yaz: m('yaz'), yol: C().platformlar[p].yol,
+    return DD.sistemIzinPenceresi({platform: p, servis: {ad: s.ad, ikon: s.ikon}, uygulama: {ad: 'Dada Diet'}, oku: m('oku'), yaz: m('yaz'), yol: C().platformlar[p].yol,
       aciklama: 'Dada Diet adımını, kilonu ve uykunu Sağlık dosyanda gösterir; öğünlerini ve suyunu kaydeder. Sağlık verin reklam için kullanılmaz.',
       bekle: DD.TK.motion.reveal * 3
     }).then(r => {
@@ -140,29 +145,36 @@
     tur: 'tam',
     tabagim: false,
     haller: false,
-    ciz: ctx => (!t(ctx) ? yok() : redMi(ctx) ? redSahne(ctx) : t(ctx).sahne ? sahne(ctx) : istem(ctx).html),
-    altBar: ctx => (t(ctx) && !redMi(ctx) && !t(ctx).sahne ? istem(ctx).bar : ''),
+    ciz: ctx => (!t(ctx) ? yok() : misafirSaglik(ctx) ? DD.girisGerekli({ikon: 'heart-pulse', metin: 'Sağlık uygulaması bağlantın **hesabına bağlı**; bağlantını ve verini Ayarlar’dan yönetirsin.'}) : redMi(ctx) ? redSahne(ctx) : t(ctx).sahne ? sahne(ctx) : istem(ctx).html),
+    altBar: ctx => (t(ctx) && !misafirSaglik(ctx) && !redMi(ctx) && !t(ctx).sahne ? istem(ctx).bar : ''),
     sonra: (kok, ctx) => {
       const x = t(ctx);
-      if (!x) return undefined;
+      if (!x || misafirSaglik(ctx)) return undefined;
       const don = () => DD.geri(donus(ctx) || '#/bugun');
       const ver = () => {
         x.izin.yaz('verildi');
         don();
         DD.toast(deger(x.tamam, ctx), {tur: 'basari', ikon: deger(x.toastIkon, ctx)});
       };
-      const tik = ev => {
-        if (ev.target.closest('[data-geri]')) { ev.stopPropagation(); ev.preventDefault(); don(); return; }
-        const ayar = ev.target.closest('[data-izin-ayar]');
-        if (!ayar && !ev.target.closest('[data-izin-ver]')) return;
-        if (ctx.param.tur === 'saglik') { saglikBagla(ctx, ver); return; }
-        if (ayar || x.izin.oku() === 'verildi') { ver(); return; }
-        const p = x.pencere(ctx);
-        DD.dialog({baslik: p.baslik, metin: p.metin, eylem: 'İzin ver', iptal: 'İzin verme'}).then(evet => {
+      // Telefonun sistem uyarısı (kanon DD.sistemUyari, platforma göre); metin düz yazı (vurgu işaretleri atılır).
+      const uyari = () => {
+        const p = x.pencere(ctx), and = platform(ctx) === 'android';
+        return DD.sistemUyari({platform: platform(ctx), baslik: p.baslik, metin: p.metin.replace(/\*\*/g, ''), red: and ? 'İzin verme' : 'İzin Verme', ver: and ? 'İzin ver' : 'İzin Ver'}).then(evet => {
           if (evet) { ver(); return; }
           x.izin.yaz('reddedildi');
           DD.tazele();
         });
+      };
+      // Çift dokunuş: istem (rıza, izin sayfası ya da sistem uyarısı) sürerken ikinci dokunuş yok sayılır.
+      let surer = false;
+      const tik = ev => {
+        if (ev.target.closest('[data-geri]')) { ev.stopPropagation(); ev.preventDefault(); if (!surer) don(); return; }
+        const ayar = ev.target.closest('[data-izin-ayar]');
+        if (!ayar && !ev.target.closest('[data-izin-ver]')) return;
+        if (surer) return;
+        if (ctx.param.tur !== 'saglik' && (ayar || x.izin.oku() === 'verildi')) { ver(); return; }
+        surer = true;
+        Promise.resolve(ctx.param.tur === 'saglik' ? saglikBagla(ctx, ver) : uyari()).finally(() => { surer = false; });
       };
       kok.addEventListener('click', tik);
       return () => kok.removeEventListener('click', tik);

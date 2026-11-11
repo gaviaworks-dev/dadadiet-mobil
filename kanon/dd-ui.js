@@ -452,7 +452,9 @@
     d.kok = d;
     acik.push(d);
     kap.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !o.zorunlu) d.kapat(); odakKapani(d, ev); });
-    kap.addEventListener('click', ev => { if (ev.target.closest('[data-sheet-kapat]') || (ev.target.hasAttribute('data-sheet-perde') && !o.zorunlu)) d.kapat(); });
+    // Açılış hareketi sürerken (en az 300 ms, TK.motion.sheet) perdeye düşen dokunuş kapatmaz: çift dokunuşun ikincisi yeni açılan sheet'i kapatmasın. Hareket ayarından bağımsız.
+    const acilis = performance.now(), perdeKilit = Math.max(300, M.sheet);
+    kap.addEventListener('click', ev => { if (ev.target.closest('[data-sheet-kapat]') || (ev.target.hasAttribute('data-sheet-perde') && !o.zorunlu && performance.now() - acilis >= perdeKilit)) d.kapat(); });
     // Tutma çubuğundan aşağı sürükle: yarı yükseklik ya da hızlı fırlatma kapatır (Gastro kuralı).
     let y0 = null, t0 = 0;
     const tut = d.querySelector('.dd-tutamak');

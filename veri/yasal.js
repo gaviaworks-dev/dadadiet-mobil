@@ -32,7 +32,7 @@ DDV.yasal = {
  },
  metinler: {
  "kullanim-kosullari": {
-  baslik: "Kullanım Koşulları", ikon: "file-contract", surum: "1.0", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-10-28",
+  baslik: "Kullanım Koşulları", ikon: "file-contract", surum: "1.1", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-11-11",
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Taraflar ve Konu"],
@@ -114,7 +114,7 @@ DDV.yasal = {
   ]
  },
  "saglik-verisi": {
-  baslik: "Sağlık Verisi Politikası", ikon: "heart-pulse", surum: "1.2", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-11-11",
+  baslik: "Sağlık Verisi Politikası", ikon: "heart-pulse", surum: "1.4", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-11-11",
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Neden Ayrı Bir Metin?"],
@@ -156,9 +156,9 @@ DDV.yasal = {
    ["h2", "8. Kullanıcı Kontrolü"],
    ["p", "Sağlık veriniz üzerinde bugün fiilen kullanabildiğiniz kontroller şunlardır:"],
    ["ul", ["<strong>Görüntüleme ve değiştirme</strong> — ölçüleriniz, tahlilleriniz ve ölçüm geçmişiniz <strong>\"Sağlık dosyam\"</strong> bölümünde, hedefleriniz ve beslenme tercihleriniz profilinizde durur; buradan güncellenir.", "<strong>İzinlerin yönetimi</strong> — diyetisyen paylaşımı, kişiselleştirilmiş öneriler, anonim kullanım ve pazarlama iletileri izinleri <strong>\"Veri izinlerim\"</strong> ve bildirim ayarlarından tek tek açılıp kapatılır. Kapatma ileriye etkilidir; o ana kadar yapılmış işlemenin hukuka uygunluğunu etkilemez.", "<strong>Sağlık uygulaması verileri</strong> — hangi türlerin okunacağını bağlantı ayarlarından seçer, okumayı istediğiniz an durdurursunuz. Sağlık uygulamalarından okunan verilerinizi <strong>\"Veri izinlerim\"</strong> bölümünden dışa aktarabilir ya da silebilirsiniz. Silme geri alınamaz; elle girdiğiniz kayıtlara ve telefonunuzdaki sağlık uygulamasında duran veriye dokunmaz."]],
-   ["p", "<strong>Kopya ve silme:</strong> planlarınızın, kayıtlarınızın ve ölçümlerinizin bir kopyasını hesap ayarlarındaki <strong>\"Verilerimi indir\"</strong> ile makine okunur dosya olarak alırsınız; indirme bağlantısı e-posta adresinize gönderilir. Öğün, su ve ölçüm kayıtlarınızın silinmesini aynı bölümden talep edersiniz; talep edilen kayıtlar 30 gün sonra kalıcı olarak silinir. Talepleriniz için <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese de başvurabilirsiniz."],
+   ["p", "<strong>Kopya ve silme:</strong> planlarınızın, kayıtlarınızın ve ölçümlerinizin bir kopyasını Ayarlar › <strong>Verilerim</strong> bölümündeki <strong>\"Verilerimi indir\"</strong> ile makine okunur dosya olarak alırsınız; indirme bağlantısı e-posta adresinize gönderilir. Öğün, su ve ölçüm kayıtlarınızın silinmesini aynı bölümden talep edersiniz; talep edilen kayıtlar 30 gün sonra kalıcı olarak silinir. Talepleriniz için <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese de başvurabilirsiniz."],
    ["h2", "9. Hesap Silme ve Sağlık Verisinin İmhası"],
-   ["p", "Hesabınızın ve sağlık verilerinizin (ölçüler, hesaplama geçmişi, öğün kayıtları) silinmesini <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese başvurarak talep edebilirsiniz. Talep elle işlenir ve sonucu size bildirilir."],
+   ["p", "Hesabınızı Ayarlar › <strong>Hesabımı sil</strong> adımından silersiniz; 30 gün içinde giriş yapmazsanız hesabınız ve sağlık verileriniz (planlar, ölçümler, öğün kayıtları) kalıcı olarak silinir. Hesabınızı kapatmadan yalnız takip verilerinizin (öğün, su ve ölçüm kayıtları) silinmesini Ayarlar › <strong>Verilerim</strong>'den talep edersiniz; talep edilen kayıtlar 30 gün sonra kalıcı olarak silinir. Sağlık uygulamalarından okunan veriyi §8'deki yoldan hemen silersiniz. Talepleriniz için <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese de başvurabilirsiniz."],
    ["p", "Diyetisyeninizle paylaştığınız veriler ve görüşme kayıtları için mesleki saklama yükümlülükleri geçerli olabilir; bu durumda hangi verinin hangi süreyle saklandığı size bildirilir. İşlem geri alınamaz."],
    ["p", "Hesabınız silindiğinde sağlık uygulamalarından okunan veriler de silinir. Telefonunuzdaki sağlık uygulamasında duran veriler bundan etkilenmez; onları o uygulamadan yönetirsiniz."],
    ["h2", "10. Rıza Verilmediğinde"],
@@ -172,7 +172,7 @@ DDV.yasal = {
   ]
  },
  "gizlilik": {
-  baslik: "Gizlilik Politikası", ikon: "user-shield", surum: "1.0", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-10-28",
+  baslik: "Gizlilik Politikası", ikon: "user-shield", surum: "1.1", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-11-11",
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Veri Sorumlusu"],
@@ -181,7 +181,7 @@ DDV.yasal = {
    ["p", "Bu metin, verilerinizi nasıl işlediğimizi ve bunun üzerinde hangi kontrollere sahip olduğunuzu anlatır. Aydınlatma yükümlülüğünün mevzuat karşılığı için <a href=\"#/yasal/kvkk\">KVKK Aydınlatma Metni</a>'ne, yer sağlayıcı bilgileri için <a href=\"#/kunye\">Künye / Yer Sağlayıcı Bilgisi</a> sayfasına bakınız."],
    ["p", "<strong>Sağlık verisi bu metnin dışında ayrıca düzenlenmiştir:</strong> boy, kilo, vücut ölçüleri, hedefler, öğün kayıtları ve diyetisyene aktarılan sağlık geçmişi için <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a> geçerlidir."],
    ["h2", "2. İşlediğimiz Veriler"],
-   ["ul", ["<strong>Hesap verileri</strong> — ad, kullanıcı adı, e-posta, profil fotoğrafı, doğum tarihi beyanı.", "<strong>Sağlık verileri</strong> — ölçüler, hedefler, hesaplama geçmişi, öğün kayıtları ve uzmana aktarılan sağlık geçmişi. Bu kategori özel nitelikli kişisel veridir ve <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a>'na tabidir.", "<strong>Kullanım ve teknik veriler</strong> — IP adresi, oturum kayıtları, cihaz ve tarayıcı bilgisi, görüntülenen sayfalar.", "<strong>Randevu ve görüşme verileri</strong> — randevu kayıtları ve görüşmeye ilişkin işlem bilgileri.", "<strong>Ticari işlem verileri</strong> — ücretli bir hizmet alırsanız abonelik ve fatura bilgileri. Kart bilgileri Platform'da saklanmaz; ödeme kuruluşu tarafından tokenize edilir.", "<strong>İletişim verileri</strong> — destek, şikâyet ve başvurularınızın içeriği."]],
+   ["ul", ["<strong>Hesap verileri</strong> — ad, kullanıcı adı, e-posta, profil fotoğrafı, doğum tarihi beyanı.", "<strong>Sağlık verileri</strong> — ölçüler, hedefler, hesaplama geçmişi, öğün kayıtları, uzmana aktarılan sağlık geçmişi ve bağladığınız sağlık uygulamasından (Apple Health ya da Health Connect) ayrıca verdiğiniz rızayla okunan veriler. Bu kategori özel nitelikli kişisel veridir ve <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a>'na tabidir.", "<strong>Kullanım ve teknik veriler</strong> — IP adresi, oturum kayıtları, cihaz ve tarayıcı bilgisi, görüntülenen sayfalar.", "<strong>Randevu ve görüşme verileri</strong> — randevu kayıtları ve görüşmeye ilişkin işlem bilgileri.", "<strong>Ticari işlem verileri</strong> — ücretli bir hizmet alırsanız abonelik ve fatura bilgileri. Kart bilgileri Platform'da saklanmaz; ödeme kuruluşu tarafından tokenize edilir.", "<strong>İletişim verileri</strong> — destek, şikâyet ve başvurularınızın içeriği."]],
    ["h2", "3. İşleme Amaçları"],
    ["ul", ["Üyeliğin oluşturulması, hesabın yönetilmesi ve güvenliğinin sağlanması", "Hesaplama, program eşleştirme ve takip (açık rıza — bkz. Sağlık Verisi Politikası)", "Diyetisyenle veri paylaşımı, randevu ve görüşme süreçlerinin yürütülmesi (ayrı açık rıza)", "Uzman doğrulama ve şikâyet süreçlerinin yürütülmesi", "Ücretli hizmetlerin sunulması, faturalandırma ve muhasebe yükümlülükleri", "Pazarlama iletişimi (ayrı ve isteğe bağlı açık rıza)", "Hukuki yükümlülüklerin yerine getirilmesi ve uyuşmazlıkların çözümü"]],
    ["h2", "4. Onayların Ayrı Alınması"],
@@ -199,9 +199,9 @@ DDV.yasal = {
    ["ul", ["<strong>Sağlık dosyam</strong> — ölçüleriniz, tahlilleriniz ve ölçüm geçmişiniz; hedefiniz ve beslenme tercihleriniz profilinizde durur. Bu bölümlerden görüntülenir ve değiştirilir.", "<strong>Veri izinlerim</strong> — sağlık verisi açık rızası, sağlık uygulaması rızası ve diyetisyeninizle veri paylaşımı; her biri ayrı ayrı açılıp kapatılır.", "<strong>Bildirim tercihleri</strong> — pazarlama iletileri dâhil bildirim ve e-posta izinleri; kanal kanal açılıp kapatılır.", "<strong>Bağlı uygulamalar ve cihazlar</strong> — sağlık uygulaması bağlantısı, okunan ve yazılan veri türleri; bağlantıyı kesip gelen verilerin silinmesi."]],
    ["p", "Verilerinizin bir kopyasını Ayarlar › <strong>Verilerim</strong> bölümündeki \"Verilerimi indir\" ile alırsınız; takip verilerinizin silinmesini aynı bölümden, hesabınızın silinmesini <strong>Hesabımı sil</strong> adımından istersiniz. Düzeltme ve bunların dışındaki talepleriniz §11'deki adrese yapacağınız başvuruyla karşılanır. Mevzuattan doğan haklarınızın tam listesi ve başvuru usulü <a href=\"#/yasal/kvkk\">KVKK Aydınlatma Metni</a>'ndedir."],
    ["h2", "8. Hesap Silme"],
-   ["p", "Hesabınızın ve verilerinizin silinmesini §11'deki adrese başvurarak talep edebilirsiniz. Talebiniz elle işlenir; sonucu ve hangi kayıtların mevzuattan doğan saklama yükümlülüğü nedeniyle kaldığı size bildirilir. Sağlık verisinin imhası bakımından ayrıca <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a> §9 geçerlidir."],
+   ["p", "Hesabınızı Ayarlar › <strong>Hesabımı sil</strong> adımından silersiniz; 30 gün içinde giriş yapmazsanız hesabınız ve verileriniz kalıcı olarak silinir. Silme talebinizi §11'deki adrese başvurarak da iletebilirsiniz; hangi kayıtların mevzuattan doğan saklama yükümlülüğü nedeniyle kaldığı size bildirilir. Sağlık verisinin imhası bakımından ayrıca <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a> §9 geçerlidir."],
    ["h2", "9. Güvenlik"],
-   ["p", "Kişisel verilerin yetkisiz erişime, kayba ve hukuka aykırı işlenmeye karşı korunması için idari ve teknik tedbirler uygulanır: site ile tarayıcınız arasındaki tüm trafik şifreli bağlantı üzerinden taşınır, yönetim arayüzüne erişim yetkilendirilmiş hesaplarla sınırlıdır ve parolalar geri döndürülemez biçimde saklanır."],
+   ["p", "Kişisel verilerin yetkisiz erişime, kayba ve hukuka aykırı işlenmeye karşı korunması için idari ve teknik tedbirler uygulanır: Platform ile cihazınız arasındaki tüm trafik şifreli bağlantı üzerinden taşınır, yönetim arayüzüne erişim yetkilendirilmiş hesaplarla sınırlıdır ve parolalar geri döndürülemez biçimde saklanır."],
    ["h2", "10. Çerezler"],
    ["p", "Tarayıcınıza yerleştirilen çerezler ve benzeri teknolojiler ayrıca <a href=\"#/yasal/cerez\">Çerez Politikası</a>'nda açıklanmıştır."],
    ["h2", "11. Başvuru"],
@@ -211,7 +211,7 @@ DDV.yasal = {
   ]
  },
  "kvkk": {
-  baslik: "KVKK Aydınlatma Metni", ikon: "scale-balanced", surum: "1.0", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-10-28",
+  baslik: "KVKK Aydınlatma Metni", ikon: "scale-balanced", surum: "1.1", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-11-11",
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Veri Sorumlusunun Kimliği"],
@@ -233,7 +233,7 @@ DDV.yasal = {
    ["p", "<strong>Açık rıza adımı:</strong> bu rıza üyelik onayından ayrı bir adımda istenir ve <strong>\"Veri izinlerim\"</strong> bölümünde ayrı bir anahtar olarak durur; rıza vermezseniz kayıtlarınız yalnız kullandığınız cihazda kalır. Sağlık verisi bir forma kendi elinizle girmenizle ya da bağladığınız sağlık uygulamasından, bunun için ayrıca verdiğiniz rızayla okunmasıyla doğar — ayrıntı Sağlık Verisi Politikası §3'tedir."],
    ["p", "Sağlık verisinin diyetisyenle paylaşılması, hesaplama amacından farklı bir amaçtır ve <strong>ayrı bir izne</strong> tabidir; bu izin \"Veri izinlerim\" bölümünde veri türü bazında ayrı anahtarlar olarak durur ve bütün türler varsayılan olarak kapalıdır."],
    ["h2", "5. Toplama Yöntemi"],
-   ["p", "Kişisel verileriniz; üyelik ve giriş formları, hesaplayıcı ve ölçü giriş ekranları, öğün kayıt ekranları, randevu ve görüşme akışları, iletişim ve başvuru formları ile çerezler üzerinden <strong>elektronik ortamda</strong>; yazılı başvurularda ise fiziksel ortamda toplanır."],
+   ["p", "Kişisel verileriniz; üyelik ve giriş formları, hesaplayıcı ve ölçü giriş ekranları, öğün kayıt ekranları, açık rızanızla bağladığınız sağlık uygulamaları, randevu ve görüşme akışları, iletişim ve başvuru formları ile çerezler üzerinden <strong>elektronik ortamda</strong>; yazılı başvurularda ise fiziksel ortamda toplanır."],
    ["h2", "6. Aktarım"],
    ["p", "Kişisel verileriniz KVKK m.8 ve m.9'a uygun olarak; hizmetin ifası için zorunlu olduğu ölçüde barındırma ve altyapı sağlayıcılarına, açık rızanız hâlinde çalışmayı kabul ettiğiniz diyetisyene, ödeme kuruluşuna ve yasal talep hâlinde yetkili kamu kurum ve kuruluşlarına aktarılabilir."],
    ["p", "Özel nitelikli kişisel verinin aktarımı, Kanun'un öngördüğü ek şartlara ve Kurul'un belirlediği yeterli önlemlere tabidir. Yurt dışına aktarım yalnızca Kanun'un aradığı şartların sağlanması hâlinde yapılır."],

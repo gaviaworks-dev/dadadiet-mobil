@@ -316,12 +316,12 @@
     let bitti = false, t1 = 0, t2 = 0;
     const kapat = s => {
       if (bitti) return; bitti = true;
-      clearTimeout(t1); clearTimeout(t2); removeEventListener('hashchange', gec);
+      clearTimeout(t1); clearTimeout(t2); removeEventListener('hashchange', gec); removeEventListener('popstate', gec);
       kap.classList.add('is-cikis');
       setTimeout(() => { kap.remove(); if (onceki?.isConnected) onceki.focus?.({preventScroll: true}); coz(s); }, DD.azHareket() ? 0 : DD.TK.motion.base);
     };
     const gec = () => kapat('iptal');
-    addEventListener('hashchange', gec);
+    addEventListener('hashchange', gec); addEventListener('popstate', gec);
     kap.addEventListener('click', ev => { const b = ev.target.closest('[data-bistem]'); if (b && kap.dataset.hal === 'tarama') kapat(b.dataset.bistem); });
     kap.addEventListener('keydown', ev => { if (ev.key === 'Escape' && kap.dataset.hal === 'tarama') kapat('iptal'); });
     const sure = +o.sure || DD.TK.motion.reveal * 4;
@@ -335,3 +335,29 @@
     }, sure);
   });
 })();
+  // Telefonun sistem uyarısı (ör. iOS "… Face ID kullanmak istiyor"): nötr yüzey, iOS'ta yan yana iki eşit metin düğmesi, Android'de sağa yaslı metin düğmeleri.
+  // DD.sistemUyari({platform, baslik, metin, red, ver}) → Promise<boolean|null>. Perde kapatmaz (sistem seçim ister); Esc = false (red);
+  // rota değişirse (geri tuşu, adres) uyarı kapanır ve null döner: seçim yapılmadı, çağıran red sayar ama kalıcı karar yazmaz.
+  DD.sistemUyari = (o = {}) => new Promise(coz => {
+    const p = o.platform === 'android' ? 'android' : 'ios';
+    const kat = document.getElementById('dd-katman') || document.body;
+    const kap = document.createElement('div');
+    kap.className = `dd-bistem is-uyari is-${p === 'android' ? 'android-uyari' : 'ios-uyari'}`;
+    kap.dataset.hal = 'uyari';
+    kap.setAttribute('role', 'alertdialog'); kap.setAttribute('aria-modal', 'true'); kap.setAttribute('aria-label', o.baslik || '');
+    kap.innerHTML = `<div class="dd-bistem-perde"></div><div class="dd-bistem-kutu" tabindex="-1"><div class="dd-bistem-ic"><b class="dd-bistem-baslik">${esc(o.baslik || '')}</b>${o.metin ? `<p>${esc(o.metin)}</p>` : ''}</div><div class="dd-bistem-ikili"><button type="button" class="dd-bistem-dugme is-ikincil" data-uyari="0">${esc(o.red || 'İzin Verme')}</button><button type="button" class="dd-bistem-dugme" data-uyari="1">${esc(o.ver || 'İzin Ver')}</button></div></div>`;
+    kat.append(kap);
+    const onceki = document.activeElement;
+    kap.querySelector('.dd-bistem-kutu').focus({preventScroll: true});
+    let bitti = false;
+    const gec = () => kapat(null);
+    addEventListener('hashchange', gec); addEventListener('popstate', gec);
+    const kapat = v => {
+      if (bitti) return; bitti = true;
+      removeEventListener('hashchange', gec); removeEventListener('popstate', gec);
+      kap.classList.add('is-cikis');
+      setTimeout(() => { kap.remove(); if (onceki?.isConnected) onceki.focus?.({preventScroll: true}); coz(v); }, DD.azHareket() ? 0 : DD.TK.motion.base);
+    };
+    kap.addEventListener('click', ev => { const b = ev.target.closest('[data-uyari]'); if (b) kapat(b.dataset.uyari === '1'); });
+    kap.addEventListener('keydown', ev => { if (ev.key === 'Escape') kapat(false); });
+  });

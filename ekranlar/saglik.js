@@ -141,7 +141,7 @@
     if (!C) return '';
     const b = C.baglanti();
     if (!b) return DD.bos({ikon: 'heart-pulse', baslik: 'Sağlık uygulaman bağlı değil', metin: 'Apple Health ya da Health Connect’i bağladığında **adım, kilo ve uyku** verin burada görünür.', eylem: {metin: 'Bağla', ikon: 'link', git: '#/cihazlar'}});
-    if (!C.rizaEtkin()) return DD.bos({ikon: 'shield-halved', baslik: 'Açık rızan bekleniyor', metin: `${b.ad} bağlı; verinin burada görünmesi için **sağlık uygulaması rızan** gerekir.`, eylem: {metin: 'Rıza ver', ikon: 'shield-halved', veri: {eylem: 'cihaz-riza'}}});
+    if (!C.rizaEtkin()) return DD.bos({ikon: 'circle-pause', baslik: 'Sağlık uygulaması rızan kapalı', metin: `${b.ad} bağlı ama **eşitleme durdu**; yeni veri okunmuyor. Rıza verirsen kaldığı yerden sürer.`, eylem: {metin: 'Rıza ver', ikon: 'shield-halved', veri: {eylem: 'cihaz-riza'}}});
     const o = C.ozet(), kaynak = {ikon: 'arrows-rotate', baslik: b.ad, alt: b.son ? `Son eşitleme ${kucukBas(nk(b.son))}` : 'İlk eşitleme bekleniyor', git: b.id ? `#/cihaz/${b.id}` : '#/cihazlar'};
     if (!o) return `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar([kaynak]))}${DD.veriYok(C.oku().silindi ? 'Cihaz kayıtların silindi; **yeni eşitlemeden** sonra burada görünür.' : 'İlk eşitlemeden sonra **son 7 günün** burada görünür.')}</div>`;
     const l = C.paylasilan(), uz = !DD.yeniHesap() && DDV.diyetisyenler.find(x => x.slug === K().diyetisyen);

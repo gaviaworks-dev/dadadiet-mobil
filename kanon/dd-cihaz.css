@@ -494,3 +494,15 @@
   .dd-bistem,.dd-bistem *{animation:none!important;transition:none!important}
   .dd-bistem-onay :is(circle,path){stroke-dashoffset:0}
 }
+/* Sistem uyarısı (DD.sistemUyari): iOS'ta yan yana iki eşit düğme, Android'de sağa yaslı metin düğmeleri; uygulamanın yeşil düğmesi yok */
+.dd-bistem.is-uyari .dd-bistem-kutu{width:calc(var(--dd-s-64) * 4.25);max-width:calc(100% - var(--dd-s-48));overflow:hidden;border-radius:var(--dd-r-media);animation:dd-bistem-buyu var(--dd-m-page) var(--dd-e-emphasized-decel) both}
+.dd-bistem.is-uyari .dd-bistem-ic p{color:var(--dd-ink)}
+.dd-bistem-ikili{display:grid;grid-template-columns:1fr 1fr;width:100%;box-shadow:inset 0 var(--dd-size-border) 0 var(--bs-cizgi)}
+.dd-bistem-ikili .dd-bistem-dugme+.dd-bistem-dugme{box-shadow:inset var(--dd-size-border) 0 0 var(--bs-cizgi)}
+.dd-bistem-dugme.is-ikincil{font-weight:var(--dd-weight-body)}
+.dd-bistem.is-android-uyari{--bs-font:Roboto,"Google Sans",system-ui,-apple-system,sans-serif;--bs-yuzey:var(--dd-paper)}
+.dd-bistem.is-android-uyari .dd-bistem-kutu{justify-items:stretch;border-radius:var(--dd-r-surface);text-align:start;text-align-last:start}
+.dd-bistem.is-android-uyari .dd-bistem-ic{justify-items:start;padding:var(--dd-s-24) var(--dd-s-24) var(--dd-s-8)}
+.dd-bistem.is-android-uyari .dd-bistem-baslik{font-size:var(--dd-t-sheet-size);font-weight:var(--dd-weight-body)}
+.dd-bistem.is-android-uyari .dd-bistem-ikili{display:flex;justify-content:flex-end;gap:var(--dd-s-8);padding:0 var(--dd-s-16) var(--dd-s-16);box-shadow:none}
+.dd-bistem.is-android-uyari .dd-bistem-ikili .dd-bistem-dugme{width:auto;box-shadow:none;font-size:var(--dd-t-meta-size);font-weight:var(--dd-weight-bold)}

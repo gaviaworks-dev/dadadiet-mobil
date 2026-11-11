@@ -9,7 +9,10 @@
  *   rıza varsa doğrudan geçer, yoksa E5'in rıza sheet'i; false dönerse bağlanmaz) → telefonun izin sayfası (DD.sistemIzinPenceresi) → tamam (DD.cihazBasari).
  *   ?adim=izin bilgi adımını açar ve aynı zinciri hemen başlatır. Son eşitleme alanı: 'cihaz-baglanti'.<id>.sonEsitleme (tek alan).
  * ?platform=ios|android (varsayılan ios); bağlantılar sorguyu taşır. Haller: ?hal=bos (hiç bağlantı yok), ?hal=koptu (yeniden bağlan; anahtarlar ve eşitleme kapalı),
- *   ?hal=cevrimdisi (router şeridi tek "Son eşitleme"yi söyler; ekrandaki eşitleme zamanı gizli, Şimdi eşitle pasif); yukleniyor ve hata router'dan. Misafire giriş çağrısı. */
+ *   ?hal=cevrimdisi (router şeridi tek "Son eşitleme"yi söyler; ekrandaki eşitleme zamanı gizli, Şimdi eşitle pasif); yukleniyor ve hata router'dan. Misafire giriş çağrısı.
+ * Rıza (E5 tek kaynak DDCihazIzin.durum()): sağlık servisi bağlı ama etkin rıza yoksa "Duraklatıldı" — eşitleme ve tür anahtarları pasif, "Rıza ver" (rizaAl) bandı.
+ *   Bağlantı kaydı ('cihaz-baglanti'.<id>) varsa yalnız ona bakılır; eski 'veri-izinleri'.esitle yalnız kayıt hiç yoksa platform servisi için yedektir.
+ *   Bağlanınca DDCihazIzin.baglandi(id): kes-sil sonrası geçmiş yeniden okunur; tamam ekranı değerleri DDCihazIzin.ozet()'ten (Sağlık dosyam ile aynı kaynak). */
 (() => {
   const V = () => DDV.cihazlar;
   const ANAHTAR = 'cihaz-baglanti';
@@ -30,7 +33,7 @@
 
   // ---------- Rıza (E5: cihaz-izin; etkin = genel rıza && cihaz rızası) ----------
   const cihazIzin = () => (window.DDCihazIzin ? DDCihazIzin.oku() : {...DDV.hesap.cihazIzin, ...DD.durum.oku('cihaz-izin', {})});
-  const rizaEtkin = () => (window.DDCihazIzin ? DDCihazIzin.rizaEtkin() : !!izinler().riza && !!cihazIzin().riza);
+  const rizaEtkin = () => (window.DDCihazIzin ? DDCihazIzin.durum().riza : !!izinler().riza && !!cihazIzin().riza);
   // E5 rıza zinciri: rizaAl rıza varsa true döner, yoksa rıza sheet'ini açar. Yoksa (eski sürüm) Veri izinlerim'in rıza sheet'ine gider.
   const rizaIste = () => {
     if (typeof window.DDCihazIzin?.rizaAl === 'function') return Promise.resolve(DDCihazIzin.rizaAl({kaynak: 'cihazlar'}));
@@ -63,27 +66,28 @@
     if (s.yakinda) return {yakinda: true, haber: !!k.haber};
     if (s.platform && s.platform !== platform(ctx)) return {yok: true};
     if (h === 'bos') return {bagli: false, izin: izinBirles(s)};
-    const es = izinler().esitle;
-    const bagli = s.id === ps.id && es !== undefined ? !!es : !!k.bagli;
-    const son = (typeof k.sonEsitleme === 'string' && k.sonEsitleme) || DD.durum.oku('hesap-ayar', {})?.bagli?.sonEsitleme?.saglik || DDV.hesap.varsayilan.bagli.sonEsitleme.saglik || 'az önce';
+    const kayit = !!tum()[s.id];
+    const bagli = kayit ? !!k.bagli : s.id === ps.id && !!izinler().esitle;
+    const son = (typeof k.sonEsitleme === 'string' && k.sonEsitleme) || (kayit ? null : DD.durum.oku('hesap-ayar', {})?.bagli?.sonEsitleme?.saglik || DDV.hesap.varsayilan.bagli.sonEsitleme.saglik);
     if (h === 'koptu' && s.id === ps.id) return {bagli: true, kopuk: true, son: V().koptuSon, izin: izinBirles(s, k.izin)};
-    return {bagli, son: bagli ? son : null, izin: izinBirles(s, k.izin)};
+    return {bagli, duraklatildi: bagli && s.grup === 'saglik' && !rizaEtkin(), son: bagli ? son : null, izin: izinBirles(s, k.izin)};
   };
   const ROZET = {
     bagli: {metin: 'Bağlı', ton: 'basari', ikon: 'circle-check'},
     degil: {metin: 'Bağlı değil', ton: 'notr', ikon: 'circle-minus'},
     kopuk: {metin: 'Bağlantı koptu', ton: 'hata', ikon: 'link-slash'},
+    duraklatildi: {metin: 'Duraklatıldı', ton: 'uyari', ikon: 'circle-pause'},
     yakinda: {metin: 'Yakında', ton: 'uyari', ikon: 'hourglass-half'},
     yok: {metin: 'Bu telefonda yok', ton: 'notr', ikon: 'mobile-screen'}
   };
-  const rozet = d => DD.durumRozet(ROZET[d.yakinda ? 'yakinda' : d.yok ? 'yok' : d.kopuk ? 'kopuk' : d.bagli ? 'bagli' : 'degil']);
+  const rozet = d => DD.durumRozet(ROZET[d.yakinda ? 'yakinda' : d.yok ? 'yok' : d.kopuk ? 'kopuk' : d.duraklatildi ? 'duraklatildi' : d.bagli ? 'bagli' : 'degil']);
   const ikon = (s, d) => DD.ikonKutu({ikon: s.ikon, ton: d.yok ? 'notr' : s.ton, boyut: 'lg'});
   const PLATFORM_AD = {ios: 'iPhone', android: 'Android'};
 
   // ---------- Liste ----------
   const kart = (s, ctx) => {
     const d = hal(s, ctx);
-    const meta = d.son && !cevrimdisi(ctx) ? `<small>Son eşitleme ${DD.esc(kucuk(d.son))}</small>` : '';
+    const meta = d.duraklatildi ? '<small>Rıza gerekli</small>' : d.son && !cevrimdisi(ctx) ? `<small>Son eşitleme ${DD.esc(kucuk(d.son))}</small>` : '';
     return DD.satir({sol: ikon(s, d), baslik: s.ad, alt: d.yok ? `${PLATFORM_AD[s.platform]} telefonlarda çalışır.` : s.aciklama, ozet: true,
       ek: `<span class="dd-sira">${rozet(d)}${meta}</span>`, git: url(`#/cihaz/${s.id}`, ctx)});
   };
@@ -92,10 +96,12 @@
     return V().dada.map(x => ({sol: DD.ikonKutu({ikon: x.ikon, boyut: 'lg'}), baslik: x.ad, alt: 'Profilin ve hedefin eşitlenir.',
       ek: `<span class="dd-sira">${DD.durumRozet(ROZET[b[x.id] ? 'bagli' : 'degil'])}</span>`, git: '#/ayarlar/bagli'}));
   };
+  // Rıza geri alınınca bağlantı durur (rıza metni: "geri aldığında yeni veri okunmaz ve yazılmaz").
+  const durduBant = s => DD.bant({ton: 'uyari', ikon: 'circle-pause', baslik: `${s.ad} eşitlemesi durdu`, metin: 'Sağlık uygulaması rızan kapalı; **yeni veri okunmuyor ve yazılmıyor**. Rıza verirsen kaldığı yerden sürer.', eylem: {metin: 'Rıza ver', veri: {eylem: 'riza-ver'}}});
   const liste = ctx => {
     const p = platform(ctx), ps = platformServis(ctx), d = hal(ps, ctx);
     const saglik = V().servisler.filter(s => s.grup === 'saglik').sort((a, b) => (b.platform === p) - (a.platform === p));
-    const bas = d.kopuk
+    const bas = d.duraklatildi ? durduBant(ps) : d.kopuk
       ? DD.bant({ton: 'hata', ikon: 'link-slash', baslik: `${ps.ad} bağlantısı koptu`, metin: `Son eşitleme **${d.son}**. İzinler telefonundan kapatılmış olabilir.`, eylem: {metin: 'Yeniden bağlan', git: akisUrl(ps, ctx)}})
       : !d.bagli
         ? DD.bos({ikon: ps.ikon, baslik: 'Henüz bağlı uygulama yok', metin: `${ps.ad}’i bağla; adımın, kilon ve uykun **kendiliğinden** gelsin.`, eylem: {metin: `${ps.ad}’i bağla`, ikon: 'link', git: akisUrl(ps, ctx)}})
@@ -116,17 +122,18 @@
     return n.gelen + n.giden ? '' : DD.bant({ton: 'uyari', baslik: 'Hiçbir veri aktarılmıyor', metin: 'Bağlantı duruyor ama **açık veri türü kalmadı**. Bir türü açınca eşitleme sürer.'});
   };
   const ESITLE = {
-    hazir: d => DD.btn({metin: 'Şimdi eşitle', ikon: 'arrows-rotate', tur: 'secondary', tam: true, pasif: d.kopuk || d.cevrimdisi, veri: {eylem: 'esitle'}}),
+    hazir: d => DD.btn({metin: 'Şimdi eşitle', ikon: 'arrows-rotate', tur: 'secondary', tam: true, pasif: d.kopuk || d.cevrimdisi || d.duraklatildi, veri: {eylem: 'esitle'}}),
     suruyor: () => DD.btn({metin: 'Eşitleniyor…', ikon: 'arrows-rotate', tur: 'secondary', tam: true, pasif: true, sinif: 'dd-cdonen'}),
     tamam: () => DD.btn({metin: 'Eşitlendi', ikon: 'circle-check', tur: 'tonal', tam: true, pasif: true})
   };
   const turSatir = (t, d) => DD.satir({ikon: t.ikon, baslik: t.ad, alt: t.alt, duz: true,
-    sag: DD.cihazYonlar({ad: `tur-${t.id}`, yonler: t.yonler.map(y => ({yon: y.yon, secili: acik(d.izin, y.yon, t.id), pasif: d.kopuk, etiket: `${t.ad}, ${y.yon === 'oku' ? 'gelir' : 'yazılır'}`}))})});
+    sag: DD.cihazYonlar({ad: `tur-${t.id}`, yonler: t.yonler.map(y => ({yon: y.yon, secili: acik(d.izin, y.yon, t.id), pasif: d.kopuk || d.duraklatildi, etiket: `${t.ad}, ${y.yon === 'oku' ? 'gelir' : 'yazılır'}`}))})});
 
   const bagliDetay = (s, d, ctx) => DD.gruplar([
+    d.duraklatildi && {html: durduBant(s)},
     d.kopuk && {html: DD.bant({ton: 'hata', ikon: 'link-slash', baslik: 'İzinler kapalı görünüyor', metin: `${s.ad} izinleri telefonundan kapatılmış olabilir. **Yeniden bağlan**, eşitleme sürsün.`, eylem: {metin: 'Yeniden bağlan', git: akisUrl(s, ctx)}})},
     {baslik: 'Eşitleme', html: `<div class="dd-yigin-12">${DD.satirlar([
-      ...(d.cevrimdisi ? [] : [DD.satir({ikon: 'clock-rotate-left', baslik: 'Son eşitleme', deger: d.son, duz: true, attrs: 'data-son-esitleme'})]),
+      ...(d.cevrimdisi ? [] : [DD.satir({ikon: 'clock-rotate-left', baslik: 'Son eşitleme', deger: d.son || 'Bekleniyor', duz: true, attrs: 'data-son-esitleme'})]),
       {ikon: 'mobile-screen', baslik: 'Veri kaynakları', alt: s.kaynaklar.join(', ')}
     ])}<div data-yuva="esitle">${ESITLE.hazir(d)}</div>${d.cevrimdisi ? DD.veriYok('Bağlantı gelince **kendiliğinden** eşitlenir.') : ''}</div>`},
     {html: `<div class="dd-yigin-12">${DD.cihazYonAciklama({gelen: 'Dada Diet’e gelir', giden: `${s.ad}’e yazılır`})}<div data-yuva="uyari">${uyari(s, d)}</div></div>`},
@@ -157,14 +164,14 @@
 
   // ---------- Bağlanma akışı ----------
   const bilgi = s => DD.cihazIzinAdim({gorsel: GORSEL, ikon: s.ikon, ton: s.ton, baslik: `${s.ad}’i bağla`, metin: s.bilgi, maddeler: ozetMaddeler(s), adim: 1, toplam: 2});
+  // İlk eşitlemede gelenler E5 özetinden (Sağlık dosyam ile aynı kaynak ve biçim: uyku ondalık saat).
   const gelenler = izin => {
-    const g = DDV.hesap.cihazVerisi?.gunler || [], son = g[g.length - 1];
-    if (!son) return [];
-    const kilo = [...g].reverse().find(x => x.kiloKg != null);
+    const o = window.DDCihazIzin?.ozet();
+    if (!o) return [];
     return [
-      acik(izin, 'oku', 'adim') && ['shoe-prints', 'Adım', `Bugün ${DD.sayi(son.adim)} adım`],
-      acik(izin, 'oku', 'kilo') && kilo && ['weight-scale', 'Kilo', `Son ölçüm ${DD.ondalik(kilo.kiloKg)} kg`],
-      acik(izin, 'oku', 'uyku') && ['bed', 'Uyku', `Dün gece ${DD.sure(son.uykuDk)}`]
+      acik(izin, 'oku', 'adim') && ['shoe-prints', 'Adım', `Bugün ${DD.sayi(o.adim.bugun)} adım`],
+      acik(izin, 'oku', 'kilo') && o.kilo && ['weight-scale', 'Kilo', `Son ölçüm ${DD.ondalik(o.kilo.son, 1)} kg`],
+      acik(izin, 'oku', 'uyku') && ['bed', 'Uyku', `Dün gece ${DD.ondalik(o.uyku.son / 60, 1)} sa`]
     ].filter(Boolean);
   };
   const tamam = (s, ctx) => {
@@ -181,6 +188,7 @@
       if (!r.izin) { DD.toast('İzin vermedin; **bağlantı kurulmadı**', {ikon: 'bilgi'}); return; }
       yaz(s.id, {bagli: true, izin: {oku: r.oku, yaz: r.yaz}, sonEsitleme: simdi()});
       esitleYaz(s, ctx, true);
+      window.DDCihazIzin?.baglandi?.(s.id);
       DD.yerine(akisUrl(s, ctx, 'tamam'));
     });
   };
@@ -215,7 +223,9 @@
       return DD.altEylem({dugmeler: [{metin: 'Şimdi değil', tur: 'secondary', geri: true}, {metin: 'Devam et', veri: {eylem: 'devam'}}]});
     },
     sonra: (kok, ctx) => {
-      if (!DD.uye() || !ctx.param.id) return null;
+      if (!DD.uye()) return null;
+      const rizaVer = () => DD.eylem(kok, 'riza-ver', () => window.DDCihazIzin?.rizaAl({kaynak: 'cihazlar'}).then(ok => { if (ok && kok.isConnected) { DD.tazele(); DD.toast('Eşitleme **yeniden başladı**', {tur: 'basari'}); } }));
+      if (!ctx.param.id) return rizaVer();
       const s = servis(ctx.param.id);
       if (!s) return null;
       const adim = adimAd();
@@ -229,11 +239,13 @@
       if (!d.bagli) return null;
       const yuva = ad => kok.querySelector(`[data-yuva="${ad}"]`);
       const c = [
+        rizaVer(),
         ...turler(s).map(t => DD.on(kok, `tur-${t.id}-${t.yon}`, v => {
           const i = hal(s, ctx).izin; i[t.yon][t.id] = v; yaz(s.id, {izin: i});
           const u = yuva('uyari'); if (u) u.innerHTML = uyari(s, {...d, izin: i});
         })),
         DD.eylem(kok, 'esitle', () => {
+          if (d.duraklatildi) return;
           if (d.cevrimdisi || navigator.onLine === false) { DD.toast('Bağlantı yok; **bağlantı gelince** eşitlenir', {tur: 'hata', ikon: 'wifi'}); return; }
           const y = yuva('esitle'); if (!y) return;
           y.innerHTML = ESITLE.suruyor();

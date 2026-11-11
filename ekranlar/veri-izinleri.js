@@ -54,7 +54,10 @@
   };
   const kucukBas = v => (v ? v.charAt(0).toLocaleLowerCase('tr') + v.slice(1) : v);
   const rizaEtkin = () => !!izinler().riza && !!ciOku().riza;
-  const cihazGunler = () => { const c = ciOku(); return DD.yeniHesap() || !c.rizaTarih ? [] : H().cihazVerisi.gunler.filter(g => !c.silindi || g.tarih > c.silindi); };
+  // Kes-sil sonrası bağlantı yeniden kurulduysa silme geçmişi gizlemez: sağlık uygulamasındaki veri silinmemişti, yeniden okunur.
+  const silinmis = c => !!c.silindi && !(c.silKesik && baglanti());
+  const cihazGunler = () => { const c = ciOku(); return DD.yeniHesap() || !c.rizaTarih ? [] : silinmis(c) ? H().cihazVerisi.gunler.filter(g => g.tarih > c.silindi) : H().cihazVerisi.gunler; };
+  const kapaliTurler = () => Object.fromEntries(CT().map(t => [t.id, false]));
   const paylasilan = () => { const c = ciOku(); return rizaEtkin() && uzman() && c.paylas ? CT().filter(t => c.turler[t.id]) : []; };
   const ort = l => (l.length ? l.reduce((t, x) => t + x, 0) / l.length : 0);
   // Son gün bugündür, adımı sürer: ortalama tamamlanan günlerden.
@@ -77,8 +80,13 @@
     return {genelRiza: !!izinler().riza, cihazRiza: !!c.riza, riza: rizaEtkin(), rizaTarih: c.rizaTarih || null, rizaKaynak: c.rizaKaynak || null, paylas: !!c.paylas, turler: {...c.turler}, paylasilan: paylasilan().map(t => t.id), baglanti: baglanti() ? {...baglanti(), duraklatildi: !rizaEtkin()} : null, veriGun: cihazGunler().length, silindi: silinmis(c) ? c.silindi : null, aktarim: c.aktarim || null};
   };
   const cihazVerisiSil = servisId => {
-    ciYaz({silindi: DD.bugunIso(), aktarim: null});
+    ciYaz({silindi: DD.bugunIso(), silKesik: !!servisId, aktarim: null});
     kaydet(servisId ? `${servisAd(servisId)} verisi silindi` : 'Cihaz verisi silindi', 'trash');
+    return durum();
+  };
+  const baglandi = servisId => {
+    if (ciOku().silindi) ciYaz({silindi: null, silKesik: false});
+    kaydet(`${servisAd(servisId)} bağlandı`, 'link');
     return durum();
   };
   // Rıza kapsamı E1'in tür listesinden: okunanlar grup grup, yazılanlar tek satır.
@@ -115,7 +123,7 @@
     const alt = genel && c.riza ? (c.rizaTarih ? `Verildi · ${DD.tarihUzun(c.rizaTarih)}` : 'Verildi') : !genel ? 'Verilmedi · genel rızanla birlikte istenir' : 'Verilmedi · cihaz verisi okunmaz';
     return `<div class="dd-yigin" id="cihaz-izin">${DD.p('Apple Health ya da Health Connect’ten okunan veri de **sağlık verisidir**. Okunması için bu kapsama ayrıca rıza verirsin; genel açık rızanı geri alırsan bu kapsam da durur.', {ton: 'ikincil'})}${DD.satirlar([
       DD.toggle({ad: 'cihaz-riza', ikon: 'heart-pulse', etiket: 'Sağlık uygulamalarından gelen veri', alt, secili: genel && c.riza}),
-      {ikon: 'link', baslik: b ? b.ad : 'Bağlı sağlık uygulaman yok', alt: b ? `Bağlı · ${sonMetin(b)}` : 'Apple Health ya da Health Connect’i bağla', git: b?.id ? `#/cihaz/${b.id}` : '#/cihazlar'}
+      {ikon: 'link', baslik: b ? b.ad : 'Bağlı sağlık uygulaman yok', alt: b ? (rizaEtkin() ? `Bağlı · ${sonMetin(b)}` : 'Bağlı · eşitleme durdu, rıza gerekli') : 'Apple Health ya da Health Connect’i bağla', git: b?.id ? `#/cihaz/${b.id}` : '#/cihazlar'}
     ])}${DD.gizlilikBant(r.ozet)}${DD.akordiyon([{baslik: 'Sağlık uygulaması rıza metni', ikon: 'file-lines', icerik: rizaMetni()}], {acik: -1})}${DD.satirlar([{ikon: 'file-shield', baslik: 'Sağlık Verisi Politikası', alt: 'Amaçlar, paylaşım ve hakların', git: '#/yasal/saglik-verisi'}])}</div>`;
   };
   const rizaMetni = () => { const r = H().cihazRiza; return `<div class="dd-yigin-12">${DD.p(r.metin.replace('açık rıza veriyorum', '**açık rıza veriyorum**'))}${kapsamHtml()}${DD.p(r.detay.replace('dilediğin an geri alabilirsin', '**dilediğin an geri alabilirsin**'), {ton: 'ikincil', meta: true})}</div>`; };
@@ -138,18 +146,18 @@
     const p = paylasim(), s = izinAyar().sure, acik = TUR().filter(t => p[t.id]).length;
     return `<div class="dd-yigin-12" id="paylasim">${DD.p(`Hiçbir veri türü kendiliğinden açılmaz; **${u.ad}** yalnız senin açtığın türleri görür. Değişiklik anında kaydedilir ve diyetisyen paneline yansır.`, {ton: 'ikincil'})}${DD.eylemKart({ikon: 'eye', baslik: 'Diyetisyenim bunu görür', alt: acik || paylasilan().length ? 'Danışan özetindeki görünümün' : 'Şu an hiçbir verini görmüyor', veri: {eylem: 'onizleme'}})}${DD.satirlar([DD.toggle({ad: 'paylas-genel', ikon: 'user-doctor', etiket: 'Diyetisyenimle paylaş', alt: acik ? `${acik} veri türü açık` : 'Hiçbir veri paylaşılmıyor', secili: acik > 0}), ...TUR().map(t => DD.toggle({ad: `paylas-${t.id}`, ikon: t.ikon, etiket: t.etiket, alt: p[t.id] && s[t.id] ? `Açık · ${s[t.id]}` : t.alt, secili: p[t.id]}))])}${acik < TUR().length ? DD.btn({metin: 'Süreli izin ver', ikon: 'calendar-plus', tur: 'secondary', tam: true, veri: {eylem: 'yeni-izin'}}) : ''}${acik ? DD.btn({metin: 'Bütün izinleri geri çek', ikon: 'ban', tur: 'text', tam: true, veri: {eylem: 'hepsini-cek'}}) : ''}</div>`;
   };
+  // Erişim kaydı yalnız açık türler için olabilir; hiçbir şey paylaşılmıyorsa kayıt yoktur.
+  const erisimKonu = () => { const p = paylasim(), l = [p.olcum && 'ölçüm', p.tahlil && 'tahlil'].filter(Boolean); return l.length ? `${l.join(' ve ')} kayıtların` : ''; };
   const gecmisBolum = ctx => {
     const sec = ctx.gecmis ||= ctx.sorgu.gecmis === 'erisim' ? 'erisim' : 'hareket', u = uzman();
     const l = sec === 'hareket'
       ? hareketler().map(h => ({ikon: h.ikon || 'shield-halved', baslik: h.metin, alt: DD.tarihUzun(h.tarih)}))
-      : u ? DDV.saglik.diyetisyenNotlari.map(n => ({avatar: {harf: u.harf, boyut: 40}, baslik: u.kisaAd || u.ad, alt: `${n.tarihMetin} · ölçüm ve tahlil kayıtların · görüntüleme`})) : [];
+      : u && erisimKonu() ? DDV.saglik.diyetisyenNotlari.map(n => ({avatar: {harf: u.harf, boyut: 40}, baslik: u.kisaAd || u.ad, alt: `${n.tarihMetin} · ${erisimKonu()} · görüntüleme`})) : [];
     return `<div class="dd-yigin-12">${DD.segment({ad: 'gecmis', etiket: 'Geçmiş', secili: sec, ogeler: [{ad: 'İzin hareketlerin', deger: 'hareket'}, {ad: 'Erişim kaydı', deger: 'erisim'}]})}${l.length ? DD.satirlar(l) : DD.veriYok(sec === 'hareket' ? 'Henüz **izin hareketin** yok.' : 'Henüz **erişim kaydı** yok.')}</div>`;
   };
   const cihazHakSatirlar = () => {
-  // Erişim kaydı yalnız açık türler için olabilir; hiçbir şey paylaşılmıyorsa kayıt yoktur.
-  const erisimKonu = () => { const p = paylasim(), l = [p.olcum && 'ölçüm', p.tahlil && 'tahlil'].filter(Boolean); return l.length ? `${l.join(' ve ')} kayıtların` : ''; };
     const c = ciOku(), g = cihazGunler();
-    if (!g.length) return c.silindi ? [{ikon: 'mobile-screen', baslik: 'Cihaz verin', alt: `${DD.tarihUzun(c.silindi)} tarihinde silindi`, duz: true}] : [];
+    if (!g.length) return silinmis(c) ? [{ikon: 'mobile-screen', baslik: 'Cihaz verin', alt: `${DD.tarihUzun(c.silindi)} tarihinde silindi`, duz: true}] : [];
     return [
       {ikon: 'file-export', baslik: 'Cihaz verimi dışa aktar', alt: c.aktarim ? `Son dosya ${c.aktarim.zaman} · ${c.aktarim.bicim.toLocaleUpperCase('tr')}` : 'Adım, kilo ve uyku kayıtların tek dosyada', veri: {eylem: 'cihaz-aktar'}},
       {ikon: 'trash', baslik: 'Cihaz verimi sil', alt: `${g.length} günlük kayıt · elle girdiklerin kalır`, veri: {eylem: 'cihaz-sil'}, yikici: true}
@@ -173,7 +181,7 @@
   ]);
 
   // ---------- Sheet ----------
-  const yeniIzinSheet = () => {
+  const yeniIzinSheet = (baslik = 'Süreli izin ver', sec = null) => {
     const kapali = TUR().filter(t => !paylasim()[t.id]);
     let sure = 'surekli';
     DD.sheet({
@@ -219,7 +227,7 @@
             kaydet('Sağlık uygulaması verisi için açık rıza verildi', 'heart-pulse');
             verildi = true;
             d.kapat();
-            DD.toast('**Açık rızan** kaydedildi', {tur: 'basari'});
+            if (kaynak === 'veri-izinleri') DD.toast('**Açık rızan** kaydedildi', {tur: 'basari'});   // zincirde sonucu zinciri bitiren ekran söyler
           })
         ];
         return () => c.forEach(f => f());
@@ -251,7 +259,8 @@
       {ikon: 'bel', baslik: 'Bel', alt: DD.tarihUzun(son('bel').tarih), deger: `${DD.ondalik(son('bel').deger, 1)} cm`},
       {ikon: 'yagOrani', baslik: 'Yağ oranı', alt: DD.tarihUzun(son('yag').tarih), deger: `%${DD.ondalik(son('yag').deger, 1)}`}
     ].filter(Boolean);
-    const gizli = CT().filter(t => !l.includes(t));
+    const diger = genelAcik.filter(t => t.id !== 'olcum');
+    const gizli = [...TUR().filter(t => !p[t.id]), ...CT().filter(t => !l.includes(t)).map(t => ({...t, etiket: `${t.etiket} (cihaz)`}))];
     const etiket = (m, rozet = '') => `<div class="dd-ara"><p class="dd-t-label dd-ton-ikincil">${m}</p>${rozet}</div>`;
     DD.sheet({
       baslik: 'Diyetisyenim bunu görür', tam: true,
@@ -309,6 +318,11 @@
       const in_ = sec => requestAnimationFrame(() => { const k = kok.querySelector('.dd-kaydir'), h = kok.querySelector(sec)?.closest('.dd-grup'); if (h) k.scrollTop += h.getBoundingClientRect().top - k.getBoundingClientRect().top - kok.querySelector('.dd-header').offsetHeight; });
       const cihazIn = () => in_(rizaEtkin() && kok.querySelector('#cihaz-paylas') ? '#cihaz-paylas' : '#cihaz-izin');
       if ((ctx.sorgu.gecmis || ctx.sorgu.cihaz) && !ctx.indi) { ctx.indi = true; if (ctx.sorgu.gecmis) in_('#gecmis'); else cihazIn(); }
+      if (!ctx.sheetAcildi && ctx.sorgu.paylas && uzman()) {
+        ctx.sheetAcildi = true;
+        const id = TUR().some(t => t.id === ctx.sorgu.paylas) ? ctx.sorgu.paylas : null;
+        if (id && paylasim()[id]) in_('#paylasim'); else yeniIzinSheet('Paylaşacaklarını seç', id);
+      }
       if (!ctx.sheetAcildi && (ctx.sorgu.riza === 'cihaz' || ctx.sorgu.onizleme)) {
         ctx.sheetAcildi = true;
         if (ctx.sorgu.riza === 'cihaz') { if (rizaEtkin()) in_('#cihaz-izin'); else rizaAl({kaynak: 'baglanti'}); } else onizlemeSheet();
@@ -318,11 +332,6 @@
           if (v) { DD.durum.yaz('veri-izinleri', {...izinler(), riza: true}); kaydet('Sağlık verisi açık rızası verildi', 'shield-halved'); DD.tazele(); DD.toast('**Açık rızan** kaydedildi', {tur: 'basari'}); return; }
           const cihazAcik = ciOku().riza;
           DD.dialog({baslik: 'Rızanı geri al', metin: `Yeni sağlık kaydın **hesabına aktarılmaz**, hassasiyetlerin önerilerde kullanılmaz${cihazAcik ? ', sağlık uygulamandan veri okunmaz' : ''}. Mevcut kayıtların sen silmedikçe saklanır.`, eylem: 'Geri al', iptal: 'Vazgeç', yikici: true}).then(ok => {
-      if (!ctx.sheetAcildi && ctx.sorgu.paylas && uzman()) {
-        ctx.sheetAcildi = true;
-        const id = TUR().some(t => t.id === ctx.sorgu.paylas) ? ctx.sorgu.paylas : null;
-        if (id && paylasim()[id]) in_('#paylasim'); else yeniIzinSheet('Paylaşacaklarını seç', id);
-      }
             if (ok) { DD.durum.yaz('veri-izinleri', {...izinler(), riza: false}); if (cihazAcik) ciYaz({riza: false, paylas: false, turler: kapaliTurler()}); kaydet('Sağlık verisi açık rızası geri alındı', 'shield-halved'); DD.toast('**Açık rızanı** geri aldın', {tur: 'uyari'}); }
             DD.tazele();
           });
