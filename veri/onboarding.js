@@ -1,6 +1,6 @@
 /* veri/onboarding.js — ortak onboarding seti, sıra tasks/gorev.md ile birebir. İkonlar Font Awesome solid adı.
  * DDV.onboarding: { giris:{ baslik, altMetin, gorsel, butonlar[], kvkkKisa },
- *   adimlar:[{ id, no, tur ('tek-secim'|'coklu-secim'|'slider'|'onay'|'protokol'|'sonuc'), ekran, baslik, altMetin, alan, opsiyonel?, kosul?:{alan,deger[]},
+ *   adimlar:[{ id, no, tur ('tek-secim'|'coklu-secim'|'slider'|'onay'|'protokol'|'alerjen'|'izin'|'sonuc'), ekran, baslik, altMetin, alan, opsiyonel?, kosul?:{alan,deger[]},
  *     secenekler?:[{id,ad,ikon,alt?,...}], min?, max?, adim?, birim?, varsayilan?, ekAlan?, acikRiza?, hassasiyet?, saatAlani?, sonuc? }], kalori }
  * kosul: adım ya da ekAlan yalnız alan değeri deger[] içindeyse gösterilir (hedef kilo ve tempo yalnız kilo hedeflerinde).
  */
@@ -365,6 +365,22 @@ DDV.onboarding = {
    }
   },
   {
+   "id": "alerjen",
+   "no": 10,
+   "tur": "alerjen",
+   "ekran": "SCR-02",
+   "opsiyonel": true,
+   "baslik": "Alerjin var mı?",
+   "altMetin": "Seçtiğin alerjenleri içeren besinler önerilerde uyarıyla görünür.",
+   "alan": "alerjenler",
+   "kosul": {
+    "alan": "kvkk",
+    "deger": [
+     "onay"
+    ]
+   }
+  },
+  {
    "id": "ritim",
    "no": 10,
    "tur": "protokol",
@@ -414,6 +430,17 @@ DDV.onboarding = {
     "adimDk": 15
    },
    "buton": "Başla"
+  },
+  {
+   "id": "bildirim",
+   "no": 12,
+   "tur": "izin",
+   "ekran": "SCR-03",
+   "opsiyonel": true,
+   "baslik": "Hatırlatmaları açalım mı?",
+   "altMetin": "Öğün, su ve oruç saatlerini zamanında hatırlatırız.",
+   "alan": "bildirimIzni",
+   "buton": "Bildirimlere izin ver"
   },
   {
    "id": "sonuc",

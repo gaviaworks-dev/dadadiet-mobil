@@ -10,7 +10,7 @@
   const TARZ_ELEYICI = {vegan: ['bitkisel'], vejetaryen: ['vejetaryen', 'bitkisel'], glutensiz: ['glutensiz']};
   const OLCEK = {yavas: 1, dengeli: 3, hizli: 5, hareketsiz: 1, hafif: 2, orta: 4, cok: 5};
   const TARZ_GORSEL = {dengeli: 'mevsim-salatasi', akdeniz: 'sebzeli-levrek-bugulama', 'yuksek-protein': 'yogurtlu-tavuk-sis', vejetaryen: 'firinda-sebze-turlusu', vegan: 'nohut-salatasi', glutensiz: 'sebzeli-pirinc-pilavi', laktozsuz: 'naneli-meyve-salatasi', 'ev-yemekleri': 'kuru-fasulye'};
-  const KISA = {cinsiyet: 'Cinsiyet', yas: 'Yaş', boy: 'Boy', kilo: 'Kilo', tempo: 'Tempo', aktivite: 'Aktivite', beslenme: 'Beslenme tarzı', kvkk: 'Veri izni', ritim: 'Öğün ritmi', sonuc: 'Planın'};
+  const KISA = {cinsiyet: 'Cinsiyet', yas: 'Yaş', boy: 'Boy', kilo: 'Kilo', tempo: 'Tempo', aktivite: 'Aktivite', beslenme: 'Beslenme tarzı', kvkk: 'Veri izni', ritim: 'Öğün ritmi', alerjen: 'Alerjiler', bildirim: 'Hatırlatmalar', sonuc: 'Planın'};
   const VURGU = {hedef: 'bir plan', cinsiyet: 'Enerji ihtiyacını', yas: 'yaşa göre', boy: 'Vücut kitle indeksini', kilo: 'yalnız senin planın', tempo: 'Yavaş tempo', aktivite: 'sıradan bir gününü', beslenme: 'Birden fazla', kvkk: 'iznin', ritim: 'Opsiyonel', sonuc: 'bu değerlerle'};
   // İki satıra düşünce justify boşluk açan kısa cümle (kural: metin kısaltılır).
   const ALT = {hedef: 'Sana göre **bir plan** kurmak için başlayalım.'};
@@ -162,7 +162,11 @@
     return `<div class="dd-yigin-24">${engel ? orucBant() : ''}${DD.secimler({ad: a.alan, ogeler, secili: protokol(c), duzen: 'tek'})}<div class="dd-yigin-12"><h2 class="dd-t-section">${DD.esc(s.baslik)}</h2><div data-yuva="kadran">${kadran(c)}</div></div></div>`;
   };
 
-  const GOVDE = {'tek-secim': tekSecim, slider: sliderGovde, 'coklu-secim': cokluSecim, onay: onayGovde, protokol: ritimGovde};
+  // Alerji: seçenekler Tercihler ile tek kaynaktan (DDV.hesap.alerjenler); seçim bitişte hesap-ayar.besin.alerjen'e yazılır. Yalnız açık rıza verilmişse görünür (kosul kvkk = onay).
+  const alerjenGovde = (a, c) => `<div class="dd-yigin-24">${DD.cipler({ad: a.alan, tur: 'coklu', serit: false, etiket: 'Alerjenler', secili: c[a.alan] || [], ogeler: DDV.hesap.alerjenler.map(x => ({metin: x.ad, deger: x.id}))})}${DD.ipucu({ikon: 'sliders', metin: 'Alerjenlerini istediğin an **Tercihler**den değiştirebilirsin.'})}</div>`;
+  // Bildirim izni: ne hatırlatılacağı + ayarlardan kapatma notu. Prototipte izin DD.ogun.izinYaz ile kaydolur; gerçek üründe işletim sistemi sorar.
+  const izinGovde = () => `<div class="dd-yigin-24">${DD.maddeler([['utensils', 'Öğün saatlerin', 'Sıradaki öğününden önce kısa bir not.'], ['glass-water', 'Su', 'Gün içinde bardak hatırlatması.'], ['hourglass-half', 'Oruç', 'Pencere açılırken ve kapanırken haber.']])}${DD.ipucu({ikon: 'bell-slash', metin: 'İstediğin an **Ayarlar > Bildirim tercihleri**nden kapatabilirsin.'})}</div>`;
+  const GOVDE = {'tek-secim': tekSecim, slider: sliderGovde, 'coklu-secim': cokluSecim, onay: onayGovde, protokol: ritimGovde, alerjen: alerjenGovde, izin: izinGovde};
   const gecerli = (a, c) => {
     if (a.tur === 'tek-secim') return c[a.alan] != null;
     if (a.tur === 'coklu-secim') return !!c[a.alan]?.length;
@@ -170,9 +174,10 @@
     if (a.tur === 'protokol') return protokol(c) != null;
     return a.id !== 'kilo' || !hedefSorun(c);
   };
-  const atla = a => ({beslenme: 'Atla', kvkk: 'Sonra', ritim: 'Atla'}[a.id]);
+  const atla = a => ({beslenme: 'Atla', kvkk: 'Sonra', ritim: 'Atla', alerjen: 'Alerjim yok', bildirim: 'Şimdi değil'}[a.id]);
   const altYazi = (a, c, son) => {
     if (a.id === 'beslenme' && c.beslenmeTarzi?.length) return `${c.beslenmeTarzi.length} seçili`;
+    if (a.id === 'alerjen' && c.alerjenler?.length) return `${c.alerjenler.length} seçili`;
     return son ? `Sıradaki: ${KISA[son.id]}` : '';
   };
   const adimHtml = (ctx, c) => {
@@ -241,10 +246,11 @@
     sonra: (kok, ctx) => {
       const c0 = cevaplar(), {a, i, l} = konum(ctx, c0), offs = [], duzen = !!ctx.sorgu.duzenle;
       const hazirla = () => { const b = kok.querySelector('[data-eylem="devam"]'); if (b) b.disabled = !gecerli(a, cevaplar()); };
+      const alerjenYaz = c => { if (!c.alerjenler) return; const h = DD.durum.oku('hesap-ayar', {}); DD.durum.yaz('hesap-ayar', {...h, besin: {...(h.besin || {}), alerjen: c.alerjenler}}); };
       const planYaz = c => { DD.durum.yaz('plan', hesapla(c)); document.dispatchEvent(new CustomEvent('dd-plan')); };
       const ileri = () => {
         if (!duzen) { DD.git(`#/onboarding/${rota(l[i + 1])}`); return; }
-        planYaz(cevaplar());
+        planYaz(cevaplar()); alerjenYaz(cevaplar());
         DD.toast('**Planın** güncellendi', {tur: 'basari'});
         DD.geri('#/profil');
       };
@@ -256,6 +262,7 @@
         offs.push(DD.eylem(kok, 'basla', () => {
           const {giris, ...c} = cevaplar();
           yaz(c); planYaz(c); DD.durum.yaz('oturum', {yol: giris || 'eposta'});
+          alerjenYaz(c);
           DD.yerine('#/bugun');
         }));
         if (!ctx.hazir && !(ctx.sorgu.hal === 'hata' && !ctx.tekrar)) {
@@ -275,11 +282,15 @@
         if (a.tur === 'slider') guncelle({[a.alan]: deger(a.id, cevaplar()), ...(a.id === 'kilo' && kiloHedefli(cevaplar()) ? {hedefKiloKg: hedefKilo(cevaplar())} : {})});
         if (a.tur === 'onay') guncelle({kvkk: 'onay'});
         if (a.tur === 'protokol') guncelle({orucProtokolu: protokol(cevaplar()), ritimAtlandi: false});
+        if (a.tur === 'alerjen') guncelle({alerjenler: cevaplar().alerjenler || []});
+        if (a.tur === 'izin') { guncelle({bildirimIzni: 'verildi'}); DD.ogun.izinYaz('verildi'); }
         ileri();
       }));
       offs.push(DD.eylem(kok, 'atla', () => {
         if (a.id === 'beslenme') { guncelle({beslenmeTarzi: []}); ileri(); return; }
         if (a.id === 'ritim') { guncelle({orucProtokolu: null, ritimAtlandi: true}); ileri(); return; }
+        if (a.id === 'alerjen') { guncelle({alerjenler: []}); ileri(); return; }
+        if (a.id === 'bildirim') { guncelle({bildirimIzni: 'sonra'}); ileri(); return; }
         DD.dialog({baslik: 'Rıza vermeden devam et', metin: 'Planın **yalnız bu cihazda** hesaplanır, sağlık bilgilerin kaydedilmez ve diyetisyeninle paylaşılmaz.', eylem: 'Devam et', iptal: 'Vazgeç'}).then(ok => {
           if (ok) { guncelle({kvkk: 'sonra', riza: false, aydinlatma: false, hassasiyet: []}); ileri(); }
         });
@@ -319,6 +330,7 @@
           yuva(kok, 'hassas-cip', hassasCipler(c)); yuva(kok, 'hassas-not', hassasNot(c));
         }));
       }
+      if (a.tur === 'alerjen') offs.push(DD.on(kok, a.alan, v => { const c = guncelle({[a.alan]: v}), alt = kok.querySelector('.dd-onb-alt small'); if (alt) alt.textContent = altYazi(a, c, l[i + 1]); }));
       if (a.tur === 'protokol') {
         offs.push(DD.on(kok, a.alan, v => { const c = guncelle({[a.alan]: v}); yuva(kok, 'kadran', kadran(c)); hazirla(); }));
         offs.push(DD.on(kok, a.saatAlani.alan, v => guncelle({[a.saatAlani.alan]: v})));
