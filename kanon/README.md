@@ -1,6 +1,6 @@
 # Dada Diet Kanon
 
-Dada Diet, Dada Gastro mobilin marka değişmiş halidir: bileşen anatomisi, ölçü, boşluk, radius, gölge, hal seti ve hareket Gastro ile aynıdır. Yalnız primary rampası, logo, içerik ve makro renkleri Diet'e aittir. Bağlayıcı eşleme: `tasks/gastro-esleme.md`. Ekran yazarı yalnız bu dosyayı okuyarak ekran kurabilir. Galeri: `/kanon/`. Kurallar: `tasks/mimari.md` §2.
+Dada Diet, Dada Gastro mobilin marka değişmiş halidir: bileşen anatomisi, ölçü, boşluk, radius, gölge, hal seti ve hareket Gastro ile aynıdır. Renk, font ve marka öğeleri yalnız Diet belirteçlerinden (`kanon/tokens.json` → `dd-tokens.css`) gelir; Gastro renk değeri ya da değişken adı (domates/kiremit, `--dg-*`, `danger`) kullanılmaz (11 Kasım). Tehlike/hata `--dd-tehlike*`, makro P mor, K sarı, Y mavi, Lif camgöbeği. Bağlayıcı eşleme: `tasks/gastro-esleme.md`. Ekran yazarı yalnız bu dosyayı okuyarak ekran kurabilir. Galeri: `/kanon/`. Kurallar: `tasks/mimari.md` §2.
 
 ## Durum
 - [x] tokens.json: nötr, tipografi, boşluk, radius, gölge, overlay, hareket Gastro değerleri; primary, makro Diet
@@ -211,16 +211,16 @@ Kaynak: Gastro `ortak/dg-bilesen.css` 128-139 (`.dgu-btn`), 260-262 (`.dgu-bar`)
 | İkincil | `--ikincil` | `tur:'secondary'` | kâğıt zemin, line kenar, ink yazı | Vazgeç, alternatif yol. İkili dizide solda |
 | Tonlu | `--tonlu` | `tur:'tonal'` | primary-tint zemin, primary-deep kalın yazı | Kart içi hafif eylem (takip, su ekle) |
 | Metin | `--metin` | `tur:'text'` | şeffaf, primary-deep, 44, iç boşluk 0/8 | Satır içi düşük öncelik (Atla, Temizle, Neden soruyoruz?). Çerçeveli düğmeyle aynı `.dd-ikili`ye konmaz; orada `secondary` |
-| Tehlikeli (onay eylemi) | `DG.onay` birincili | `tur:'yikici'` | danger dolu | Yalnız `DD.dialog({yikici:true})` eylemi ya da geri alınamaz son adım (Hesabımı sil). Ekranda tetik olarak kullanılmaz |
-| Tehlikeli ikincil | yok (Gastro'da satır) | `tur:'yikici-ikincil'` | ikincil gövde, danger yazı, basınca hata-bg | Sheet ayağında ikincil ama yıkıcı eylem (Çıkar, Kaldır) |
-| Tehlikeli metin | yok (Gastro'da satır) | `tur:'yikici-metin'` | metin gövde, danger yazı | Düşük öncelikli yıkıcı tetik (Üyeliği iptal et, Programı bırak); onay diyaloğu açar |
-| Tehlikeli satır | `.dgu-satir.is-yikici` | `DD.satir({yikici:true, ok:false})` | danger ikon ve yazı | Liste/ayar sayfasında Çıkış, Sil, Sıfırla. Silmeyen ama sonucu değiştiren eylem (Soruları baştan yanıtla) nötr satır |
+| Tehlikeli (onay eylemi) | `DG.onay` birincili | `tur:'yikici'` | `--dd-tehlike` dolu, kâğıt yazı (5.87:1); basılı `--dd-tehlike-basili` | Yalnız `DD.dialog({yikici:true})` eylemi ya da geri alınamaz son adım (Hesabımı sil). Ekranda tetik olarak kullanılmaz |
+| Tehlikeli ikincil | yok (Gastro'da satır) | `tur:'yikici-ikincil'` | ikincil gövde, `--dd-tehlike` yazı, basınca `--dd-tehlike-bg` | Sheet ayağında ikincil ama yıkıcı eylem (Çıkar, Kaldır) |
+| Tehlikeli metin | yok (Gastro'da satır) | `tur:'yikici-metin'` | metin gövde, `--dd-tehlike` yazı | Düşük öncelikli yıkıcı tetik (Üyeliği iptal et, Programı bırak); onay diyaloğu açar |
+| Tehlikeli satır | `.dgu-satir.is-yikici` | `DD.satir({yikici:true, ok:false})` | `--dd-tehlike` ikon ve yazı | Liste/ayar sayfasında Çıkış, Sil, Sıfırla. Silmeyen ama sonucu değiştiren eylem (Soruları baştan yanıtla) nötr satır |
 | Küçük | `--sm` | `boyut:'sm'` | 44, iç boşluk 8/16 | Kart içi, satır sağı, kart ikilisi |
 | Tam genişlik | `--tam` | `tam:true` | %100 | Sheet ayağı ve form sonunda tek eylem; alt alta iki tam düğme arası 12 |
 | İkili dizilim | `.dgu-ikili` | `DD.btnIkili(ikincil, birincil)` ya da `.dd-ikili` | eşit iki sütun, aralık 12 | Onay, sheet ayağı, duvar. Sıra: ikincil sol, birincil sağ |
 | Alt eylem çubuğu | `.dgu-bar` > `.dgu-bar-ic` | `DD.altEylem({dugmeler, ikonlar, sol})` | kâğıt kart, `r-card`, `sh-md`, düğmeler eşit pay | Ekranın kalıcı ana eylemi; birincil en sağda |
 | Pasif | `:disabled` .45 | `pasif:true` | opaklık .45, dokunulmaz | Koşul sağlanmadı. "Yakında" metni düğmenin içinde (`Pro’ya geç · Yakında`) |
-| Yükleniyor | `[aria-busy]` dönen halka | `yukleniyor:true` ya da `DD.mesgul(btn, promise)` | metin saydam, ortada halka (birincilde kâğıt, diğerlerinde primary, tehlikelide danger) | Ağ/işlem süresince |
+| Yükleniyor | `[aria-busy]` dönen halka | `yukleniyor:true` ya da `DD.mesgul(btn, promise)` | metin saydam, ortada halka (birincilde kâğıt, diğerlerinde primary, tehlikelide `--dd-tehlike`) | Ağ/işlem süresince |
 
 Su teması (bilinçli istisna): su kartındaki ekleme düğmeleri `tonal` kalıbının bilgi (mavi) tonudur (`.dd-su .dd-btn`), su widget'ı ve su göstergesiyle aynı renk dili; yeşil tonlu yerine kullanılır.
 
@@ -316,7 +316,7 @@ Her yazımda `document` üstünde `dd-ogun` olayı atılır.
 
 ## 5. Token özeti
 
-`kanon/tokens.json` tek kaynak, `node kanon/uret.mjs` üretir. CSS `--dd-*`: `--dd-primary|-dark|-deep|-tint|-line`, `--dd-ink`, `--dd-slate`, `--dd-muted`, `--dd-line`, `--dd-bg`, `--dd-paper`, `--dd-protein|karb|yag|lif` + `-tint`, `-text`, durum `-fg`, `-bg`, `--dd-danger`, boşluk `--dd-s-*`, radius `--dd-r-*`, gölge `--dd-sh-*`, hareket `--dd-m-*`, `--dd-e-*`, `--dd-spring-*`, `--dd-ease`, ölçü `--dd-size-*`, rol `--dd-t-*`. JS `DD.TK`. Dart `flutter/dd_tokens.g.dart`.
+`kanon/tokens.json` tek kaynak, `node kanon/uret.mjs` üretir. CSS `--dd-*`: `--dd-primary|-dark|-deep|-tint|-line`, `--dd-ink`, `--dd-slate`, `--dd-muted`, `--dd-line`, `--dd-bg`, `--dd-paper`, `--dd-protein|karb|yag|lif` + `-tint`, `-text`, durum `-fg`, `-bg`, `-line`, tehlike `--dd-tehlike|-basili|-fg|-bg|-line` ve koyu yüzey `--dd-tehlike-koyu|-koyu-basili|-koyu-bg|-koyu-line` (silme ve geri alınamaz eylemlerin tek kaynağı; `--dd-hata*` bu aileye takma addır, `--dd-danger` kaldırıldı), üçüncü taraf `--dd-marka-*`, boşluk `--dd-s-*`, radius `--dd-r-*`, gölge `--dd-sh-*`, hareket `--dd-m-*`, `--dd-e-*`, `--dd-spring-*`, `--dd-ease`, ölçü `--dd-size-*`, rol `--dd-t-*`. JS `DD.TK`. Dart `flutter/dd_tokens.g.dart`.
 
 ## 6. Gastro → Diet
 
@@ -326,6 +326,7 @@ Sınıf çevirisi: `dgu-x` → `dd-x`, `dg-x` → `dd-x`, `dv2-x` → `dd-uz-x`,
 |---|---|---|
 | tokens.json nötr, durum, roller, space, radius, shadow, overlay, motion, size | kanon/tokens.json | aynı. Fark: `appMax` 430 (mimari §2), `size.logo` 120 (yatay logo), `radius.segment` 12 (Gastro kodu; json 16 yazar). Ek: space 2 ve 64, numeralLg, numeralMd, yeni bileşen ölçüleri |
 | tomato, tomatoDark, tomatoDeep, tomatoTint | primary, primaryDark, primaryDeep, primaryTint | marka |
+| danger, status.hata (domates ailesi) | tehlike, tehlikeBasili, tehlikeFg, tehlikeBg, tehlikeLine (+ koyu yüzey) | Diet'e ait soğuk kırmızı #C21F45; Gastro değeri taşınmaz |
 | accent.green / yellow | accentGreen #009A44 / accentYellow | yeşil marka tonuna |
 | Makro: yağ yeşil, karb sarı | P, K, Y, Lif dört renk | Diet |
 | `.dgu-header`, `.dgu-hbtn`, `--dgu-alfa` | `DD.ustBar` | fixed yerine ekran içi absolute; `--dd-header-solid` primaryDark |
@@ -380,7 +381,7 @@ Gerçekten yeni olanlar (`tasks/gastro-esleme.md` §4) `dd-yeni.css`, `dd-goster
 5. Gilroy'da tabular rakam yok (rakam genişliği 19-30). Canlı sayaç rakamları sabit hücrede (`DD.rakamlar`).
 6. Üç veri görseli biçimden ayrılır: halka 270 açık yay, oruç tam daire, Denge Skoru yarım kadran. Denge kadranı bileşen segmentlidir.
 7. bbox: varsayılan hap etiket + nokta, çerçeve yalnız seçili halde; etiket kenara itilir, en çok 4. Etikette ad her kelimesi büyük harfle, kcal `--dd-primary-dark` ve bold.
-8. Sosyal paylaşım marka renkleri `dd-bilesen.css`te hex kalır (üçüncü taraf markaları).
+8. Sosyal paylaşım marka renkleri (üçüncü taraf) `tokens.json` `color.dis` → `--dd-marka-*`; `dd-bilesen.css`te sabit renk kalmadı.
 9. Karanlık desen yok; `DD.geriSayim` yalnız randevu.
 10. Ekran kalıpları `DD.heroAna`, `DD.detay`, `DD.kubbe({arac})` ve kardeşleri bileşen sayılır. Neden: Bugün, Programlar ve Program detay Gastro'nun `ana-v3`, `liste-v2`, `detay-v2` ekranlarıdır; bu CSS kanon dışında kalsaydı ekran yazarları ekrana özel stil yazmak zorunda kalırdı.
 11. `DD.oneCikan` kart slider'ının sınıfı `.dd-kslider`: biyometrik `.dd-slider` adı Diet'te doluydu.

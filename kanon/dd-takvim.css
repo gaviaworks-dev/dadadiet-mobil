@@ -4,7 +4,7 @@
    (--dd-size-calendar-day, --dd-r-day); seçili = primary dolu + beyaz kalın rakam; bugün = primary kalın rakam + ince primary halka
    (seçiliyse seçili baskın); aralık = uçlar primary daire, arası primary çok açık tonunda kesintisiz hap bandı (satır başı/sonunda yuvarlak
    kapanır, kartın kenarına taşmaz); seçilemeyen = soluk gri rakam; ay dışı = daha soluk gri; zemin artığı / hover zemini yok.
-   Nokta: rakamın altında 4px, en çok 3; geçti = danger, bugün/yaklaşıyor = uyarı sarısı, taze = başarı yeşili (tokens.json color.status
+   Nokta: rakamın altında 4px, en çok 3; geçti = --dd-tehlike, bugün/yaklaşıyor = uyarı sarısı, taze = başarı yeşili (tokens.json color.status
    _indicatorNote). Yalnız token. */
 .dd-takvim{--tk-gun:var(--dd-size-calendar-day);--tk-bant:var(--dd-primary-tint);display:grid;gap:var(--dd-s-8);min-width:0}
 .dd-tk-gorunum{margin-bottom:var(--dd-s-4)}
@@ -40,7 +40,7 @@
 .dd-tk-noktalar i{width:var(--dd-size-calendar-dot);height:var(--dd-size-calendar-dot);border-radius:var(--dd-r-day);background:var(--dd-muted)}
 .dd-tk-noktalar i.is-basari{background:var(--dd-accent-green)}
 .dd-tk-noktalar i.is-uyari,.dd-tk-noktalar i.is-bugun{background:var(--dd-accent-yellow)}
-.dd-tk-noktalar i.is-gecti{background:var(--dd-danger)}
+.dd-tk-noktalar i.is-gecti{background:var(--dd-tehlike)}
 .dd-tk-gun.is-secili .dd-tk-noktalar i{background:var(--dd-paper)}
 .dd-tk-gun.is-disari .dd-tk-noktalar,.dd-tk-gun.is-kapali .dd-tk-noktalar{opacity:.5}
 /* Ay / yıl paneli (başlığa dokununca): 3 sütun 12 ay; seçili ay primary dolu. */

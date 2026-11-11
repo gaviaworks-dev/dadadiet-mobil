@@ -81,11 +81,11 @@ body.dd :is(.dd-sheet,.dd-diyalog,.dd-menu):focus-visible{outline:0}
 .dd-onb-neden{justify-self:start;padding-inline:0}
 .dd-onb-alt{display:grid;justify-items:center;gap:var(--dd-s-8);flex:none;padding:var(--dd-s-8) var(--dd-gutter) calc(var(--dd-s-16) + env(safe-area-inset-bottom,0px));background:var(--dd-paper)}
 
-/* Marka düzeltmeleri: domates hem primary hem hata anlamı taşıyordu. Diet'te primary yeşil olduğundan hata tonları kırmızıya, primary üstü küçük metin primaryDark'a alındı. */
-.dd-hata{color:var(--dd-hata-fg)}
-.dd-alan.is-hata .dd-girdi{border-color:var(--dd-danger)}
-.dd-parcali-oge.is-yikici .dd-parcali-ikon{background:var(--dd-hata-bg);color:var(--dd-hata-fg)}
-.dd-parcali-oge.is-yikici b{color:var(--dd-danger)}
+/* Marka düzeltmeleri: hata ve yıkıcı eylem Diet tehlike ailesinden (--dd-tehlike*, Gastro rengi yok); primary üstü küçük metin primaryDark. */
+.dd-hata{color:var(--dd-tehlike-fg)}
+.dd-alan.is-hata .dd-girdi{border-color:var(--dd-tehlike)}
+.dd-parcali-oge.is-yikici .dd-parcali-ikon{background:var(--dd-tehlike-bg);color:var(--dd-tehlike-fg)}
+.dd-parcali-oge.is-yikici b{color:var(--dd-tehlike)}
 .dd-sayac,.dd-tk-gun.is-secili .dd-tk-sayi,.dd-tk-ay.is-secili{background:var(--dd-primary-dark)}
 .dd-header .dd-sayac{background:var(--dd-accent-yellow);color:var(--dd-ink)}
 .dd-tk-gun.is-bugun:not(.is-secili) .dd-tk-sayi{color:var(--dd-primary-deep)}

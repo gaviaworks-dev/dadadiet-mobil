@@ -18,7 +18,7 @@
   --dd-row-media:calc(var(--dd-s-48) * 3 + var(--dd-s-8));
   --dd-duration:250ms;
   /* docs/47 EK 3 · Görsel üstü geçiş: tek tanım (bütün kartlar, video kapakları, ana sayfa ve detay hero'su buradan alır).
-     Yalnız üst ve alt kenarda, ortası temiz. Kaynak koyu --dd-overlay (#211E16), kahverengi karışım yok.
+     Yalnız üst ve alt kenarda, ortası temiz. Kaynak koyu --dd-overlay, kahverengi karışım yok.
      Eğri smootherstep s(t) = 6t⁵ − 15t⁴ + 10t³: iki uçta hem eğim hem eğrilik sıfır, koyuluk fark edilmeden başlar ve
      biter (görünür başlangıç çizgisi yok). Üst: kenarda --dd-veil-top-a (en çok %35), --dd-top-veil-h boyunca
      1 − s(t) ile sıfır (9 durak). Alt (ortak-kart.js veils/edgeBottom): ilk metin satırının --dd-veil-lead (40px)
@@ -63,7 +63,7 @@
 .dd-meta>span{display:inline-flex;align-items:center;gap:var(--dd-s-4)}
 /* docs/47 EK: süre (saat) + görüntülenme (göz), kalın (GilroyBd 700), ikon metinle aynı satırda ortalı, metin renginde. */
 .dd-meta .icon{font-size:var(--dd-t-meta-size);line-height:1;color:currentColor}
-/* Kaydet: zeminsiz ikon, 44px hedef. app.css'teki genel .save (beyaz zemin, gölge, kayıtlı tomato-tint) ve
+/* Kaydet: zeminsiz ikon, 44px hedef. app.css'teki genel .save (beyaz zemin, gölge, kayıtlı tint zemin; Diet'te alınmadı) ve
    .recipe-card .save::before (koyu kare) kuralları daha özgül seçicilerle nötrlenir; app.css değişmez (docs/47 · P5). */
 .dd-save{position:absolute;top:calc(var(--dd-pair-inset) - var(--dd-save-inset));right:calc(var(--dd-pair-inset) - var(--dd-save-inset));z-index:4;display:grid;place-items:center;width:var(--dd-size-touch);height:var(--dd-size-touch);min-width:var(--dd-size-touch);min-height:var(--dd-size-touch);padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;box-shadow:none;color:var(--dd-pair-fg);cursor:pointer}
 .dd-save::before,.recipe-card .dd-save::before{content:none}

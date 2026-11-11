@@ -78,7 +78,7 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 
 /* ---------- KUBBE — liste birleşimi (docs/55 §2e): liste-v2 birebir. Banner 320 sabit (sticky) + sayaç; üst köşeleri sheet (24)
    beyaz panel 24 bindirerek kaydırınca üstüne gelir, header altına yapışınca köşeler düzleşir (DG: .is-yapisik).
-   Perde: liste-v2.js paintBanner eğrisi (DG.kubbeBoya → --dd-veil); ışık: hero-light.css sol üst tomato %25, 0→%65, screen. ---------- */
+   Perde: liste-v2.js paintBanner eğrisi (DG.kubbeBoya → --dd-veil); ışık: hero-light yapısı, sol üst primary %25, 0→%65, screen. ---------- */
 .dd-banner{position:sticky;top:0;z-index:0;height:var(--dd-size-banner);overflow:hidden;isolation:isolate;background:var(--dd-overlay);color:var(--dd-paper)}
 .dd-banner .dd-banner-foto{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center}
 .dd-banner::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--dd-veil,linear-gradient(180deg,color-mix(in srgb,var(--dd-overlay) 76%,transparent) 0,color-mix(in srgb,var(--dd-overlay) 18%,transparent) 32%,color-mix(in srgb,var(--dd-overlay) 30%,transparent) 50%,color-mix(in srgb,var(--dd-overlay) 80%,transparent) 76%,color-mix(in srgb,var(--dd-overlay) 90%,transparent) 100%))}
@@ -105,7 +105,7 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 .dd-kubbe-panel{position:relative;z-index:1;margin-top:calc(-1 * var(--dd-panel-overlap));padding-top:var(--dd-panel-top-space);border-radius:var(--dd-r-sheet) var(--dd-r-sheet) 0 0;background:var(--dd-paper)}
 
 /* ---------- GÜLÜCÜK — hero birleşimi (docs/55 §2e): ana-v3 hero alt kenarı birebir (six-heroes.css:69): alt köşeler kart (24)
-   + altında 4px tomato çizgi + 4 alt boşluk. Profil/şef kapağı ve hero'lu sayfalar; avatar kavisin ortasına oturur. ---------- */
+   + altında 4px primary çizgi + 4 alt boşluk. Profil/şef kapağı ve hero'lu sayfalar; avatar kavisin ortasına oturur. ---------- */
 .dd-profil-kapak.is-ust{height:calc(var(--dd-ust-h) + var(--dd-s-48) * 2 + var(--dd-s-24))}
 .dd-gulucuk.is-ust:not(.dd-profil-kapak):not(.dd-oynatici){padding-top:calc(var(--dd-ust-h) + var(--dd-s-32))}
 .dd-gulucuk{border-radius:0 0 var(--dd-r-surface) var(--dd-r-surface);box-shadow:0 var(--dd-s-4) 0 var(--dd-primary);margin-bottom:var(--dd-s-4)}
@@ -193,7 +193,7 @@ body.dd .dd-card .dd-card__text{min-height:var(--dd-size-touch)}
 .dd-satir-metin{flex:1;min-width:0;display:grid;gap:var(--dd-s-4)}
 .dd-satir-metin small{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
 .dd-satir > .icon:last-child{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
-.dd-satir.is-yikici,.dd-satir.is-yikici > .icon{color:var(--dd-danger)}
+.dd-satir.is-yikici,.dd-satir.is-yikici > .icon,.dd-satir.is-yikici > .dd-satir-ikon{color:var(--dd-tehlike)}
 /* Diet ekleri (L, 10 Kasım): .is-ozet alt satırı 2 satırda keser; metin sütunundaki durum rozeti (DD.satir ek) içerik genişliğinde, alt satırdan 4 ara. */
 .dd-satir.is-ozet .dd-satir-metin small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .dd-satir-metin>:is(.dd-durum-rozet,.dd-rozet){justify-self:start}
@@ -346,7 +346,7 @@ body.dd .dd-girdi :is(input,select,textarea):focus-visible{outline:0}
    Tercih/filtre için görselli çoklu (aria-pressed) ya da tekli (role=radio) seçim. Bilgi kartı radius 12, iç 12/16, en az 44 hedef.
    Önü: bayrak (32×24, radius 4, ince çizgi) · ikon kutusu · ölçek (5 çubuk) · fotoğraf (is-foto, media 16). Seçim işareti kanon
    seçim kutusu: 22, radius 4, choiceBorder; seçili primary dolgu + yalnız .choice-mark .fa-check (12). Radyo: daire + iç nokta.
-   Seçili kart: tint zemin + tomato-deep kenar. Izgara 2 sütun / 12 aralık; is-tek tek sütun liste; is-uc 3 sütun (fotoğraf).
+   Seçili kart: tint zemin + primary-deep kenar. Izgara 2 sütun / 12 aralık; is-tek tek sütun liste; is-uc 3 sütun (fotoğraf).
    is-koyu: koyu zeminde cam yüzey. DG.secimKart({...}) üretir. */
 .dd-secim-izgara{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--dd-s-12)}
 .dd-secim-izgara.is-tek{grid-template-columns:minmax(0,1fr);gap:var(--dd-s-8)}
@@ -538,7 +538,7 @@ body.dd .dd-girdi :is(input,select,textarea):focus-visible{outline:0}
 .dd-bar-ic>.dd-btn>span{overflow:hidden;text-overflow:ellipsis}
 
 /* === Telefon alanı (yönetici, 12 Ekim; web “alan-telefon” paritesi) — aynı .dd-girdi çerçevesi: solda ülke düğmesi (bayrak 24×18 r4,
-   kod, ok) ince ayraçla, sağda numara. Sheet: arama + bayrak · ad · kod satırları (48), seçili tomato-deep + onay. === */
+   kod, ok) ince ayraçla, sağda numara. Sheet: arama + bayrak · ad · kod satırları (48), seçili primary-deep + onay. === */
 .dd-girdi.dd-telefon{padding-left:0}
 .dd-telefon-ulke{display:flex;align-items:center;gap:var(--dd-s-8);align-self:stretch;min-height:var(--dd-size-touch);padding:0 var(--dd-s-12);border:0;border-right:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-control) 0 0 var(--dd-r-control);background:transparent;color:var(--dd-ink);font:inherit;font-size:var(--dd-t-body-size);font-variant-numeric:tabular-nums;cursor:pointer}
 .dd-telefon-ulke .icon{color:var(--dd-slate);font-size:var(--dd-size-icon-sm)}
@@ -561,7 +561,7 @@ body.dd .dd-girdi :is(input,select,textarea):focus-visible{outline:0}
 .dd-ulke-sheet .dd-sheet-govde{padding-top:0}
 
 /* === Rozet ve ilerleme (yönetici, 12 Ekim; Rozetlerim yeniden — Duolingo/Strava/Apple Fitness dili, kanonla) ===
-   İlerleme çubuğu: 4px, ray line, dolgu tomato; uçlar kademe 2 (yarım dot). Rozet madalyası: kart radius'lu kare (daire yalnız avatar),
+   İlerleme çubuğu: 4px, ray line, dolgu primary; uçlar kademe 2 (yarım dot). Rozet madalyası: kart radius'lu kare (daire yalnız avatar),
    kazanılmış = primary dolgu + beyaz ikon + ince tint halka; kilitli = nötr zemin, soluk ikon, köşede kilit. Hücre 3 sütun, ad en çok 2 satır. */
 progress.dd-ilerleme{display:block;width:100%;height:var(--dd-size-progress);border:0;border-radius:var(--dd-r-dot,2px);background:var(--dd-line);color:var(--dd-primary);-webkit-appearance:none;appearance:none;overflow:hidden}
 progress.dd-ilerleme::-webkit-progress-bar{background:var(--dd-line);border-radius:inherit}
@@ -576,8 +576,8 @@ progress.dd-ilerleme::-moz-progress-bar{background:var(--dd-primary);border-radi
 .dd-rozet-hucre:active{background:var(--dd-bg)}
 .dd-rozet-hucre:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary);outline-offset:calc(-1 * var(--dd-size-border))}
 /* MADALYA (rozet ikonu) — küçük, minimal, yumuşak; tek ortak görünüm (Beyar V4 C6 + 13 Ekim). Kontrol köşesi 12, çizgi ince, gölge yok.
-   Boy: .is-kucuk 40 (liste/bildirim) · varsayılan 44 (ızgara) · .is-buyuk 64 (detay sheet'i). Hâl: kazanıldı açık domates + derin domates ikon;
-   .is-ilerliyor beyaz + ince açık domates çizgi + domates ikon; .is-kilitli nötr + ince çizgi + soluk ikon + köşede 20 kilit. */
+   Boy: .is-kucuk 40 (liste/bildirim) · varsayılan 44 (ızgara) · .is-buyuk 64 (detay sheet'i). Hâl: kazanıldı primary-tint + primary-deep ikon;
+   .is-ilerliyor beyaz + ince primary-line çizgi + primary ikon; .is-kilitli nötr + ince çizgi + soluk ikon + köşede 20 kilit. */
 .dd-madalya{position:relative;display:grid;place-items:center;width:var(--dd-size-action-icon);height:var(--dd-size-action-icon);flex-shrink:0;border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-deep);box-shadow:none}
 .dd-madalya>.icon{font-size:var(--dd-size-icon-lg)}
 .dd-madalya.is-kucuk{width:var(--dd-size-icon-badge-lg);height:var(--dd-size-icon-badge-lg)}
@@ -644,7 +644,7 @@ progress.dd-ilerleme::-moz-progress-bar{background:var(--dd-primary);border-radi
 
 /* === Detay üst görseli perdesi (yönetici, 12 Ekim; Beyar: “tarif kartında ve ana-v3 öne çıkan kartta kullandığımız overlay'i birebir al”) ===
    .dd-banner.is-kart: liste eğrisi kapalı; üstte kartların --dd-top-veil'i (%35 → 0), altta ortak-kart.js veils ile metin konumundan
-   hesaplanan --dd-veil (#211E16, smootherstep, bant yok). Sol üst primary ışık aynı kalır; beyaza geçiş kubbe (.dd-panel). */
+   hesaplanan --dd-veil (--dd-overlay, smootherstep, bant yok). Sol üst primary ışık aynı kalır; beyaza geçiş kubbe (.dd-panel). */
 .dd-banner.is-kart::before{content:none}
 .dd-banner-ust{position:absolute;inset:0 0 auto;z-index:-1;height:max(var(--dd-top-veil-h),calc(var(--dd-ust-h) + var(--dd-s-24)));background:var(--dd-top-veil);pointer-events:none}
 .dd-banner-golge{position:absolute;inset:0;z-index:-1;background:var(--dd-veil,linear-gradient(180deg,transparent 45%,color-mix(in srgb,var(--dd-overlay) 60%,transparent)));pointer-events:none}
@@ -678,7 +678,7 @@ progress.dd-ilerleme::-moz-progress-bar{background:var(--dd-primary);border-radi
 /* === Bölüm başlığı + akordiyon (yönetici, 12 Ekim; Beyar: Rozetlerim aileleri ve uzun bölümlü sayfalar) ===
    Başlık satırı: 44 tint kare (kontrol radius'u 12) + solid ikon · başlık (alt başlık rolü) + tek satır açıklama (meta) ·
    sağda “7/8” + chevron; min 64. Akordiyon: tek açık; grid-rows 0fr→1fr --dd-m-base, chevron 180°; azaltılmış harekette anlık. */
-.dd-bolum-bas{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:calc(var(--dd-s-48) + var(--dd-s-16));padding:var(--dd-s-8) 0;border:0;background:none;color:var(--dd-ink);font:inherit;text-decoration:none;cursor:pointer}
+.dd-bolum-bas{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:calc(var(--dd-s-48) + var(--dd-s-16));padding:var(--dd-s-12) 0;border:0;background:none;color:var(--dd-ink);font:inherit;text-decoration:none;cursor:pointer}
 .dd-bolum-bas.is-sabit{cursor:default}
 .dd-bolum-ikon{display:grid;place-items:center;width:var(--dd-size-action-icon);height:var(--dd-size-action-icon);flex-shrink:0;border-radius:var(--dd-r-control);background:var(--dd-primary-tint);color:var(--dd-primary-deep)}
 .dd-bolum-ikon .icon{font-size:var(--dd-size-icon-md)}
@@ -756,16 +756,16 @@ progress.dd-ilerleme::-moz-progress-bar{background:var(--dd-primary);border-radi
 .dd-paylas-ad{font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);white-space:nowrap}
 .dd-paylas-oge:active{border-color:var(--dd-slate)}
 @media (hover:hover){.dd-paylas-oge:hover{border-color:var(--dd-slate)}}
-.dd-paylas-oge:active[data-marka=facebook] .dd-paylas-ikon{background:#1877F2;color:var(--dd-paper)}
-@media (hover:hover){.dd-paylas-oge:hover[data-marka=facebook] .dd-paylas-ikon{background:#1877F2;color:var(--dd-paper)}}
-.dd-paylas-oge:active[data-marka=x] .dd-paylas-ikon{background:#111;color:var(--dd-paper)}
-@media (hover:hover){.dd-paylas-oge:hover[data-marka=x] .dd-paylas-ikon{background:#111;color:var(--dd-paper)}}
-.dd-paylas-oge:active[data-marka=whatsapp] .dd-paylas-ikon{background:#25D366;color:var(--dd-paper)}
-@media (hover:hover){.dd-paylas-oge:hover[data-marka=whatsapp] .dd-paylas-ikon{background:#25D366;color:var(--dd-paper)}}
-.dd-paylas-oge:active[data-marka=telegram] .dd-paylas-ikon{background:#2AABEE;color:var(--dd-paper)}
-@media (hover:hover){.dd-paylas-oge:hover[data-marka=telegram] .dd-paylas-ikon{background:#2AABEE;color:var(--dd-paper)}}
-.dd-paylas-oge:active[data-marka=pinterest] .dd-paylas-ikon{background:#E60023;color:var(--dd-paper)}
-@media (hover:hover){.dd-paylas-oge:hover[data-marka=pinterest] .dd-paylas-ikon{background:#E60023;color:var(--dd-paper)}}
+.dd-paylas-oge:active[data-marka=facebook] .dd-paylas-ikon{background:var(--dd-marka-facebook);color:var(--dd-paper)}
+@media (hover:hover){.dd-paylas-oge:hover[data-marka=facebook] .dd-paylas-ikon{background:var(--dd-marka-facebook);color:var(--dd-paper)}}
+.dd-paylas-oge:active[data-marka=x] .dd-paylas-ikon{background:var(--dd-marka-x);color:var(--dd-paper)}
+@media (hover:hover){.dd-paylas-oge:hover[data-marka=x] .dd-paylas-ikon{background:var(--dd-marka-x);color:var(--dd-paper)}}
+.dd-paylas-oge:active[data-marka=whatsapp] .dd-paylas-ikon{background:var(--dd-marka-whatsapp);color:var(--dd-paper)}
+@media (hover:hover){.dd-paylas-oge:hover[data-marka=whatsapp] .dd-paylas-ikon{background:var(--dd-marka-whatsapp);color:var(--dd-paper)}}
+.dd-paylas-oge:active[data-marka=telegram] .dd-paylas-ikon{background:var(--dd-marka-telegram);color:var(--dd-paper)}
+@media (hover:hover){.dd-paylas-oge:hover[data-marka=telegram] .dd-paylas-ikon{background:var(--dd-marka-telegram);color:var(--dd-paper)}}
+.dd-paylas-oge:active[data-marka=pinterest] .dd-paylas-ikon{background:var(--dd-marka-pinterest);color:var(--dd-paper)}
+@media (hover:hover){.dd-paylas-oge:hover[data-marka=pinterest] .dd-paylas-ikon{background:var(--dd-marka-pinterest);color:var(--dd-paper)}}
 .dd-paylas-oge:active[data-marka=eposta] .dd-paylas-ikon{background:var(--dd-ink);color:var(--dd-paper)}
 @media (hover:hover){.dd-paylas-oge:hover[data-marka=eposta] .dd-paylas-ikon{background:var(--dd-ink);color:var(--dd-paper)}}
 .dd-paylas-kopya{display:flex;align-items:stretch;gap:var(--dd-s-8);margin-top:var(--dd-s-16)}
@@ -898,7 +898,7 @@ progress.dd-ilerleme::-moz-progress-bar{background:var(--dd-primary);border-radi
 .dd-liste-hata{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:var(--dd-s-4) var(--dd-s-8);padding:var(--dd-s-12) var(--dd-gutter);color:var(--dd-ink);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
 .dd-liste-hata>.icon{color:var(--dd-primary-deep);font-size:var(--dd-size-icon-sm)}
 /* GÜLÜCÜK KAPAK (DG.gulucuk; Beyar düzeltmesi 13 Ekim): giriş/kayıt hero'su ve izin istemleri AYNI bileşen — kenardan kenara gerçek fotoğraf,
-   ortak koyu geçiş (metin varsa konumundan --dd-veil), primary ışık (ana sayfa hero'suyla aynı: tomato %25, radyal 0→%65, screen),
+   ortak koyu geçiş (metin varsa konumundan --dd-veil), primary ışık (ana sayfa hero'suyla aynı: primary %25, radyal 0→%65, screen),
    alt kenarda .dd-gulucuk eğrisi + turuncu çizgi. Rozet eğrinin tam ortasında (yarısı kapakta, yarısı beyaz alanda). */
 .dd-gkap{position:relative}
 .dd-gkapak{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;min-height:calc(var(--dd-s-48) * 6 + env(safe-area-inset-top,0px));padding:var(--dd-s-24) var(--dd-gutter);background-color:var(--dd-overlay);background-size:cover;background-position:center;color:var(--dd-paper)}

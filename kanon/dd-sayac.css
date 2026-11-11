@@ -22,7 +22,7 @@
 .dd-kart:has(>.dd-istatistik:last-child:not(.is-yalin)){padding-bottom:0}
 .dd-kart>.dd-istatistik:last-child:not(.is-yalin){--dd-sayac-ic:var(--dd-s-16);border-bottom:0}
 /* ADIMLAYICI (porsiyon / adet — DG.adimlayici; Beyar düzeltmesi 13 Ekim “− 6 kişilik +”). Tarif detayının porsiyon sayacından türetildi; kökte
-   detay-v2 sayacı da bu sınıflara bağlanır (tek görünüm). Beyaz kutu + ince çizgi + kontrol radius'u, 44 hedefli − / + (koyu domates ikon),
+   detay-v2 sayacı da bu sınıflara bağlanır (tek görünüm). Beyaz kutu + ince çizgi + kontrol radius'u, 44 hedefli − / + (primary-deep ikon),
    orta alan: görünür değer ile görünmez “en geniş değer” izi aynı ızgara hücresinde → genişlik sabit, değer tam ortada, düğmeler simetrik ve
    değer değişince kaymaz. Değer tek satır: sayı alt başlık rolü kalın, birim meta. */
 .dd-adimlayici.dd-adimlayici{display:inline-flex;align-items:center;flex:none;justify-self:start;align-self:center;gap:0;width:auto;height:auto;min-height:0;padding:0;overflow:visible;border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-control);background:var(--dd-paper)}
@@ -37,5 +37,5 @@
 .dd-adimlayici .dd-adim-deger b{color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-subheading-size);line-height:1;font-variant-numeric:tabular-nums}
 .dd-adimlayici .dd-adim-deger span:not(.dd-adim-iz){color:var(--dd-slate);font-family:var(--dd-font);font-weight:var(--dd-t-meta-weight);font-size:var(--dd-t-meta-size);line-height:1}
 .dd-adimlayici.is-yukleniyor{opacity:.6;pointer-events:none}
-.dd-adimlayici.is-hata{border-color:var(--dd-hata-fg, var(--dd-primary-deep))}
+.dd-adimlayici.is-hata{border-color:var(--dd-tehlike)}
 @media (prefers-reduced-motion:reduce){.dd-adimlayici.dd-adimlayici>button{transition:none}}

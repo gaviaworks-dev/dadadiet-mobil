@@ -14,5 +14,5 @@
 .dd-durum-rozet.is-uyari{background:var(--dd-uyari-bg);color:var(--dd-uyari-fg)}
 .dd-durum-rozet.is-basari{background:var(--dd-basari-bg);color:var(--dd-basari-fg)}
 .dd-durum-rozet.is-bugun{background:var(--dd-primary-dark);color:var(--dd-paper)}   /* Dolabım: son gün bugün (primary) */
-.dd-durum-rozet.is-gecti{background:var(--dd-primary-deep);color:var(--dd-paper)}   /* Dolabım: süresi geçti (koyu domates) */
-.dd-durum-rozet.is-hata{background:var(--dd-hata-bg);color:var(--dd-hata-fg)}
+.dd-durum-rozet.is-gecti{background:var(--dd-primary-deep);color:var(--dd-paper)}   /* Dolabım: süresi geçti (koyu primary) */
+.dd-durum-rozet.is-hata{background:var(--dd-tehlike-bg);color:var(--dd-tehlike-fg)}

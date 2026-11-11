@@ -19,47 +19,82 @@
   --dd-line:#ECECEC;
   --dd-bg:#F9F9F9;
   --dd-paper:#FFFFFF;
+  --dd-cihaz-siyah:#000000;
 
   /* renk: accent */
   --dd-accent-green:#009A44;
   --dd-accent-yellow:#FAC045;
 
   /* renk: makro */
-  --dd-protein:#DC3D17;
-  --dd-protein-tint:#FCE9E4;
-  --dd-protein-text:#A92C0D;
+  --dd-protein:#742982;
+  --dd-protein-tint:#F2E7F5;
+  --dd-protein-text:#742982;
+  --dd-protein-koyu:#B07CC0;
   --dd-karb:#FAC045;
   --dd-karb-tint:#FEF4DC;
   --dd-karb-text:#755300;
   --dd-yag:#0093D0;
   --dd-yag-tint:#E0F2FA;
   --dd-yag-text:#006289;
-  --dd-lif:#742982;
-  --dd-lif-tint:#F2E7F5;
-  --dd-lif-text:#742982;
+  --dd-lif:#0E8A7E;
+  --dd-lif-tint:#DFF2EF;
+  --dd-lif-text:#0A6B62;
 
   /* renk: durum */
   --dd-bilgi-fg:#006289;
   --dd-bilgi-bg:#E0F2FA;
   --dd-bilgi-line:#B5DEF0;
   --dd-bilgi:#0093D0;
-  --dd-basari-fg:#2D6345;
-  --dd-basari-bg:#E4F5ED;
-  --dd-basari-line:#BAE4CC;
-  --dd-basari:#009A44;
-  --dd-uyari-fg:#735C28;
-  --dd-uyari-bg:#FEF1D6;
+  --dd-basari-fg:var(--dd-primary-deep);
+  --dd-basari-bg:var(--dd-primary-tint);
+  --dd-basari-line:var(--dd-primary-line);
+  --dd-basari:var(--dd-primary);
+  --dd-uyari-fg:var(--dd-karb-text);
+  --dd-uyari-bg:var(--dd-karb-tint);
   --dd-uyari-line:#F6DDA2;
   --dd-uyari:#E9A820;
-  --dd-hata-fg:#9C2B10;
-  --dd-hata-bg:#FBE6E1;
-  --dd-hata-line:#F3C7BB;
-  --dd-hata:#DC3D17;
+  --dd-tehlike:#C21F45;
+  --dd-tehlike-basili:#9E1A3D;
+  --dd-tehlike-fg:#8E1530;
+  --dd-tehlike-bg:#FCE1EB;
+  --dd-tehlike-line:#F5C2CF;
+  --dd-tehlike-koyu:#FF8FA8;
+  --dd-tehlike-koyu-basili:#FFB3C3;
+  --dd-tehlike-koyu-bg:#3D1620;
+  --dd-tehlike-koyu-line:#6E2338;
+  --dd-hata-fg:var(--dd-tehlike-fg);
+  --dd-hata-bg:var(--dd-tehlike-bg);
+  --dd-hata-line:var(--dd-tehlike-line);
+  --dd-hata:var(--dd-tehlike);
   --dd-notr-fg:#56514A;
   --dd-notr-bg:#F9F9F9;
   --dd-notr-line:#ECECEC;
-  --dd-danger:#BA3413;
-  --dd-danger-deep:#9C2B10;
+
+  /* renk: metrik */
+  --dd-metrik-kalori:#FF8F00;
+  --dd-metrik-kalori-derin:#B86400;
+  --dd-metrik-su:var(--dd-bilgi);
+  --dd-metrik-su-derin:var(--dd-bilgi-fg);
+  --dd-metrik-protein:var(--dd-protein);
+  --dd-metrik-protein-koyu:var(--dd-protein-koyu);
+  --dd-metrik-oruc:var(--dd-karb);
+  --dd-metrik-oruc-derin:var(--dd-karb-text);
+  --dd-metrik-seri:var(--dd-metrik-kalori);
+  --dd-ogun-kahvalti:var(--dd-karb);
+  --dd-ogun-kahvalti-derin:var(--dd-uyari);
+  --dd-ogun-ogle:var(--dd-metrik-kalori);
+  --dd-ogun-ogle-derin:var(--dd-metrik-kalori-derin);
+  --dd-ogun-aksam:var(--dd-protein-koyu);
+  --dd-ogun-aksam-derin:var(--dd-protein);
+  --dd-ogun-ara:var(--dd-on-dark-accent);
+  --dd-ogun-ara-derin:var(--dd-primary);
+
+  /* renk: dis */
+  --dd-marka-facebook:#1877F2;
+  --dd-marka-x:#111111;
+  --dd-marka-whatsapp:#25D366;
+  --dd-marka-telegram:#2AABEE;
+  --dd-marka-pinterest:#E60023;
 
   /* font */
   --dd-font:"Gilroy", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

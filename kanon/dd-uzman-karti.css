@@ -8,7 +8,7 @@
 .dd-uz-avatar{display:grid;place-items:center;width:var(--dd-size-avatar-chef);height:var(--dd-size-avatar-chef);min-width:var(--dd-size-avatar-chef);min-height:var(--dd-size-avatar-chef);aspect-ratio:1;flex-shrink:0;border-radius:var(--dd-r-round);background:var(--dd-line);color:var(--dd-primary-deep);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-sheet-size);line-height:1;background-size:cover;background-position:center}
 .dd-uz-avatar.dd-uz-avatar-lg{width:var(--dd-size-avatar-lg);height:var(--dd-size-avatar-lg);min-width:var(--dd-size-avatar-lg);min-height:var(--dd-size-avatar-lg);font-size:var(--dd-t-page-size)}
 .dd-uz-chef-name{display:flex;align-items:center;gap:var(--dd-s-8);max-width:100%;min-width:0;font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-subheading-size);line-height:var(--dd-t-subheading-line);letter-spacing:var(--dd-t-subheading-track)}
-/* Unvan rozeti: canlı .side-chef .sc-badge dili — zeminsiz, büyük harf etiket, domates metin + fa-award. */
+/* Unvan rozeti: canlı .side-chef .sc-badge dili — zeminsiz, büyük harf etiket, primary-deep metin + fa-award (yapı Gastro, renk Diet). */
 .dd-uz-chef-badge{display:inline-flex;align-items:center;gap:var(--dd-s-4);max-width:100%;padding:0;border-radius:0;background:none;color:var(--dd-primary-dark);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-label-size);line-height:var(--dd-t-label-line);letter-spacing:var(--dd-t-label-track);text-transform:uppercase;white-space:nowrap}
 .dd-uz-chef-badge span{overflow:hidden;text-overflow:ellipsis}
 .dd-uz-chef-badge .icon{font-size:var(--dd-t-label-size)}
@@ -76,7 +76,7 @@
 .dd-uzk-cipler{display:flex;gap:var(--dd-chip-gap);min-width:0;overflow:hidden}
 .dd-uzk-cip{flex:none;display:inline-flex;align-items:center;height:var(--dd-s-20);padding:0 var(--dd-s-8);border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-badge-sm);background:var(--dd-bg);color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1;white-space:nowrap}
 .dd-uzk-cip:first-child{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;display:block;line-height:calc(var(--dd-s-20) - var(--dd-size-border) * 2)}
-/* LİSTE: üst satır (avatar 56 · kimlik · fiyat), çipler (20), meta (rozet 20), eşit iki düğme (44 dokunma); satırlar arası 8 → kart 198. */
+/* LİSTE: üst satır (avatar 56 · kimlik · fiyat), çipler (20), meta (rozet 20), eşit iki düğme (44 dokunma); satırlar arası 8, çip sırası üst ve alt komşusundan 12 (etiket–ayırıcı kuralı, 11 Kasım) → kart 206. */
 .dd-uzk{display:grid;gap:var(--dd-s-8);padding:var(--dd-s-16)}
 .dd-uzk>.dd-uzk-cipler{margin-block:var(--dd-s-4)}
 .dd-uzk .dd-avatar.s56{box-shadow:none}

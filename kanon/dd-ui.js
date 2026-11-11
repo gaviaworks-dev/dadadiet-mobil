@@ -492,7 +492,7 @@
     const {metin, o} = toastSira.shift(), kat = katmanEl();
     const ikon = o.ikon || {basari: 'basari', uyari: 'uyari', hata: 'hata', bilgi: 'bilgi'}[o.tur];
     const el = belge.createElement('div');
-    el.className = 'dd-snack'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+    el.className = o.tur ? `dd-snack is-${o.tur}` : 'dd-snack'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
     el.innerHTML = `${ikon ? ik(ikon) : ''}<span>${vurgu(metin)}</span>${o.eylem ? `<button type="button">${esc(o.eylem)}</button>` : ''}`;
     const g = ust();
     // Gastro .dgu-snack: dock varken sayfa sonu boşluğu (pageEnd), yokken 24; alt eylem çubuğu varsa çubuğun 24 üstü.

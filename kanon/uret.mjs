@@ -13,9 +13,14 @@ const v = (ad, deger) => satir.push(`  --dd-${ad}:${deger};`);
 const bas = b => satir.push(`\n  /* ${b} */`);
 
 // Renk
-for (const grup of ['primary', 'neutral', 'accent', 'makro', 'durum']) {
+// dis: üçüncü taraf marka renkleri (paylaşım ikonları). '_' ile başlayan anahtar not, çıktıya girmez.
+// metrik: widget ve kilit ekranı metrik/öğün renkleri (çoğu Diet ailelerine takma ad).
+const RENK_GRUP = ['primary', 'neutral', 'accent', 'makro', 'durum', 'metrik', 'dis'];
+const renkler = grup => Object.entries(T.color[grup]).filter(([k]) => !k.startsWith('_'));
+for (const grup of RENK_GRUP) {
   bas(`renk: ${grup}`);
-  for (const [k, o] of Object.entries(T.color[grup])) v(kebab(k), o.value);
+  // ref: aynı renk ailesine takma ad (tek kaynak); CSS'te var(--dd-<ref>), Dart'ta aynı sabite bağlanır.
+  for (const [k, o] of renkler(grup)) v(kebab(k), o.ref ? `var(--dd-${kebab(o.ref)})` : o.value);
 }
 
 // Font
@@ -88,7 +93,7 @@ writeFileSync(join(kok, 'dd-tokens.js'), `/* ÜRETİLİR: node kanon/uret.mjs */
 // Flutter
 const dart = ['// ÜRETİLİR: node kanon/uret.mjs. Kaynak: kanon/tokens.json', "import 'package:flutter/material.dart';", '', 'abstract final class DDColor {'];
 const col = h => `Color(0xFF${h.slice(1)})`;
-for (const grup of ['primary', 'neutral', 'accent', 'makro', 'durum']) for (const [k, o] of Object.entries(T.color[grup])) dart.push(`  static const ${k} = ${col(o.value)};`);
+for (const grup of RENK_GRUP) for (const [k, o] of renkler(grup)) dart.push(`  static const ${k} = ${o.ref || col(o.value)};`);
 dart.push('}', '', 'abstract final class DDSpace {');
 for (const [k, x] of Object.entries(T.space)) dart.push(`  static const double s${k} = ${x};`);
 for (const [k, x] of Object.entries(T.spaceAlias)) dart.push(`  static const double ${k} = ${x};`);

@@ -20,7 +20,7 @@ DDV.cihazlar = {
   },
 
   servisler: [
-    {id: 'apple-health', saglayici: 'apple_health', ad: 'Apple Health', ikon: 'heart', ton: 'protein', grup: 'saglik', platform: 'ios',
+    {id: 'apple-health', saglayici: 'apple_health', ad: 'Apple Health', ikon: 'heart', ton: 'primary', grup: 'saglik', platform: 'ios',
       aciklama: 'iPhone’daki Sağlık uygulaması. Apple Watch verisi de buradan gelir.',
       kaynaklar: ['iPhone', 'Apple Watch'],
       bilgi: 'Adımın, kilon ve uykun **kendiliğinden** gelsin; öğünlerin ve suyun Sağlık’a yazılsın. Neyin paylaşılacağını telefonunun izin ekranında tek tek seçersin.'},

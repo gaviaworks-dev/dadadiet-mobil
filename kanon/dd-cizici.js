@@ -44,7 +44,7 @@
 
   // ---------- Düğmeler ----------
   const BT = {secondary: 'ikincil', tonal: 'tonlu', text: 'metin', yikici: 'yikici', cam: 'cam', ikincil: 'ikincil', tonlu: 'tonlu', metin: 'metin', 'yikici-ikincil': 'ikincil', 'yikici-metin': 'metin'};
-  // Tehlikeli ikincil ve metin: ikincil/metin gövdesi + is-yikici (danger yazı; Gastro .dgu-satir.is-yikici tonu). Dolu kırmızı yalnız onay diyaloğunun eylemi ('yikici').
+  // Tehlikeli ikincil ve metin: ikincil/metin gövdesi + is-yikici (--dd-tehlike yazı; yapı Gastro .dgu-satir.is-yikici, renk Diet). Dolu --dd-tehlike yalnız onay diyaloğunun eylemi ('yikici').
   const YK = {'yikici-ikincil': 1, 'yikici-metin': 1};
   DD.donen = () => '<span class="dd-kamera-yukleniyor is-satir" aria-hidden="true"></span>';
   // tur primary | secondary | tonal | text | yikici | yikici-ikincil | yikici-metin | cam; boyut sm; tam, pasif, yukleniyor (is-mesgul), ikon
