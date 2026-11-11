@@ -3,7 +3,8 @@
  * Veri DDV.besinler (100 g) + DDV.kutuphane.mikrolar[slug] (web kaydındaki vitamin, mineral, doymuş yağ, şeker, GI; olmayan alan yazılmaz).
  * Görseli olmayan besinde kapak yoktur: üst bar düz, başta DD.gorsel harf hali.
  * Durum: 'kayitli-besinler' (slug listesi, varsayılan DDV.uye.kayitli.besinler; yeni hesapta []), 'tabagim-ogun' (Öğüne ekle sheet'inin hedef öğünü, besin-ara ile aynı).
- * Kayıt yazmaz: yalnız Tabağım'a ekler (tasks/ekran-sozlesme.md). ?hal=hata bağlantı hatası. */
+ * Kayıt yazmaz: yalnız Tabağım'a ekler (tasks/ekran-sozlesme.md). ?hal=hata bağlantı hatası.
+ * Paylaş: alt eylem çubuğunda (Gastro puf eylem çubuğu) DD.paylas, bağlantı web karşılığı dadadiet.com/besin/<slug>. */
 (() => {
   const MAKRO = ['P', 'K', 'Y', 'Lif'];
   const ETIKET = {'yuksek-protein': ['Yüksek protein', 'protein'], lifli: ['Lifli', 'lif'], 'dusuk-kalori': ['Düşük kalori', 'kalori'], bitkisel: ['Bitkisel', 'seedling']};
@@ -11,6 +12,7 @@
   const ek = slug => DDV.kutuphane?.mikrolar?.[slug] || {};
   const kayitlar = () => DD.durum.oku('kayitli-besinler', DD.yeniHesap() ? [] : (DDV.uye?.kayitli?.besinler || []));
   const kisaAd = ad => ad.split(' (')[0];
+  const webUrl = b => `https://dadadiet.com/besin/${b.slug}`;
   const parantez = ad => ad.match(/\((.+)\)$/)?.[1] || null;
   const bir = n => Math.round(n * 10) / 10;
   const g1 = n => `${DD.ondalik(n, 1)} g`;
@@ -93,7 +95,7 @@
     const k = kalem(b, p);
     DD.sheet({
       baslik: 'Öğüne ekle',
-      html: `<div class="dd-yigin">${DD.besinSatir(k, {alt: `${p.birim === 'gram' ? '' : `${DD.ondalik(p.miktar, 2)} ${p.birim} · `}${DD.sayi(p.gram)} g`})}${DD.alan({etiket: 'Hangi öğünün?', html: DD.cipler({ad: 'ogun', tur: 'tek', etiket: 'Hedef öğün', serit: false, secili: ogun, ogeler: DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))})})}${DD.p('Besin önce **Tabağım**’a eklenir; tabağı kaydettiğinde seçtiğin öğüne yazılır.', {ton: 'ikincil', meta: true})}</div>`,
+      html: `<div class="dd-yigin">${DD.besinSatir(k, {alt: `${p.birim === 'gram' ? '' : `${DD.ondalik(p.miktar, 2)} ${p.birim} · `}${DD.sayi(p.gram)} g`})}${DD.alan({etiket: 'Hangi öğüne?', html: DD.cipler({ad: 'ogun', tur: 'tek', etiket: 'Hedef öğün', serit: false, secili: ogun, ogeler: DDV.bugun.ogunler.map(o => ({metin: o.ad, deger: o.id, ikon: o.ikon}))})})}${DD.p('Besin önce **Tabağım**’a eklenir; tabağı kaydettiğinde seçtiğin öğüne yazılır.', {ton: 'ikincil', meta: true})}</div>`,
       altBar: DD.btn({metin: 'Tabağıma ekle', ikon: 'ekle', tam: true, veri: {eylem: 'tabaga'}}),
       sonra: d => {
         const a = DD.on(d, 'ogun', v => { ogun = [].concat(v)[0] || ogun; });
@@ -159,7 +161,7 @@
       const b = bul(ctx.param.slug);
       if (!b) return '';
       return DD.altEylem({
-        ikonlar: [{ikon: 'kaydet', ad: 'Kaydet', sayi: 'Kaydet', basili: kayitlar().includes(b.slug), veri: {eylem: 'besin-kaydet'}}, {ikon: 'kiyas', ad: 'Kıyasla', sayi: 'Kıyasla', git: `#/denge/kiyasla?a=${b.slug}`}],
+        ikonlar: [{ikon: 'kaydet', ad: 'Kaydet', sayi: 'Kaydet', basili: kayitlar().includes(b.slug), veri: {eylem: 'besin-kaydet'}}, {ikon: 'kiyas', ad: 'Kıyasla', sayi: 'Kıyasla', git: `#/denge/kiyasla?a=${b.slug}`}, {ikon: 'paylas', ad: 'Paylaş', sayi: 'Paylaş', veri: {eylem: 'besin-paylas'}}],
         dugmeler: [{metin: 'Öğüne ekle', ikon: 'ekle', veri: {eylem: 'ogune-ekle'}}]
       });
     },
@@ -184,7 +186,10 @@
           DD.titres(10);
           DD.toast(on ? '**Kaydedilenler**’e eklendi' : 'Kayıt kaldırıldı', {ikon: 'kaydet'});
         }),
-        DD.eylem(kok, 'ogune-ekle', () => ogunSheet(b, ctx.porsiyon || ilkPorsiyon(b)))
+        DD.eylem(kok, 'ogune-ekle', () => ogunSheet(b, ctx.porsiyon || ilkPorsiyon(b))),
+        // ?ekle=1: başka ekrandan (ör. Kaç Kalori?) gelince Öğüne ekle sheet'i bir kez kendiliğinden açılır.
+        (() => { if (ctx.sorgu.ekle && !ctx.ekleAcildi) { ctx.ekleAcildi = true; const z = setTimeout(() => ogunSheet(b, ctx.porsiyon || ilkPorsiyon(b)), DD.TK.motion.base); return () => clearTimeout(z); } return () => {}; })(),
+        DD.eylem(kok, 'besin-paylas', () => DD.paylas({baslik: kisaAd(b.ad), alt: `${kisaAd(b.ad)} · ${b.kategori} · 100 g ${DD.sayi(b.kcal)} kcal`, url: webUrl(b)}))
       ];
       return () => temizle.forEach(f => f());
     }

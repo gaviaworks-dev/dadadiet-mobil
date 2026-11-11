@@ -841,3 +841,6 @@ DDV.ai = {
   }
  }
 };
+// Ne Yedim? kullanım hakkı. İş kuralı karar bekliyor (durum denetimi Paket 7): gunluk (Pro, günlük analiz sayısı) ve deneme (ücretsiz deneme sayısı)
+// belirlenene kadar null kalır; ai-kamera.js ?hal=limit|deneme|deneme-bitti sayı yoksa metinde sayı göstermez.
+DDV.ai.kota = {gunluk: null, deneme: null};

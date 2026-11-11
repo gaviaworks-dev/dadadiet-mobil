@@ -1,7 +1,10 @@
 /* SCR-30 Kamera (#/ai/kamera?mod=tabak|menu|tahlil|barkod&ogun=id). Tarayıcı kamerası kullanılmaz; DD.kamera vizörü görsel üstünde çalışır.
  * Referans: tasks/referanslar.md Kamera, §2.5 (Cal AI kabuk, SnapCalorie mod şeridi ve öğün seçici, Noom yönerge, Foodvisor barkod özet kartı).
  * Durum: kamera-izin 'verildi'|'reddedildi', kamera-ipucu (kapatıldı), ai-tabak {ogun, cekim, kaynak} (yeni çekimde sıfırlanır, ai-tabak.js okur), barkod-son [ean].
- * ?izin=sor|red izin halleri, ?hal=bulanik net olmayan görüntü.
+ * ?izin=sor|red izin halleri, ?hal=bulanik net olmayan görüntü, ?hal=yemek-yok fotoğrafta yemek yok (Gastro Tabaktan Tarif "yemek yok").
+ * Kullanım hakkı halleri (Gastro tabaktan-tarif.html durum=deneme|deneme-bitti|limit, dolaptan.js durum=limit): ?hal=deneme ücretsiz deneme sheet'i,
+ * ?hal=deneme-bitti Pro'ya geç, ?hal=limit bugünkü analiz hakkı doldu. AI kotası iş kuralı karar bekliyor: haller akışa bağlı değil, yalnız ?hal= ile açılır;
+ * sayı DDV.ai.kota'dan gelir (null ise metinde sayı yok).
  */
 (() => {
   const {esc, sayi} = DD;
@@ -135,13 +138,57 @@
     });
   };
 
+  // ---------- Kullanım hakkı (karar bekliyor) ve tanıma halleri ----------
+  const kota = () => DDV.ai.kota || {};
+  const pro = () => (DDV.uye?.kademeler || []).find(k => k.kod === 'pro') || {ad: 'Pro'};
+  // Fiyat yalnız tam genişlik düğmede (DD.premiumKilit gibi); sheet ayağındaki ikili düğmede kısa ad.
+  const proGec = (fiyatli = true) => { const k = pro(); return {metin: fiyatli && k.fiyat ? `${k.ad}’ya geç · ${sayi(k.fiyat)} TL/ay` : `${k.ad}’ya geç`, ikon: k.ikon || 'bolt', git: DD.uye() ? '#/paketlerim' : '#/pro'}; };
+  const elleEkle = {metin: 'Besin ara', ikon: 'ara_', git: '#/besin-ara'};
+  const SAHNE = {
+    'yemek-yok': () => DD.durumSahne({
+      tema: 'koyu', gorsel: `${HERO}mutfak-raf.webp`, isaret: 'yemek', baslik: 'Fotoğrafta yemek seçemedik',
+      metin: '**Tek tabağı** çerçeveye alıp yeniden dene ya da besinleri **elle ekle**.',
+      ana: {metin: 'Tekrar çek', ikon: 'kamera', veri: {eylem: 'tekrar'}}, ikinciller: [{metin: 'Elle ekle', ikon: 'ekle', git: '#/besin-ara'}, {metin: 'Şimdi değil', geri: true}],
+      ipucuBaslik: 'Tabağı çerçeveye almak için', ipuclari: [['tabak', 'Tek tabak seç', 'Birden çok tabak tanımayı zorlaştırır.'], ['crop-simple', 'Köşelerin içine al', 'Tabağın tamamı çerçevede kalsın.'], ['arrow-down', 'Üstten çek', 'Tabağı yukarıdan görmek tanımayı kolaylaştırır.']]
+    }),
+    'deneme-bitti': () => DD.durumSahne({
+      isaret: 'lock', baslik: 'Ücretsiz deneme hakların bitti',
+      metin: `Tabağını fotoğrafla tanımaya **${pro().ad}** ile devam edebilirsin. Bu sırada besinleri **aramayla** ekleyebilirsin.`,
+      ana: proGec(), ikinciller: [elleEkle, {metin: 'Şimdi değil', geri: true}]
+    }),
+    limit: () => {
+      const n = kota().gunluk;
+      return DD.durumSahne({
+        isaret: 'hourglass-end', baslik: 'Bugünkü analiz hakkın doldu',
+        metin: `${n ? `Bugünkü **${sayi(n)} analiz** hakkının hepsini kullandın.` : 'Bugünkü **fotoğraf analizi** hakkını kullandın.'} Yeni hakkın **yarın** açılır; bu sırada besinleri aramayla ekleyebilirsin.`,
+        ana: elleEkle, ikinciller: [{metin: 'Tabaklarım', ikon: 'tabak', git: '#/tabaklarim'}, {metin: 'Şimdi değil', geri: true}]
+      });
+    }
+  };
+  // Ücretsiz deneme: Gastro tanıtım sheet'i (rozet, yan yana 3 adım, deneme notu + tam genişlik düğme, ikili eylem). Kamera arkada kalır.
+  const denemeSheet = (kok, ctx) => {
+    const n = kota().deneme, k = pro();
+    DD.sheet({
+      baslik: 'Ne Yedim? · Ücretsiz deneme',
+      html: `<div class="dd-yigin"><div class="dd-sira">${DD.durumRozet({metin: k.ad, ikon: k.ikon || 'bolt'})}</div>${DD.p('Tabağının fotoğrafını çek; **bileşenleri ve kaloriyi** tahmin edelim, sen düzeltip günlüğüne ekle.')}${DD.parcali([{ikon: 'kamera', baslik: 'Çek', bilgi: true}, {ikon: 'duzenle', baslik: 'Düzelt', bilgi: true}, {ikon: 'ekle', baslik: 'Günlüğe ekle', bilgi: true}], {kutu: 'yatay', aria: 'Ne Yedim? nasıl çalışır'})}${DD.p(n ? `**${sayi(n)} ücretsiz deneme** hakkın var.` : `**${k.ad}**’ya geçmeden ücretsiz dene.`, {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Ücretsiz denemeyi kullan', ikon: 'kamera', tam: true, veri: {eylem: 'deneme-kullan'}})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Şimdilik değil', tur: 'secondary', attrs: 'data-sheet-kapat'})}${DD.btn(proGec(false))}</div>`,
+      // Deneme kullanılmadan kapanırsa (Şimdilik değil, X, aşağı kaydırma) kamera açık kalmaz: geri döner (Gastro dolaptan.js data-dt-simdilik).
+      kapaninca: () => { if (!ctx.temiz) DD.geri(); },
+      sonra: d => DD.eylem(d, 'deneme-kullan', () => { ctx.temiz = true; d.kapat(); DD.toast('Ücretsiz denemen **başladı**', {tur: 'basari'}); DD.tazele(); })
+    });
+  };
+
   const baglamSheet = (kok, ctx) => DD.siralaSheet({
     baslik: 'Hangi öğüne?', secili: ctx.ogun,
     secenekler: DDV.bugun.ogunler.map(o => [o.id, o.ad, o.id]),
     sec: v => { ctx.ogun = v; ctx.ogunSecildi = true; DD.durum.yaz('tabagim-ogun', v); yenidenCiz(kok, ctx); }
   });
 
-  const bulanikMi = ctx => (ctx.sorgu.hal === 'bulanik' && !ctx.temiz) || !!ctx.bulanik;
+  // ?hal= değerleri bir kez gösterilir: Tekrar çek ya da denemeyi kullan (ctx.temiz) olağan akışa döner.
+  const ozelHal = ctx => (ctx.temiz ? null : ctx.sorgu.hal);
+  const bulanikMi = ctx => ozelHal(ctx) === 'bulanik' || !!ctx.bulanik;
+  const sahne = ctx => SAHNE[ozelHal(ctx)] || null;
+  const denemeMi = ctx => ozelHal(ctx) === 'deneme';
   DD.ekran('ai-kamera', {
     cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'tam',
@@ -152,14 +199,16 @@
       ctx.ogun ||= varsayilanOgun(ctx);
       ctx.sira ??= 0;
       if (bulanikMi(ctx)) {
-        return DD.durumSahne({tema: 'koyu', gorsel: `${HERO}kamera-tabak-2.webp`, isaret: 'bulanik', baslik: 'Görüntü net değil', metin: 'Tabağı **ışığa** yaklaştırıp yeniden dene.', ana: {metin: 'Tekrar çek', ikon: 'kamera', veri: {eylem: 'tekrar'}}, ikinciller: [{metin: 'Elle ekle', ikon: 'ekle', git: '#/besin-ara'}]});
+        return DD.durumSahne({tema: 'koyu', gorsel: `${HERO}kamera-tabak-2.webp`, isaret: 'bulanik', baslik: 'Görüntü net değil', metin: 'Tabağı **ışığa** yaklaştırıp yeniden dene.', ana: {metin: 'Tekrar çek', ikon: 'kamera', veri: {eylem: 'tekrar'}}, ikinciller: [{metin: 'Elle ekle', ikon: 'ekle', git: '#/besin-ara'}, {metin: 'Şimdi değil', geri: true}]});
       }
+      if (sahne(ctx)) return sahne(ctx)();
+      if (denemeMi(ctx)) return kameraHtml(ctx);   // tanıtım izinden önce gelir
       const izin = izinHal(ctx);
       if (izin === 'sor') return izinIstem().html;
       if (izin === 'red') return izinRed();
       return kameraHtml(ctx);
     },
-    altBar: ctx => (izinHal(ctx) === 'sor' && !bulanikMi(ctx) ? izinIstem().bar : ''),   // net olmayan görüntü sahnesinde izin çubuğu çıkmaz (kendi düğmeleri var)
+    altBar: ctx => (izinHal(ctx) === 'sor' && !bulanikMi(ctx) && !sahne(ctx) && !denemeMi(ctx) ? izinIstem().bar : ''),   // durum sahnelerinde ve deneme tanıtımında izin çubuğu çıkmaz (kendi düğmeleri var)
     sonra: (kok, ctx) => {
       const kamera = ev => {
         const a = ev.detail.eylem;
@@ -176,6 +225,7 @@
         if (!ev.target.closest('[data-izin-ver]')) return;
         DD.dialog({baslik: `“Dada Diet” kamerana erişmek istiyor`, metin: 'Tabak, menü, tahlil ve barkod **fotoğrafı çekmek** için kullanılır.', eylem: 'İzin ver', iptal: 'İzin verme'}).then(tamam => izinYaz(ctx, tamam ? 'verildi' : 'reddedildi'));
       };
+      if (denemeMi(ctx) && !ctx.denemeGosterildi) { ctx.denemeGosterildi = true; denemeSheet(kok, ctx); }
       kok.addEventListener('dd-kamera', kamera);
       kok.addEventListener('click', izin);
       const c1 = DD.on(kok, 'kameraMod', v => { ctx.mod = v; yenidenCiz(kok, ctx); });

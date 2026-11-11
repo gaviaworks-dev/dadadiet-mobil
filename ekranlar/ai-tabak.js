@@ -2,7 +2,7 @@
  * Sonuç taslaktır: düzeltmeler DD.durum 'ai-tabak' {ogun, cekim, kaynak, oran, kalem:{id:{gram, ad, kcalGram}}, silinen:[id], oneriler:[], serbest, not} içinde durur, kamera yeni çekimde sıfırlar.
  * Günlüğe yazmaz; bileşenleri Tabağım'a ekler ve hedef öğünü 'tabagim-ogun' anahtarına yazar (sözleşme), kayıt Bugün'de olur.
  * Fotoğraf, kaynak, ortalama güven ve not DD.tabagim.meta ile kayda geçer. Hazır notlar tahmini değiştirir (ETKI), serbest metin yalnız not olarak kalır.
- * ?hal=bos bileşen bulunamadı, ?hal=hata bağlantı hatası.
+ * ?hal=bos bileşen bulunamadı, ?hal=hata bağlantı hatası, ?hal=olusturulamadi fotoğraf alındı ama sonuç hazırlanamadı (Gastro Tabaktan Tarif "oluşturulamadı").
  */
 (() => {
   const {sayi, ondalik} = DD;
@@ -168,6 +168,15 @@
     DD.tabagim.ac();
   };
 
+  // Sonuç hazırlanamadı: Gastro "Taslak oluşturulamadı" sahnesi (fotoğraf cihazda kalır, yeniden dene). Bir kez gösterilir; Yeniden dene olağan sonuca döner.
+  const olusmadiMi = ctx => ctx.sorgu.hal === 'olusturulamadi' && !ctx.temiz;
+  const olusmadi = () => DD.durumSahne({
+    tema: 'koyu', gorsel: T().gorsel, isaret: 'uyari', not: 'Fotoğrafın bu cihazda duruyor', baslik: 'Sonuç hazırlanamadı',
+    metin: 'Tabağını aldık ama **bileşenleri çıkaramadık**. Yeniden dene ya da besinleri **elle ekle**.',
+    ana: {metin: 'Yeniden dene', ikon: 'yenile', veri: {eylem: 'yeniden'}},
+    ikinciller: [{metin: 'Yeniden çek', ikon: 'kamera', git: '#/ai/kamera?mod=tabak'}, {metin: 'Elle ekle', ikon: 'ekle', git: '#/besin-ara'}]
+  });
+
   DD.ekran('ai-tabak', {
     cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'alt',
@@ -179,12 +188,13 @@
       ? (ctx.denendi = true, Promise.reject(new Error('baglanti')))
       : new Promise(tamam => setTimeout(tamam, DD.azHareket() ? 0 : DD.TK.motion.reveal))),
     ciz: ctx => {
+      if (olusmadiMi(ctx)) return olusmadi();
       const l = ctx.sorgu.hal === 'bos' ? [] : kalemler();
       if (!l.length) return DD.bos({tam: true, ikon: 'tabak', baslik: 'Bileşen kalmadı', metin: 'Tabağı **yeniden çekebilir** ya da besinleri aramayla ekleyebilirsin.', eylem: {metin: 'Yeniden çek', ikon: 'kamera', git: '#/ai/kamera?mod=tabak'}, ikincil: {metin: 'Besin ara', git: '#/besin-ara'}});
       return govde(ctx, l);
     },
     altBar: ctx => {
-      if (ctx.sorgu.hal === 'bos' || !kalemler().length) return '';
+      if (ctx.sorgu.hal === 'bos' || olusmadiMi(ctx) || !kalemler().length) return '';
       const var_ = tabagimda();
       return DD.altEylem({dugmeler: [{metin: 'Porsiyonu düzelt', tur: 'secondary', veri: {eylem: 'porsiyon'}}, {metin: var_ ? 'Tabağımı aç' : 'Günlüğe ekle', ikon: var_ ? 'tabak' : 'ekle', veri: {eylem: 'gunluge'}}]});
     },
@@ -204,7 +214,8 @@
         DD.on(kok, 'bilesen', id => { ctx.secili = ctx.secili === id ? null : id; DD.tazele(); }),
         DD.eylem(kok, 'duzelt', el => duzeltSheet(el.dataset.id)),
         DD.eylem(kok, 'porsiyon', porsiyonSheet),
-        DD.eylem(kok, 'gunluge', gunlugeEkle)
+        DD.eylem(kok, 'gunluge', gunlugeEkle),
+        DD.eylem(kok, 'yeniden', () => { ctx.temiz = true; DD.tazele(); })
       ];
       return () => { document.removeEventListener('dd-tabagim-kaydet', kaydedildi); c.forEach(f => f()); if (!DD.tabagim.liste().length) DD.durum.sil('tabagim-ogun'); };
     },
