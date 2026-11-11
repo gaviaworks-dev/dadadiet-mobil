@@ -135,8 +135,8 @@
       const c = [
         DD.eylem(kok, 'alerjen', alerjenSheet),
         DD.eylem(kok, 'sevmedik', sevmedikSheet),
-        // Akış (onboarding.js): yanıtlar silinmez, seçili gelir; son adımda "Bugün’e geç" planı ('plan') yeni yanıtlarla baştan yazar. Önceki hedef saklanmaz, geri alınamaz: yıkıcı onay.
-        DD.eylem(kok, 'bastan', () => DD.dialog({baslik: 'Sorular baştan sorulsun mu?', metin: 'Yanıtların **seçili gelir**. Son adımı bitirdiğinde günlük hedefin ve makroların **yeniden hesaplanır**; önceki hedefine geri dönemezsin. Bitirmeden çıkarsan planın değişmez.', eylem: 'Baştan başla', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) DD.git('#/onboarding/hedef'); }))
+        // Akış (onboarding.js ?bastan=1): yanıtlar seçili gelir, taslağa ('onboarding-taslak') yazılır; yalnız son adımdaki "Bitir" yanıtları ve planı ('plan') kaydeder. Yarıda kalırsa tercihler ve plan aynen kalır. Önceki hedef saklanmaz: yıkıcı onay.
+        DD.eylem(kok, 'bastan', () => DD.dialog({baslik: 'Sorular baştan sorulsun mu?', metin: 'Yanıtların **seçili gelir**. Son adımı bitirdiğinde günlük hedefin ve makroların **yeniden hesaplanır**; önceki hedefine geri dönemezsin. Bitirmeden çıkarsan planın değişmez.', eylem: 'Baştan başla', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) { DD.durum.sil('onboarding-taslak'); DD.git('#/onboarding/hedef?bastan=1'); } }))
       ];
       return () => c.forEach(f => f());
     }

@@ -1,12 +1,14 @@
 /* Ortak onboarding seti (DDV.onboarding, sıra değişmez). Tek soru tek adım; adım #/onboarding/<id> ile yığına girer, geri tuşu kendiliğinden çalışır.
  * Referans: tasks/referanslar.md Onboarding satırları, §2.9. Yanıtlar DD.durum 'onboarding'; bitince hesap 'plan' (DDV.kullanici alan adları; makro ve suMl Bugün'ün okuduğu adlarla), oturum 'oturum'.
- * #/onboarding/<id>?duzenle=1 tek adımı profilden düzenler, Kaydet planı yeniden hesaplar. #/onboarding/sonuc?hal=hata bağlantı hatası.
+ * #/onboarding/<id>?duzenle=1 tek adımı profilden düzenler, Kaydet planı yeniden hesaplar.
+ * #/onboarding/<id>?bastan=1 Tercihlerim "Baştan yanıtla": yanıtlar taslağa ('onboarding-taslak', kayıtlı yanıtların kopyasıyla başlar) yazılır; Sonuç'ta "Bitir" taslağı
+ *   'onboarding'e taşır, planı ve alerjenleri yazar, Tercihlerim'e döner. Yarıda bırakılırsa (geri, başka sayfa) taslak silinir; kayıtlı yanıtlar ve plan değişmez. Yenilemede taslak sürer. #/onboarding/sonuc?hal=hata bağlantı hatası.
  * Sağlık adımı (bildirimden sonra, opsiyonel, yalnız KVKK açık rızası onaylıysa): bu telefonun servisi tek kart (DDV.cihazlar; platform ?platform → DD.uygulamaKilidi.cihaz() → tarayıcı),
  *   okunan/yazılan türler DDV.cihazlar'dan. Bağla: açık rıza (E5 DDCihazIzin.rizaAl({kaynak:'onboarding'}); false → bağlanmaz) → telefonun izin sayfası (E1 DD.sistemIzinPenceresi)
  *   → 'cihaz-baglanti' {<servis id>: {bagli, izin:{oku, yaz}, sonEsitleme}}, 'veri-izinleri'.esitle, 'saglik-izin'; yanıt 'saglikBaglanti' (servis id | 'sonra').
  * Hesap: Mifflin-St Jeor × aktivite + tempo farkı (DDV.onboarding.kalori), 50 kcal'a yuvarlanır, enAzKcal altına inmez. Protein ve yağ kas ve sıkılaşma hedefinde web makro aracının g/kg değerleridir. */
 (() => {
-  const ANAHTAR = 'onboarding', KCAL_KG = 7700, YUVARLA = 50, SU_ML_KG = 30, BKI_ALT = 18.5, BKI_UST = 24.9;
+  const ANAHTAR = 'onboarding', TASLAK = 'onboarding-taslak', KCAL_KG = 7700, YUVARLA = 50, SU_ML_KG = 30, BKI_ALT = 18.5, BKI_UST = 24.9;
   const ORUC_ENGEL = ['gebelik', 'yeme-bozuklugu'];
   const MAKRO_GKG = {'kas-kazanmak': {P: 2, Y: .8}, sikilasmak: {P: 1.6, Y: .9}};
   const HEDEF_PROGRAM = {'kilo-vermek': ['kilo'], 'formu-korumak': ['dengeli'], 'kas-kazanmak': ['kas', 'protein'], sikilasmak: ['protein', 'kilo'], 'oruc-aliskanligi': ['oruc'], 'saglikli-yasam': ['dengeli', 'seker']};
@@ -37,8 +39,11 @@
     const k = DDV.kullanici;
     return {hedef: k.hedef, cinsiyet: k.cinsiyet, yas: k.yas, boyCm: k.boyCm, kiloKg: k.kiloKg, hedefKiloKg: k.hedefKiloKg, tempo: k.tempo, aktivite: k.aktivite, beslenmeTarzi: k.beslenmeTarzi, hassasiyet: k.hassasiyetler, aydinlatma: true, riza: true, kvkk: 'onay', orucProtokolu: (k.orucProtokolu || 'yok').replace(':', '-'), ilkOgunSaati: k.ilkOgunSaati};
   };
-  const cevaplar = () => ({...(DD.durum.oku('oturum') ? kullaniciYaniti() : {}), ...DD.durum.oku(ANAHTAR, {})});
-  const yaz = c => DD.durum.yaz(ANAHTAR, c);
+  const kayitli = () => ({...(DD.durum.oku('oturum') ? kullaniciYaniti() : {}), ...DD.durum.oku(ANAHTAR, {})});
+  // Baştan yanıtlama: adres ?bastan=1 taşır; okuma ve yazma taslaktan (ilk yazmada kayıtlı yanıtların kopyası).
+  const bastanMi = () => /[?&]bastan=1\b/.test(location.hash);
+  const cevaplar = () => (bastanMi() ? DD.durum.oku(TASLAK, null) ?? kayitli() : kayitli());
+  const yaz = c => DD.durum.yaz(bastanMi() ? TASLAK : ANAHTAR, c);
   const guncelle = ek => yaz({...cevaplar(), ...ek});
   const kayitlar = () => DD.durum.oku('kayitliProgramlar', []);
 
@@ -120,7 +125,7 @@
     const [alt, ust] = aralik(c), s = hedefSorun(c), hk = DD.ondalik(enAzHedef(c), 1);
     const ozet = DD.ozetSerit([{ikon: 'weight-scale', etiket: 'BKİ', deger: DD.ondalik(bki(c), 1)}, {ikon: 'hedef', etiket: 'Sağlıklı aralık', deger: `${DD.ondalik(alt, 1)}-${DD.ondalik(ust, 1)}`, birim: 'kg'}]);
     const bant = {
-      kilo: DD.bant({ton: 'uyari', baslik: 'Kilo vermeyi önermiyoruz', metin: 'Kilon boyuna göre **sağlıklı aralığın altında**. Formunu korumak ya da bir diyetisyenle görüşmek daha uygun olabilir.', eylem: {metin: 'Hedefimi değiştir', git: '#/onboarding/hedef?duzenle=1'}}),
+      kilo: DD.bant({ton: 'uyari', baslik: 'Kilo vermeyi önermiyoruz', metin: 'Kilon boyuna göre **sağlıklı aralığın altında**. Formunu korumak ya da bir diyetisyenle görüşmek daha uygun olabilir.', eylem: {metin: 'Hedefimi değiştir', git: bastanMi() ? '#/onboarding/hedef?bastan=1' : '#/onboarding/hedef?duzenle=1'}}),
       dusuk: DD.bant({ton: 'uyari', baslik: 'Bu hedef çok düşük', metin: `Hedef kilon boyuna göre **sağlıklı aralığın altında** kalıyor. En az **${hk} kg** önerebiliriz.`, eylem: {metin: `${hk} kg yap`, veri: {eylem: 'hedef-ayarla'}}}),
       ust: DD.bant({metin: 'Hedef kilon **şu anki kilonun altında** olmalı. Korumak istiyorsan hedefini değiştirebilirsin.'})
     }[s];
@@ -248,7 +253,7 @@
     const a = adim('sonuc');
     if (ctx.sorgu.hal === 'hata' && !ctx.tekrar) return DD.hataEkran({tur: 'baglanti', eylem: {metin: 'Tekrar dene', ikon: 'yenile', veri: {eylem: 'tekrar'}}, ikinciller: []});
     if (!ctx.hazir) return DD.onbSablon({adim: n, toplam, baslik: 'Planın hazırlanıyor', alt: 'Yanıtlarını **Mifflin-St Jeor** formülüyle hesaplıyoruz.', devam: false, html: `<div data-yuva="analiz">${DD.analizAdimlari({adimlar: ANALIZ, etkin: ctx.analiz || 0})}</div>`});
-    return DD.onbSablon({adim: n, toplam, baslik: a.baslik, alt: vurgula(a.altMetin, VURGU.sonuc), devam: {metin: 'Bugün’e geç', veri: {eylem: 'basla'}}, html: sonucGovde(c, hesapla(c))});
+    return DD.onbSablon({adim: n, toplam, baslik: a.baslik, alt: vurgula(a.altMetin, VURGU.sonuc), devam: {metin: bastanMi() ? 'Bitir' : 'Bugün’e geç', veri: {eylem: 'basla'}}, html: sonucGovde(c, hesapla(c))});
   };
 
   // ---------- Sheet'ler ----------
@@ -265,14 +270,17 @@
     yenile: true,
     ciz: ctx => adimHtml(ctx, cevaplar()),
     sonra: (kok, ctx) => {
-      const c0 = cevaplar(), {a} = konum(ctx, c0), offs = [], duzen = !!ctx.sorgu.duzenle;
+      const c0 = cevaplar(), {a} = konum(ctx, c0), offs = [], duzen = !!ctx.sorgu.duzenle, bastan = ctx.sorgu.bastan === '1';
+      // Baştan yanıtlama akışından çıkıldıysa (ekran kapandı, adres onboarding dışında) yarım taslak silinir.
+      const birak = () => { if (bastan && !/^#\/onboarding\//.test(location.hash)) DD.durum.sil(TASLAK); };
       const hazirla = () => { const b = kok.querySelector('[data-eylem="devam"]'); if (b) b.disabled = !gecerli(a, cevaplar()); };
       const alerjenYaz = c => { if (!c.alerjenler) return; const h = DD.durum.oku('hesap-ayar', {}); DD.durum.yaz('hesap-ayar', {...h, besin: {...(h.besin || {}), alerjen: c.alerjenler}}); };
       const planYaz = c => { DD.durum.yaz('plan', hesapla(c)); document.dispatchEvent(new CustomEvent('dd-plan')); };
       const ileri = () => {
         // Adres ileri bir adımı gösterirken eksik adım çizildiyse (konum) hedef adres şimdikiyle aynı olabilir: o zaman yerinde yeniden çizilir. ?platform taşınır.
         if (!duzen) {
-          const h = `#/onboarding/${rota(sonraki(a, cevaplar()))}${ctx.sorgu.platform ? `?platform=${encodeURIComponent(ctx.sorgu.platform)}` : ''}`;
+          const q = [ctx.sorgu.platform && `platform=${encodeURIComponent(ctx.sorgu.platform)}`, bastan && 'bastan=1'].filter(Boolean).join('&');
+          const h = `#/onboarding/${rota(sonraki(a, cevaplar()))}${q ? `?${q}` : ''}`;
           if (location.hash === h) DD.yerine(h); else DD.git(h);
           return;
         }
@@ -286,6 +294,13 @@
         offs.push(DD.eylem(kok, 'tekrar', () => { ctx.tekrar = true; DD.tazele(); }));
         offs.push(DD.eylem(kok, 'kaydet', el => { const id = el.dataset.id, on = el.getAttribute('aria-pressed') !== 'true', l = kayitlar().filter(x => x !== id); DD.durum.yaz('kayitliProgramlar', on ? [...l, id] : l); }));
         offs.push(DD.eylem(kok, 'basla', () => {
+          if (bastan) {
+            const {giris: _g, ...c} = cevaplar();
+            DD.durum.yaz(ANAHTAR, c); DD.durum.sil(TASLAK); planYaz(c); alerjenYaz(c);
+            DD.yerine('#/tercihler');
+            DD.toast('**Tercihlerin** ve planın güncellendi', {tur: 'basari'});
+            return;
+          }
           const {giris, ...c} = cevaplar();
           yaz(c); planYaz(c); DD.durum.yaz('oturum', {yol: giris || 'eposta'});
           alerjenYaz(c);
@@ -300,7 +315,7 @@
           };
           adimla(ctx.analiz || 0);
         }
-        return () => { iptal = true; offs.forEach(f => f()); };
+        return () => { iptal = true; offs.forEach(f => f()); birak(); };
       }
 
       offs.push(DD.eylem(kok, 'neden', () => nedenSheet(a)));
@@ -385,7 +400,7 @@
         offs.push(DD.on(kok, a.alan, v => { const c = guncelle({[a.alan]: v}); yuva(kok, 'kadran', kadran(c)); hazirla(); }));
         offs.push(DD.on(kok, a.saatAlani.alan, v => guncelle({[a.saatAlani.alan]: v})));
       }
-      return () => offs.forEach(f => f());
+      return () => { offs.forEach(f => f()); birak(); };
     }
   });
 })();
