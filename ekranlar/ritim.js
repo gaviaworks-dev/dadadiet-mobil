@@ -108,19 +108,16 @@
   const sayac = (k, d) => (d === 'bos'
     ? DD.orucSayac({durum: 'bos', hedefSaat: planBul(k).orucSaat, altMetin: `${planBul(k).ad} planın hazır`})
     : DD.orucSayac({durum: d, gecenDk: gecenSn(k, d) / 60, hedefSaat: hedefSaat(k, d), rozet: DDV.ritim.durumlar[d].rozet, fazlar: DDV.ritim.fazlar, altMetin: altMetin(k, d), ...(d === 'oruc' ? {veri: {eylem: 'faz'}} : {git: '#/ritim/fazlar'})}));
-  const bilgi = (k, d) => {
-    if (d === 'bos') return `Sıradaki oruç **${planBul(k).orucSaat} saat**. Hazır olduğunda başlat; sayaç o andan itibaren işler.`;
-    const bitis = basMs(k, d) + hedefSaat(k, d) * 36e5;
-    if (d === 'oruc') return `İlk öğün saatin **${nk(saat(bitis))}**. Bu sürede **su ve şekersiz içecekler** serbest.`;
-    const o = planliOgun();
-    return `Pencerenin kapanışı **${nk(saat(bitis))}**.${o ? ` Planlı öğünün **${o.ad}, ${nk(o.saat)}**.` : ' Bugünkü öğünlerin tamam.'}`;
-  };
+  // Plan hazır, oruç başlamadı: tek bilgi notu. Oruç ve pencerede saatler zaman kartındadır.
+  const bilgi = k => `Sıradaki oruç **${planBul(k).orucSaat} saat**. Hazır olduğunda başlat; sayaç o andan itibaren işler.`;
+  // Zaman kartının notu: saatler kartta yazdığı için yalnız ek bilgi.
+  const zamanNot = d => { if (d === 'oruc') return 'Bu sürede **su ve şekersiz içecekler** serbest.'; const o = planliOgun(); return o ? `Planlı öğünün **${o.ad}, ${nk(o.saat)}**.` : 'Bugünkü öğünlerin tamam.'; };
   const zamanlar = (k, d) => {
     const bas = basMs(k, d), bitis = bas + hedefSaat(k, d) * 36e5;
     return DD.zamanHucreler([
-      {etiket: d === 'oruc' ? 'Oruç başladı' : 'Pencere açıldı', deger: nk(zaman(bas)), id: 'bas'},
-      {etiket: d === 'oruc' ? 'Hedef bitiş' : 'Pencere kapanır', deger: nk(zaman(bitis)), eylem: 'Planı değiştir', id: 'plan'}
-    ]);
+      {ikon: d === 'oruc' ? 'oruc' : 'pencere', etiket: d === 'oruc' ? 'Oruç başladı' : 'Pencere açıldı', deger: nk(zaman(bas)), id: 'bas'},
+      {ikon: d === 'oruc' ? 'pencere' : 'oruc', etiket: d === 'oruc' ? 'Hedef bitiş · ilk öğün' : 'Pencere kapanır', deger: nk(zaman(bitis)), eylem: 'Planı değiştir', id: 'plan'}
+    ], {not: zamanNot(d)});
   };
   const gecisMetin = (k, d) => {
     if (d !== 'oruc') { const o = planliOgun(); return {baslik: 'Orucu başlat', metin: `${planBul(k).orucSaat} saatlik orucun şimdi başlar.${o ? ` ${o.ad} ${nk(o.saat)} için planlı.` : ''}`, eylem: 'Başlat', dugme: DDV.ritim.durumlar.pencere.eylem, yardim: DDV.ritim.durumlar.pencere.eylemYardim, ikon: 'oruc'}; }
@@ -307,7 +304,7 @@
     if (p.haftalik) return hero + DD.bolumler([haftalikGovde(k), DD.bant({metin: baslamadanNotu()})]);
     const ust = son
       ? bittiGovde(son)
-      : `<div class="dd-yigin">${sayac(k, d)}${eylemler(k, d)}${DD.bilgi({metin: bilgi(k, d)})}${d === 'bos' ? '' : zamanlar(k, d)}</div>`;
+      : `<div class="dd-yigin">${sayac(k, d)}${eylemler(k, d)}${d === 'bos' ? DD.bilgi({metin: bilgi(k)}) : zamanlar(k, d)}</div>`;
     return hero + DD.bolumler([
       ust,
       {baslik: 'Sıradakiler', html: siradakiler()},

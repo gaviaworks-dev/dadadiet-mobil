@@ -450,8 +450,17 @@
 .dd-porsiyon-ozet{display:grid;justify-items:end}
 .dd-kesir{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dd-s-8)}
 .dd-kesir .dd-chip{justify-content:center}
-.dd-zaman{gap:var(--dd-s-4);justify-items:start}
-.dd-zaman .dd-btn--metin{min-height:var(--dd-s-24);padding:0}
+.dd-zaman-kart{gap:var(--dd-s-16)}
+.dd-zaman-cizgi{display:grid;gap:var(--dd-s-20);margin:0;padding:0;list-style:none}
+.dd-zaman{position:relative;display:grid;grid-template-columns:var(--dd-size-box-md) minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-12)}
+.dd-zaman+.dd-zaman::before{content:'';position:absolute;left:calc(var(--dd-size-box-md) / 2 - var(--dd-size-border));bottom:calc(100% + var(--dd-s-2));height:calc(var(--dd-s-20) - var(--dd-s-4));border-left:var(--dd-size-border2) dashed var(--dd-primary-line)}
+.dd-zaman-ikon{display:grid;place-items:center;width:var(--dd-size-box-md);height:var(--dd-size-box-md);border-radius:50%;background:var(--dd-primary-tint);color:var(--dd-primary-dark);font-size:var(--dd-size-icon-md)}
+.dd-zaman-metin{display:grid;gap:var(--dd-s-2);min-width:0}
+.dd-zaman-metin small{color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1.3}
+.dd-zaman-metin b{color:var(--dd-ink);font-family:var(--dd-t-stat-family);font-weight:var(--dd-t-stat-weight);font-size:var(--dd-t-stat-size);line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dd-zaman>.dd-btn{flex:none;min-width:calc(var(--dd-s-64) * 2)}
+.dd-zaman-not{display:flex;align-items:flex-start;gap:var(--dd-s-8);margin:0;padding-top:var(--dd-s-12);border-top:var(--dd-size-border) solid var(--dd-line);color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1.4}
+.dd-zaman-not .icon{flex:none;margin-top:var(--dd-s-2);color:var(--dd-primary-dark)}
 .dd-madde{display:flex;align-items:flex-start;gap:var(--dd-s-8);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
 .dd-madde .icon{flex:none;margin-top:var(--dd-size-border2);font-size:var(--dd-size-icon-sm);color:var(--dd-primary)}
 .dd-madde.is-eksi .icon{color:var(--dd-uyari)}
