@@ -129,7 +129,7 @@
   document.addEventListener('click', ev => {
     const b = ev.target.closest?.('[data-sec-alan]'); if (!b) return;
     const alan = b.closest('.dd-alan'), girdi = alan.querySelector('input[type="hidden"]'), sec = JSON.parse(b.dataset.secenekler || '[]');
-    DD.siralaSheet({baslik: alan.querySelector('label')?.textContent || 'Seç', secenekler: sec.map(([d, m]) => [String(d), m]), secili: girdi.value, sec: v => {
+    DD.siralaSheet({baslik: alan.querySelector('label')?.firstChild?.textContent?.trim() || 'Seç', secenekler: sec.map(([d, m]) => [String(d), m]), secili: girdi.value, sec: v => {
       const m = sec.find(([d]) => String(d) === v); girdi.value = v;
       const sp = b.querySelector('span'); sp.textContent = m ? m[1] : b.dataset.yer; sp.classList.toggle('is-yer', !m);
       DD.degisim(b, b.dataset.secAlan, v);

@@ -101,10 +101,10 @@
 .dd-bilgi-baslik{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-body-size);line-height:var(--dd-t-body-line)}
 .dd-bilgi-govde{align-self:start;display:-webkit-box;text-align:justify;text-align-last:left;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
 .dd-kunye{display:grid;margin:0;padding:0;list-style:none}
-.dd-kunye li{display:grid;grid-template-columns:var(--dd-size-icon-md) minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-8);min-height:var(--dd-size-touch);color:var(--dd-slate)}
+.dd-kunye li{display:grid;grid-template-columns:var(--dd-size-icon-md) auto minmax(0,1fr);align-items:center;gap:var(--dd-s-8);min-height:var(--dd-size-touch);color:var(--dd-slate)}
 .dd-kunye li+li{border-top:var(--dd-size-border) solid var(--dd-line)}
 .dd-kunye .icon{font-size:var(--dd-size-icon-sm);color:var(--dd-primary-dark)}
-.dd-kunye b{color:var(--dd-ink)}
+.dd-kunye b{color:var(--dd-ink);text-align:end;overflow-wrap:anywhere}   /* uzun değer satıra sarar, etiketi ezmez */
 /* Alt etkileşim çubuğu (cook-bar) */
 .dd-bar-ikonlar{display:flex;gap:var(--dd-s-8);flex:none!important}
 .dd-bar-ikon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--dd-s-4);width:var(--dd-size-touch);min-width:var(--dd-size-touch);height:var(--dd-size-control-lg);padding:0;border:0;border-radius:var(--dd-r-control);background:transparent;color:var(--dd-slate)}

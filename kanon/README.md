@@ -72,7 +72,7 @@ Türkçe heceleme: `dd-metin.js` görünen metne yumuşak tire ekler ve DOM değ
 | `dd-uzun` | `data-uzun="ad"` uzun basış |
 | `dd-arama` | `DD.aramaKur`: `{q, sonuc}` |
 | `gec` (`data-eylem`) | `DD.acilis` tam ekran dokunuş |
-| `DD.cikis()` | Hesaptan çıkış: Tabağım'ı ve tüm durumu siler, `#/karsilama` ile uygulamayı baştan yükler. Çıkış eylemi başka yol yazmaz |
+| `DD.cikis(hedef)` | Hesaptan çıkış: Tabağım'ı ve tüm durumu siler, uygulamayı `hedef` adresle (varsayılan `#/bugun`) baştan yükler. Başka hesaba ait bağlantıda (`#/yetki-yok`) bağlantının sayfasına döner |
 | `dd-tabagim`, `dd-tabagim-kaydet` | `document`: `{liste, toplam}`. Kaydet ayrıca `{meta, foto, not, kaynak, guven}` taşır. Tabağa ait tek meta `DD.tabagim.meta({foto, not, kaynak, guven})`; argümansız okur, `ekle` bu alanları görürse boş olanları doldurur (ilk kaynak kalır), kayıt ya da temizlikte silinir. `DD.tabagim.porsiyon(id, kat)` ×0,5 adımlı çarpan (ilk değerler `taban`da, kcal/makro/gram/miktar tabandan hesaplanır) · `DD.tabagim.ogun()` hedef öğün: `tabagim-ogun` seçilmişse o, yoksa `DD.saatOgunu()` (04-11 kahvaltı, 11-15 öğle, 18-22 akşam, kalanı ara); besin arama, besin, kamera, AI tabak ve Bugün kaydı aynı varsayılanı kullanır · `DD.tabagim.kaydet(ogun)` kaydı tetikler (Bugün yazar, sonra o öğün kartına kayıp kartı vurgular: `tabagim-yerlesti`, `.dd-ogun[data-ogun]`, `.is-yerlesti`; başka ekrandaysa bildirimde "Öğünü gör") · `DD.tabagim.kucuk(true|false)` kartın çarpısı: öğeler kalır, sağda sayı rozetli yuvarlak tabak düğmesi (`data-tabagim-buyut`) kalır; tabak boşalınca sıfırlanır · `DD.gunKalan()` (bugun.js) halkadaki Kalan; Tabağım sayfası, barkod, menü, AI tabak okur |
 | `dd-bildirim` | `document`: okuma ya da silmeden sonra atılır, zil rozeti tazelenir. Sayı `DD.bildirimSayi()`: `okundu` olmayanlardan `DD.durum` `bildirim-okundu` ve `bildirim-silinen` id listeleri düşer. Elle tazeleme `DD.zilTazele()`; ekran dönüşünde kendiliğinden çalışır |
 
@@ -205,11 +205,11 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | API | Seçenek | Olay |
 |---|---|---|
 | `DD.input({ad, etiket, ikon, yer, deger, tur, birim, hata, yardim, pasif, temizle, cokSatir, mod, zorunlu})` | | input dinlenir |
-| `DD.secAlan({ad, etiket, secenekler:[[deger,metin]], deger, yer, hata, yardim})`, `DD.telefon({ad, ulkeAd, etiket, deger, zorunlu, opsiyonel, hata, yardim})` (Gastro DG.telefon: bayraklı ülke düğmesi `aria-disabled`, ülke sheet'i yok; görünür alan biçimli, gönderilen `name=ad` yalnız rakam, `name=ulkeAd` 'TR') | | |
+| `DD.secAlan({ad, etiket, secenekler:[[deger,metin]], deger, yer, zorunlu, hata, yardim})` (zorunlu: etikette *, sheet başlığında yok), `DD.telefon({ad, ulkeAd, etiket, deger, zorunlu, opsiyonel, hata, yardim})` (Gastro DG.telefon: bayraklı ülke düğmesi `aria-disabled`, ülke sheet'i yok; görünür alan biçimli, gönderilen `name=ad` yalnız rakam, `name=ulkeAd` 'TR') | | |
 | `DD.arama({ad, yer, deger, mikrofon, filtre, sonuc})`, `DD.aramaKur(el, {kaynak:q=>[satir], son, sec, en, bosMetin, sonTemizle})` | `el` `.dd-arama` kabı | `dd-arama` |
 | `DD.slider({ad, etiket, min, max, adim, deger, birim, etiketHer})` | | sayı |
 | `DD.stepper({ad, deger, min, max, adim, birim, aria})` | Gastro adımlayıcı | sayı |
-| `DD.toggle({ad, etiket, alt, ikon, secili, pasif})`, `DD.anahtar(o)`, `DD.checkbox({ad, etiket, alt, secili})`, `DD.radio({ad, deger, etiket, alt, secili})` (alt varsa Gastro yapısı `span.dd-satir-metin > span + small`; DD.alan içinde seçimleri bir kapla sar, `.dd-alan > label` alan etiketi kuralı doğrudan çocuk seçimi küçültür) | | boolean; değer |
+| `DD.toggle({ad, etiket, alt, ikon, secili, pasif})`, `DD.anahtar(o)`, `DD.dosyaAlan({ad, etiket, metin, ikon, kabul, yardim})` (Gastro dosyaAlan; seçilen dosyanın adı düğmede) · `DD.checkbox({ad, etiket, etiketHtml, alt, secili})` (etiketHtml: bağlantılı etiket, ör. aydınlatma metni), `DD.radio({ad, deger, etiket, alt, secili})` (alt varsa Gastro yapısı `span.dd-satir-metin > span + small`; DD.alan içinde seçimleri bir kapla sar, `.dd-alan > label` alan etiketi kuralı doğrudan çocuk seçimi küçültür) | | boolean; değer |
 | `DD.porsiyon({ad, birimler, secili, miktar, kcal100})`, `DD.kesirIzgara({ad, secili})` | `besin.porsiyonlar` verilebilir | `{birim,miktar,gram,kcal}` |
 | `DD.puan({ad, deger, etiket})` | | radyo |
 | `DD.saatKadran({ad, deger, pencereSaat, etiket, adim, min, max, noktali})` | `min`, `max` `'HH:MM'` ya da dakika: kadran sınırda durur; `min > max` gece yarısını geçer | `'12:15'` |
@@ -230,7 +230,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.bant({ton, baslik, metin, ikon, eylem})`, `DD.ipucu({ikon, baslik, metin, html, ton, eylem})` | ipucu kutusu, 4 ton |
 | `DD.bilgi({etiket, ikon, metin, html})`, `DD.veriYok(metin)`, `DD.cevrimdisi(metin)` | |
 | `DD.bos({ikon, baslik, metin, eylem, ikincil, tam})` | Gastro durum |
-| `DD.premiumKilit({kademe, baslik, metin})`, `DD.girisGerekli({ikon, baslik, metin})` | Kilitli (Pro) ve giriş gerekli halleri; `DD.hataEkran` türleri: baglanti, genel, sunucu, zaman, bulunamadi |
+| `DD.premiumKilit({kademe, baslik, metin})` (Pro’ya geç: üye #/paketlerim, misafir #/pro), `DD.girisGerekli({ikon, baslik, metin})` | Kilitli (Pro) ve giriş gerekli halleri; `DD.hataEkran` türleri: baglanti, genel, sunucu, zaman, bulunamadi |
 | `DD.durumSahne({tema, gorsel, isaret, baslik, metin, not, ana, ikinciller, ipuclari, ipucuBaslik, ipucuParcali, oneriler, onerilerBaslik})`, `DD.hataEkran({tur, eylem, ikinciller})` | tur baglanti, genel, zaman, bulunamadi |
 | `DD.vizor({foto, isaret, yonerge, tarama, bulanik, kompakt, ek})` | |
 | `DD.izinIstemi({ikon, gorsel, baslik, metin, maddeler, izin, alternatif, red, reddedildi})` → `{html, bar}`, `DD.maddeler(l)` | `data-izin-ver`, `data-izin-ayar` |

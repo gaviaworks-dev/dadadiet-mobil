@@ -3,17 +3,18 @@
 @media (min-width:520px){:root{--dd-ekran-h:min(calc(100dvh - var(--dd-s-32)),var(--dd-size-app-max-h));--dd-ekran-w:var(--dd-size-app-max)}}
 html,body{height:100%}
 body.dd{overscroll-behavior:none}
-body.dd.dd-uygulama{position:fixed;inset:0;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.dd.dd-uygulama{position:fixed;inset:0;overflow:hidden;overflow:clip;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.dd.dd-uygulama :is(input,textarea){-webkit-user-select:text;user-select:text}
 .dd-orta-metin{text-align:justify;text-align-last:center;--dd-baslik-hiza:center}
 button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;text-align:justify;text-align-last:left}
 .dd-yigin-4{display:grid;gap:var(--dd-s-4)}
 .dd-yigin-24{display:grid;gap:var(--dd-s-24)}
 
-.dd-kok{position:fixed;inset:0;overflow:hidden;isolation:isolate;background:var(--dd-paper)}
+/* Kabuk kapları overflow:clip: programla da kaydırılamaz (scrollIntoView iç kap yetmeyince kökü kaydırıp başlığı kaybettiriyordu). hidden eski tarayıcı yedeği. */
+.dd-kok{position:fixed;inset:0;overflow:hidden;overflow:clip;isolation:isolate;background:var(--dd-paper)}
 @media (min-width:520px){.dd-kok{inset:auto;top:50%;left:50%;width:var(--dd-size-app-max);height:var(--dd-ekran-h);transform:translate(-50%,-50%);border-radius:var(--dd-r-surface);box-shadow:var(--dd-sh-lg)}}
-.dd-ekranlar{position:absolute;inset:0;overflow:hidden}
-.dd-ekran{position:absolute;inset:0;overflow:hidden;background:var(--dd-paper);will-change:transform}
+.dd-ekranlar{position:absolute;inset:0;overflow:hidden;overflow:clip}
+.dd-ekran{position:absolute;inset:0;overflow:hidden;overflow:clip;background:var(--dd-paper);will-change:transform}
 .dd-ekran.is-gizli{visibility:hidden;pointer-events:none}
 .dd-kaydir{position:absolute;inset:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y}
 .dd-kaydir::-webkit-scrollbar{display:none}
@@ -23,6 +24,9 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 .dd-ekran.has-ust:not(.has-saydam) :is(.dd-cevrimdisi,.dd-liste-arac,.dd-sekme-bar){top:0}
 :is(.dd-ekran--sekme,.dd-ekran.has-dock) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) + var(--dd-s-40) + env(safe-area-inset-bottom,0px))}
 .dd-ekran.has-altbar .dd-icerik{padding-bottom:calc(var(--dd-altbar-h,var(--dd-size-control-lg)) + var(--dd-s-16))}
+/* Odaklanan alan (klavye açıkken) alt eylem çubuğunun arkasında kalmasın: tarayıcı kaydırırken çubuk payını bırakır. */
+.dd-ekran.has-altbar .dd-kaydir{scroll-padding-bottom:calc(var(--dd-altbar-h,var(--dd-size-control-lg)) + var(--dd-s-16))}
+.dd-ekran.has-ust:not(.has-saydam) .dd-kaydir{scroll-padding-top:var(--dd-ust-h)}
 .dd-kok.has-tabagim .dd-ekran:not(.is-gizli):not(.dd-ekran--tam) .dd-icerik{padding-bottom:calc(var(--dd-size-nav-bar) + var(--dd-size-nav-bottom) + var(--dd-s-24) + var(--dd-size-tabagim-bar) + var(--dd-s-24) + env(safe-area-inset-bottom,0px))}
 .dd-ekran--tam .dd-icerik{height:100%;padding-bottom:0}
 .dd-altbar{position:absolute;left:0;right:0;bottom:0;z-index:32}
@@ -40,7 +44,7 @@ button:is(.dd-puf,.dd-feature,.dd-kart,.dd-yazar-kim,.dd-bildirim){width:100%;te
 .dd-bar.dd-kayan{position:absolute;bottom:0;transform:translateY(calc(100% + var(--dd-s-16)))}
 .dd-bar.dd-kayan.is-gorunur{transform:none}
 .dd-bar-sol{display:grid;gap:var(--dd-s-4);flex:none!important;align-content:center;padding-inline:var(--dd-s-8)}
-.dd-katman{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.dd-katman{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden;overflow:clip}
 .dd-katman>*{pointer-events:auto}
 .dd-katman.is-serbest{position:fixed;left:50%;right:auto;width:min(100%,var(--dd-size-app-max));transform:translateX(-50%)}
 .dd-sheet-kap,.dd-dialog-kap,.dd-menu-kap{position:absolute;inset:0}
@@ -90,7 +94,7 @@ body.dd :is(.dd-sheet,.dd-diyalog,.dd-menu):focus-visible{outline:0}
 .dd-btn--metin.is-basili{background:var(--dd-primary-tint)}
 .dd-arama{display:grid;gap:var(--dd-s-8)}
 .dd-arama-sonuc:empty{display:none}
-.dd-arama-sonuc mark{background:var(--dd-primary-tint);color:var(--dd-primary-deep);border-radius:var(--dd-r-dot);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+:is(.dd-arama-sonuc,.dd-liste-results,.dd-satirlar,.dd-metin,[data-yuva]) mark{background:var(--dd-primary-tint);color:var(--dd-primary-deep);border-radius:var(--dd-r-dot);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
 .dd-satir-deger{flex:none;font-size:var(--dd-t-meta-size)}
 
 /* Halkalı hero: fotoğraf üstü gösterge için düz perde; Gastro gülücük kabuğu aynı */

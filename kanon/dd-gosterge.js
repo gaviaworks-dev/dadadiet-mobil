@@ -416,8 +416,10 @@
   DD.geriSayim = (o = {}) => { const s = o.saniye || 0, v = [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60], et = ['gün', 'saat', 'dk', 'sn']; return `<dl class="${liste('dd-istatistik dd-geri', o.sinif)}" data-sutun="4" ${o.canli === false ? '' : `data-c="geri" data-saniye="${s}" data-yon="-1"`} role="timer">${v.map((x, i) => `<div><dt>${et[i]}</dt><dd data-gs>${iki2(x)}</dd></div>`).join('')}</dl>`; };
   DD.fazCizelge = (o = {}) => { const ei = (o.fazlar || []).findIndex(f => f.id === o.etkin); return `<ol class="${liste('dd-faz', o.sinif)}">${(o.fazlar || []).map((f, i) => `<li class="${i < ei ? 'is-gecti' : i === ei ? 'is-etkin' : ''}"><span class="dd-faz-isaret">${ik(f.ikon)}</span><div class="dd-faz-metin"><div class="dd-ara"><span class="dd-t-card">${esc(f.ad)}</span><small>${esc(f.aralik)}</small></div>${i === ei ? DD.durumRozet({metin: 'Şu an buradasın', ton: 'basari', ikon: 'onay'}) : ''}<p class="dd-t-meta dd-ton-ikincil">${vurgu(i === ei && f.aciklama ? f.aciklama : f.kisa)}</p></div></li>`).join('')}</ol>`; };
   DD.kiyasTablo = (o = {}) => {
-    const kazanan = s => { if (!s.iyi || s.a === s.b) return ''; return (s.iyi === 'az') === (s.a < s.b) ? 'a' : 'b'; };
-    const hucre = (s, k, t) => `<span class="${t === k ? 'is-kazanan' : ''}">${t === k ? ik('onay') : ''}<b>${ondalik(s[k], 1)}</b> <small>${esc(s.birim || '')}</small></span>`;
+    // Ekranda görünen değerle (1 ondalık) karşılaştırılır: ikisi de 0 g ya da eşit görünüyorsa kazanan yok.
+    const r1 = x => Math.round((+x || 0) * 10) / 10;
+    const kazanan = s => { const a = r1(s.a), b = r1(s.b); if (!s.iyi || a === b) return ''; return (s.iyi === 'az') === (a < b) ? 'a' : 'b'; };
+    const hucre = (s, k, t) => `<span class="${t === k ? 'is-kazanan' : ''}">${t === k ? ik('onay') : ''}<b>${ondalik(s[k], s.birim === 'kcal' ? 0 : 1)}</b> <small>${esc(s.birim || '')}</small></span>`;
     const bas = x => `<span class="dd-kiyas-bas">${DD.gorsel({src: x.gorsel ?? null, ad: x.ad, ton: DD.makroTon(x)})}<span class="dd-t-meta dd-kirp-2">${esc(x.ad)}</span></span>`;
     return `<div class="${liste('dd-kart dd-kiyas', o.sinif)}"><div class="dd-kiyas-ust">${bas(o.a)}${DD.ikonKutu({ikon: 'kiyas', boyut: 'sm', ton: 'notr'})}${bas(o.b)}</div><div class="dd-satirlar">${(o.satirlar || []).map(s => { const k = kazanan(s); return `<div class="dd-kiyas-satir">${hucre(s, 'a', k)}<em>${esc(s.ad)}</em>${hucre(s, 'b', k)}</div>`; }).join('')}</div></div>`;
   };

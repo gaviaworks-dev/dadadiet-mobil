@@ -49,7 +49,8 @@
   };
   DD.bugunIso = () => window.DDV?.bugun?.tarih || '2026-11-06';
 
-  DD.titres = (ms = 8) => { try { navigator.userActivation?.hasBeenActive && navigator.vibrate?.(ms); } catch { /* yok */ } };
+  // Ayarlar > Uygulama ayarları > Titreşim ('titresim', varsayılan açık) kapalıysa titreşmez.
+  DD.titres = (ms = 8) => { try { if (DD.durum?.oku('titresim', true) === false) return; navigator.userActivation?.hasBeenActive && navigator.vibrate?.(ms); } catch { /* yok */ } };
   DD.tween = (ms, fn, bitti) => {
     if (azHareket() || !ms) { fn(1); bitti?.(); return () => {}; }
     let dur = false; const t0 = performance.now();
@@ -194,7 +195,7 @@
     const kilit = !halAd && !DD.uye() && DD.UYE_KILIT[g.ad], bekliyor = !halAd && !kilit && e.yukle && !g.yuklendi;
     try {
       if ((e.tur || 'alt') !== 'tam') bar = DD.ustBar(halAd && halAd !== 'cevrimdisi' ? {...barAyar(e, ctx), saydam: false} : kilit ? (e.dock ? {tur: 'sekme'} : {tur: 'alt', baslik: kilit.baslik}) : barAyar(e, ctx));
-      icerik = halAd ? halCiz(halAd, e, ctx) : kilit ? DD.bos({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, eylem: {metin: 'Üye ol', veri: {'uye-ol': kilit.metin.replace(/\*\*/g, '')}}, ikincil: {metin: 'Giriş yap', git: '#/giris'}}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
+      icerik = halAd ? halCiz(halAd, e, ctx) : kilit ? DD.girisDuvari({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, uyeOl: kilit.metin.replace(/\*\*/g, '')}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
       if (!kilit && !bekliyor && (!halAd || halAd === 'cevrimdisi' && !e.cevrimici) && e.altBar) alt = e.altBar(ctx) || '';
     } catch (hata) {
       console.error(`[ekran ${g.ad}]`, hata);
@@ -596,7 +597,8 @@
   };
 
   // Çıkış: DOM'da kalan sekmeler eski çizimi taşımasın diye uygulama baştan yüklenir. replaceState hashchange atmaz, router yarışmaz.
-  DD.cikis = () => { DD.tabagim.temizle(); DD.durum.sifirla(); history.replaceState(null, '', '#/bugun'); location.reload(); };
+  // hedef: çıkıştan sonra açılacak adres (ör. başka hesaba ait bağlantı); varsayılan Bugün.
+  DD.cikis = (hedef = '#/bugun') => { DD.tabagim.temizle(); DD.durum.sifirla(); history.replaceState(null, '', hedef); location.reload(); };
 
   // ---------- Çekerek yenile ----------
   const cekYenileBagla = (g, k) => {
@@ -693,6 +695,8 @@
 
   // ---------- Olay yetkilendirme ----------
   // data-eylem yetkilendirmesi: DD.eylem(kok, 'plan-uygula', (el, ev) => {...}); dönen işlev bağı çözer.
+  // DD.dosyaAlan: seçilen dosyanın adı düğmede görünür; vazgeçilirse ilk metne döner.
+  belge.addEventListener('change', ev => { const i = ev.target; if (!i.matches?.('.dd-dosya input[type=file]')) return; const s = i.closest('.dd-dosya').querySelector('[data-dosya-ad]'); s.textContent = i.files?.[0]?.name || s.dataset.bos; });
   DD.eylem = (kok, ad, fn) => { const h = ev => { const el = ev.target.closest?.(`[data-eylem="${ad}"]`); if (el && kok.contains(el)) fn(el, ev); }; kok.addEventListener('click', h); return () => kok.removeEventListener('click', h); };
   DD.on = (kok, ad, fn) => { const h = ev => { if (ev.detail?.ad === ad) fn(ev.detail.deger, ev.detail, ev); }; kok.addEventListener('dd-degisim', h); return () => kok.removeEventListener('dd-degisim', h); };
 
