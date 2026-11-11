@@ -61,6 +61,8 @@
 /* Oruç sayacı v2 (oruç uygulamaları kalıbı): açık gri iz, yeşil geçişli ilerleme, saat çentikleri, gölgeli kâğıt disk. Sarı pencere rengi kalktı:
    oruç primary → primary-deep, pencere on-dark-accent → primary. */
 .dd-oruc{--renk-1:var(--dd-primary);--renk-2:var(--dd-primary-deep);position:relative;display:grid;place-items:center;width:min(100%,var(--dd-size-counter));aspect-ratio:1;margin-inline:auto}
+/* Dönen uç ve faz katmanları tam kutudur; döndükçe kutudan taşar, sayfayı yana kaydırmasın (işaretler 8'lik pay içinde kalır). */
+.dd-oruc{overflow:clip;overflow-clip-margin:var(--dd-s-8)}
 .dd-oruc.is-pencere{--renk-1:var(--dd-on-dark-accent);--renk-2:var(--dd-primary)}
 .dd-oruc::before{content:'';position:absolute;inset:13%;border-radius:var(--dd-r-round);background:var(--dd-paper);box-shadow:var(--dd-sh-sm),var(--dd-sh-md)}
 .dd-oruc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
