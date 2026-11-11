@@ -2,7 +2,9 @@
 window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun', 'kayit', 'tabaklarim', 'besin-ara', 'programlar', 'program-bul', 'program-detay', 'ritim', 'fazlar', 'ai-kamera', 'ai-tabak', 'ai-menu', 'ai-ses', 'ai-tahlil', 'barkod', 'etiket', 'denge', 'tabak-kur', 'testler', 'muadil', 'kacamak', 'kiyasla', 'uzman', 'uzman-bul', 'uzman-profil', 'uzman-sohbet', 'saglik', 'bildirimler', 'ara', 'hata', 'profil',
   /* Üye alanı (web Hesabım eşi) */ 'ogun-saatleri', 'bildirim-izni', 'bildirim-onizleme', 'ayarlar', 'tercihler', 'veri-izinleri', 'giris', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim',
   /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'ipuclari', 'ipucu', 'hesaplayicilar',
-  /* Sistem halleri ve gizli durum menüsü */ 'guncelle', 'bakim', 'durumlar'];
+  /* Sistem halleri ve gizli durum menüsü */ 'guncelle', 'bakim', 'durumlar', 'oturum-doldu', 'yetki-yok',
+  /* Yasal, kurumsal, görüş */ 'yasal', 'kurumsal', 'gorus-bildir',
+  /* Web eşi: rehberler, kaç kalori, dışarıda, yönlendirme, Pro */ 'rehber', 'kac-kalori', 'disarida', 'bana-uygun', 'pro'];
 window.DD_ROTALAR = {
   '#/splash': 'splash',
   '#/karsilama': 'karsilama',
@@ -69,7 +71,30 @@ window.DD_ROTALAR = {
   '#/hesaplayici/:slug': 'hesaplayicilar',
   '#/guncelle': 'guncelle',
   '#/bakim': 'bakim',
-  '#/durumlar': 'durumlar'
+  '#/durumlar': 'durumlar',
+  '#/oturum-doldu': 'oturum-doldu',
+  '#/yetki-yok': 'yetki-yok',
+  '#/yasal': 'yasal',
+  '#/yasal/:slug': 'yasal',
+  '#/hakkimizda': 'kurumsal',
+  '#/iletisim': 'kurumsal',
+  '#/kunye': 'kurumsal',
+  '#/sss': 'kurumsal',
+  '#/bilimsel-kaynaklar': 'kurumsal',
+  '#/editoryal-kurul': 'kurumsal',
+  '#/diyetisyen-ol': 'kurumsal',
+  '#/nasil-calisir': 'kurumsal',
+  '#/saglik-bilgilendirmesi': 'kurumsal',
+  '#/uzmanla-calisma': 'kurumsal',
+  '#/gorus-bildir': 'gorus-bildir',
+  '#/iki-adim': 'giris',
+  '#/rehberler': 'rehber',
+  '#/rehber/:slug': 'rehber',
+  '#/kac-kalori': 'kac-kalori',
+  '#/kac-kalori/:slug': 'kac-kalori',
+  '#/disarida': 'disarida',
+  '#/bana-uygun': 'bana-uygun',
+  '#/pro': 'pro'
 };
 /* Kaldırılan ekranların eski adresleri: ölü sayfa kalmasın, verilen adrese yönlenir (önek eşleşmesi). Sağlıklı Tarifler Dada Diet'te yok (Beyar kararı, 10 Kasım). */
-window.DD_YONLENDIR = {'#/tarifler': '#/bugun', '#/tarif/': '#/bugun'};
+window.DD_YONLENDIR = {'#/tarifler': '#/bugun', '#/tarif/': '#/bugun', '#/beslenme': '#/rehberler'};
