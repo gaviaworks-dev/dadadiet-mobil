@@ -216,7 +216,7 @@
       if (!p) return '';
       return DD.altEylem({
         ikonlar: [{ikon: 'kaydet', ad: 'Kaydet', sayi: 'Kaydet', basili: kayitlar().includes(p.slug), veri: {eylem: 'program-kaydet'}}, {ikon: 'paylas', ad: 'Paylaş', sayi: 'Paylaş', veri: {eylem: 'program-paylas'}}],
-        dugmeler: [programdaMi(p) ? {metin: 'Programdasın', ikon: 'onay', tur: 'tonal', veri: {eylem: 'program-birak'}} : {metin: 'Programa başla', ikon: 'program', veri: {eylem: 'program-basla'}}]
+        dugmeler: [programdaMi(p) ? {metin: 'Programdasın', ikon: 'onay', tur: 'tonal', git: '#/programlarim'} : {metin: 'Programa başla', ikon: 'program', veri: {eylem: 'program-basla'}}]
       });
     },
     donus: (kok, ctx) => {

@@ -195,7 +195,7 @@
     DD.sheet({
       baslik: 'Sağlık uygulaması verisi', tam: true,
       html: `<div class="dd-yigin">${genelYok ? `<div class="dd-yigin-12">${DD.bant({ton: 'uyari', metin: r.genel.replace('genel açık rızaya', '**genel açık rızaya**')})}${DD.checkbox({ad: 'genel-onay', etiket: 'Sağlık verilerimin işlenmesine açık rıza veriyorum', alt: R().metin})}</div>` : ''}${rizaMetni()}${(r.taahhut?.length ? DD.maddeler(r.taahhut) : '')}${DD.btn({metin: 'Sağlık Verisi Politikası', ikon: 'file-shield', tur: 'text', tam: true, git: '#/yasal/saglik-verisi'})}</div>`,
-      altBar: `<div class="dd-yigin-8">${DD.btn({metin: 'Açık rıza veriyorum', ikon: 'onay', tam: true, pasif: genelYok, veri: {eylem: 'cihaz-riza-ver'}})}${DD.btn({metin: 'Şimdi değil', tur: 'text', tam: true, attrs: 'data-sheet-kapat'})}</div>`,
+      altBar: `<div class="dd-yigin-8">${DD.btn({metin: 'Açık rıza veriyorum', ikon: 'onay', tam: true, pasif: genelYok, veri: {eylem: 'cihaz-riza-ver'}})}${DD.btn({metin: 'Şimdi değil', tur: 'secondary', tam: true, attrs: 'data-sheet-kapat'})}</div>`,
       sonra: d => {
         const dug = d.querySelector('[data-eylem="cihaz-riza-ver"]');
         const c = [

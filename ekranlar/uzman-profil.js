@@ -40,8 +40,9 @@
   const kartHtml = d => DD.diyetisyenKart(d, {
     tur: 'liste',
     git: benimMi(d) ? '#/uzman' : null,
-    eylem: {metin: benimMi(d) ? 'Görüşme planla' : 'Randevu al', ikon: 'takvim', veri: {eylem: 'takvime-in'}},
-    ikincil: benimMi(d) ? {metin: 'Mesaj', ikon: 'sohbet', git: '#/uzman/sohbet'} : {metin: 'Paylaş', ikon: 'paylas', veri: {eylem: 'paylas'}}
+    // Birincil yalnız alt çubukta (Saat seç / Randevu iste); kart eylemleri ikincil, ikonsuz (390'da metin kesilmesin).
+    eylem: {metin: benimMi(d) ? 'Görüşme planla' : 'Randevu al', tur: 'secondary', veri: {eylem: 'takvime-in'}},
+    ikincil: benimMi(d) ? {metin: 'Mesaj', git: '#/uzman/sohbet'} : {metin: 'Paylaş', veri: {eylem: 'paylas'}}
   });
   const hakkinda = d => {
     const tek = d.paketler.find(p => p.id === 'tek');

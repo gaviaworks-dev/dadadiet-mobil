@@ -133,8 +133,8 @@
     DD.sheet({
       baslik: r.baslik,
       html: `<div class="dd-yigin">${DD.kunye([{ikon: 'takvim', etiket: 'Tarih', deger: r.tarihMetin}, {ikon: 'saat', etiket: 'Saat', deger: `${nk(r.saat)} · ${r.sureDk} dk`}, {ikon: 'video', etiket: 'Görüşme', deger: r.tur}])}${DD.p(`Bu görüşmede **${r.konu.toLocaleLowerCase('tr')}** konuşulacak.`)}<div class="dd-yigin-8"><p class="dd-t-label dd-ton-ikincil">Hazırlık</p>${gorevler()}</div>${DD.btn({metin: 'Ölçüm ekle', ikon: 'ekle', tur: 'tonal', tam: true, git: '#/saglik?olcum=1'})}</div>`,
-      // Yıkıcı eylem ayakta birincil değil (Gastro): birincil Saati değiştir, İptal ikincil metin düğmesi; onay diyalogla.
-      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Görüşmeyi iptal et', tur: 'text', veri: {eylem: 'randevu-iptal'}})}${DD.btn({metin: 'Saati değiştir', ikon: 'takvim', git: `#/uzman/profil/${slug}?ertele=1`})}</div>`,
+      // Yıkıcı eylem ayakta birincil değil (Gastro): üstte birincil Saati değiştir, altında tam genişlik tehlikeli metin İptal (Programlarım/Paketlerim kalıbı); onay diyalogla.
+      altBar: `<div class="dd-yigin-8">${DD.btn({metin: 'Saati değiştir', ikon: 'takvim', tam: true, git: `#/uzman/profil/${slug}?ertele=1`})}${DD.btn({metin: 'Görüşmeyi iptal et', tur: 'yikici-metin', tam: true, veri: {eylem: 'randevu-iptal'}})}</div>`,
       sonra: s => {
         const c = [
           ...GOREVLER.map(g => DD.on(s, `gorev-${g.id}`, v => DD.durum.yaz('uzman-hazirlik', {...hazirlik(), [g.id]: v}))),

@@ -100,7 +100,7 @@
     DD.sheet({
       baslik: kisaAd(b),
       html: secici,
-      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', veri: {eylem: 'sheet-sil'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'sheet-kaydet'}})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'yikici-ikincil', veri: {eylem: 'sheet-sil'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'sheet-kaydet'}})}</div>`,
       sonra: d => {
         DD.on(d, 'miktar', v => { son = hesap(v); });
         DD.on(d, 'miktar-adet', v => { son = hesap(v, v / ilk.miktar); d.querySelector('[data-yuva="kcal"]').innerHTML = kcalOzet(v); });

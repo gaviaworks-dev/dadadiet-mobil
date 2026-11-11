@@ -91,7 +91,7 @@
       const gruplar = g.length
         ? GRUPLAR.filter(x => g.some(b => b.grup === x)).map(x => ({baslik: x, html: DD.satirlar(g.filter(b => b.grup === x).map(satir))}))
         : [{html: DD.bos({ikon: 'filtre', baslik: 'Bu süzgeçte bildirim yok', metin: bosMetin, eylem: {metin: 'Süzgeci sıfırla', tur: 'secondary', veri: {eylem: 'suz-sifirla'}}})}];
-      const temizleDugme = g.length ? {html: `<div class="dd-sira">${DD.btn({metin: 'Bildirimleri temizle', ikon: 'sil', tur: 'text', boyut: 'sm', veri: {eylem: 'temizle'}})}</div>`} : null;
+      const temizleDugme = g.length ? {html: `<div class="dd-sira">${DD.btn({metin: 'Bildirimleri temizle', ikon: 'sil', tur: 'yikici-metin', boyut: 'sm', veri: {eylem: 'temizle'}})}</div>`} : null;
       return DD.gruplar([...gruplar, temizleDugme], {bas: basBlok(l, suz, ctx)});
     },
     sonra: (kok, ctx) => {

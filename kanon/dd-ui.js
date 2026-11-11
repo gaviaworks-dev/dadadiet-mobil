@@ -962,7 +962,7 @@
       const q = girdi.value.trim();
       if (!q) {
         guncel = sonlar.map(s => (typeof s === 'string' ? {baslik: s, _son: true} : s));
-        liste.innerHTML = guncel.length ? `<div class="dd-ara"><span class="dd-t-label dd-ton-ikincil">Son aramalar</span>${DD.btn({metin: 'Temizle', tur: 'text', veri: {'son-temizle': 1}})}</div>${satirlar(guncel, '')}` : '';
+        liste.innerHTML = guncel.length ? `<div class="dd-ara"><span class="dd-t-label dd-ton-ikincil">Son aramalar</span>${DD.btn({metin: 'Temizle', tur: 'text', boyut: 'sm', veri: {'son-temizle': 1}})}</div>${satirlar(guncel, '')}` : '';
       } else {
         guncel = (o.kaynak ? o.kaynak(q) : []).slice(0, o.en || 8);
         liste.innerHTML = guncel.length ? satirlar(guncel, q) : DD.bos({ikon: 'ara_', baslik: 'Sonuç yok', metin: o.bosMetin || `**${q}** için bir şey bulamadık. Daha kısa yazmayı dene.`});

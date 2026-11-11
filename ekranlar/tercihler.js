@@ -79,7 +79,8 @@
         {ikon: 'bell', baslik: 'Bildirim tercihleri', alt: 'Öğün, su ve oruç hatırlatmaları', git: '#/ayarlar/bildirim'},
         {ikon: 'ruler-combined', baslik: 'Birimler', alt: `${d.agirlik} · ${d.boy === 'inc' ? 'inç' : 'cm'} · ${d.enerji === 'kj' ? 'kJ' : 'kcal'}`, git: '#/ayarlar/dil'}
       ]},
-      {baslik: 'Soruları baştan yanıtla', html: `<div class="dd-yigin-12">${DD.p('Hedef, ölçü ve beslenme soruları **yeniden sorulur**. Bitirdiğinde günlük hedefin yenilenir; yarıda bırakırsan bugünkü tercihlerin kalır.', {ton: 'ikincil'})}${DD.btn({metin: 'Baştan yanıtla', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'bastan'}})}</div>`}
+      // Gastro kalıbı (ayarlar.js "Uygulamayı sıfırla", Diet ayarlar.js aynı): sayfa sonunda eylem satırı (ok yok) + onay diyaloğu.
+      {baslik: 'Başlangıç soruları', satirlar: [{ikon: 'rotate-left', baslik: 'Soruları baştan yanıtla', alt: 'Yanıtların seçili gelir; bitirince hedefin yeniden hesaplanır', veri: {eylem: 'bastan'}, ok: false}]}
     ]);
   };
 
@@ -134,7 +135,8 @@
       const c = [
         DD.eylem(kok, 'alerjen', alerjenSheet),
         DD.eylem(kok, 'sevmedik', sevmedikSheet),
-        DD.eylem(kok, 'bastan', () => DD.dialog({baslik: 'Soruları baştan yanıtla', metin: 'Bitirdiğinde **günlük hedefin** yeniden hesaplanır.', eylem: 'Başla', iptal: 'Vazgeç'}).then(ok => { if (ok) DD.git('#/onboarding/hedef'); }))
+        // Akış (onboarding.js): yanıtlar silinmez, seçili gelir; son adımda "Bugün’e geç" planı ('plan') yeni yanıtlarla baştan yazar. Önceki hedef saklanmaz, geri alınamaz: yıkıcı onay.
+        DD.eylem(kok, 'bastan', () => DD.dialog({baslik: 'Sorular baştan sorulsun mu?', metin: 'Yanıtların **seçili gelir**. Son adımı bitirdiğinde günlük hedefin ve makroların **yeniden hesaplanır**; önceki hedefine geri dönemezsin. Bitirmeden çıkarsan planın değişmez.', eylem: 'Baştan başla', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) DD.git('#/onboarding/hedef'); }))
       ];
       return () => c.forEach(f => f());
     }

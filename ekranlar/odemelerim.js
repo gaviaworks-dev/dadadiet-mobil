@@ -79,7 +79,7 @@
     DD.sheet({
       baslik: kartAd(k),
       html: `<div class="dd-yigin">${DD.kunye([{ikon: 'credit-card', etiket: 'Kart', deger: k.marka}, {ikon: 'takvim', etiket: 'Son kullanma', deger: k.skt}, {ikon: 'onay', etiket: 'Durum', deger: k.varsayilan ? 'Varsayılan kart' : 'Kayıtlı'}])}${a.kart === k.id && a.kademe !== 'ucretsiz' ? DD.p('Bu kart **üyelik yenilemesinde** kullanılıyor.', {ton: 'ikincil', meta: true}) : ''}</div>`,
-      altBar: `<div class="dd-yigin-8">${k.varsayilan ? '' : DD.btn({metin: 'Varsayılan yap', ikon: 'onay', tam: true, veri: {eylem: 'kart-varsayilan'}})}${DD.btn({metin: 'Kartı kaldır', tur: 'yikici', tam: true, veri: {eylem: 'kart-sil'}})}</div>`,
+      altBar: `<div class="dd-yigin-8">${k.varsayilan ? '' : DD.btn({metin: 'Varsayılan yap', ikon: 'onay', tam: true, veri: {eylem: 'kart-varsayilan'}})}${DD.btn({metin: 'Kartı kaldır', tur: 'yikici-ikincil', tam: true, veri: {eylem: 'kart-sil'}})}</div>`,
       sonra: s => {
         const c = [
           DD.eylem(s, 'kart-varsayilan', () => { kartYaz(kartlar().map(x => ({...x, varsayilan: x.id === id}))); s.kapat(); DD.tazele(); DD.toast(`**${kartAd(k)}** varsayılan kartın oldu`, {tur: 'basari', ikon: 'credit-card'}); }),

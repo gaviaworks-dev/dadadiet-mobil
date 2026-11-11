@@ -157,7 +157,7 @@
       html: b.gram
         ? `<div class="dd-yigin">${DD.p('Gram değişince **kalori** de güncellenir.', {ton: 'ikincil'})}<div class="dd-ara">${DD.stepper({ad: 'gram', deger: Math.max(10, Math.round(b.gram / 10) * 10), min: 10, max: 1000, adim: 10, birim: 'g', aria: 'Gram'})}<b class="dd-t-stat" data-yuva="kcal">${sayi(b.kcal)} kcal</b></div></div>`
         : DD.p(`Bu kalem **${sayi(b.kcal)} kcal** olarak kayıtlı; gram bilgisi yok.`, {ton: 'ikincil'}),
-      altBar: b.gram ? `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', veri: {eylem: 'b-sil'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'b-kaydet'}})}</div>` : DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', tam: true, veri: {eylem: 'b-sil'}}),
+      altBar: b.gram ? `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'yikici-ikincil', veri: {eylem: 'b-sil'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'b-kaydet'}})}</div>` : DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'yikici-ikincil', tam: true, veri: {eylem: 'b-sil'}}),
       sonra: d => {
         DD.on(d, 'gram', v => { gram = v; d.querySelector('[data-yuva="kcal"]').textContent = `${sayi(kcalG * v)} kcal`; });
         DD.eylem(d, 'b-sil', () => {

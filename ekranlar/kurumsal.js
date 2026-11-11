@@ -158,7 +158,8 @@
   };
 
   // ---------- Nasıl Çalışır? ----------
-  const eylemler = l => (l?.length ? `<div class="dd-sira">${l.map(e => DD.btn({metin: e.metin, tur: 'secondary', boyut: 'sm', git: e.git})).join('')}</div>` : '');
+  // Kart eylemleri: kısa iki düğme eşit ikili, değilse alt alta tam genişlik (hizalı); ikincil sm.
+  const eylemler = l => (!l?.length ? '' : l.length === 2 && l.every(e => e.metin.length <= 14) ? DD.btnIkili({metin: l[0].metin, boyut: 'sm', git: l[0].git}, {metin: l[1].metin, tur: 'secondary', boyut: 'sm', git: l[1].git}) : `<div class="dd-yigin-8">${l.map(e => DD.btn({metin: e.metin, tur: 'secondary', boyut: 'sm', tam: true, git: e.git})).join('')}</div>`);
   const nasilCalisir = () => {
     const N = K()['nasil-calisir'];
     const adim = a => DD.kart({html: `<div class="dd-yigin-12">${DD.metinBlok({baslik: a.baslik, metin: a.metin, rol: 'sub', h: 3})}${eylemler(a.eylemler)}</div>`});

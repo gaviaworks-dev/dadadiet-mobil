@@ -75,7 +75,7 @@
     DD.sheet({
       baslik: b.ad,
       html: DD.porsiyon({ad: 'ses-porsiyon', birimler: birimler(b), secili: b.birim, miktar: b.miktar, kcal100}),
-      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', veri: {eylem: 'cikar'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'kalem-kaydet'}})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'yikici-ikincil', veri: {eylem: 'cikar'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'kalem-kaydet'}})}</div>`,
       sonra: h => {
         const c = [
           DD.on(h, 'ses-porsiyon', v => { yeni = v; }),

@@ -195,11 +195,34 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 ### Düğmeler
 | API | Seçenek |
 |---|---|
-| `DD.btn({metin, tur, boyut:'sm', ikon, marka, gorsel, tam, pasif, yukleniyor, basili, tip})` | tur primary, secondary, tonal, text, yikici, cam. Marka ikonu: `marka:'apple'` (fa-brands) ya da `gorsel:'assets/marka/sosyal/google.svg'` |
+| `DD.btn({metin, tur, boyut:'sm', ikon, marka, gorsel, tam, pasif, yukleniyor, basili, tip})` | tur primary, secondary, tonal, text, yikici, yikici-ikincil, yikici-metin, cam. Marka ikonu: `marka:'apple'` (fa-brands) ya da `gorsel:'assets/marka/sosyal/google.svg'` |
+| `DD.btnIkili(ikincil, birincil, {sinif})` | Eşit ikili dizilim (`.dd-ikili`): ikincil solda (tur varsayılanı secondary), birincil sağda. Her iki argüman `DD.btn` seçeneğidir |
 | `DD.ikonBtn({ikon, etiket, tur, secili, pasif, tip})` | duz, kutu, tint, dolu, cam; `etiket` zorunlu |
 | `DD.fab({ikon, etiket})` | Ekran içi; alt menü FAB çekirdekte, dokununca `#/ai/kamera`, uzun basınca hızlı işlem |
 | `DD.uzunBas({ad, metin, ikon, tur, yardim, sure, onayBaslik, onayMetin, onayEylem, pasif})` | `dd-onay`; klavye ve ekran okuyucuda otomatik onay |
 | `DD.link({metin, git})` | Tümü bağlantısı |
+
+#### Buton kalıpları (Gastro eşlemesi, 11 Kasım)
+Kaynak: Gastro `ortak/dg-bilesen.css` 128-139 (`.dgu-btn`), 260-262 (`.dgu-bar`), 278-282 (`dgu-diyalog`), `dg-ui.js` 53 (`btn`), 481 (`DG.onay`), `sayfalar/ayarlar.js` 330 (tehlikeli satır + onay). Ölçüler token: yükseklik `--dd-size-control-lg` (52) / `--dd-size-touch` (44), köşe `--dd-r-control`, ikon-metin aralığı `--dd-icon-text`, ikon `--dd-size-icon-md`.
+
+| Kalıp | Gastro | Diet | Görünüm | Ne zaman |
+|---|---|---|---|---|
+| Birincil | `.dgu-btn` | `DD.btn({})` | primary-dark dolu, kâğıt yazı, 52, iç boşluk 12/24 | Görünümde tek ana eylem. İkili dizide sağda |
+| İkincil | `--ikincil` | `tur:'secondary'` | kâğıt zemin, line kenar, ink yazı | Vazgeç, alternatif yol. İkili dizide solda |
+| Tonlu | `--tonlu` | `tur:'tonal'` | primary-tint zemin, primary-deep kalın yazı | Kart içi hafif eylem (takip, su ekle) |
+| Metin | `--metin` | `tur:'text'` | şeffaf, primary-deep, 44, iç boşluk 0/8 | Satır içi düşük öncelik (Atla, Temizle, Neden soruyoruz?). Çerçeveli düğmeyle aynı `.dd-ikili`ye konmaz; orada `secondary` |
+| Tehlikeli (onay eylemi) | `DG.onay` birincili | `tur:'yikici'` | danger dolu | Yalnız `DD.dialog({yikici:true})` eylemi ya da geri alınamaz son adım (Hesabımı sil). Ekranda tetik olarak kullanılmaz |
+| Tehlikeli ikincil | yok (Gastro'da satır) | `tur:'yikici-ikincil'` | ikincil gövde, danger yazı, basınca hata-bg | Sheet ayağında ikincil ama yıkıcı eylem (Çıkar, Kaldır) |
+| Tehlikeli metin | yok (Gastro'da satır) | `tur:'yikici-metin'` | metin gövde, danger yazı | Düşük öncelikli yıkıcı tetik (Üyeliği iptal et, Programı bırak); onay diyaloğu açar |
+| Tehlikeli satır | `.dgu-satir.is-yikici` | `DD.satir({yikici:true, ok:false})` | danger ikon ve yazı | Liste/ayar sayfasında Çıkış, Sil, Sıfırla. Silmeyen ama sonucu değiştiren eylem (Soruları baştan yanıtla) nötr satır |
+| Küçük | `--sm` | `boyut:'sm'` | 44, iç boşluk 8/16 | Kart içi, satır sağı, kart ikilisi |
+| Tam genişlik | `--tam` | `tam:true` | %100 | Sheet ayağı ve form sonunda tek eylem; alt alta iki tam düğme arası 12 |
+| İkili dizilim | `.dgu-ikili` | `DD.btnIkili(ikincil, birincil)` ya da `.dd-ikili` | eşit iki sütun, aralık 12 | Onay, sheet ayağı, duvar. Sıra: ikincil sol, birincil sağ |
+| Alt eylem çubuğu | `.dgu-bar` > `.dgu-bar-ic` | `DD.altEylem({dugmeler, ikonlar, sol})` | kâğıt kart, `r-card`, `sh-md`, düğmeler eşit pay | Ekranın kalıcı ana eylemi; birincil en sağda |
+| Pasif | `:disabled` .45 | `pasif:true` | opaklık .45, dokunulmaz | Koşul sağlanmadı. "Yakında" metni düğmenin içinde (`Pro’ya geç · Yakında`) |
+| Yükleniyor | `[aria-busy]` dönen halka | `yukleniyor:true` ya da `DD.mesgul(btn, promise)` | metin saydam, ortada halka (birincilde kâğıt, diğerlerinde primary, tehlikelide danger) | Ağ/işlem süresince |
+
+Kurallar: bir görünümde tek birincil; geri alınamaz eylem `DD.dialog({yikici:true, iptal:'Vazgeç'})` ile onaylanır (Gastro `DG.onay`); ekran dosyasında `<button>` ya da `class="dd-btn"` elle yazılmaz.
 
 ### Form
 | API | Seçenek | Olay |

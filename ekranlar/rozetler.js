@@ -148,7 +148,7 @@
       const ana = m.kural === 'su'
         ? DD.btn({metin: 'Su kaydına git', ikon: 'su', git: '#/bugun'})
         : DD.btn({metin: d.k.isaret?.[bugun()] ? 'Geri al' : 'Bugünü işaretle', ikon: d.k.isaret?.[bugun()] ? 'rotate-left' : 'onay', tur: d.k.isaret?.[bugun()] ? 'secondary' : 'primary', veri: {eylem: 'meydan-isaret', id: m.id}});
-      alt = `<div class="dd-ikili">${DD.btn({metin: 'Bırak', tur: 'secondary', veri: {eylem: 'meydan-birak', id: m.id}})}${ana}</div>${m.kural === 'su' ? DD.p(`Gün içinde **${DD.sayi(m.hedefMl)} ml** suya ulaşınca gün kendiliğinden işaretlenir. Bugün **${DD.sayi(suMl(bugun()))} ml**.`, {ton: 'ikincil', meta: true}) : ''}`;
+      alt = `<div class="dd-ikili">${DD.btn({metin: 'Bırak', tur: 'yikici-ikincil', veri: {eylem: 'meydan-birak', id: m.id}})}${ana}</div>${m.kural === 'su' ? DD.p(`Gün içinde **${DD.sayi(m.hedefMl)} ml** suya ulaşınca gün kendiliğinden işaretlenir. Bugün **${DD.sayi(suMl(bugun()))} ml**.`, {ton: 'ikincil', meta: true}) : ''}`;
     }
     return DD.kart({html: `<div class="dd-yigin">${bas}${govde}${alt}${DD.p(`Kaynak: **${m.kaynak}**`, {ton: 'ikincil', meta: true})}</div>`});
   };

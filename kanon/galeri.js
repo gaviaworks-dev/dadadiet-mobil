@@ -41,10 +41,16 @@
   // Düğmeler
   const btnDur = t => s(DD.btn({metin: 'Normal', tur: t}), DD.btn({metin: 'Basılı', tur: t, basili: true}), DD.btn({metin: 'Pasif', tur: t, pasif: true}), DD.btn({metin: 'Yükleniyor', tur: t, yukleniyor: true}));
   bolum('dugme', 'Düğmeler', [
-    oge('DD.btn', 'birincil', DD.btn({metin: 'Programa başla', ikon: 'program', tam: true}) + btnDur('primary')),
-    oge('DD.btn tur:secondary', '', btnDur('secondary')),
-    oge('DD.btn tur:tonal', '', btnDur('tonal')),
-    oge('DD.btn tur:text / yikici', '', btnDur('text') + s(DD.btn({metin: 'Kaydı sil', tur: 'yikici', ikon: 'sil'}), DD.btn({metin: 'Küçük', boyut: 'sm', ikon: 'ekle'}))),
+    // Sıra Gastro eşlemesiyle aynı (kanon/README.md > Buton kalıpları): birincil, ikincil, metin, yıkıcı; her birinde normal, basılı, pasif, yükleniyor.
+    oge('DD.btn', 'birincil · .dgu-btn', DD.btn({metin: 'Programa başla', ikon: 'program', tam: true}) + btnDur('primary')),
+    oge('DD.btn tur:secondary', 'ikincil · --ikincil', btnDur('secondary')),
+    oge('DD.btn tur:text', 'metin · --metin', btnDur('text')),
+    oge('DD.btn tur:yikici', 'yıkıcı onay eylemi · DG.onay birincili', DD.btn({metin: 'Kaydı sil', tur: 'yikici', ikon: 'sil', tam: true}) + btnDur('yikici')),
+    oge('DD.btn tur:yikici-ikincil', 'tehlikeli ikincil (Çıkar, Kaldır)', DD.btn({metin: 'Öğünü kaldır', tur: 'yikici-ikincil', ikon: 'sil', tam: true}) + btnDur('yikici-ikincil')),
+    oge('DD.btn tur:yikici-metin', 'tehlikeli metin (iptal, bırak); onay diyaloğu açar', DD.btn({metin: 'Üyeliği iptal et', tur: 'yikici-metin', tam: true}) + btnDur('yikici-metin')),
+    oge('DD.btn tur:tonal', 'tonlu · --tonlu', btnDur('tonal')),
+    oge('DD.btn boyut:sm / tam', 'küçük 44 · tam genişlik', s(DD.btn({metin: 'Küçük', boyut: 'sm', ikon: 'ekle'}), DD.btn({metin: 'Küçük', tur: 'secondary', boyut: 'sm'})) + DD.btn({metin: 'Tam genişlik', tam: true})),
+    oge('DD.btnIkili', 'eşit ikili: ikincil solda, birincil sağda · .dgu-ikili', DD.btnIkili({metin: 'Vazgeç'}, {metin: 'Kaydet', ikon: 'onay'}) + DD.btnIkili({metin: 'Vazgeç'}, {metin: 'Sil', tur: 'yikici', ikon: 'sil'})),
     oge('DD.ikonBtn', 'duz, kutu, tint, dolu', s(DD.ikonBtn({ikon: 'paylas', etiket: 'Paylaş'}), DD.ikonBtn({ikon: 'kaydet', etiket: 'Kaydet', tur: 'kutu'}), DD.ikonBtn({ikon: 'ekle', etiket: 'Ekle', tur: 'tint'}), DD.ikonBtn({ikon: 'gonder', etiket: 'Gönder', tur: 'dolu'}), DD.ikonBtn({ikon: 'kaydet', etiket: 'Kaydedildi', secili: true}), DD.ikonBtn({ikon: 'sil', etiket: 'Pasif', pasif: true}))),
     oge('DD.fab', 'ekran içi; alt menü FAB dock\'ta', s(DD.fab({ikon: 'kamera', etiket: 'Ne Yedim?'}), DD.fab({ikon: 'ekle', etiket: 'Pasif', pasif: true}))),
     oge('DD.uzunBas', 'basılı tut; klavyede onay', DD.uzunBas({ad: 'g-oruc', metin: 'Orucu başlat', ikon: 'oruc', yardim: 'Başlatmak için basılı tut', onayMetin: 'Orucun şimdi başlasın mı?'}) + DD.uzunBas({ad: 'g-oruc2', metin: 'Orucu bitir', tur: 'tonal', yardim: 'Bitirmek için basılı tut'}))

@@ -56,7 +56,7 @@
   };
   const detayCiz = (g, ctx) => {
     const u = uyelik(ctx)[g.id], l = gonderiler(g, ctx);
-    const kim = u ? `<div class="dd-ara"><span class="dd-t-meta dd-ton-ikincil">Grupta <b>${DD.esc(u.gorunen)}</b> olarak görünüyorsun</span>${DD.btn({metin: 'Ayrıl', tur: 'text', boyut: 'sm', veri: {eylem: 'ayril', id: g.id}})}</div>` : DD.btn({metin: 'Gruba katıl', ikon: 'ekle', tam: true, veri: {eylem: 'katil', id: g.id}});
+    const kim = u ? `<div class="dd-ara"><span class="dd-t-meta dd-ton-ikincil">Grupta <b>${DD.esc(u.gorunen)}</b> olarak görünüyorsun</span>${DD.btn({metin: 'Ayrıl', tur: 'yikici-metin', boyut: 'sm', veri: {eylem: 'ayril', id: g.id}})}</div>` : DD.btn({metin: 'Gruba katıl', ikon: 'ekle', tam: true, veri: {eylem: 'katil', id: g.id}});
     return DD.gruplar([
       {baslik: 'Gönderiler', satirlar: l.map(x => gonderiHtml(g, x))},
       {baslik: 'Kurallar', html: kurallar()},
@@ -116,7 +116,7 @@
   const sikayetSheet = (x, bitti) => DD.sheet({
     baslik: 'Gönderiyi şikâyet et',
     html: `<div class="dd-yigin">${DD.p(`**“${x.metin.length > 90 ? `${x.metin.slice(0, 89)}…` : x.metin}”**`, {ton: 'ikincil'})}${DD.alan({etiket: 'Şikâyet nedeni', html: `<div class="dd-yigin-8">${U().sikayetNedenleri.map(n => DD.radio({ad: 'neden', deger: n, etiket: n})).join('')}</div>`})}${DD.input({ad: 'sikayet-not', etiket: 'Açıklama (isteğe bağlı)', cokSatir: true})}${DD.p('Şikâyetin moderasyon ekibine **kimliğin gizli tutularak** iletilir.', {ton: 'ikincil', meta: true})}</div>`,
-    altBar: DD.btn({metin: 'Şikâyet et', ikon: 'flag', tam: true, tur: 'yikici', veri: {eylem: 'sikayet-gonder'}}),
+    altBar: DD.btn({metin: 'Şikâyet et', ikon: 'flag', tam: true, veri: {eylem: 'sikayet-gonder'}}),
     sonra: s => DD.eylem(s, 'sikayet-gonder', () => {
       const n = s.querySelector('[name="neden"]:checked')?.value;
       if (!n) { DD.toast('Bir **şikâyet nedeni** seç', {tur: 'hata', yerine: true}); return; }

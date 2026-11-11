@@ -45,7 +45,7 @@
       ? (satista(kademe('pro')) ? DD.btn({metin: 'Pro’ya geç', ikon: 'bolt', tam: true, veri: {eylem: 'gec', id: 'pro'}}) : yakindaBlok(kademe('pro')))
       : a.iptal
         ? DD.btn({metin: 'İptali geri al', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'iptal-geri'}})
-        : `${!ust ? '' : satista(ust) ? DD.btn({metin: `${ust.ad}’a yükselt`, ikon: ust.ikon, tam: true, veri: {eylem: 'gec', id: ust.kod}}) : yakindaBlok(ust)}${DD.btn({metin: 'Üyeliği iptal et', tur: 'text', tam: true, veri: {eylem: 'iptal'}})}`;
+        : `${!ust ? '' : satista(ust) ? DD.btn({metin: `${ust.ad}’a yükselt`, ikon: ust.ikon, tam: true, veri: {eylem: 'gec', id: ust.kod}}) : yakindaBlok(ust)}${DD.btn({metin: 'Üyeliği iptal et', tur: 'yikici-metin', tam: true, veri: {eylem: 'iptal'}})}`;
     const not = a.iptal ? DD.bant({ton: 'uyari', metin: `Üyeliğin **${DD.tarihUzun(a.donemBit)}** tarihinde biter, sonra Ücretsiz kademeye dönersin. Kayıtların, ölçümlerin ve rozetlerin **silinmez**.`}) : '';
     return `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: 'primary', boyut: 'lg'}), baslik: k.tamAd, alt: ucretsiz ? 'Ücretsiz kademe' : 'Aylık üyelik', sag: durum})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'), {ton: 'ikincil'})}${DD.kunye(kunye)}${not}<div class="dd-yigin-8">${eylem}</div></div>`;
   };

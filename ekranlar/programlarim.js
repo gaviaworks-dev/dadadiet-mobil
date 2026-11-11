@@ -46,8 +46,8 @@
     ]);
     const uyumMetin = u.toplam ? DD.p(`**${u.toplam} öğünün ${u.tamam} tanesinde** plana uydun. Uyum, işaretlediğin öğünlerin planlanan öğünlere oranıdır.`, {ton: 'ikincil', meta: true}) : '';
     const dugmeler = a.duraklatildi
-      ? `<div class="dd-ikili">${DD.btn({metin: 'Bırak', tur: 'secondary', veri: {eylem: 'birak'}})}${DD.btn({metin: 'Devam et', ikon: 'play', veri: {eylem: 'devam'}})}</div>`
-      : `<div class="dd-ikili">${DD.btn({metin: 'Duraklat', ikon: 'pause', tur: 'secondary', pasif: baslamadi, veri: {eylem: 'duraklat'}})}${DD.btn({metin: 'Öğünlerim', ikon: 'ogun', git: '#/beslenme-plani'})}</div>${DD.btn({metin: 'Programı bırak', tur: 'text', tam: true, veri: {eylem: 'birak'}})}`;
+      ? `<div class="dd-ikili">${DD.btn({metin: 'Bırak', tur: 'yikici-ikincil', veri: {eylem: 'birak'}})}${DD.btn({metin: 'Devam et', ikon: 'play', veri: {eylem: 'devam'}})}</div>`
+      : `<div class="dd-ikili">${DD.btn({metin: 'Duraklat', ikon: 'pause', tur: 'secondary', pasif: baslamadi, veri: {eylem: 'duraklat'}})}${DD.btn({metin: 'Öğünlerim', ikon: 'ogun', git: '#/beslenme-plani'})}</div>${DD.btn({metin: 'Programı bırak', tur: 'yikici-metin', tam: true, veri: {eylem: 'birak'}})}`;
     return `<div class="dd-yigin">${ust}${DD.programKart(p, {tur: 'aktif', gun: baslamadi ? 0 : g, toplam: p.sureGun})}<div class="dd-yigin-12">${sayac}${u.toplam ? DD.ilerleme({oran: u.oran / 100}) : ''}${uyumMetin}</div>${dugmeler}</div>`;
   };
   const aktifYok = () => DD.satirlar([{ikon: 'wand-magic-sparkles', baslik: 'Program Bul', alt: 'Beş soruda sana uygun menü', git: '#/program-bul'}, {ikon: 'program', baslik: 'Tüm programlar', alt: `${DDV.programlar.length} program`, git: '#/programlar'}]);

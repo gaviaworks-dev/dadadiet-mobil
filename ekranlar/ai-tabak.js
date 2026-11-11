@@ -119,7 +119,7 @@
         ${alt ? DD.alan({etiket: 'Bu ne?', html: DD.cipler({ad: 'ai-tur', tur: 'tek', secili: secilen, ogeler: [{metin: ana.ad, deger: ''}, {metin: alt.ad, deger: alt.ad}]})}) : ''}
         ${DD.alan({etiket: 'Porsiyon', html: DD.porsiyon({ad: 'ai-porsiyon', birimler: birimler(ana), secili: 'gram', miktar: gram, kcal100: gorunen() * 100})})}
       </div>`,
-      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'secondary', veri: {eylem: 'cikar'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'kaydet-kalem'}})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Çıkar', ikon: 'sil', tur: 'yikici-ikincil', veri: {eylem: 'cikar'}})}${DD.btn({metin: 'Kaydet', ikon: 'onay', veri: {eylem: 'kaydet-kalem'}})}</div>`,
       sonra: h => {
         const c = [
           DD.on(h, 'ai-porsiyon', v => { gram = v.gram; }),

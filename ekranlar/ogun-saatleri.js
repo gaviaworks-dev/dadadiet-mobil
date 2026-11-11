@@ -111,7 +111,7 @@
       : [elle ? '**Elle girdin**; kahvaltı kayınca bu saat değişmez.' : `**Şablon:** ${x.kural}. Kahvaltıyı kaydırırsan bu öğün de kayar.`,
         x.pencere && !elle && `Pencere ${nok(x.pencere.bas)}–${nok(x.pencere.bit)}, hatırlatma ${nok(x.planlanan)}.`,
         ...x.notlar.filter(n => n.kod !== 'sessiz').map(n => n.metin), ps[tur] && `Planında ${nok(ps[tur])}; plan saati önce gelir.`].filter(Boolean).join(' ');
-    const dugmeler = [elle && DD.btn({metin: 'Şablona döndür', ikon: 'rotate-left', tur: 'secondary', veri: {eylem: 'oh-coz'}}), ara && DD.btn({metin: 'Öğünü kaldır', ikon: 'sil', tur: 'yikici', veri: {eylem: 'oh-kaldir'}})].filter(Boolean);
+    const dugmeler = [elle && DD.btn({metin: 'Şablona döndür', ikon: 'rotate-left', tur: 'secondary', veri: {eylem: 'oh-coz'}}), ara && DD.btn({metin: 'Öğünü kaldır', ikon: 'sil', tur: 'yikici-ikincil', veri: {eylem: 'oh-kaldir'}})].filter(Boolean);
     DD.sheet({
       baslik: kahvalti && o ? 'İlk öğün saatin' : x.ad,
       html: `<div class="dd-yigin">
