@@ -1,7 +1,8 @@
 /* SCR-50B Diyetisyen bul (#/uzman/bul): vitrin Gastro liste-v2; ?adim=1-3 eşleşme soruları, ?adim=sonuc sonuç. Referans: tasks/referanslar.md Diyetisyen bul.
  * Puan ve yorum verisi yok, gösterilmez; canlı listedeki puan sıralamaları da alınmadı. Cinsiyet alanı doğrulanmadığı için Kadın/Erkek seçimi süzmez, gevşetme notu çıkar.
  * Durum: uzman-liste {seg, q, gorunum, sira, f}, uzman-eslesme {goal, mode, gender}. Boş saatler uzman-profil.js ile aynı kuraldan türer.
- * #/uzman/bul?durum=hata bağlantı hatası. */
+ * Haller: ?hal=hata router ortak hatası (sunucu), ?hal=bos ortak boş hal (e.bos), ?hal=cevrimdisi bağlantı hatası (cevrimici ekran).
+ *   Eski ?durum=hata bağlantısı hâlâ ekranın kendi bağlantı hatasını çizer. Vitrin aşağı çekilince yenilenir. */
 (() => {
   const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
   const LISTE = 'uzman-liste', ESLESME = 'uzman-eslesme', ONGORU_GUN = 30;
@@ -191,6 +192,7 @@
     ust: '#/uzman',
     tabagim: false,
     yenile: true,
+    cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     baslik: ctx => (ctx.sorgu.adim ? 'Uzman eşleşmesi' : 'Diyetisyenler'),
     // Eşleşme adımları fotoğrafsızdır: bar solid kalır, geri düğmesi adım şablonu yerine barda durur.
     ustBar: ctx => (ctx.sorgu.adim || ctx.sorgu.durum === 'hata' ? {saydam: false} : {}),

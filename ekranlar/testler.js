@@ -1,5 +1,7 @@
 /* Sağlık testleri (#/testler, #/test/:slug). İçerik web'den gelir (veri/testler.js). Beslenme testi burada çözülür; diğerleri canlı sitede açılır.
  * Misafir sonucu görür, kaydetmek için üye olur. Durum: 'test-sonuclari' {slug:{puan, baslik, tarih}}, sonuç Sağlık dosyam'da görünür.
+ * Grup süzgeci web test listesinin sekmeleri: Tümü · Sağlık & Beslenme · Eğlence & Bilgi Yarışması (sayılar web toplamı DDV.testler.gruplar; liste yerel kayıtları süzer).
+ *   #/testler?grup=saglik|eglence grubu açar (web ?grup= ile aynı değerler).
  */
 (() => {
   const {esc} = DD;
@@ -7,11 +9,21 @@
   const webLink = s => `https://dadadiet.com/test/${s}`;
   const sonuc = (d, p) => d.sonuclar.find(x => p >= x.min_puan && p <= x.max_puan) || d.sonuclar[d.sonuclar.length - 1];
 
-  const liste = () => {
-    const kayit = DD.durum.oku(ANAHTAR, {});
+  const GRUP_SLUG = {'Sağlık & Beslenme': 'saglik', 'Eğlence & Bilgi Yarışması': 'eglence'};
+  const grupIkon = ad => (ad.startsWith('Sağlık') ? 'heart-pulse' : 'face-grin-stars');
+  const grupSec = ctx => { const g = ctx.grup ?? ctx.sorgu.grup ?? ''; return (T().gruplar || []).some(x => GRUP_SLUG[x.ad] === g) ? g : ''; };
+  const grupCip = secili => DD.cipler({ad: 'test-grup', tur: 'tek', etiket: 'Test grupları', secili, ogeler: [{metin: 'Tümü', deger: '', ikon: 'layer-group', sayi: T().toplam}, ...(T().gruplar || []).map(g => ({metin: g.ad, deger: GRUP_SLUG[g.ad], ikon: grupIkon(g.ad), sayi: g.sayi}))]});
+
+  const liste = ctx => {
+    const kayit = DD.durum.oku(ANAHTAR, {}), g = grupSec(ctx), grupAd = (T().gruplar || []).find(x => GRUP_SLUG[x.ad] === g)?.ad;
+    const l = T().liste.filter(t => !grupAd || t.grup === grupAd);
+    const gSayi = (T().gruplar || []).find(x => x.ad === grupAd)?.sayi;
+    // Uygulamada testlerin bir kısmı var; grup sayısı web toplamı. Fark açıkça yazılır.
+    const not_ = grupAd && gSayi > l.length ? DD.veriYok(`Bu gruptaki **${gSayi} testin ${l.length} tanesi** burada; tamamı dadadiet.com’da.`) : '';
+    const govde = l.length ? DD.yuzey(DD.satirlar(l.map(t => ({ikon: 'clipboard-check', baslik: t.ad, alt: kayit[t.slug] ? `Sonucun: ${kayit[t.slug].baslik}` : `${t.soru_sayisi} soru`, ...(t.slug === T().detay.slug ? {git: `#/test/${t.slug}`} : {veri: {eylem: 'web-test', id: t.slug}})})))) : DD.bos({ikon: 'clipboard-list', baslik: 'Bu grupta test yok', metin: 'Başka bir **test grubuna** göz at.', eylem: {metin: 'Tüm testler', tur: 'secondary', veri: {eylem: 'grup-sifirla'}}});
     return DD.bolumler([
       `<div class="dd-yigin-8"><h1 class="dd-t-section">${T().toplam} Sağlık Testi</h1>${DD.p('Alışkanlıklarını ölç, sonucunu **Sağlık dosyanda** sakla. Testler teşhis koymaz.', {ton: 'ikincil'})}</div>`,
-      {baslik: 'Testler', html: `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar(T().liste.map(t => ({ikon: 'clipboard-check', baslik: t.ad, alt: kayit[t.slug] ? `Sonucun: ${kayit[t.slug].baslik}` : `${t.soru_sayisi} soru`, ...(t.slug === T().detay.slug ? {git: `#/test/${t.slug}`} : {veri: {eylem: 'web-test', id: t.slug}})}))))}${DD.btn({metin: `Tüm ${T().toplam} testi gör`, tur: 'secondary', tam: true, veri: {eylem: 'web-test', id: ''}})}</div>`}
+      {baslik: grupAd || 'Testler', html: `<div class="dd-yigin-12">${grupCip(g)}${govde}${not_}${DD.btn({metin: `Tüm ${T().toplam} testi gör`, tur: 'secondary', tam: true, veri: {eylem: 'web-test', id: ''}})}</div>`}
     ]);
   };
   const soruHtml = (d, ctx) => {
@@ -30,12 +42,14 @@
     ust: '#/bugun',
     baslik: 'Sağlık Testleri',
     ciz: ctx => {
-      if (!ctx.param?.slug) return liste();
+      if (!ctx.param?.slug) return liste(ctx);
       const d = T().detay;
       ctx.i ??= 0;
       return ctx.bitti ? sonucHtml(d, ctx) : soruHtml(d, ctx);
     },
     sonra: (kok, ctx) => {
+      // Seçili grup çipi şeritte görünür kalsın (programlar.js kalıbı).
+      { const r = kok.querySelector('[data-ad="test-grup"]'), b = r?.querySelector('[aria-pressed=true]'); if (b) r.scrollLeft += b.getBoundingClientRect().left - r.getBoundingClientRect().left - (r.clientWidth - b.offsetWidth) / 2; }
       const d = T().detay, c = [
         DD.eylem(kok, 'web-test', el => window.open(el.dataset.id ? webLink(el.dataset.id) : 'https://dadadiet.com/testler', '_blank', 'noopener')),
         DD.eylem(kok, 'yanit', el => {
@@ -45,6 +59,8 @@
           if (DD.uye()) DD.durum.yaz(ANAHTAR, {...DD.durum.oku(ANAHTAR, {}), [d.slug]: {puan: ctx.puan, baslik: sonuc(d, ctx.puan).baslik, tarih: DD.bugunIso()}});
           DD.tazele();
         }),
+        DD.on(kok, 'test-grup', v => { ctx.grup = v || ''; DD.tazele(); }),
+        DD.eylem(kok, 'grup-sifirla', () => { ctx.grup = ''; DD.tazele(); }),
         DD.eylem(kok, 'bastan', () => { ctx.i = 0; ctx.puan = 0; ctx.bitti = false; DD.tazele(); })
       ];
       return () => c.forEach(f => f());

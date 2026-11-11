@@ -171,6 +171,7 @@
       if (ctx.sorgu.hal === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
       return new Promise(tamam => setTimeout(tamam, DD.azHareket() ? 0 : DD.TK.motion.reveal));
     },
+    cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     ciz: ctx => {
       bosHal = ctx.sorgu.hal === 'bos';
       rozetVer();

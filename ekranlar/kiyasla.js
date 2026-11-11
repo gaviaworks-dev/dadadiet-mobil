@@ -1,6 +1,7 @@
 /* SCR-43 Besin kıyasla (#/denge/kiyasla, ?a=slug&b=slug). Referans: Yuka iki ürün, Cronometer çubukları, Open Food Facts günlük karşılık (tasks/referanslar.md Denge).
  * Vurgu kaloride değil dengede: yalnız protein ve lifte kazanan işaretlenir. Günlük karşılık DDV.kullanici.makroHedef'ten türetilir.
- * Hazır çiftte porsiyon iki besinde aynı gram; serbest seçimde her besinin kendi ilk porsiyonu. #/denge/kiyasla?hal=hata hata hali.
+ * Hazır çiftte porsiyon iki besinde aynı gram; çiftin gram'ı null ise (web'de porsiyonları farklı olan somon-tavuk, zeytinyağı-tereyağı) ve serbest seçimde
+ *   her besinin kendi ilk porsiyonu. Web'in 4 hazır karşılaştırması (badem-ceviz, kinoa-pirinç, somon-tavuk göğsü, zeytinyağı-tereyağı) listede. #/denge/kiyasla?hal=hata hata hali.
  */
 (() => {
   const {sayi, ondalik} = DD;
@@ -26,9 +27,11 @@
     const [a, b] = besinler();
     if (!a || !b) return DD.bos({ikon: 'code-compare', baslik: 'İki besin seç', metin: 'Yan yana görmek istediğin **iki besini** seçince değerleri burada karşılaştırırız.'});
     const etiket = x => (s.olcu === '100' ? kisaAd(x.ad) : `${kisaAd(x.ad)} · ${sayi(gramOf(x))} g`);
-    const satirlar = K().olcutler.map(o => ({ad: o.ad, a: olcek(a, o.id), b: olcek(b, o.id), birim: o.birim, iyi: VURGU[o.id]}));
-    const porsiyonGram = hazirBul(s.hazir)?.gram;
-    return `<div class="dd-yigin">${DD.segment({ad: 'olcu', secili: s.olcu, ogeler: [{ad: '100 g', deger: '100'}, {ad: porsiyonGram ? `Porsiyon (${sayi(porsiyonGram)} g)` : 'Porsiyon', deger: 'porsiyon'}]})}${DD.kiyasTablo({a: {...a, ad: etiket(a)}, b: {...b, ad: etiket(b)}, satirlar})}${DD.bilgi({etiket: 'Günlük karşılık', metin: karsilik(a, b)})}</div>`;
+    // Porsiyonlar farklı gramdaysa kazanan işareti yanıltır (büyük porsiyon kazanır): işaret kalkar, not çıkar; karşılaştırma 100 g görünümünde.
+    const farkliPorsiyon = s.olcu !== '100' && gramOf(a) !== gramOf(b);
+    const satirlar = K().olcutler.map(o => ({ad: o.ad, a: olcek(a, o.id), b: olcek(b, o.id), birim: o.birim, iyi: farkliPorsiyon ? null : VURGU[o.id]}));
+    const porsiyonGram = hazirBul(s.hazir)?.gram ?? (gramOf(a) === gramOf(b) ? gramOf(a) : null);
+    return `<div class="dd-yigin">${DD.segment({ad: 'olcu', secili: s.olcu, ogeler: [{ad: '100 g', deger: '100'}, {ad: porsiyonGram ? `Porsiyon (${sayi(porsiyonGram)} g)` : 'Porsiyon', deger: 'porsiyon'}]})}${DD.kiyasTablo({a: {...a, ad: etiket(a)}, b: {...b, ad: etiket(b)}, satirlar})}${farkliPorsiyon ? DD.veriYok('Porsiyonlar **farklı gramda**; hangisinin daha çok verdiğini **100 g** görünümünde karşılaştır.') : ''}${DD.bilgi({etiket: 'Günlük karşılık', metin: karsilik(a, b)})}</div>`;
   };
   const karsilik = (a, b) => {
     const h = DDV.kullanici.makroHedef, la = olcek(a, 'Lif'), lb = olcek(b, 'Lif'), fark = Math.abs(la - lb), usten = la > lb ? a : b;
@@ -76,6 +79,8 @@
     },
     altBar: () => DD.altEylem({dugmeler: [{metin: 'Tabağa ekle', ikon: 'ekle', tam: true, pasif: !(s.a && s.b), veri: {eylem: 'tabaga'}}]}),
     sonra: kok => {
+      // Seçili hazır çift şeritte görünür kalsın (programlar.js kalıbı); 11 çift ekrana sığmaz.
+      { const r = kok.querySelector('[data-ad="hazir"]'), b = r?.querySelector('[aria-pressed=true]'); if (b) r.scrollLeft += b.getBoundingClientRect().left - r.getBoundingClientRect().left - (r.clientWidth - b.offsetWidth) / 2; }
       const baglar = [
         DD.on(kok, 'hazir', v => { const id = [].concat(v)[0]; if (id) { hazirSec(id); DD.tazele(); } }),
         DD.on(kok, 'olcu', v => { s.olcu = v; DD.tazele(); }),

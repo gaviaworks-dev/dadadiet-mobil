@@ -713,6 +713,27 @@ DDV.denge = {
     "gram": 30
    },
    {
+    "id": "kinoa",
+    "ad": "Kinoa ve pirinç",
+    "a": "kinoa-pismis",
+    "b": "pirinc-pismis",
+    "gram": 90
+   },
+   {
+    "id": "somon-tavuk",
+    "ad": "Somon ve tavuk göğsü",
+    "a": "somon-atlantik-ciftlik",
+    "b": "tavuk-gogsu-izgara",
+    "gram": null
+   },
+   {
+    "id": "yaglar",
+    "ad": "Zeytinyağı ve tereyağı",
+    "a": "zeytinyagi",
+    "b": "tereyagi",
+    "gram": null
+   },
+   {
     "id": "meyve",
     "ad": "Elma ve muz",
     "a": "elma-fuji",

@@ -85,6 +85,7 @@
       if (ctx.sorgu.hal === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
       return new Promise(r => setTimeout(r, DD.azHareket() ? 0 : DD.TK.motion.fast));
     },
+    cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     ciz: ctx => {
       const T = tum();
       if (!T.length) return DD.hataEkran({tur: 'baglanti', eylem: {metin: 'Tekrar dene', ikon: 'yenile', yerine: '#/ipuclari'}});

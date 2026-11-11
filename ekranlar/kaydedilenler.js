@@ -66,6 +66,7 @@
       if (ctx.sorgu.hal === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
       return new Promise(tamam => setTimeout(tamam, DD.azHareket() ? 0 : DD.TK.motion.reveal));
     },
+    cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     ciz: ctx => {
       const s = secili(ctx), n = toplam(ctx);
       const seg = DD.segment({ad: 'kayit-tur', etiket: 'Kayıt türü', kaydir: true, secili: s, ogeler: TURLER.map(x => ({ad: x.ad, deger: x.tur, sayi: ogeler(x.tur, ctx).length}))});
