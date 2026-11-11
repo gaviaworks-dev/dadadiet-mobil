@@ -61,33 +61,34 @@
       ['#/cihaz/apple-health?adim=izin', 'Bağlanma adımları'], ['#/cihaz/apple-health?hal=koptu', 'Bağlantı koptu']],
     '#/izin/:tur': [['#/izin/saglik', 'Sağlık verisi'], ['#/izin/saglik?hal=red', 'Sağlık verisi · reddedildi'], ['#/izin/kamera', 'Kamera'], ['#/izin/bildirim', 'Bildirim'], ['#/izin/konum', 'Konum'], ['#/izin/hareket', 'Hareket']],
     '#/telefon': [
-      // Ana ekran widget'ları: her widget ve boy açıkça (wg, boy, durum)
-      ['#/telefon?sekme=widget&wg=kalori&boy=kucuk&durum=dolu&platform=ios&tema=acik', 'Widget · Kalori küçük'], ['#/telefon?sekme=widget&wg=kalori&boy=orta&durum=dolu&platform=ios&tema=acik', 'Widget · Kalori ve makro orta'],
-      ['#/telefon?sekme=widget&wg=kalori&boy=buyuk&durum=dolu&platform=ios&tema=acik', 'Widget · Günün özeti büyük'], ['#/telefon?sekme=widget&wg=su&boy=kucuk&durum=dolu&platform=ios&tema=acik', 'Widget · Su küçük (+1 bardak)'],
-      ['#/telefon?sekme=widget&wg=su&boy=orta&durum=dolu&platform=ios&tema=koyu', 'Widget · Su orta, koyu görünüm'], ['#/telefon?sekme=widget&wg=ogun&boy=orta&durum=dolu&platform=ios&tema=acik', 'Widget · Sıradaki öğün orta'],
-      ['#/telefon?sekme=widget&wg=ogun&boy=buyuk&durum=dolu&platform=ios&tema=acik', 'Widget · Bugün tabağım büyük'], ['#/telefon?sekme=widget&wg=oruc&boy=orta&durum=dolu&platform=ios&tema=acik', 'Widget · Oruç orta'],
-      ['#/telefon?sekme=widget&wg=diyetisyen&boy=orta&durum=dolu&platform=ios&tema=acik', 'Widget · Diyetisyen orta'], ['#/telefon?sekme=widget&wg=diyetisyen&boy=buyuk&durum=dolu&platform=ios&tema=acik', 'Widget · Diyetisyen büyük'],
-      ['#/telefon?sekme=widget&wg=kalori&boy=kucuk&durum=dolu&platform=android&tema=acik', 'Widget · Android 2×2'], ['#/telefon?sekme=widget&wg=ogun&boy=orta&durum=dolu&platform=android&tema=acik', 'Widget · Android 4×2'],
-      ['#/telefon?sekme=widget&wg=kalori&boy=buyuk&durum=dolu&platform=android&tema=koyu', 'Widget · Android 4×4, koyu görünüm'],
+      // iPhone kilit ekranı: senaryolar ve durumlar (widget-v2 a)
+      ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=acik&senaryo=ogle', 'Kilit ekranı · Öğle, 2 öğün dolu'], ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=acik&senaryo=sabah', 'Kilit ekranı · Sabah'],
+      ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=koyu&senaryo=oruc', 'Kilit ekranı · Oruçta, koyu'], ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=acik&senaryo=ilk', 'Kilit ekranı · İlk kullanım, izin satırı'],
+      ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=acik&senaryo=bos', 'Kilit ekranı · Boş hal'], ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=acik&senaryo=ogle&durum=cevrimdisi', 'Kilit ekranı · Çevrimdışı'],
+      ['#/telefon?sekme=kilit&gor=kilit&platform=ios&tema=acik&senaryo=ogle&durum=giris', 'Kilit ekranı · Giriş yok'],
+      // Dynamic Island
+      ['#/telefon?sekme=canli&etkinlik=ada&platform=ios&tema=acik&senaryo=ogle&ada=gunluk', 'Dynamic Island · günlük, geniş'], ['#/telefon?sekme=canli&etkinlik=ada&platform=ios&tema=acik&senaryo=oruc&ada=oruc', 'Dynamic Island · oruç, geniş'],
+      ['#/telefon?sekme=canli&etkinlik=ada&platform=ios&tema=acik&senaryo=oruc&ada=kisa', 'Dynamic Island · kompakt ve minimal'],
+      // Ana ekran widget'ları (iPhone)
+      ['#/telefon?sekme=widget&wg=ozet&boy=kucuk&platform=ios&tema=acik&senaryo=ogle', 'Widget · Günün özeti küçük'], ['#/telefon?sekme=widget&wg=ozet&boy=orta&platform=ios&tema=acik&senaryo=ogle', 'Widget · Günün özeti orta'],
+      ['#/telefon?sekme=widget&wg=ozet&boy=buyuk&platform=ios&tema=acik&senaryo=ogle', 'Widget · Günün özeti büyük'], ['#/telefon?sekme=widget&wg=su&boy=kucuk&platform=ios&tema=acik&senaryo=ogle', 'Widget · Su küçük, +200 ml'],
+      ['#/telefon?sekme=widget&wg=ogunler&boy=orta&platform=ios&tema=acik&senaryo=ogle', 'Widget · Öğünler orta'], ['#/telefon?sekme=widget&wg=oruc&boy=kucuk&platform=ios&tema=acik&senaryo=oruc', 'Widget · Oruç küçük'],
+      ['#/telefon?sekme=widget&wg=diyetisyen&boy=orta&platform=ios&tema=acik&senaryo=ogle', 'Widget · Diyetisyen orta'], ['#/telefon?sekme=widget&wg=hafta&boy=orta&platform=ios&tema=acik&senaryo=ogle', 'Widget · Haftalık ilerleme orta'],
+      ['#/telefon?sekme=widget&wg=ozet&boy=orta&platform=ios&tema=koyu&senaryo=ogle', 'Widget · Günün özeti, koyu'], ['#/telefon?sekme=widget&wg=ozet&boy=orta&platform=ios&tema=acik&senaryo=ilk', 'Widget · İlk kullanım'],
       // Widget durumları
-      ['#/telefon?sekme=widget&wg=kalori&boy=orta&durum=bos&platform=ios&tema=acik', 'Widget durumu · ilk gün'], ['#/telefon?sekme=widget&wg=diyetisyen&boy=buyuk&durum=giris&platform=ios&tema=acik', 'Widget durumu · giriş yok'],
-      ['#/telefon?sekme=widget&wg=su&boy=orta&durum=cevrimdisi&platform=ios&tema=acik', 'Widget durumu · çevrimdışı'], ['#/telefon?sekme=widget&wg=kalori&boy=buyuk&durum=pro&platform=ios&tema=acik', 'Widget durumu · Pro “Yakında”'],
-      // Kilit ekranı ve StandBy
-      ['#/telefon?sekme=kilit&gor=kilit&durum=dolu&platform=ios&tema=acik', 'Kilit ekranı widget’ları · iPhone'], ['#/telefon?sekme=kilit&gor=kilit&durum=dolu&platform=ios&tema=koyu', 'Kilit ekranı · koyu görünüm'],
-      ['#/telefon?sekme=kilit&durum=dolu&platform=android&tema=acik', 'Kilit ekranı · Android'],
-      ['#/telefon?sekme=kilit&gor=standby&gece=gunduz&durum=dolu&platform=ios', 'StandBy'], ['#/telefon?sekme=kilit&gor=standby&gece=gece&durum=dolu&platform=ios', 'StandBy · gece görünümü'],
-      // Canlı Etkinlik / canlı bildirim
-      ['#/telefon?sekme=canli&etkinlik=oruc&platform=ios&tema=acik', 'Canlı Etkinlik · oruç başlamadan (iPhone)'], ['#/telefon?sekme=canli&etkinlik=randevu&platform=ios&tema=acik', 'Canlı Etkinlik ve Dinamik Ada · görüşme'],
-      ['#/telefon?sekme=canli&etkinlik=oruc&platform=android&tema=acik', 'Canlı bildirim · oruç başlamadan (Android)'], ['#/telefon?sekme=canli&etkinlik=randevu&platform=android&tema=koyu', 'Canlı bildirim · görüşme, koyu görünüm'],
-      // 16 saatlik oruç akışı (karar 1): 0. saat, Canlı Etkinlik, 8. saat devri, widget'ta sayaç, hedef
-      ['#/telefon?sekme=canli&etkinlik=akis&adim=0&platform=ios&tema=acik', '16 saatlik oruç · 0. saat, başlangıç'], ['#/telefon?sekme=canli&etkinlik=akis&adim=4&platform=ios&tema=acik', '16 saatlik oruç · 4. saat, Canlı Etkinlik ve Ada'],
-      ['#/telefon?sekme=canli&etkinlik=akis&adim=8&platform=ios&tema=acik', '16 saatlik oruç · 8. saat, widget’a devir'], ['#/telefon?sekme=canli&etkinlik=akis&adim=12&platform=ios&tema=acik', '16 saatlik oruç · 12. saat, widget’ta sayaç'],
-      ['#/telefon?sekme=canli&etkinlik=akis&adim=16&platform=ios&tema=acik', '16 saatlik oruç · 16. saat, hedef'], ['#/telefon?sekme=canli&etkinlik=akis&adim=12&platform=android&tema=acik', '16 saatlik oruç · Android, süre sınırı yok'],
-      ['#/telefon?sekme=canli&etkinlik=akis&adim=4&platform=android&tema=acik', 'Canlı bildirim · oruç sürerken (Android)'],
-      // Hızlı ayar
-      ['#/telefon?sekme=ayar&durum=dolu&platform=ios&tema=acik', 'Denetim Merkezi · Su ekle'], ['#/telefon?sekme=ayar&durum=dolu&platform=android&tema=acik', 'Hızlı Ayarlar · Su ekle'],
-      ['#/telefon?sekme=ayar&durum=giris&platform=android&tema=koyu', 'Hızlı Ayarlar · kullanılamaz'],
-      // Sesli komut
+      ['#/telefon?sekme=widget&wg=ozet&boy=orta&platform=ios&tema=acik&senaryo=ogle&durum=giris', 'Widget durumu · giriş yok'], ['#/telefon?sekme=widget&wg=su&boy=orta&platform=ios&tema=acik&senaryo=ogle&durum=cevrimdisi', 'Widget durumu · çevrimdışı'],
+      ['#/telefon?sekme=widget&wg=hafta&boy=orta&platform=ios&tema=acik&senaryo=ogle&durum=pro', 'Widget durumu · Pro, Yakında'],
+      // StandBy
+      ['#/telefon?sekme=kilit&gor=standby&platform=ios&gece=gunduz&senaryo=ogle', 'StandBy'], ['#/telefon?sekme=kilit&gor=standby&platform=ios&gece=gece&senaryo=ogle', 'StandBy · gece'],
+      // Android
+      ['#/telefon?sekme=widget&wg=ozet&boy=orta&platform=android&tema=acik&senaryo=ogle', 'Android · Günün özeti'], ['#/telefon?sekme=widget&wg=su&boy=kucuk&platform=android&tema=koyu&senaryo=ogle', 'Android · Su, koyu'],
+      ['#/telefon?sekme=widget&wg=ogunler&boy=buyuk&platform=android&tema=acik&senaryo=ogle', 'Android · Öğünler büyük'], ['#/telefon?sekme=kilit&platform=android&tema=acik&senaryo=oruc', 'Android · Kilit ekranında oruç'],
+      ['#/telefon?sekme=canli&etkinlik=ada&platform=android&tema=acik&senaryo=oruc', 'Android · Bildirim alanında oruç'],
+      // Canlı Etkinlik: görüşme ve 16 saatlik oruç akışı
+      ['#/telefon?sekme=canli&etkinlik=randevu&platform=ios&tema=acik', 'Canlı Etkinlik · diyetisyen görüşmesi'], ['#/telefon?sekme=canli&etkinlik=akis&adim=4&platform=ios&tema=acik', '16 saatlik oruç · Canlı Etkinlik'],
+      ['#/telefon?sekme=canli&etkinlik=akis&adim=8&platform=ios&tema=acik', '16 saatlik oruç · 8. saat, widget’a devir'], ['#/telefon?sekme=canli&etkinlik=akis&adim=12&platform=ios&tema=acik', '16 saatlik oruç · widget’ta sayaç'],
+      // Hızlı ayar ve sesli komut
+      ['#/telefon?sekme=ayar&platform=ios&tema=acik&senaryo=ogle', 'Denetim Merkezi · Su ekle'], ['#/telefon?sekme=ayar&platform=android&tema=acik&senaryo=ogle', 'Hızlı Ayarlar · Su ekle ve Oruç'],
       ['#/telefon?sekme=komut&platform=ios&komut=su', 'Siri · bir bardak su'], ['#/telefon?sekme=komut&platform=android&komut=ogle', 'Gemini · öğle yemeği']
     ]
   };
