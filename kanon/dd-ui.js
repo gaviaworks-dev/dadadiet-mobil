@@ -162,7 +162,7 @@
   DD.uyeDuvar = (o = {}) => DD.sheet({
     baslik: o.baslik || 'Verilerini koru',
     html: `<div class="dd-yigin">${DD.p(o.metin || 'Verilerini ve çektiğin tabağı buluta yedeklemek için **10 saniyede** üye ol.')}<div class="dd-yigin-8">${SSO.map(b => DD.btn({...b, tur: 'secondary', tam: true, veri: {eylem: 'uye-sso', id: b.yol}})).join('')}${DD.btn({metin: 'E-posta ile devam et', tur: 'text', tam: true, veri: {eylem: 'uye-eposta'}})}</div></div>`,
-    altBar: DD.btn({metin: 'Şimdi değil', tur: 'text', tam: true, attrs: 'data-sheet-kapat'}),
+    altBar: DD.btn({metin: 'Şimdi değil', tur: 'secondary', tam: true, attrs: 'data-sheet-kapat'}),
     sonra: h => {
       const a = DD.eylem(h, 'uye-sso', el => { const yol = el.dataset.id; h.kapat(); rizaSheet(yol); });
       const b = DD.eylem(h, 'uye-eposta', () => { h.kapat(); DD.git('#/karsilama'); });

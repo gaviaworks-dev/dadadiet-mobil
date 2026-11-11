@@ -454,7 +454,7 @@ DDV.bugun = {
   "adimlar": [
    {
     "ml": 200,
-    "metin": "1 su bardağı (200 ml)"
+    "metin": "+200 ml"
    },
    {
     "ml": 500,

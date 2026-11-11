@@ -222,6 +222,8 @@ Kaynak: Gastro `ortak/dg-bilesen.css` 128-139 (`.dgu-btn`), 260-262 (`.dgu-bar`)
 | Pasif | `:disabled` .45 | `pasif:true` | opaklık .45, dokunulmaz | Koşul sağlanmadı. "Yakında" metni düğmenin içinde (`Pro’ya geç · Yakında`) |
 | Yükleniyor | `[aria-busy]` dönen halka | `yukleniyor:true` ya da `DD.mesgul(btn, promise)` | metin saydam, ortada halka (birincilde kâğıt, diğerlerinde primary, tehlikelide danger) | Ağ/işlem süresince |
 
+Su teması (bilinçli istisna): su kartındaki ekleme düğmeleri `tonal` kalıbının bilgi (mavi) tonudur (`.dd-su .dd-btn`), su widget'ı ve su göstergesiyle aynı renk dili; yeşil tonlu yerine kullanılır.
+
 Kurallar: bir görünümde tek birincil; geri alınamaz eylem `DD.dialog({yikici:true, iptal:'Vazgeç'})` ile onaylanır (Gastro `DG.onay`); ekran dosyasında `<button>` ya da `class="dd-btn"` elle yazılmaz.
 
 ### Form

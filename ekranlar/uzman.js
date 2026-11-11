@@ -109,7 +109,7 @@
   // ---------- Bekleyen talep ----------
   const talepKart = t => {
     const d = bul(t.slug), p = d.paketler.find(x => x.id === t.paket), {gun, ay} = gunAy(t.tarih);
-    return `<div class="dd-yigin-12">${DD.randevuSatir({gun, ay, baslik: d.kisaAd, saat: nk(t.saat), alt: p.ad, durum: 'Onay bekliyor'})}${DD.p('Diyetisyen **onayladığında** bildirim alırsın. Bu adımda ödeme alınmaz.', {ton: 'ikincil'})}${DD.btn({metin: 'Talebi geri çek', tur: 'text', tam: true, veri: {eylem: 'talep-iptal'}})}</div>`;
+    return `<div class="dd-yigin-12">${DD.randevuSatir({gun, ay, baslik: d.kisaAd, saat: nk(t.saat), alt: p.ad, durum: 'Onay bekliyor'})}${DD.p('Diyetisyen **onayladığında** bildirim alırsın. Bu adımda ödeme alınmaz.', {ton: 'ikincil'})}${DD.btn({metin: 'Talebi geri çek', tur: 'yikici-metin', tam: true, veri: {eylem: 'talep-iptal'}})}</div>`;
   };
 
   // ---------- Görüşme ----------

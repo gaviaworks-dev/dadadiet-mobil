@@ -397,7 +397,7 @@
     DD.sheet({
       baslik: 'Kurtarma kodların',
       html: `<div class="dd-yigin">${DD.p('Telefonuna erişemezsen hesabına **yalnız bu kodlarla** girebilirsin. Her kod bir kez kullanılır; güvenli bir yere kaydet.')}<div class="dd-sira">${kodlar.map(k => DD.rozet({metin: k, ton: 'notr'})).join('')}</div></div>`,
-      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Yenile', ikon: 'rotate-right', tur: 'secondary', veri: {eylem: 'kod-yenile'}})}${DD.btn({metin: 'Kopyala', ikon: 'copy', veri: {eylem: 'kod-kopyala'}})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Yenile', ikon: 'rotate-right', tur: 'yikici-ikincil', veri: {eylem: 'kod-yenile'}})}${DD.btn({metin: 'Kopyala', ikon: 'copy', veri: {eylem: 'kod-kopyala'}})}</div>`,
       sonra: d => {
         const a = DD.eylem(d, 'kod-kopyala', () => { navigator.clipboard?.writeText(kodlar.join('\n')).catch(() => {}); DD.toast('Kodlar **kopyalandı**', {ikon: 'copy'}); });
         const b = DD.eylem(d, 'kod-yenile', () => DD.dialog({baslik: 'Kodlar yenilensin mi?', metin: 'Eski kurtarma kodların **hemen ve kalıcı olarak geçersiz** olur; bu işlem geri alınamaz. Yeni kodları güvenli bir yere kaydet.', eylem: 'Yenile', iptal: 'Vazgeç', yikici: true}).then(ok => {
