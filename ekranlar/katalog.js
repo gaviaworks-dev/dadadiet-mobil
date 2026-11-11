@@ -14,7 +14,7 @@
   const {sayi} = DD;
   const BOLUMLER = [
     ['giris', 'Giriş ve onboarding'], ['ana', 'Ana sayfa'], ['tabak', 'Bugün tabağım'], ['takip', 'Takip'], ['uzman', 'Diyetisyen ve mesaj'],
-    ['program', 'Programlar'], ['profil', 'Profil ve ayarlar'], ['entegrasyon', 'Entegrasyonlar'],   // 'Widget’lar ve kilit ekranı' bölümü ikinci yayında (görselleriyle)
+    ['program', 'Programlar'], ['profil', 'Profil ve ayarlar'], ['entegrasyon', 'Entegrasyonlar'], ['widget', 'Widget’lar ve kilit ekranı'],
     ['durum', 'Durumlar (hata, offline, boş, yükleniyor)']
   ];
   // Eşleme tablosu: bölüm → rota desenleri (DD_ROTALAR anahtarları). Her desen tam bir bölümde.
