@@ -4,7 +4,7 @@
  * Bugünün kaydı silinince besinleri de günden düşer, geriAl geri getirir. Bileşen düzeltmesi ve öğün değişimi bağlı kalemlere geçer. yalnizKayit: ogun.js öğün boşalınca kaydı düşürür, günlüğe dokunmaz.
  * Kaynak: DD.durum 'ogun-kayitlari' (yeni ya da değişmiş kayıtlar) + DDV.ogunKayitlari, id ile tekil; silinenler 'ogun-kayit-silinen'. Her değişimde document'e 'dd-kayit' olayı gider.
  * Bugünün plan kaydı (id = öğün id'si) Öğün detayında düzenlenir. Bağlı kalemler Öğün detayında değişince ogun.js kaydı günceller.
- * Diyetisyen paylaşımı 'saglik-paylasim'.tabaklar iznine bağlıdır; izin kapalıyken anahtar pasiftir, kullanıcının tercihi korunur.
+ * Diyetisyen paylaşımı 'saglik-paylasim'.tabaklar iznine bağlıdır (varsayılan kapalı, okuyucu window.DDPaylasim); izin kapalıyken anahtar pasiftir, kullanıcının tercihi korunur, diyetisyen notu gösterilmez.
  */
 (() => {
   const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
@@ -17,7 +17,9 @@
     const l = yeni(), ids = new Set(l.map(k => k.id)), sil = new Set(silinen());
     return [...l, ...(DD.yeniHesap() ? [] : DDV.ogunKayitlari || []).filter(k => !ids.has(k.id))].filter(k => !sil.has(k.id)).sort(sira);
   };
-  const paylasimAcik = () => DD.durum.oku('saglik-paylasim', {}).tabaklar !== false;
+  // Tabak paylaşımı yalnız Veri izinlerim'de açıkça açıldıysa açıktır (Beyar kararı 1: varsayılan kapalı). Okuyucu window.DDPaylasim (veri-izinleri.js).
+  const paylasimAcik = () => (window.DDPaylasim ? DDPaylasim.acik('tabaklar') : DD.durum.oku('saglik-paylasim', {}).tabaklar === true);
+  const paylasimYolu = () => window.DDPaylasim?.ac('tabaklar') || '#/veri-izinleri?paylas=tabaklar';
 
   // ---------- Bugünün kaydı ve günlük: aynı kalori iki yerde kalmasın ----------
   const gunluk = ad => `${DD.durum.oku('bugun-kip', 'bugun') === 'yeni' ? 'yeni' : 'bugun'}-${ad}`;
@@ -125,14 +127,14 @@
   };
   const notBolum = k => DD.bolum({ic: false, baslik: 'Notun', eylem: {html: DD.btn({metin: k.not ? 'Düzenle' : 'Not ekle', tur: 'text', boyut: 'sm', veri: {eylem: 'not'}})}, html: k.not ? DD.bilgi({metin: `**${k.not}**`}) : DD.veriYok('Bu tabak için **henüz not** yok.')});
   const diyetisyenNotu = k => {
-    if (!k.diyetisyenNotu) return '';
+    if (!k.diyetisyenNotu || !paylasimAcik() || k.diyetisyenGorsun === false) return '';   // paylaşılmayan tabağı diyetisyen görmez, notu da yoktur
     const d = DDV.diyetisyenler.find(x => x.slug === DDV.kullanici.diyetisyen);
     return DD.bolum({ic: false, baslik: 'Diyetisyen notu', html: DD.ipucu({ikon: 'user-doctor', baslik: `${d.ad} · ${DD.tarihKisa(k.diyetisyenNotu.tarih)}`, metin: ilkCumleVurgulu(k.diyetisyenNotu.metin), eylem: {metin: 'Mesaj yaz', git: '#/uzman/sohbet'}})});
   };
   const paylasimBolum = k => {
     const acik = paylasimAcik();
-    const anahtar = DD.toggle({ad: 'gorsun', ikon: 'gizlilik', etiket: 'Diyetisyenim görsün', alt: acik ? 'Fotoğraf, öğün, kalori ve notun' : 'Tabak paylaşımın kapalı', secili: acik && k.diyetisyenGorsun, pasif: !acik});
-    const aciklama = acik ? '' : `${DD.p('Bu kayıt **paylaşılmıyor**. Tabak fotoğrafı iznini Sağlık dosyamdan açabilirsin.', {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Sağlık dosyam', ikon: 'tahlil', tur: 'secondary', boyut: 'sm', tam: true, git: '#/saglik'})}`;
+    const anahtar = DD.toggle({ad: 'gorsun', ikon: 'gizlilik', etiket: 'Diyetisyenim görsün', alt: acik ? 'Fotoğraf, öğün, kalori ve notun' : 'Tabak fotoğrafları paylaşılmıyor', secili: acik && k.diyetisyenGorsun, pasif: !acik});
+    const aciklama = acik ? '' : `${DD.p('Tabak fotoğrafların şu an **diyetisyeninle paylaşılmıyor**.', {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Paylaşımı aç', ikon: 'gizlilik', tur: 'secondary', boyut: 'sm', tam: true, git: paylasimYolu()})}`;
     return DD.bolum({ic: false, baslik: 'Paylaşım', html: `<div class="dd-yigin-12">${DD.yuzey(anahtar)}${aciklama}</div>`});
   };
   const kunye = k => DD.kunye([{ikon: 'saat', etiket: 'Saat', deger: nk(k.saat)}, {ikon: 'ogun', etiket: 'Öğün', deger: ogunAd(k.ogun)}, k.lif != null && {ikon: 'lif', etiket: 'Lif', deger: `${ondalik(k.lif, 1)} g`}].filter(Boolean));

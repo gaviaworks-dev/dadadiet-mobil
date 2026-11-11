@@ -1,5 +1,5 @@
 /* SCR-51 Sağlık dosyam (#/saglik): Gastro profil başı. Referans: tasks/referanslar.md Sağlık dosyam, §2.8.
- * Durum: saglik-olcumler [{tarih, kiloKg, belCm, yagYuzde}], saglik-tahliller (ai-tahlil ekler; kanTahlilleri şekli), saglik-paylasim {olcum, tahlil, analiz, tabaklar}; eski kayıtta olmayan alan varsayılan açık sayılır.
+ * Durum: saglik-olcumler [{tarih, kiloKg, belCm, yagYuzde}], saglik-tahliller (ai-tahlil ekler; kanTahlilleri şekli), saglik-paylasim {olcum, tahlil, analiz, tabaklar}; kayıtta olmayan alan DDV.hesap.paylasimTurleri varsayılanını alır (hepsi kapalı).
  * 2 haftalık dönem DDV.gecmis'ten gelir: soluk çizgi ham tartı, kalın çizgi üç günlük ortalama (veride ayrı eğilim yok, türetildi).
  * Cihazdan gelen veriler (E5): son 7 gün adım, kilo, uyku DDV.hesap.cihazVerisi'nden; durum ve rıza okuyucusu window.DDCihazIzin (ekranlar/veri-izinleri.js).
  *   Bağlantı yoksa boş hal → #/cihazlar, rıza yoksa "Rıza ver" DDCihazIzin.rizaAl({kaynak:'saglik'}), silindiyse bilgi satırı. Tartıdan gelen kilo DDV.gecmis ile aynı kayıttır (Ölçümlerin grafiğine de işlenir).
@@ -29,7 +29,8 @@
   const tahliller = () => { if (bosMu()) return []; const e = DD.durum.oku('saglik-tahliller', []); return [...e, ...S().kanTahlilleri.filter(t => !e.some(x => x.id === t.id))]; };
   const analizler = () => (bosMu() ? [] : S().aiAnalizleri);
   const notlar = () => (bosMu() ? [] : S().diyetisyenNotlari);
-  const paylasim = () => ({olcum: true, tahlil: true, analiz: true, tabaklar: true, ...DD.durum.oku('saglik-paylasim', {})});
+  // Varsayılan DDV.hesap.paylasimTurleri (Beyar kararı 1: hepsi kapalı); Veri izinlerim ile aynı okuma.
+  const paylasim = () => ({...Object.fromEntries(DDV.hesap.paylasimTurleri.map(t => [t.id, t.varsayilan])), ...DD.durum.oku('saglik-paylasim', {})});
   const birlestir = (seri, alan) => {
     const m = new Map(seri.map(x => [x.tarih, x]));
     olcumler().filter(o => o[alan] != null).forEach(o => m.set(o.tarih, {tarih: o.tarih, etiket: DD.tarihKisa(o.tarih), deger: o[alan]}));
@@ -131,7 +132,7 @@
   const notBolum = () => DD.akordiyon(notlar().map(n => ({baslik: n.baslik, alt: n.tarihMetin, ikon: 'duzenle', icerik: DD.p(nk(n.metin).replace(/^([^.;]+[.;])/, '**$1**'))})));
   const paylasimBolum = () => {
     const p = paylasim(), d = DDV.diyetisyenler.find(x => x.slug === K().diyetisyen);
-    return `<div class="dd-yigin-12">${DD.p(`Bu bilgileri **${d.ad}** görebilir. Tabakta “Diyetisyenim görsün” anahtarını kapattığın kayıt **paylaşılmaz**.`, {ton: 'ikincil'})}${DD.yuzey(DD.satirlar(PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]}))))}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
+    return `<div class="dd-yigin-12">${DD.p(`Açtığın bilgileri **${d.ad}** görebilir; hiçbiri kendiliğinden açılmaz. Tabakta “Diyetisyenim görsün” anahtarını kapattığın kayıt **paylaşılmaz**.`, {ton: 'ikincil'})}${DD.yuzey(DD.satirlar(PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]}))))}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
   };
 
   // ---------- Cihazdan gelen veriler (E5) ----------

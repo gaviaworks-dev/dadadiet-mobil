@@ -93,11 +93,13 @@
   };
 
   // ---------- Tabaklar: izin kapalıysa fotoğraf çizilmez, izin yolu gösterilir ----------
-  const tabakIzni = () => DD.durum.oku('saglik-paylasim', {}).tabaklar !== false;
+  // Varsayılan kapalı (Beyar kararı 1); okuyucu window.DDPaylasim (veri-izinleri.js). Kapalıyken diyetisyen tabak görmez: şerit ve geri bildirim yerine tek kart.
+  const tabakIzni = () => (window.DDPaylasim ? DDPaylasim.acik('tabaklar') : DD.durum.oku('saglik-paylasim', {}).tabaklar === true);
+  const tabakKapali = () => DD.eylemKart({ikon: 'gizlilik', baslik: 'Tabakların paylaşılmıyor', alt: 'Açarsan diyetisyenin burada görür', git: window.DDPaylasim?.ac('tabaklar') || '#/veri-izinleri?paylas=tabaklar'});
   const kayitlar = () => [...(window.DDKayit?.liste() ?? DDV.ogunKayitlari ?? [])].sort((a, b) => `${b.tarih}${b.saat}`.localeCompare(`${a.tarih}${a.saat}`));
   const ogunAd = id => DDV.bugun.ogunler.find(o => o.id === id)?.ad || id;
   const tabakBolum = () => {
-    if (!tabakIzni()) return DD.eylemKart({ikon: 'gizlilik', baslik: 'Tabak paylaşımın kapalı', alt: 'Sağlık dosyamdan açabilirsin', git: '#/saglik?izin=1'});
+    if (!tabakIzni()) return tabakKapali();
     const l = kayitlar(), paylasilan = l.filter(k => k.foto && k.diyetisyenGorsun !== false).slice(0, 6), notlu = l.filter(k => k.diyetisyenNotu);
     if (!paylasilan.length && !notlu.length) return DD.eylemKart({ikon: 'kamera', baslik: 'İlk tabağını çek', alt: 'Diyetisyenin burada görür', git: '#/ai/kamera?mod=tabak'});
     const not = notlu.length ? DD.eylemKart({ikon: 'duzenle', baslik: `Diyetisyenin ${notlu.length} tabağına not bıraktı`, alt: `Son not ${DD.tarihKisa(notlu[0].diyetisyenNotu.tarih || notlu[0].tarih)}`, git: notlu.length === 1 ? `#/kayit/${notlu[0].id}` : '#/tabaklarim'}) : '';
@@ -170,14 +172,14 @@
       {baslik: 'Öğün geri bildirimleri', eylem: 'Tabaklarım', git: '#/tabaklarim', html: geriBildirim()},
       {baslik: 'Bu haftanın menüsü', eylem: 'Program', git: `#/program/${H().program}`, html: menuBolum()},
       {baslik: 'Mesajlar', eylem: 'Tümü', git: '#/uzman/sohbet', html: mesajBolum()},
-      {baslik: 'Tabakların', html: tabakBolum()},
+      tabakIzni() && {baslik: 'Tabakların', html: tabakBolum()},
       {baslik: 'Diyetisyen notları', html: notlarBolum()},
       {baslik: 'Paketin', html: paketBolum(d)},
       {baslik: 'Daha fazlası', html: kisayollar()}
     ]);
   };
   // K7: onay değil görülme bilgisi; diyetisyenin notu varsa "gördü" sayılır.
-  const geriBildirim = () => { const l = DDV.ogunKayitlari.filter(k => k.foto && k.diyetisyenGorsun); return DD.yuzey(DD.satirlar([...l.filter(k => !k.diyetisyenNotu).slice(0, 1), ...l.filter(k => k.diyetisyenNotu).slice(0, 3)].map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu?.metin ?? 'Paylaşıldı', ozet: true, ek: DD.durumRozet(k.diyetisyenNotu ? {metin: 'Diyetisyen gördü', ton: 'basari', ikon: 'onay'} : {metin: 'Bekliyor', ton: 'notr', ikon: 'clock'}), git: `#/kayit/${k.id}`})))); };
+  const geriBildirim = () => { if (!tabakIzni()) return tabakKapali(); const l = DDV.ogunKayitlari.filter(k => k.foto && k.diyetisyenGorsun); return DD.yuzey(DD.satirlar([...l.filter(k => !k.diyetisyenNotu).slice(0, 1), ...l.filter(k => k.diyetisyenNotu).slice(0, 3)].map(k => ({gorsel: k.foto, baslik: k.ad, alt: k.diyetisyenNotu?.metin ?? 'Paylaşıldı', ozet: true, ek: DD.durumRozet(k.diyetisyenNotu ? {metin: 'Diyetisyen gördü', ton: 'basari', ikon: 'onay'} : {metin: 'Bekliyor', ton: 'notr', ikon: 'clock'}), git: `#/kayit/${k.id}`})))); };
   const bos = () => {
     const t = talepOku();
     return DD.gulucuk({gorsel: KAPAK, etiket: 'Uzmanım', baslik: 'Yanında bir diyetisyen', alt: 'Görüşme, menü ve mesaj tek yerde', ust: true}) + DD.bolumler([

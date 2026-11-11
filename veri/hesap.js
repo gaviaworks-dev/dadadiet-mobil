@@ -18,9 +18,9 @@
  *   saglikIzinleri:[{ id, ad, alt, yon ('gelen'|'giden'), acik }], siklik:[[deger, ad]], esitlenmeyen:[[ikon, baslik, alt]],
  *   veriGruplari:[{ id, ad, ikon, saklama, ilk (ISO) }] · kayıt sayısı ekranda DDV'den türetilir,
  *   saklamaSecenek:[[deger, ad]], dondurmaSure:[[deger, ad]], ayrilmaNedeni:[[deger, ad]],
- *   alerjenler:[{id, ad}], sevmedikOneri:[ad], paylasimTurleri:[{ id, etiket, alt, ikon, varsayilan }] (ilk dördü ekranlar/saglik.js PAYLASIM ile aynı),
+ *   alerjenler:[{id, ad}], sevmedikOneri:[ad], paylasimTurleri:[{ id, etiket, alt, ikon, varsayilan }] (ilk dördü ekranlar/saglik.js PAYLASIM ile aynı; Beyar kararı 1, KVKK: hepsi varsayılan KAPALI, üye tek tek açar),
  *   izinIstekleri:[{ tur, tarih, not }], izinGecmisi:[{ tarih, metin, ikon }], izinSureleri:[[deger, ad, gun|null]],
- *   cihazIzin:{ riza, rizaTarih (ISO|null), paylas, turler:{ adim, kilo, uyku }, silindi (ISO|null), aktarim:{ zaman, bicim }|null }  · DD.durum 'cihaz-izin' başlangıç değeri (E5). Rıza ve diyetisyen paylaşımı varsayılan kapalı; genel sağlık rızasına (veri-izinleri.riza) bağlı kapsam,
+ *   cihazIzin:{ riza, rizaTarih (ISO|null), paylas, turler:{ adim, kilo, uyku }, silindi (ISO|null), aktarim:{ zaman, bicim }|null }  · DD.durum 'cihaz-izin' başlangıç değeri (E5). Rıza, diyetisyen paylaşımı ve paylaşılan türler varsayılan kapalı (Beyar kararı 1); genel sağlık rızasına (veri-izinleri.riza) bağlı kapsam,
  *   cihazRiza:{ metin, detay, genel (genel rıza yokken sheet'teki açıklama), ozet (taahhüdün tek cümlesi, **vurgu**), taahhut:[[ikon, baslik, alt]] } · sağlık uygulamalarından gelen veri açık rıza kapsamı.
  *     Kapsamdaki okunan ve yazılan türler sabit yazılmaz: DDV.cihazlar.gruplar + turler (veri/cihazlar.js, E1) okunur,
  *   cihazTurleri:[{ id ('adim'|'kilo'|'uyku'), etiket, alt, ikon, cihaz }] · diyetisyenle paylaşılabilen cihaz verisi türleri,
@@ -131,15 +131,12 @@ DDV.hesap = {
     {tur: 'test', tarih: '2026-11-02', not: 'Yeme alışkanlığı testindeki yanıtlarını menüne yansıtmak için.'}
   ],
   izinGecmisi: [
-    {tarih: '2026-10-26', metin: 'Tabak fotoğraflarım paylaşıma açıldı', ikon: 'tabak'},
-    {tarih: '2026-09-18', metin: 'AI analizlerim paylaşıma açıldı', ikon: 'wand-magic-sparkles'},
-    {tarih: '2026-09-15', metin: 'Ölçümlerim ve kan tahlillerim paylaşıma açıldı', ikon: 'user-doctor'},
     {tarih: '2025-11-08', metin: 'Sağlık verisi açık rızası verildi', ikon: 'shield-halved'}
   ],
   izinSureleri: [['30', '30 gün', 30], ['90', '90 gün', 90], ['surekli', 'Ben geri çekene kadar', null]],
 
   // Sağlık uygulamalarından (Apple Health, Health Connect) gelen veri. Metin taslaktır (hukuk onayı açık kalem: tasks/handoff.md); ekranda iç not gösterilmez.
-  cihazIzin: {riza: false, rizaTarih: null, paylas: false, turler: {adim: true, kilo: true, uyku: true}, silindi: null, aktarim: null},
+  cihazIzin: {riza: false, rizaTarih: null, rizaKaynak: null, paylas: false, turler: {adim: false, kilo: false, uyku: false}, silindi: null, aktarim: null},
   cihazRiza: {
     metin: 'Bağladığım sağlık uygulamasından (Apple Health ya da Health Connect) aşağıda sayılan ve bağlantı ayarında açık bıraktığım verilerimin okunmasına, Sağlık dosyamda gösterilmesine ve bana özel beslenme önerileri sunulması amacıyla Dada Diet tarafından işlenmesine; ayrıca Dada Diet’e girdiğim aşağıdaki kayıtların sağlık uygulamama yazılmasına açık rıza veriyorum.',
     detay: 'Hangi türün okunacağını ya da yazılacağını bağlantı ayarından tek tek seçersin; kapattığın tür okunmaz. Rızanı dilediğin an geri alabilirsin; geri aldığında yeni veri okunmaz ve yazılmaz, mevcut cihaz kayıtların sen silmedikçe saklanır.',

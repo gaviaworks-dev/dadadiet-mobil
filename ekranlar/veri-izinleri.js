@@ -1,16 +1,20 @@
 /* Veri izinlerim (#/veri-izinleri): web hesabim/veri-izinlerim + uye-veri-izinlerim.js eşi. Açık rıza (K10, metin taslak), diyetisyenle paylaşım (veri türü bazında), bekleyen izin istekleri, izin ve erişim geçmişi, haklar.
- * Durum: veri-izinleri {riza, esitle} (profil ve kanon rizaSheet ile ortak; esitle korunur), saglik-paylasim {olcum, tahlil, analiz, tabaklar, gunluk, test} (ekranlar/saglik.js ile aynı anahtar; ilk dördü varsayılan açık, gunluk ve test kapalı),
+ * Durum: veri-izinleri {riza, esitle} (profil ve kanon rizaSheet ile ortak; esitle korunur), saglik-paylasim {olcum, tahlil, analiz, tabaklar, gunluk, test} (ekranlar/saglik.js ile aynı anahtar; Beyar kararı 1: hepsi varsayılan kapalı, üye tek tek açar),
  *   hesap-ayar.izin {hareket:[{tarih, metin, ikon}] yeniden eskiye, cevap:{tur:'onay'|'red'}, sure:{tur:metin}}. Seed: DDV.hesap.izinIstekleri, izinGecmisi, paylasimTurleri.
  * Diyetisyeni olmayan (yeni hesap) üyede paylaşım yerine boş hal. ?gecmis=erisim erişim kaydına iner, ?hal=hata bağlantı hatası.
- * Cihaz verisi (E5): cihaz-izin {riza, rizaTarih, rizaKaynak, paylas, turler:{adim, kilo, uyku}, silindi, aktarim} (varsayılan DDV.hesap.cihazIzin; rıza ve paylaşım kapalı).
+ * Cihaz verisi (E5): cihaz-izin {riza, rizaTarih, rizaKaynak, paylas, turler:{adim, kilo, uyku}, silindi, silKesik (silme bağlantı kesilerek mi yapıldı), aktarim} (varsayılan DDV.hesap.cihazIzin; rıza ve paylaşım kapalı).
  *   Kapsam genel rızaya bağlı: etkin rıza = veri-izinleri.riza && cihaz-izin.riza. veri-izinleri'nde riza alanı yoksa (yalnız esitle yazılmışsa) onboarding kvkk varsayılanı geçerli.
  *   Diyetisyen cihaz verisini yalnız etkin rıza + paylas + tür açıkken görür. Cihaz kaydı yalnız rıza en az bir kez verilmiş ve silinmemişse vardır.
  *   Bağlantı E1'in cihaz-baglanti {apple-health|health-connect:{bagli, sonEsitleme}} anahtarından okunur (E1 kaydı hiç yoksa eski veri-izinleri.esitle).
  *   window.DDCihazIzin (E1, E2, saglik.js ortak sözleşmesi):
  *     rizaAl({kaynak}) → Promise<boolean>: etkin rıza varsa sheet açmadan true; yoksa rıza sheet'i (kapsam DDV.cihazlar'dan; genel rıza yoksa onu da ayrı onay kutusuyla ister). Onayda cihaz-izin.riza (+ gerekirse veri-izinleri.riza) ve hareket kaydı yazılır.
- *     cihazVerisiSil(servisId): bağlantı kesilip veri silinince silindi = bugün, aktarim = null, hareket kaydı. → durum()
- *     durum(): {genelRiza, cihazRiza, riza (etkin), rizaTarih, rizaKaynak, paylas, turler, paylasilan:[id], baglanti:{id, ad, son}|null, veriGun, silindi, aktarim}
+ *     cihazVerisiSil(servisId): bağlantı kesilip veri silinince silindi = bugün, silKesik = true, aktarim = null, hareket kaydı. → durum(). Argümansız (Veri izinlerim'den, bağlantı sürerken) silKesik = false.
+ *     baglandi(servisId): bağlantı (yeniden) kurulunca çağrılır; kes-sil sonrası silme kalkar, sağlık uygulamasındaki geçmiş yeniden okunur (cihazdaki veri silinmemişti). → durum()
+ *       Çağrılmasa da kes-sil sonrası bağlantı yeniden kurulduysa veri görünür (silKesik + bağlı).
+ *     Rıza geri alınınca (genel ya da cihaz) cihaz paylaşımı ve türleri sıfırlanır; rıza yeniden verilince paylaşım kapalı kalır (Beyar kararı 1).
+ *     durum(): {genelRiza, cihazRiza, riza (etkin), rizaTarih, rizaKaynak, paylas, turler, paylasilan:[id], baglanti:{id, ad, son, duraklatildi (bağlı ama etkin rıza yok: eşitleme durur)}|null, veriGun, silindi, aktarim}
  *     okuyucular: oku, baglanti, rizaEtkin, gunler, ozet, paylasilan, turler.
+ *   ?paylas=<tür>|sec "Paylaşacaklarını seç" sheet'i açık gelir (tür önceden işaretli; window.DDPaylasim.ac(id) bu adresi verir).
  *   ?riza=cihaz rıza sheet'i açık gelir (rıza varsa cihaz bölümüne iner), ?onizleme=1 "Diyetisyenim bunu görür" açık gelir, ?cihaz=1 paylaşım bölümüne (rıza yoksa rıza bölümüne) iner. */
 (() => {
   const H = () => DDV.hesap;
@@ -70,7 +74,7 @@
   const sonMetin = b => (b.son ? `son eşitleme ${kucukBas(nk(b.son))}` : 'ilk eşitleme bekleniyor');
   const durum = () => {
     const c = ciOku();
-    return {genelRiza: !!izinler().riza, cihazRiza: !!c.riza, riza: rizaEtkin(), rizaTarih: c.rizaTarih || null, rizaKaynak: c.rizaKaynak || null, paylas: !!c.paylas, turler: {...c.turler}, paylasilan: paylasilan().map(t => t.id), baglanti: baglanti(), veriGun: cihazGunler().length, silindi: c.silindi || null, aktarim: c.aktarim || null};
+    return {genelRiza: !!izinler().riza, cihazRiza: !!c.riza, riza: rizaEtkin(), rizaTarih: c.rizaTarih || null, rizaKaynak: c.rizaKaynak || null, paylas: !!c.paylas, turler: {...c.turler}, paylasilan: paylasilan().map(t => t.id), baglanti: baglanti() ? {...baglanti(), duraklatildi: !rizaEtkin()} : null, veriGun: cihazGunler().length, silindi: silinmis(c) ? c.silindi : null, aktarim: c.aktarim || null};
   };
   const cihazVerisiSil = servisId => {
     ciYaz({silindi: DD.bugunIso(), aktarim: null});
@@ -91,10 +95,13 @@
     if (!acikSoz) acikSoz = new Promise(bitir => cihazRizaSheet(kaynak, bitir)).finally(() => { acikSoz = null; });
     return acikSoz;
   };
-  window.DDCihazIzin = {rizaAl, cihazVerisiSil, durum, oku: ciOku, baglanti, rizaEtkin, gunler: cihazGunler, ozet, paylasilan, turler: CT};
+  // Genel paylaşım okuyucusu (kayit, uzman, uzman-sohbet, saglik ortak): tür yalnız açıkça açıldıysa açıktır; ac(id) seçim sayfasının adresi.
+  window.DDPaylasim = {acik: id => paylasim()[id] === true, durum: () => ({...paylasim()}), ac: id => `#/veri-izinleri?paylas=${id || 'sec'}`};
+  window.DDCihazIzin = {rizaAl, cihazVerisiSil, baglandi, durum, oku: ciOku, baglanti, rizaEtkin, gunler: cihazGunler, ozet, paylasilan, turler: CT};
 
-  const paylasAc = () => { const c = ciOku(); ciYaz({paylas: true, turler: Object.values(c.turler).some(Boolean) ? c.turler : Object.fromEntries(CT().map(t => [t.id, true]))}); kaydet('Cihaz verisi paylaşıma açıldı', 'mobile-screen'); };
-  const cihazPaylasKapat = () => { if (ciOku().paylas) { ciYaz({paylas: false}); kaydet('Cihaz verisi paylaşımı kapatıldı', 'mobile-screen'); } };
+  // Cihaz paylaşımı anahtarı yalnız tür listesini açar; hiçbir tür kendiliğinden açılmaz (Beyar kararı 1).
+  const paylasAc = () => ciYaz({paylas: true});
+  const cihazPaylasKapat = () => { if (ciOku().paylas) { ciYaz({paylas: false, turler: Object.fromEntries(CT().map(t => [t.id, false]))}); kaydet('Cihaz verisi paylaşımı kapatıldı', 'mobile-screen'); } };
   const gunEkle = n => { const d = DD.simdi(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
   // ---------- Bölümler ----------
@@ -115,11 +122,11 @@
   // Cihaz verisini diyetisyenle paylaşma: ölçüm paylaşımından ayrı anahtar.
   const cihazPaylasimBolum = () => {
     const u = uzman(), c = ciOku(), r = rizaEtkin(), acik = r && c.paylas, n = CT().filter(t => c.turler[t.id]).length;
-    const alt = !r ? 'Önce sağlık uygulaması rızası gerekir' : acik ? `${n} veri türü açık` : 'Kapalı · diyetisyenin görmez';
+    const alt = !r ? 'Önce sağlık uygulaması rızası gerekir' : acik ? (n ? `${n} veri türü açık` : 'Paylaşmak istediğin türü aç') : 'Kapalı · diyetisyenin görmez';
     return `<div class="dd-yigin-12" id="cihaz-paylas">${DD.p(`Cihaz verin ölçümlerinden **ayrı bir izindir**; kapalıyken ${u.kisaAd || u.ad} bu veriyi görmez.`, {ton: 'ikincil'})}${DD.satirlar([
       DD.toggle({ad: 'cihaz-paylas', ikon: 'mobile-screen', etiket: 'Cihaz verimi paylaş', alt, secili: acik, pasif: !r}),
       ...(acik ? CT().map(t => DD.toggle({ad: `cihaz-tur-${t.id}`, ikon: t.ikon, etiket: t.etiket, alt: t.alt, secili: !!c.turler[t.id]})) : [])
-    ])}${acik && n ? DD.eylemKart({ikon: 'eye', baslik: 'Diyetisyenim bunu görür', alt: 'Danışan özetindeki görünümün', veri: {eylem: 'onizleme'}}) : DD.veriYok(r ? 'Paylaşımı açtığında diyetisyeninin **göreceği özeti** buradan görürsün.' : 'Önce **sağlık uygulaması rızanı** ver; sonra neyi paylaşacağını seçersin.')}</div>`;
+    ])}${r ? '' : DD.veriYok('Önce **sağlık uygulaması rızanı** ver; sonra neyi paylaşacağını tek tek seçersin.')}</div>`;
   };
   const istekBolum = () => {
     const u = uzman(), l = istekler();
@@ -129,7 +136,7 @@
     const u = uzman();
     if (!u) return DD.bos({ikon: 'user-doctor', baslik: 'Henüz diyetisyenin yok', metin: 'Bir diyetisyenle çalışmaya başladığında **neyi paylaşacağını** buradan seçersin.', eylem: {metin: 'Diyetisyen bul', ikon: 'magnifying-glass', git: '#/uzman/bul'}});
     const p = paylasim(), s = izinAyar().sure, acik = TUR().filter(t => p[t.id]).length;
-    return `<div class="dd-yigin-12">${DD.p(`Seçtiğin veri türlerini **${u.ad}** görebilir. Değişiklik anında kaydedilir ve diyetisyen paneline yansır.`, {ton: 'ikincil'})}${DD.satirlar([DD.toggle({ad: 'paylas-genel', ikon: 'user-doctor', etiket: 'Diyetisyenimle paylaş', alt: acik ? `${acik} veri türü açık` : 'Bütün erişimler kapalı', secili: acik > 0}), ...TUR().map(t => DD.toggle({ad: `paylas-${t.id}`, ikon: t.ikon, etiket: t.etiket, alt: p[t.id] && s[t.id] ? `Açık · ${s[t.id]}` : t.alt, secili: p[t.id]}))])}${acik < TUR().length ? DD.btn({metin: 'Süreli izin ver', ikon: 'calendar-plus', tur: 'secondary', tam: true, veri: {eylem: 'yeni-izin'}}) : ''}${acik ? DD.btn({metin: 'Bütün izinleri geri çek', ikon: 'ban', tur: 'text', tam: true, veri: {eylem: 'hepsini-cek'}}) : ''}</div>`;
+    return `<div class="dd-yigin-12" id="paylasim">${DD.p(`Hiçbir veri türü kendiliğinden açılmaz; **${u.ad}** yalnız senin açtığın türleri görür. Değişiklik anında kaydedilir ve diyetisyen paneline yansır.`, {ton: 'ikincil'})}${DD.eylemKart({ikon: 'eye', baslik: 'Diyetisyenim bunu görür', alt: acik || paylasilan().length ? 'Danışan özetindeki görünümün' : 'Şu an hiçbir verini görmüyor', veri: {eylem: 'onizleme'}})}${DD.satirlar([DD.toggle({ad: 'paylas-genel', ikon: 'user-doctor', etiket: 'Diyetisyenimle paylaş', alt: acik ? `${acik} veri türü açık` : 'Hiçbir veri paylaşılmıyor', secili: acik > 0}), ...TUR().map(t => DD.toggle({ad: `paylas-${t.id}`, ikon: t.ikon, etiket: t.etiket, alt: p[t.id] && s[t.id] ? `Açık · ${s[t.id]}` : t.alt, secili: p[t.id]}))])}${acik < TUR().length ? DD.btn({metin: 'Süreli izin ver', ikon: 'calendar-plus', tur: 'secondary', tam: true, veri: {eylem: 'yeni-izin'}}) : ''}${acik ? DD.btn({metin: 'Bütün izinleri geri çek', ikon: 'ban', tur: 'text', tam: true, veri: {eylem: 'hepsini-cek'}}) : ''}</div>`;
   };
   const gecmisBolum = ctx => {
     const sec = ctx.gecmis ||= ctx.sorgu.gecmis === 'erisim' ? 'erisim' : 'hareket', u = uzman();
@@ -139,6 +146,8 @@
     return `<div class="dd-yigin-12">${DD.segment({ad: 'gecmis', etiket: 'Geçmiş', secili: sec, ogeler: [{ad: 'İzin hareketlerin', deger: 'hareket'}, {ad: 'Erişim kaydı', deger: 'erisim'}]})}${l.length ? DD.satirlar(l) : DD.veriYok(sec === 'hareket' ? 'Henüz **izin hareketin** yok.' : 'Henüz **erişim kaydı** yok.')}</div>`;
   };
   const cihazHakSatirlar = () => {
+  // Erişim kaydı yalnız açık türler için olabilir; hiçbir şey paylaşılmıyorsa kayıt yoktur.
+  const erisimKonu = () => { const p = paylasim(), l = [p.olcum && 'ölçüm', p.tahlil && 'tahlil'].filter(Boolean); return l.length ? `${l.join(' ve ')} kayıtların` : ''; };
     const c = ciOku(), g = cihazGunler();
     if (!g.length) return c.silindi ? [{ikon: 'mobile-screen', baslik: 'Cihaz verin', alt: `${DD.tarihUzun(c.silindi)} tarihinde silindi`, duz: true}] : [];
     return [
@@ -168,8 +177,8 @@
     const kapali = TUR().filter(t => !paylasim()[t.id]);
     let sure = 'surekli';
     DD.sheet({
-      baslik: 'Süreli izin ver',
-      html: `<div class="dd-yigin">${DD.p(`**${uzman().ad}** seçtiğin verileri seçtiğin süre boyunca görür; istediğin an geri çekebilirsin.`, {ton: 'ikincil'})}${DD.alan({etiket: 'Paylaşılacak veriler', html: kapali.map(t => DD.checkbox({ad: `yeni-${t.id}`, etiket: t.etiket, alt: t.alt})).join('')})}${DD.alan({etiket: 'İzin süresi', html: DD.cipler({ad: 'izin-sure', tur: 'tek', serit: false, secili: sure, ogeler: H().izinSureleri.map(([deger, metin]) => ({deger, metin}))})})}<div data-yuva="hata"></div></div>`,
+      baslik, kapaninca: () => { if (DD.aktif()?.ad === 'veri-izinleri') DD.tazele(); },
+      html: `<div class="dd-yigin">${DD.p(`**${uzman().ad}** seçtiğin verileri seçtiğin süre boyunca görür; istediğin an geri çekebilirsin.`, {ton: 'ikincil'})}${DD.alan({etiket: 'Paylaşılacak veriler', html: kapali.map(t => DD.checkbox({ad: `yeni-${t.id}`, etiket: t.etiket, alt: t.alt, secili: t.id === sec})).join('')})}${DD.alan({etiket: 'İzin süresi', html: DD.cipler({ad: 'izin-sure', tur: 'tek', serit: false, secili: sure, ogeler: H().izinSureleri.map(([deger, metin]) => ({deger, metin}))})})}<div data-yuva="hata"></div></div>`,
       altBar: DD.btn({metin: 'İzni ver', ikon: 'onay', tam: true, veri: {eylem: 'izin-ver'}}),
       sonra: d => {
         const c = [
@@ -223,17 +232,10 @@
   // Diyetisyen panelindeki danışan özetinin mobil eşi: cihaz değerleri rozetli, elle girilenler ayrı grupta.
   const onizlemeSheet = () => {
     const u = uzman(), l = paylasilan(), k = DDV.kullanici, o = ozet(), p = paylasim();
-    if (!l.length) {
-      const ad = u ? (u.kisaAd || u.ad) : 'Diyetisyenin', riza = rizaEtkin();
-      const metin = !u ? 'Bir diyetisyenle çalışmaya başladığında **neyi paylaşacağını** seçersin.' : !riza ? `Sağlık uygulaması rızan olmadan **${ad}** cihaz verini görmez.` : `Cihaz paylaşımın kapalı; **${ad}** cihaz verini görmez.`;
-      const eylem = !u ? null : !riza ? {metin: 'Rıza ver', ikon: 'shield-halved', veri: {eylem: 'oniz-riza'}} : {metin: 'Paylaşımı aç', ikon: 'mobile-screen', veri: {eylem: 'oniz-paylas'}};
-      DD.sheet({baslik: 'Diyetisyenim bunu görür', html: DD.bos({ikon: 'eye-slash', baslik: 'Cihaz verin paylaşılmıyor', metin, eylem}), sonra: d => {
-        const c = [
-          DD.eylem(d, 'oniz-riza', () => { d.kapat(); rizaAl({kaynak: 'onizleme'}); }),
-          DD.eylem(d, 'oniz-paylas', () => { d.kapat(); paylasAc(); DD.tazele(); onizlemeSheet(); })
-        ];
-        return () => c.forEach(f => f());
-      }});
+    const genelAcik = TUR().filter(t => p[t.id]);
+    if (!u || (!l.length && !genelAcik.length)) {
+      const ad = u ? (u.kisaAd || u.ad) : 'Diyetisyenin';
+      DD.sheet({baslik: 'Diyetisyenim bunu görür', html: DD.bos({ikon: 'eye-slash', baslik: 'Henüz hiçbir veriyi paylaşmıyorsun', metin: u ? `**${ad}** şu an sağlık verilerinden hiçbirini görmüyor. Neyi paylaşacağını tek tek seçersin; seçmediğin tür kapalı kalır.` : 'Bir diyetisyenle çalışmaya başladığında **neyi paylaşacağını** tek tek seçersin.', eylem: u ? {metin: 'Paylaşacaklarını seç', ikon: 'user-doctor', veri: {eylem: 'oniz-sec'}} : {metin: 'Diyetisyen bul', ikon: 'magnifying-glass', git: '#/uzman/bul'}}), sonra: d => DD.eylem(d, 'oniz-sec', () => { d.kapat(); yeniIzinSheet('Paylaşacaklarını seç'); })});
       return;
     }
     const satirlar = {
@@ -253,7 +255,7 @@
     const etiket = (m, rozet = '') => `<div class="dd-ara"><p class="dd-t-label dd-ton-ikincil">${m}</p>${rozet}</div>`;
     DD.sheet({
       baslik: 'Diyetisyenim bunu görür', tam: true,
-      html: `<div class="dd-yigin">${DD.p(`**${u.ad}** danışan özetinde seni böyle görür. Sağlık uygulamandan gelenler **Cihazdan**, elle girdiklerin **Elle** etiketiyle ayrı gösterilir.`, {ton: 'ikincil'})}${DD.kart({html: `<div class="dd-yigin-12">${DD.satir({avatar: {harf: k.basHarf || k.ad[0], boyut: 40}, baslik: `${k.ad} ${k.soyad}`, alt: `Danışan özeti · son ${o ? o.gun : 7} gün`})}<div class="dd-yigin-8">${etiket(baglanti()?.ad || 'Sağlık uygulaması', rozetCihaz())}${cihaz.length ? DD.satirlar(cihaz) : DD.veriYok('Paylaşılacak **cihaz kaydın** yok.')}</div><div class="dd-yigin-8">${etiket('Elle girdiklerin', rozetElle())}${p.olcum ? DD.satirlar(elle) : DD.veriYok('Ölçüm paylaşımın kapalı; **elle girdiğin ölçümleri** görmez.')}</div></div>`})}${gizli.length ? `<div class="dd-yigin-8">${etiket('Görmedikleri')}${DD.satirlar(gizli.map(t => ({ikon: 'eye-slash', baslik: t.etiket, alt: 'Paylaşım kapalı'})))}</div>` : ''}${DD.gizlilikBant('Bir türü kapattığında diyetisyenin **o veriyi artık görmez**.')}</div>`
+      html: `<div class="dd-yigin">${DD.p(`**${u.ad}** danışan özetinde seni böyle görür. Sağlık uygulamandan gelenler **Cihazdan**, elle girdiklerin **Elle** etiketiyle ayrı gösterilir.`, {ton: 'ikincil'})}${DD.kart({html: `<div class="dd-yigin-12">${DD.satir({avatar: {harf: k.basHarf || k.ad[0], boyut: 40}, baslik: `${k.ad} ${k.soyad}`, alt: `Danışan özeti · son ${o ? o.gun : 7} gün`})}${l.length ? `<div class="dd-yigin-8">${etiket(baglanti()?.ad || 'Sağlık uygulaması', rozetCihaz())}${cihaz.length ? DD.satirlar(cihaz) : DD.veriYok('Paylaşılacak **cihaz kaydın** yok.')}</div>` : ''}${p.olcum ? `<div class="dd-yigin-8">${etiket('Elle girdiklerin', rozetElle())}${DD.satirlar(elle)}</div>` : ''}${diger.length ? `<div class="dd-yigin-8">${etiket('Ayrıca gördükleri')}${DD.satirlar(diger.map(t => ({ikon: t.ikon, baslik: t.etiket, alt: t.alt})))}</div>` : ''}</div>`})}${gizli.length ? `<div class="dd-yigin-8">${etiket('Görmedikleri')}${DD.satirlar(gizli.map(t => ({ikon: 'eye-slash', baslik: t.etiket, alt: 'Paylaşım kapalı'})))}</div>` : ''}${DD.gizlilikBant('Bir türü kapattığında diyetisyenin **o veriyi artık görmez**.')}</div>`
     });
   };
   const aktarSheet = () => {
@@ -316,12 +318,17 @@
           if (v) { DD.durum.yaz('veri-izinleri', {...izinler(), riza: true}); kaydet('Sağlık verisi açık rızası verildi', 'shield-halved'); DD.tazele(); DD.toast('**Açık rızan** kaydedildi', {tur: 'basari'}); return; }
           const cihazAcik = ciOku().riza;
           DD.dialog({baslik: 'Rızanı geri al', metin: `Yeni sağlık kaydın **hesabına aktarılmaz**, hassasiyetlerin önerilerde kullanılmaz${cihazAcik ? ', sağlık uygulamandan veri okunmaz' : ''}. Mevcut kayıtların sen silmedikçe saklanır.`, eylem: 'Geri al', iptal: 'Vazgeç', yikici: true}).then(ok => {
-            if (ok) { DD.durum.yaz('veri-izinleri', {...izinler(), riza: false}); if (cihazAcik) ciYaz({riza: false, paylas: false}); kaydet('Sağlık verisi açık rızası geri alındı', 'shield-halved'); DD.toast('**Açık rızanı** geri aldın', {tur: 'uyari'}); }
+      if (!ctx.sheetAcildi && ctx.sorgu.paylas && uzman()) {
+        ctx.sheetAcildi = true;
+        const id = TUR().some(t => t.id === ctx.sorgu.paylas) ? ctx.sorgu.paylas : null;
+        if (id && paylasim()[id]) in_('#paylasim'); else yeniIzinSheet('Paylaşacaklarını seç', id);
+      }
+            if (ok) { DD.durum.yaz('veri-izinleri', {...izinler(), riza: false}); if (cihazAcik) ciYaz({riza: false, paylas: false, turler: kapaliTurler()}); kaydet('Sağlık verisi açık rızası geri alındı', 'shield-halved'); DD.toast('**Açık rızanı** geri aldın', {tur: 'uyari'}); }
             DD.tazele();
           });
         }),
         DD.on(kok, 'paylas-genel', v => {
-          if (v) { ['olcum', 'tahlil', 'analiz', 'tabaklar'].forEach(id => { if (!paylasim()[id]) turDegis(id, true); }); DD.tazele(); DD.toast('Paylaşım **yeniden açıldı**', {tur: 'basari'}); return; }
+          if (v) { yeniIzinSheet('Paylaşacaklarını seç'); return; }
           DD.dialog({baslik: 'Bütün izinler geri çekilsin mi?', metin: 'Diyetisyenin **hiçbir sağlık verini** göremez. İstediğin zaman yeniden açabilirsin.', eylem: 'Geri çek', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) { TUR().forEach(t => { if (paylasim()[t.id]) turDegis(t.id, false); }); cihazPaylasKapat(); DD.toast('Bütün erişimler **durdu**', {tur: 'uyari'}); } DD.tazele(); });
         }),
         ...TUR().map(t => DD.on(kok, `paylas-${t.id}`, v => { turDegis(t.id, v); DD.tazele(); DD.toast(v ? `**${t.etiket}** paylaşılıyor` : `**${t.etiket}** paylaşımı kapatıldı`, {ikon: 'gizlilik', yerine: true}); })),
@@ -332,18 +339,18 @@
         DD.on(kok, 'gecmis', v => { ctx.gecmis = v; DD.tazele(); }),
         DD.on(kok, 'cihaz-riza', v => {
           if (v) { rizaAl({kaynak: 'veri-izinleri'}); return; }
-          DD.dialog({baslik: 'Sağlık uygulaması rızanı geri al', metin: 'Sağlık uygulamandan **yeni veri okunmaz**, diyetisyenin cihaz verini görmez. Mevcut cihaz kayıtların sen silmedikçe saklanır.', eylem: 'Geri al', iptal: 'Vazgeç', yikici: true}).then(ok => {
-            if (ok) { ciYaz({riza: false}); kaydet('Sağlık uygulaması verisi rızası geri alındı', 'heart-pulse'); DD.toast('Sağlık uygulaması **rızanı geri aldın**', {tur: 'uyari'}); }
+          DD.dialog({baslik: 'Sağlık uygulaması rızanı geri al', metin: 'Sağlık uygulamandan **yeni veri okunmaz**, bağlantın duraklar ve cihaz verisi paylaşımın kapanır. Mevcut cihaz kayıtların sen silmedikçe saklanır.', eylem: 'Geri al', iptal: 'Vazgeç', yikici: true}).then(ok => {
+            if (ok) { const p = ciOku().paylas; ciYaz({riza: false, paylas: false, turler: kapaliTurler()}); kaydet('Sağlık uygulaması verisi rızası geri alındı', 'heart-pulse'); if (p) kaydet('Cihaz verisi paylaşımı kapatıldı', 'mobile-screen'); DD.toast('Sağlık uygulaması **rızanı geri aldın**', {tur: 'uyari'}); }
             DD.tazele();
           });
         }),
         DD.on(kok, 'cihaz-paylas', v => {
-          if (v) { paylasAc(); DD.tazele(); DD.toast('Cihaz verin **diyetisyeninle paylaşılıyor**', {tur: 'basari'}); return; }
+          if (v) { paylasAc(); DD.tazele(); DD.toast('Paylaşmak istediğin **türü tek tek aç**', {ikon: 'gizlilik', yerine: true}); return; }
           cihazPaylasKapat(); DD.tazele(); DD.toast('Cihaz verisi paylaşımı **kapatıldı**', {ikon: 'gizlilik', yerine: true});
         }),
         ...CT().map(t => DD.on(kok, `cihaz-tur-${t.id}`, v => {
           const c = ciOku(), turler = {...c.turler, [t.id]: v};
-          ciYaz({turler, paylas: Object.values(turler).some(Boolean)});
+          ciYaz({turler});
           kaydet(`${t.etiket} cihaz paylaşımı ${v ? 'açıldı' : 'kapatıldı'}`, t.ikon);
           DD.tazele(); DD.toast(v ? `**${t.etiket}** paylaşılıyor` : `**${t.etiket}** paylaşımı kapatıldı`, {ikon: 'gizlilik', yerine: true});
         })),

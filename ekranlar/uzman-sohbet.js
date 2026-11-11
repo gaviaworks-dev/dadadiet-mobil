@@ -74,26 +74,28 @@
         DD.titres(10);
         zaman = setTimeout(() => { cevapYaz(); ciz(); okundu(); }, DD.azHareket() ? 0 : DD.TK.motion.reveal * 4);
       };
-      const paylasimAcik = alan => DD.durum.oku('saglik-paylasim', {olcum: true, tahlil: true, analiz: true})[alan];
+      // Ek yalnız ilgili tür Veri izinlerim'de açıksa gider (Beyar kararı 1: varsayılan kapalı); okuyucu window.DDPaylasim.
+      const paylasimAcik = alan => (window.DDPaylasim ? DDPaylasim.acik(alan) : DD.durum.oku('saglik-paylasim', {})[alan] === true);
+      const paylasimYolu = alan => window.DDPaylasim?.ac(alan) || `#/veri-izinleri?paylas=${alan}`;
       const ekSheet = () => {
         const t = [...DD.durum.oku('saglik-tahliller', []), ...DDV.saglik.kanTahlilleri][0], kilo = DD.durum.oku('saglik-olcumler', []).at(-1)?.kiloKg ?? DDV.saglik.ozet.guncelKiloKg;
         const secenekler = {
           tahlil: {izin: 'tahlil', metin: 'Son tahlilimi gönderiyorum.', ek: {tur: 'tahlil', ad: `Kan tahlili · ${t.tarihMetin}`}},
           olcum: {izin: 'olcum', metin: `Bugünkü tartım ${DD.ondalik(kilo, 1)} kg.`, ek: {tur: 'olcum', ad: 'Ölçüm özeti'}},
-          ogun: {metin: 'Bugünkü öğünlerimi gönderiyorum.', ek: {tur: 'ogun', ad: `Öğün günlüğü · ${DD.tarihKisa(DD.bugunIso())}`}}
+          ogun: {izin: 'gunluk', metin: 'Bugünkü öğünlerimi gönderiyorum.', ek: {tur: 'ogun', ad: `Öğün günlüğü · ${DD.tarihKisa(DD.bugunIso())}`}}
         };
         DD.sheet({
           baslik: 'Dosya ekle',
           html: `<div class="dd-yigin-12">${DD.satirlar([
-            {ikon: 'tahlil', baslik: 'Son tahlilim', alt: t.tarihMetin, veri: {eylem: 'ek-gonder', id: 'tahlil'}},
-            {ikon: 'kilo', baslik: 'Son ölçümüm', alt: `${DD.ondalik(kilo, 1)} kg`, veri: {eylem: 'ek-gonder', id: 'olcum'}},
-            {ikon: 'ogun', baslik: 'Bugünkü öğünlerim', alt: DD.tarihKisa(DD.bugunIso()), veri: {eylem: 'ek-gonder', id: 'ogun'}},
+            {ikon: 'tahlil', baslik: 'Son tahlilim', alt: paylasimAcik('tahlil') ? t.tarihMetin : 'Paylaşılmıyor · açmak için dokun', veri: {eylem: 'ek-gonder', id: 'tahlil'}},
+            {ikon: 'kilo', baslik: 'Son ölçümüm', alt: paylasimAcik('olcum') ? `${DD.ondalik(kilo, 1)} kg` : 'Paylaşılmıyor · açmak için dokun', veri: {eylem: 'ek-gonder', id: 'olcum'}},
+            {ikon: 'ogun', baslik: 'Bugünkü öğünlerim', alt: paylasimAcik('gunluk') ? DD.tarihKisa(DD.bugunIso()) : 'Paylaşılmıyor · açmak için dokun', veri: {eylem: 'ek-gonder', id: 'ogun'}},
             {ikon: 'kamera', baslik: 'Tabağımı fotoğrafla', alt: 'Fotoğraftan kalori ve makro', git: '#/ai/kamera?mod=tabak'}
           ])}${DD.gizlilikBant('Eklediğin dosyaları **yalnız sen ve diyetisyenin** görürsün.')}</div>`,
           sonra: s => DD.eylem(s, 'ek-gonder', el => {
             const x = secenekler[el.dataset.id];
             s.kapat();
-            if (x.izin && !paylasimAcik(x.izin)) { DD.toast('Bu paylaşım **dosyanda kapalı**', {ikon: 'gizlilik', eylem: 'Aç', onEylem: () => DD.git('#/saglik')}); return; }
+            if (x.izin && !paylasimAcik(x.izin)) { DD.git(paylasimYolu(x.izin)); return; }
             gonder(x.metin, x.ek);
           })
         });
