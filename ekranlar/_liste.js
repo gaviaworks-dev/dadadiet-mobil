@@ -2,7 +2,7 @@
 window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun', 'kayit', 'tabaklarim', 'besin-ara', 'programlar', 'program-bul', 'program-detay', 'ritim', 'fazlar', 'ai-kamera', 'ai-tabak', 'ai-menu', 'ai-ses', 'ai-tahlil', 'barkod', 'etiket', 'denge', 'tabak-kur', 'testler', 'muadil', 'kacamak', 'kiyasla', 'uzman', 'uzman-bul', 'uzman-profil', 'uzman-sohbet', 'saglik', 'bildirimler', 'ara', 'hata', 'profil',
   /* Üye alanı (web Hesabım eşi) */ 'ogun-saatleri', 'bildirim-izni', 'bildirim-onizleme', 'ayarlar', 'tercihler', 'veri-izinleri', 'giris', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim',
   /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'ipuclari', 'ipucu', 'hesaplayicilar',
-  /* Sistem halleri ve gizli durum menüsü */ 'guncelle', 'bakim', 'durumlar', 'oturum-doldu', 'yetki-yok',
+  /* Sistem halleri ve gizli durum menüsü */ 'guncelle', 'bakim', 'durumlar', 'katalog', 'oturum-doldu', 'yetki-yok',
   /* Yasal, kurumsal, görüş */ 'yasal', 'kurumsal', 'gorus-bildir',
   /* Web eşi: rehberler, kaç kalori, dışarıda, yönlendirme, Pro */ 'rehber', 'kac-kalori', 'disarida', 'bana-uygun', 'pro',
   /* Cihaz ve sağlık entegrasyonları */ 'cihazlar', 'izinler', 'telefon', 'kilit'];
@@ -73,6 +73,7 @@ window.DD_ROTALAR = {
   '#/guncelle': 'guncelle',
   '#/bakim': 'bakim',
   '#/durumlar': 'durumlar',
+  '#/katalog': 'katalog',
   '#/oturum-doldu': 'oturum-doldu',
   '#/yetki-yok': 'yetki-yok',
   '#/yasal': 'yasal',

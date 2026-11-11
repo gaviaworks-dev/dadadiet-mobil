@@ -149,3 +149,7 @@ body.dd .dd-liste-scope .dd-seg.has-gosterge::before{top:0;bottom:0}
 .dd-ac-metin :is(h1,p){color:var(--dd-paper);text-shadow:var(--dd-photo-shadow)}
 .dd-ac-alt{display:grid;gap:var(--dd-s-16);padding:var(--dd-s-24) var(--dd-gutter) var(--dd-s-8)}
 @media (prefers-reduced-motion:reduce){.dd-ac,.dd-ac *{animation:none!important;transition:none!important}}
+/* Ekran küçük görseli (DD.ekranKucuk, #/katalog; 11 Kasım, KT): telefon oranı 390:844, nötr kutu; görsel yoksa ortada ekran ikonu */
+.dd-ekran-kucuk{position:relative;display:grid;place-items:center;flex:0 0 var(--dd-s-48);width:var(--dd-s-48);aspect-ratio:390/844;overflow:hidden;border:var(--dd-size-border) solid var(--dd-line);border-radius:var(--dd-r-chip-sm);background:var(--dd-bg);color:var(--dd-muted);font-size:var(--dd-size-icon-md)}
+.dd-ekran-kucuk>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.dd-ekran-kucuk>img[hidden]{display:none}

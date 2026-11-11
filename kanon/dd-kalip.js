@@ -135,4 +135,9 @@
       DD.degisim(b, b.dataset.secAlan, v);
     }});
   });
+  // ---------- Ekran küçük görseli (Ekran kataloğu #/katalog; 11 Kasım, KT) ----------
+  // DD.ekranKucuk({src, ad}): telefon oranında (390:844) küçük ekran görüntüsü; satırda DD.satir({sol: DD.ekranKucuk(...)}) ile kullanılır.
+  // alt = ekran adı. Görsel yoksa ya da yüklenemezse <img> gizlenir; aynı ölçüde nötr kutu ve ekran ikonu kalır (yazı yok).
+  DD.ekranKucuk = (o = {}) => `<span class="dd-ekran-kucuk">${ik('mobile-screen')}${o.src ? `<img src="${esc(o.src)}" alt="${esc(o.ad || '')}" loading="lazy" decoding="async">` : ''}</span>`;
+  document.addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.parentElement?.classList.contains('dd-ekran-kucuk')) t.hidden = true; }, true);
 })();
