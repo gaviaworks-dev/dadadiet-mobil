@@ -2,7 +2,7 @@
  * Liste Gastro liste-v2 (besinler.js, ipuclari.js kalıbı): kubbe + DD.listeArac (arama, kategori çip şeridi), En yeni / En çok okunan sırası, satır ve ızgara görünümü,
  * liste sonunda web'in kalori notu + Diyetisyen bul. Detay Gastro püf detayı (ipucu.js kalıbı): kart perdeli banner, kısa yanıt, numaralı bölümler (DD.icerikBlok),
  * Besin Kaydı künyesi, Kaynaklar, genel bilgi notu, "Bunlar da işine yarar". Görseli olmayan yazıda kapak yoktur (besin.js kalıbı): üst bar düz, başta ikonlu satır.
- * Kaynak DDV.kacKalori (veri/kac-kalori.js). Tam metin yalnız web'de detayı olan yazıda; kalanında web özeti ve "Yazının tamamı bekleniyor" bandı: metin uydurulmaz.
+ * Kaynak DDV.kacKalori (veri/kac-kalori.js). Tam metin yalnız web'de detayı olan yazıda; kalanında yalnız web özeti (metin uydurulmaz; ekranda "bekleniyor" notu yok).
  * Yazının andığı besin kaydı DDV.besinler'de varsa "Yazıdaki besinler" satırları #/besin/:slug açar; "Öğüne ekle" besin detayını ?ekle=1 ile açar, Öğüne ekle sheet'i kendiliğinden açılır (bir kayıtta doğrudan, birden çokta önce seçim sheet'i).
  * Durum: 'kac-kalori-liste' {q, gorunum, sira, f:{kategori[]}} ekran tercihi.
  * Dış bağlantı: ?kategori=sebze (web /kac-kalori/kategori/sebze ve ?kategori=<slug>), ?q=metin, ?temiz=1. Yazısı olmayan kategori (?kategori=icecek) "yazıları bekleniyor" boş hali,
@@ -163,7 +163,6 @@
     const girisHtml = DD.makale(`${DD.p(ozetVurgu(y.ozet))}${giris.map(p => DD.p(vurgulu(p))).join('')}`);
     return `${girisHtml}${govde.map((b, n) => DD.icerikBlok({no: n + 1, baslik: b.baslik, html: b.p.map(p => DD.p(vurgulu(p))).join(''), id: `b${n + 1}`, paylasUrl: `${webUrl(y)}#b${n + 1}`})).join('')}`;
   };
-  const bekliyor = () => DD.bant({ton: 'bilgi', baslik: 'Yazının tamamı bekleniyor', metin: 'Kısa yanıt yukarıda. **Tam metin** hazır olduğunda bu sayfada okunur.'});
   // Web "Besin Kaydı" kartı. DD.kunye uzun değerde (Kaynak) etiketin üstüne biniyor (kanon notu); satırda değer üstte, etiket altta.
   const KUNYE_IKON = {Kayıt: 'database', Enerji: 'kalori', Kaynak: 'book-open', Yayın: 'takvim', Kategori: 'layer-group'};
   const kunye = m => (m?.kunye ? `<section class="dd-yigin-12">${DD.bas('Besin kaydı')}${DD.satirlar(m.kunye.map(x => ({ikon: KUNYE_IKON[x.etiket] || 'bilgi', baslik: x.deger, alt: x.etiket, ok: false})))}</section>` : '');
@@ -187,7 +186,7 @@
     if (!l.length) return '';
     return DD.bolum({baslik: KK().ilgili?.baslik || 'Bunlar da işine yarar', eylem: 'Tümü', git: `#/kac-kalori?kategori=${y.kategori}`, html: `<div class="dd-yigin-12">${DD.p(KK().ilgili?.metin || '', {ton: 'ikincil', meta: true})}${DD.yuzey(DD.satirlar(l.map(satir)))}</div>`});
   };
-  const govdeHtml = (y, m) => `<section class="dd-ic dd-yigin">${m ? bloklar(y, m) : `${DD.makale(DD.p(ozetVurgu(y.ozet)))}${bekliyor()}`}${besinBolum(y)}${kunye(m)}${kaynaklar(m)}${genelNot()}</section>${ilgiliBolum(y)}`;
+  const govdeHtml = (y, m) => `<section class="dd-ic dd-yigin">${m ? bloklar(y, m) : `${DD.makale(DD.p(ozetVurgu(y.ozet)))}`}${besinBolum(y)}${kunye(m)}${kaynaklar(m)}${genelNot()}</section>${ilgiliBolum(y)}`;
   const yokEkrani = () => DD.hataEkran({tur: 'bulunamadi', baslik: 'Bu yazı burada değil', metin: 'Bağlantı eskimiş olabilir. **Kaç Kalori?** yazılarından aradığını bulabilirsin.', eylem: {metin: 'Kaç Kalori?’ye dön', yerine: '#/kac-kalori'}});
 
   const detayCiz = ctx => {
