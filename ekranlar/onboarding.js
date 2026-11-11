@@ -1,6 +1,9 @@
 /* Ortak onboarding seti (DDV.onboarding, sıra değişmez). Tek soru tek adım; adım #/onboarding/<id> ile yığına girer, geri tuşu kendiliğinden çalışır.
  * Referans: tasks/referanslar.md Onboarding satırları, §2.9. Yanıtlar DD.durum 'onboarding'; bitince hesap 'plan' (DDV.kullanici alan adları; makro ve suMl Bugün'ün okuduğu adlarla), oturum 'oturum'.
  * #/onboarding/<id>?duzenle=1 tek adımı profilden düzenler, Kaydet planı yeniden hesaplar. #/onboarding/sonuc?hal=hata bağlantı hatası.
+ * Sağlık adımı (bildirimden sonra, opsiyonel, yalnız KVKK açık rızası onaylıysa): bu telefonun servisi tek kart (DDV.cihazlar; platform ?platform → DD.uygulamaKilidi.cihaz() → tarayıcı),
+ *   okunan/yazılan türler DDV.cihazlar'dan. Bağla: açık rıza (E5 DDCihazIzin.rizaAl({kaynak:'onboarding'}); false → bağlanmaz) → telefonun izin sayfası (E1 DD.sistemIzinPenceresi)
+ *   → 'cihaz-baglanti' {<servis id>: {bagli, izin:{oku, yaz}, sonEsitleme}}, 'veri-izinleri'.esitle, 'saglik-izin'; yanıt 'saglikBaglanti' (servis id | 'sonra').
  * Hesap: Mifflin-St Jeor × aktivite + tempo farkı (DDV.onboarding.kalori), 50 kcal'a yuvarlanır, enAzKcal altına inmez. Protein ve yağ kas ve sıkılaşma hedefinde web makro aracının g/kg değerleridir. */
 (() => {
   const ANAHTAR = 'onboarding', KCAL_KG = 7700, YUVARLA = 50, SU_ML_KG = 30, BKI_ALT = 18.5, BKI_UST = 24.9;
@@ -10,8 +13,8 @@
   const TARZ_ELEYICI = {vegan: ['bitkisel'], vejetaryen: ['vejetaryen', 'bitkisel'], glutensiz: ['glutensiz']};
   const OLCEK = {yavas: 1, dengeli: 3, hizli: 5, hareketsiz: 1, hafif: 2, orta: 4, cok: 5};
   const TARZ_GORSEL = {dengeli: 'mevsim-salatasi', akdeniz: 'sebzeli-levrek-bugulama', 'yuksek-protein': 'yogurtlu-tavuk-sis', vejetaryen: 'firinda-sebze-turlusu', vegan: 'nohut-salatasi', glutensiz: 'sebzeli-pirinc-pilavi', laktozsuz: 'naneli-meyve-salatasi', 'ev-yemekleri': 'kuru-fasulye'};
-  const KISA = {cinsiyet: 'Cinsiyet', yas: 'Yaş', boy: 'Boy', kilo: 'Kilo', tempo: 'Tempo', aktivite: 'Aktivite', beslenme: 'Beslenme tarzı', kvkk: 'Veri izni', ritim: 'Öğün ritmi', alerjen: 'Alerjiler', bildirim: 'Hatırlatmalar', sonuc: 'Planın'};
-  const VURGU = {hedef: 'bir plan', cinsiyet: 'Enerji ihtiyacını', yas: 'yaşa göre', boy: 'Vücut kitle indeksini', kilo: 'yalnız senin planın', tempo: 'Yavaş tempo', aktivite: 'sıradan bir gününü', beslenme: 'Birden fazla', kvkk: 'iznin', ritim: 'Opsiyonel', sonuc: 'bu değerlerle'};
+  const KISA = {cinsiyet: 'Cinsiyet', yas: 'Yaş', boy: 'Boy', kilo: 'Kilo', tempo: 'Tempo', aktivite: 'Aktivite', beslenme: 'Beslenme tarzı', kvkk: 'Veri izni', ritim: 'Öğün ritmi', alerjen: 'Alerjiler', bildirim: 'Hatırlatmalar', saglik: 'Sağlık uygulaması', sonuc: 'Planın'};
+  const VURGU = {hedef: 'bir plan', cinsiyet: 'Enerji ihtiyacını', yas: 'yaşa göre', boy: 'Vücut kitle indeksini', kilo: 'yalnız senin planın', tempo: 'Yavaş tempo', aktivite: 'sıradan bir gününü', beslenme: 'Birden fazla', kvkk: 'iznin', ritim: 'Opsiyonel', saglik: 'kendiliğinden gelsin', sonuc: 'bu değerlerle'};
   // İki satıra düşünce justify boşluk açan kısa cümle (kural: metin kısaltılır).
   const ALT = {hedef: 'Sana göre **bir plan** kurmak için başlayalım.'};
   const NEDEN = {
@@ -166,8 +169,21 @@
   // Alerji: seçenekler Tercihler ile tek kaynaktan (DDV.hesap.alerjenler); seçim bitişte hesap-ayar.besin.alerjen'e yazılır. Yalnız açık rıza verilmişse görünür (kosul kvkk = onay).
   const alerjenGovde = (a, c) => `<div class="dd-yigin-24">${DD.cipler({ad: a.alan, tur: 'coklu', serit: false, etiket: 'Alerjenler', secili: c[a.alan] || [], ogeler: DDV.hesap.alerjenler.map(x => ({metin: x.ad, deger: x.id}))})}${DD.ipucu({ikon: 'sliders', metin: 'Alerjenlerini istediğin an **Tercihler**den değiştirebilirsin.'})}</div>`;
   // Bildirim izni: ne hatırlatılacağı + ayarlardan kapatma notu. Prototipte izin DD.ogun.izinYaz ile kaydolur; gerçek üründe işletim sistemi sorar.
-  const izinGovde = () => `<div class="dd-yigin-24">${DD.maddeler([['utensils', 'Öğün saatlerin', 'Sıradaki öğününden önce kısa bir not.'], ['glass-water', 'Su', 'Gün içinde bardak hatırlatması.'], ['hourglass-half', 'Oruç', 'Pencere açılırken ve kapanırken haber.']])}${DD.ipucu({ikon: 'bell-slash', metin: 'İstediğin an **Ayarlar > Bildirim tercihleri**nden kapatabilirsin.'})}</div>`;
-  const GOVDE = {'tek-secim': tekSecim, slider: sliderGovde, 'coklu-secim': cokluSecim, onay: onayGovde, protokol: ritimGovde, alerjen: alerjenGovde, izin: izinGovde};
+  const izinGovde = () => `<div class="dd-yigin-24">${DD.maddeler([['utensils', 'Öğün saatlerin', 'Sıradaki öğününden önce kısa bir not.'], ['glass-water', 'Su', 'Gün içinde bardak hatırlatması.'], ['hourglass-half', 'Oruç', 'Pencere açılırken ve kapanırken haber.']])}${DD.ipucu({ikon: 'bell-slash', metin: 'İstediğin an **Ayarlar › Bildirim tercihleri**nden kapatabilirsin.'})}</div>`;
+  // Sağlık uygulaması: servis seçimi + ne okunur/yazılır + gizlilik notu. Prototipte Bağla bağlı sayar; gerçek üründe HealthKit / Health Connect izin ekranı açılır.
+  const CH = () => DDV.cihazlar;
+  const platform = () => {
+    const q = new URLSearchParams(location.hash.split('?')[1] || '').get('platform'), k = q || DD.uygulamaKilidi?.cihaz?.().platform;
+    return k ? (k === 'android' ? 'android' : 'ios') : /Android/i.test(navigator.userAgent) ? 'android' : 'ios';
+  };
+  const saglikServis = () => CH().servisler.find(s => s.id === CH().platformlar[platform()].servis);
+  const kucukHarf = s => s.charAt(0).toLocaleLowerCase('tr') + s.slice(1);
+  const turAdlari = yon => [...new Set(CH().turler.filter(t => t.yon === yon).map(t => t.ad))].map((x, i) => (i ? kucukHarf(x) : x)).join(', ');
+  const saglikGovde = a => {
+    const s = saglikServis();
+    return `<div class="dd-yigin-24">${DD.kart({html: DD.satirlar([{sol: DD.ikonKutu({ikon: s.ikon, ton: s.ton, boyut: 'lg'}), baslik: s.ad, alt: s.aciklama, ozet: true}])})}<div class="dd-yigin-12"><h2 class="dd-t-section">Ne okunur, ne yazılır?</h2>${DD.maddeler([['download', 'Okunur', `${turAdlari('oku')}.`], ['upload', 'Yazılır', `${turAdlari('yaz')}.`]])}</div>${DD.ipucu({ikon: 'ban', metin: vurgula(a.gizlilik, 'reklam için kullanılmaz')})}</div>`;
+  };
+  const GOVDE = {'tek-secim': tekSecim, slider: sliderGovde, 'coklu-secim': cokluSecim, onay: onayGovde, protokol: ritimGovde, alerjen: alerjenGovde, izin: a => (a.izin === 'saglik' ? saglikGovde(a) : izinGovde())};
   const gecerli = (a, c) => {
     if (a.tur === 'tek-secim') return c[a.alan] != null;
     if (a.tur === 'coklu-secim') return !!c[a.alan]?.length;
@@ -175,7 +191,7 @@
     if (a.tur === 'protokol') return protokol(c) != null;
     return a.id !== 'kilo' || !hedefSorun(c);
   };
-  const atla = a => ({beslenme: 'Atla', kvkk: 'Sonra', ritim: 'Atla', alerjen: 'Alerjim yok', bildirim: 'Şimdi değil'}[a.id]);
+  const atla = a => ({beslenme: 'Atla', kvkk: 'Sonra', ritim: 'Atla', alerjen: 'Alerjim yok', bildirim: 'Şimdi değil', saglik: 'Şimdi değil'}[a.id]);
   const altYazi = (a, c, son) => {
     if (a.id === 'beslenme' && c.beslenmeTarzi?.length) return `${c.beslenmeTarzi.length} seçili`;
     if (a.id === 'alerjen' && c.alerjenler?.length) return `${c.alerjenler.length} seçili`;
@@ -188,7 +204,7 @@
       adim: duzen ? 1 : i + 1, toplam: duzen ? 1 : l.length,
       baslik: a.baslik, alt: ALT[a.id] || vurgula(a.altMetin, VURGU[a.id]), neden: NEDEN[a.id] ? 'Neden soruyoruz?' : null,
       atla: !duzen && atla(a) ? {metin: atla(a), veri: {eylem: 'atla'}} : null,
-      devam: {metin: duzen ? 'Kaydet' : a.buton || 'Devam', pasif: !gecerli(a, c), veri: {eylem: 'devam'}},
+      devam: {metin: duzen ? 'Kaydet' : a.izin === 'saglik' ? `${saglikServis().ad}’i bağla` : a.buton || 'Devam', pasif: !gecerli(a, c), veri: {eylem: 'devam'}},
       altMetin: duzen ? '' : altYazi(a, c, l[i + 1]),
       html: GOVDE[a.tur](a, c)
     });
@@ -279,12 +295,35 @@
       }
 
       offs.push(DD.eylem(kok, 'neden', () => nedenSheet(a)));
+      // Bağla: açık rıza (E5) → telefonun izin sayfası (E1, ortak pencere) → bağlı yazılır, başarı toast'u, sıradaki adım. Rıza ya da izin yoksa adımda kalınır.
+      const saglikBagla = () => {
+        const rizaAl = () => (typeof window.DDCihazIzin?.rizaAl === 'function' ? Promise.resolve(DDCihazIzin.rizaAl({kaynak: 'onboarding'})) : Promise.resolve(false));
+        rizaAl().then(ok => {
+          if (!ok) { DD.toast('Açık rıza olmadan **bağlantı kurulmaz**', {ikon: 'bilgi'}); return; }
+          const p = platform(), s = saglikServis(), once = DD.durum.oku('cihaz-baglanti', {})[s.id]?.izin;
+          const m = y => CH().turler.filter(x => x.yon === y).map(x => ({id: x.id, ad: x.ad, ikon: x.ikon, acik: once?.[y]?.[x.id] ?? x.acik}));
+          DD.sistemIzinPenceresi({platform: p, servis: {ad: s.ad, ikon: s.ikon}, uygulama: {ad: 'Dada Diet'}, oku: m('oku'), yaz: m('yaz'), yol: CH().platformlar[p].yol,
+            aciklama: 'Dada Diet adımını, kilonu ve uykunu Sağlık dosyanda gösterir; öğünlerini ve suyunu kaydeder. Sağlık verin reklam için kullanılmaz.',
+            bekle: DD.TK.motion.reveal * 3
+          }).then(r => {
+            if (!r.izin) { DD.toast('İzin vermedin; **bağlantı kurulmadı**', {ikon: 'bilgi'}); return; }
+            const b = DD.durum.oku('cihaz-baglanti', {});
+            DD.durum.yaz('cihaz-baglanti', {...b, [s.id]: {...(b[s.id] || {}), bagli: true, izin: {oku: r.oku, yaz: r.yaz}, sonEsitleme: `Bugün ${DD.ogun.noktali(DDV.bugun.simdi)}`}});
+            DD.durum.yaz('veri-izinleri', {...DD.durum.oku('veri-izinleri', {riza: cevaplar().kvkk !== 'sonra'}), esitle: true});
+            DD.durum.yaz('saglik-izin', 'verildi');
+            guncelle({[a.alan]: s.id});
+            DD.toast(`**${s.ad}** bağlandı`, {tur: 'basari', ikon: s.ikon});
+            ileri();
+          });
+        });
+      };
       offs.push(DD.eylem(kok, 'devam', () => {
         if (a.tur === 'slider') guncelle({[a.alan]: deger(a.id, cevaplar()), ...(a.id === 'kilo' && kiloHedefli(cevaplar()) ? {hedefKiloKg: hedefKilo(cevaplar())} : {})});
         if (a.tur === 'onay') guncelle({kvkk: 'onay'});
         if (a.tur === 'protokol') guncelle({orucProtokolu: protokol(cevaplar()), ritimAtlandi: false});
         if (a.tur === 'alerjen') guncelle({alerjenler: cevaplar().alerjenler || []});
-        if (a.tur === 'izin') { guncelle({bildirimIzni: 'verildi'}); DD.ogun.izinYaz('verildi'); }
+        if (a.izin === 'bildirim') { guncelle({bildirimIzni: 'verildi'}); DD.ogun.izinYaz('verildi'); }
+        if (a.izin === 'saglik' && !duzen) { saglikBagla(); return; }
         ileri();
       }));
       offs.push(DD.eylem(kok, 'atla', () => {
@@ -292,6 +331,7 @@
         if (a.id === 'ritim') { guncelle({orucProtokolu: null, ritimAtlandi: true}); ileri(); return; }
         if (a.id === 'alerjen') { guncelle({alerjenler: []}); ileri(); return; }
         if (a.id === 'bildirim') { guncelle({bildirimIzni: 'sonra'}); ileri(); return; }
+        if (a.id === 'saglik') { guncelle({[a.alan]: 'sonra'}); ileri(); return; }
         DD.dialog({baslik: 'Rıza vermeden devam et', metin: 'Planın **yalnız bu cihazda** hesaplanır, sağlık bilgilerin kaydedilmez ve diyetisyeninle paylaşılmaz.', eylem: 'Devam et', iptal: 'Vazgeç'}).then(ok => {
           if (ok) { guncelle({kvkk: 'sonra', riza: false, aydinlatma: false, hassasiyet: []}); ileri(); }
         });

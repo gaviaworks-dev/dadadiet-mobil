@@ -4,7 +4,8 @@ window.DD_EKRAN_DOSYALARI = ['splash', 'karsilama', 'onboarding', 'bugun', 'ogun
   /* Kütüphane listeleri ve detayları */ 'besinler', 'besin', 'ipuclari', 'ipucu', 'hesaplayicilar',
   /* Sistem halleri ve gizli durum menüsü */ 'guncelle', 'bakim', 'durumlar', 'oturum-doldu', 'yetki-yok',
   /* Yasal, kurumsal, görüş */ 'yasal', 'kurumsal', 'gorus-bildir',
-  /* Web eşi: rehberler, kaç kalori, dışarıda, yönlendirme, Pro */ 'rehber', 'kac-kalori', 'disarida', 'bana-uygun', 'pro'];
+  /* Web eşi: rehberler, kaç kalori, dışarıda, yönlendirme, Pro */ 'rehber', 'kac-kalori', 'disarida', 'bana-uygun', 'pro',
+  /* Cihaz ve sağlık entegrasyonları */ 'cihazlar', 'izinler', 'telefon', 'kilit'];
 window.DD_ROTALAR = {
   '#/splash': 'splash',
   '#/karsilama': 'karsilama',
@@ -94,7 +95,12 @@ window.DD_ROTALAR = {
   '#/kac-kalori/:slug': 'kac-kalori',
   '#/disarida': 'disarida',
   '#/bana-uygun': 'bana-uygun',
-  '#/pro': 'pro'
+  '#/pro': 'pro',
+  '#/cihazlar': 'cihazlar',
+  '#/cihaz/:id': 'cihazlar',
+  '#/izin/:tur': 'izinler',
+  '#/telefon': 'telefon',
+  '#/kilit': 'kilit'
 };
 /* Kaldırılan ekranların eski adresleri: ölü sayfa kalmasın, verilen adrese yönlenir (önek eşleşmesi). Sağlıklı Tarifler Dada Diet'te yok (Beyar kararı, 10 Kasım). */
 window.DD_YONLENDIR = {'#/tarifler': '#/bugun', '#/tarif/': '#/bugun', '#/beslenme': '#/rehberler'};

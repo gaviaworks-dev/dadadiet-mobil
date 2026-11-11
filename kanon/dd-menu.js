@@ -19,7 +19,7 @@
     {id: 'paketler', label: 'Paketlerim', icon: 'crown', git: '#/paketlerim'},
     {id: 'odemeler', label: 'Ödemelerim', icon: 'receipt', git: '#/odemelerim'},
     {id: 'ayarlar', label: 'Hesap Ayarları', icon: 'sliders', git: '#/ayarlar'},
-    {id: 'bagli', label: 'Bağlı Uygulamalar', icon: 'arrows-rotate', git: '#/ayarlar/bagli'},
+    {id: 'bagli', label: 'Bağlı Uygulamalar', icon: 'heart-pulse', git: '#/cihazlar'},
     {id: 'cozum', label: 'Çözüm Merkezi', icon: 'headset', git: '#/cozum-merkezi'},
     {id: 'cikis', label: 'Çıkış', icon: 'right-from-bracket', eylem: 'cikis'}]};
   const BLOKLAR = () => [[

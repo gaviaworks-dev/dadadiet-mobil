@@ -2,14 +2,16 @@
  * hub = parçalı profil kartı + başlıklı kartsız gruplar (DD.gruplar), Çıkış ayrı Oturum grubunda. Her bölüm alt ekrandır ve yine DD.gruplar ile kurulur.
  * Bölümler: profil, gizlilik, bildirim, guvenlik, dil, bagli, veri, dondur, sil, uygulama. #/ayarlar/hesap → #/ayarlar/dondur, #/ayarlar/ogun → #/ogun-saatleri.
  * Misafir (DD.uye() yok): hub giriş çağrısı + Uygulama, Yardım, Yasal grupları; uygulama ve dil bölümleri açık, hesaba bağlı bölümler DD.girisGerekli.
- * Uygulama bölümü (Gastro uygulama bölümü): titreşim (durum titresim, varsayılan açık), bildirim izni, önbellek, uygulamayı sıfırla, yasal metinler.
+ * Uygulama bölümü (Gastro uygulama bölümü): titreşim (durum titresim, varsayılan açık), Telefon özellikleri (#/telefon), Bağlı uygulamalar ve cihazlar (#/cihazlar),
+ *   bildirim izni, önbellek, uygulamayı sıfırla, yasal metinler.
+ * Güvenlik bölümü: Uygulama kilidi (durum uygulama-kilidi, ekranlar/kilit.js DD.uygulamaKilidi), Giriş yöntemleri (e-posta + Apple/Google, giris.js ile aynı), iki adımlı doğrulama, oturumlar.
  * Durum: hesap-ayar {profil, bildirim, guvenlik, dil, bagli, veri, hesap} (varsayılan DDV.hesap.varsayilan; şema veri/hesap.js). Ortak anahtarlar:
  *   bildirim-ayar {tur:boolean} uygulama bildirimi kanalı (profil.js BILDIRIM ile aynı), su-sessiz {bas, bit} sessiz saatler (DD.suHatirlatma, DD.ogun.sessiz ile ortak),
  *   bagli-uygulamalar {gastro, fit} (kanon/dd-menu.js bagliSheet ile aynı), veri-izinleri {riza, esitle} (esitle = Apple Health / Health Connect).
  * Yeni hesapta (DD.yeniHesap) kişisel alanlar boş, oturum yalnız bu cihaz, kayıt sayıları sıfır. ?hal=hata bağlantı hatası. */
 (() => {
   const H = () => DDV.hesap;
-  const BOLUM = {profil: 'Profil bilgilerim', gizlilik: 'Profil görünürlüğü', bildirim: 'Bildirim tercihleri', guvenlik: 'Güvenlik', dil: 'Dil ve bölge', bagli: 'Bağlı uygulamalar', veri: 'Verilerim', dondur: 'Hesabı dondur', sil: 'Hesabımı sil', uygulama: 'Uygulama ayarları'};
+  const BOLUM = {profil: 'Profil bilgilerim', gizlilik: 'Profil görünürlüğü', bildirim: 'Bildirim tercihleri', guvenlik: 'Güvenlik', dil: 'Dil ve bölge', bagli: 'Dada uygulamaları', veri: 'Verilerim', dondur: 'Hesabı dondur', sil: 'Hesabımı sil', uygulama: 'Uygulama ayarları'};
   // Misafire açık bölümler; diğerleri hesaba bağlıdır (Gastro bolum uyeGerek).
   const MISAFIR_ACIK = ['uygulama', 'dil'];
   // Yasal metin adresleri (#/yasal/:slug, adlar web prototip yasal/ başlıkları).
@@ -35,6 +37,7 @@
   const push = () => ({...Object.fromEntries(H().bildirimTurleri.map(t => [t.id, t.bildirim])), ...DD.durum.oku('bildirim-ayar', {})});
   const eposta = () => ({...Object.fromEntries(H().bildirimTurleri.map(t => [t.id, t.eposta])), ...ayar('bildirim').eposta});
   const bagliDurum = () => DD.durum.oku('bagli-uygulamalar', {});
+  const cihazAdlar = () => { const c = DD.durum.oku('cihaz-baglanti', {}); return (DDV.cihazlar?.servisler || []).filter(x => c[x.id]?.bagli).map(x => x.ad); };
   const izinler = () => DD.durum.oku('veri-izinleri', {riza: DD.durum.oku('onboarding')?.kvkk !== 'sonra'});
   const oturumlar = () => (DD.yeniHesap() ? H().oturumlar.filter(o => o.bu) : H().oturumlar.filter(o => !ayar('guvenlik').kapatilan.includes(o.id)));
   const sheetSec = (baslik, secenekler, secili, sec) => DD.siralaSheet({baslik, secenekler, secili, sec});
@@ -54,11 +57,11 @@
   const yasalGrup = () => ({baslik: 'Yasal', satirlar: [{ikon: 'scale-balanced', baslik: 'Yasal metinler', alt: 'KVKK, gizlilik, sağlık verisi, kullanım koşulları', git: '#/yasal'}]});
 
   // Misafirde hesaba bağlı bölümlerin kapı cümlesi (bölümün işine göre fiil).
-  const GIRIS_METIN = {profil: 'Profil bilgilerini **düzenlemek** için giriş yap.', gizlilik: 'Profilinin kimlere göründüğünü **seçmek** için giriş yap.', bildirim: 'Bildirimlerini kanal kanal **seçmek** için giriş yap.', guvenlik: 'Şifreni ve **iki adımlı doğrulamayı** yönetmek için giriş yap.', bagli: 'Sağlık uygulamalarını **bağlamak** için giriş yap.', veri: 'Verilerini **indirmek ya da silmek** için giriş yap.', dondur: 'Hesabını **dondurmak** için önce giriş yap.', sil: 'Hesabını **silmek** için önce giriş yap.'};
+  const GIRIS_METIN = {profil: 'Profil bilgilerini **düzenlemek** için giriş yap.', gizlilik: 'Profilinin kimlere göründüğünü **seçmek** için giriş yap.', bildirim: 'Bildirimlerini kanal kanal **seçmek** için giriş yap.', guvenlik: 'Şifreni ve **iki adımlı doğrulamayı** yönetmek için giriş yap.', bagli: 'Dada uygulamalarını **bağlamak** için giriş yap.', veri: 'Verilerini **indirmek ya da silmek** için giriş yap.', dondur: 'Hesabını **dondurmak** için önce giriş yap.', sil: 'Hesabını **silmek** için önce giriş yap.'};
   // ---------- Misafir hub (Gastro ayarlar.js 56: giriş çağrısı + Uygulama ve Yardım grupları) ----------
   const misafirHub = () => DD.gruplar([
     {baslik: 'Uygulama', satirlar: [
-      {ikon: 'mobile-screen', baslik: 'Uygulama ayarları', alt: 'Titreşim, bildirim izni, önbellek, sıfırlama', git: '#/ayarlar/uygulama'},
+      {ikon: 'mobile-screen', baslik: 'Uygulama ayarları', alt: 'Telefon özellikleri, titreşim, bildirim izni, önbellek', git: '#/ayarlar/uygulama'},
       {ikon: 'globe', baslik: 'Dil, bölge ve birimler', alt: dilOzet(ayar('dil')), git: '#/ayarlar/dil'}
     ]},
     yardimGrup(),
@@ -70,7 +73,7 @@
     if (!DD.uye()) return misafirHub();
     const p = kisi(), g = ayar('guvenlik'), d = ayar('dil'), b = bagliDurum(), oa = DD.ogun.ayar(), k = K(), dz = ayar('hesap').dondurma, H_ = H(), bs = ayar('besin');
     const acik = H_.bildirimTurleri.filter(t => t.id !== 'su' && !t.sabit && push()[t.id]).length;
-    const bagliAd = [izinler().esitle && 'Apple Health', b.gastro && 'Dada Gastro', b.fit && 'Dada Fit'].filter(Boolean);
+    const bagliAd = [...cihazAdlar(), b.gastro && 'Dada Gastro', b.fit && 'Dada Fit'].filter(Boolean);
     const ad = `${p.ad} ${p.soyad}`.trim(), uyelik = DD.yeniHesap() ? 'Ücretsiz' : k.uyelik;
     const plan = !!k.hedefAd, tercih = id => (plan ? `#/onboarding/${id}?duzenle=1` : '#/tercihler');
     const kacinilan = bs.alerjen.length + bs.sevmedik.length;
@@ -80,7 +83,7 @@
         {ikon: 'eye', baslik: 'Profil görünürlüğü', alt: p.gorunurluk.acik ? 'Profilin herkese açık' : 'Profilini yalnız diyetisyenin görür', git: '#/ayarlar/gizlilik'},
         {ikon: 'bell', baslik: 'Bildirim tercihleri', alt: `${acik} tür açık · sessiz ${sessizMetin()}`, git: '#/ayarlar/bildirim'},
         {ikon: 'clock', baslik: 'Öğün saatlerim', alt: `Hatırlatıcı ${oa.acik ? 'açık' : 'kapalı'} · ${DD.ogun.hesap({duz: true}).ogunler.filter(o => o.durum !== 'kapali').length} öğün`, git: '#/ogun-saatleri'},
-        {ikon: 'lock', baslik: 'Güvenlik', alt: `İki adımlı doğrulama ${g.ikiAdim ? 'açık' : 'kapalı'} · ${oturumlar().length} oturum`, git: '#/ayarlar/guvenlik'}
+        {ikon: 'lock', baslik: 'Güvenlik', alt: `Uygulama kilidi ${DD.uygulamaKilidi?.durum().acik ? 'açık' : 'kapalı'} · iki adımlı doğrulama ${g.ikiAdim ? 'açık' : 'kapalı'}`, git: '#/ayarlar/guvenlik'}
       ]},
       {baslik: 'Beslenme tercihlerim', satirlar: [
         {ikon: 'hedef', baslik: 'Hedefim', alt: plan ? `${k.hedefAd} · ${DD.sayi(k.hedefKcal)} kcal` : 'Seçilmedi', git: plan ? tercih('hedef') : '#/onboarding/hedef'},
@@ -96,8 +99,8 @@
         {ikon: 'credit-card', baslik: 'Ödemelerim', alt: 'Tahsilatlar ve kayıtlı kartın', git: '#/odemelerim'}
       ]},
       {baslik: 'Uygulama', satirlar: [
-        {ikon: 'arrows-rotate', baslik: 'Bağlı uygulamalar', alt: bagliAd.length ? bagliAd.join(', ') : 'Bağlı uygulama yok', git: '#/ayarlar/bagli'},
-        {ikon: 'mobile-screen', baslik: 'Uygulama ayarları', alt: 'Titreşim, bildirim izni, önbellek, sıfırlama', git: '#/ayarlar/uygulama'}
+        {ikon: 'heart-pulse', baslik: 'Bağlı uygulamalar ve cihazlar', alt: bagliAd.length ? bagliAd.join(', ') : 'Bağlı uygulama yok', git: '#/cihazlar'},
+        {ikon: 'mobile-screen', baslik: 'Uygulama ayarları', alt: 'Telefon özellikleri, titreşim, bildirim izni, önbellek', git: '#/ayarlar/uygulama'}
       ]},
       {baslik: 'Veri ve hesap yönetimi', satirlar: [
         {ikon: 'database', baslik: 'Verilerim', alt: 'Gör, indir, sil', git: '#/ayarlar/veri'},
@@ -116,11 +119,17 @@
 
   // ---------- Uygulama ayarları (Gastro uygulama bölümü; misafire açık) ----------
   const titresim = () => DD.durum.oku('titresim', true);
+  const androidMi = () => DD.uygulamaKilidi?.cihaz().platform === 'android';
   const izinAlt = () => ({verildi: 'Açık · telefon ayarlarından yönetilir', reddedildi: 'Kapalı · telefon ayarlarından açılır'}[DD.ogun.izin()] || 'Henüz izin verilmedi');
   const uygulama = () => DD.gruplar([
     {baslik: 'Genel', satirlar: [
       {ikon: 'globe', baslik: 'Dil, bölge ve birimler', alt: dilOzet(ayar('dil')), git: '#/ayarlar/dil'},
       DD.toggle({ad: 'titresim', ikon: 'mobile-screen-button', etiket: 'Titreşim', alt: 'Kayıtta, onaylarda ve sayaç bitince kısa titreşim', secili: titresim()})
+    ]},
+    // Telefon ve cihaz entegrasyonları (#/telefon, #/cihazlar); açıklama cihaz platformuna göre (DD.uygulamaKilidi.cihaz, kilit.js).
+    {baslik: 'Telefon ve cihazlar', satirlar: [
+      {ikon: 'table-cells-large', baslik: 'Telefon özellikleri', alt: androidMi() ? 'Widget, kalıcı bildirim ve Google Asistan' : 'Widget, canlı etkinlik ve Siri Kısayolları', git: '#/telefon'},
+      {ikon: 'heart-pulse', baslik: 'Bağlı uygulamalar ve cihazlar', alt: androidMi() ? 'Health Connect, akıllı saat ve tartı' : 'Apple Health, Apple Watch ve akıllı tartı', git: '#/cihazlar'}
     ]},
     {baslik: 'Bildirimler', satirlar: [
       {ikon: 'bell', baslik: 'Bildirim izni', alt: izinAlt(), git: '#/bildirim-izni'},
@@ -299,24 +308,74 @@
   // Marka ikonu fa-brands ister (DD.btn marka gibi); satır, kanon satır ikonu ve anahtarla kurulur.
   const SSO = [['apple', 'Apple'], ['google', 'Google']];
   const ssoSatir = (k, ad, on) => DD.satir({sol: `<span class="dd-satir-ikon"><i class="icon fa-brands fa-${k}" aria-hidden="true"></i></span>`, baslik: `${ad} ile giriş`, alt: on ? 'Bağlı · tek dokunuşla giriş' : 'Bağlı değil', sag: DD.anahtar({ad: `sso-${k}`, etiket: `${ad} ile giriş`, secili: on}), duz: true});
+  // Uygulama kilidi (ekranlar/kilit.js DD.uygulamaKilidi; durum 'uygulama-kilidi'): metin ve ikon cihaz platformuna göre (Face ID, Touch ID, Android parmak izi ya da yüz).
+  const kilitPanel = () => {
+    const U = DD.uygulamaKilidi; if (!U) return null;
+    const k = U.durum(), c = U.cihaz();
+    return {ikon: c.ikon, baslik: 'Uygulama kilidi', alt: k.acik ? `${c.ad} · ${U.gecikmeAd(k.gecikme)}` : `${c.ad} ile sağlık kayıtlarını koru`, sag: DD.durumRozet(k.acik ? {metin: 'Etkin', ton: 'basari', ikon: 'onay'} : {metin: 'Kapalı', ton: 'notr'}), icerik: `<div class="dd-yigin-12">${DD.satirlar([
+      DD.toggle({ad: 'uygulama-kilidi', ikon: 'lock', etiket: c.kilitle, alt: k.acik ? 'Uygulamayı açarken kimliğini doğrularsın' : 'Uygulama doğrudan açılır', secili: k.acik}),
+      ...(k.acik ? [
+        DD.satir({ikon: 'clock', baslik: 'Kilitlenme zamanı', alt: 'Uygulamadan çıktıktan sonra', deger: U.gecikmeAd(k.gecikme), veri: {eylem: 'kilit-gecikme'}}),
+        DD.satir({ikon: 'eye', baslik: 'Kilit ekranını dene', alt: `${c.ad} ve şifreyle açılış`, git: '#/kilit'})
+      ] : [])
+    ])}${DD.veriYok(`${c.ad} verin telefonunda kalır; Dada Diet yalnız **doğrulamanın sonucunu** alır.`)}</div>`};
+  };
   const guvenlik = ctx => {
     const g = ayar('guvenlik'), p = kisi(), o = oturumlar(), kodlar = g.kodlar || H().kurtarmaKodlari;
+    const yontemler = ['E-posta', ...SSO.filter(([k]) => g.sso[k]).map(([, ad]) => ad)];
     return DD.gruplar([
-      {html: DD.p('Şifreni değiştir, **iki adımlı doğrulamayı** yönet, açık oturumlarını gör.', {ton: 'ikincil'})},
+      {html: DD.p('Uygulama kilidini kur, **giriş yöntemlerini** ve iki adımlı doğrulamayı yönet, açık oturumlarını gör.', {ton: 'ikincil'})},
       {html: DD.akordiyon([
-        {ikon: 'key', baslik: 'Şifre ve giriş', alt: `Son değişiklik: ${once(g.sifreTarih)}`, icerik: DD.satirlar([
-          DD.satir({ikon: 'key', baslik: 'Şifreni değiştir', alt: 'Mevcut şifrenle doğrula', veri: {eylem: 'sifre'}}),
-          DD.toggle({ad: 'biyometrik', ikon: 'fingerprint', etiket: 'Face ID ile giriş', alt: 'Açarken yüzünle doğrula', secili: g.biyometrik})
-        ])},
-        {ikon: 'shield-halved', baslik: 'İki adımlı doğrulama', alt: 'Giriş yöntemleri ve kurtarma kodları', sag: DD.durumRozet({metin: g.ikiAdim ? 'Açık' : 'Kapalı', ton: g.ikiAdim ? 'basari' : 'notr', ikon: g.ikiAdim ? 'onay' : 'lock-open'}), icerik: `<div class="dd-yigin-12">${DD.satirlar([
-          DD.toggle({ad: 'iki-adim', ikon: 'shield-halved', etiket: 'İki adımlı doğrulama', alt: g.ikiAdim ? `Açık · ${YONTEM[g.yontem]}` : 'Kapalı · yalnız şifreyle giriş', secili: g.ikiAdim}),
-          ...(g.ikiAdim ? [{ikon: 'list-ol', baslik: 'Kurtarma kodların', alt: `${kodlar.length} koddan ${g.kurtarmaKalan} tanesi kullanılmadı`, veri: {eylem: 'kodlar'}}, {ikon: 'mobile-screen', baslik: 'Doğrulama yöntemi', deger: YONTEM[g.yontem], veri: {eylem: 'kurulum'}}].map(DD.satir) : []),
-          DD.satir({ikon: 'envelope', baslik: 'E-posta', alt: p.eposta || 'E-posta eklenmedi', sag: DD.durumRozet({metin: 'Birincil', ton: 'basari', ikon: 'onay'}), duz: true}),
+        kilitPanel(),
+        {ikon: 'right-to-bracket', baslik: 'Giriş yöntemleri', alt: yontemler.join(', '), sag: DD.sayacRozet(yontemler.length), icerik: `<div class="dd-yigin-12">${DD.satirlar([
+          DD.satir({ikon: 'envelope', baslik: 'E-posta ve şifre', alt: p.eposta || 'E-posta eklenmedi', sag: DD.durumRozet({metin: 'Birincil', ton: 'basari', ikon: 'onay'}), duz: true}),
+          DD.satir({ikon: 'key', baslik: 'Şifreni değiştir', alt: `Son değişiklik: ${once(g.sifreTarih)}`, veri: {eylem: 'sifre'}}),
           ...SSO.map(([k, ad]) => ssoSatir(k, ad, g.sso[k]))
         ])}${DD.veriYok('Yeni cihazdan giriş ve şifre değişikliği her zaman **e-postayla** bildirilir.')}</div>`},
+        {ikon: 'shield-halved', baslik: 'İki adımlı doğrulama', alt: g.ikiAdim ? YONTEM[g.yontem] : 'Yalnız şifreyle giriş', sag: DD.durumRozet({metin: g.ikiAdim ? 'Açık' : 'Kapalı', ton: g.ikiAdim ? 'basari' : 'notr', ikon: g.ikiAdim ? 'onay' : 'lock-open'}), icerik: DD.satirlar([
+          DD.toggle({ad: 'iki-adim', ikon: 'shield-halved', etiket: 'İki adımlı doğrulama', alt: g.ikiAdim ? `Açık · ${YONTEM[g.yontem]}` : 'Kapalı · yalnız şifreyle giriş', secili: g.ikiAdim}),
+          ...(g.ikiAdim ? [{ikon: 'list-ol', baslik: 'Kurtarma kodların', alt: `${kodlar.length} koddan ${g.kurtarmaKalan} tanesi kullanılmadı`, veri: {eylem: 'kodlar'}}, {ikon: 'mobile-screen', baslik: 'Doğrulama yöntemi', deger: YONTEM[g.yontem], veri: {eylem: 'kurulum'}}].map(DD.satir) : [])
+        ])},
         {ikon: 'mobile-screen', baslik: 'Açık oturumlarım', alt: 'Hesabına giriş yapılmış cihazlar', sag: DD.sayacRozet(o.length), icerik: `<div class="dd-yigin-12">${DD.p('**Tanımadığın bir cihaz** varsa oturumu kapat ve şifreni değiştir.', {ton: 'ikincil'})}${DD.satirlar(o.map(x => DD.satir({ikon: x.ikon, baslik: x.ad, alt: `${x.yer} · ${x.zaman}`, sag: x.bu ? DD.durumRozet({metin: 'Bu cihaz', ton: 'basari'}) : DD.btn({metin: 'Kapat', tur: 'text', boyut: 'sm', veri: {eylem: 'oturum-kapat', id: x.id}}), duz: true})))}${o.length > 1 ? DD.btn({metin: 'Diğer oturumları kapat', ikon: 'right-from-bracket', tur: 'secondary', tam: true, veri: {eylem: 'oturum-hepsi'}}) : DD.veriYok('Bu cihaz dışında **açık oturum** yok.')}</div>`}
-      ], {ad: 'gv', acik: ctx.akAcik ?? 0})}
+      ].filter(Boolean), {ad: 'gv', acik: ctx.akAcik ?? 0})}
     ]);
+  };
+  // Kilidi kurma: kısa bilgilendirme → biyometrik onay (iOS'ta ilk kullanımda sistem izni) → açık. Yarıda kalırsa anahtar eski haline döner.
+  const kilitKur = () => {
+    const U = DD.uygulamaKilidi, c = U.cihaz();
+    let devam = false;
+    DD.sheet({
+      baslik: 'Uygulama kilidi',
+      html: `<div class="dd-yigin">${DD.p(`Dada Diet’i her açtığında **${c.ad}** sorulur; öğün, kilo ve sağlık kayıtların telefonunu eline alan birine görünmez.`)}${DD.maddeler([
+        [c.ikon, `${c.ad} verin telefonunda kalır`, 'Dada Diet yalnız doğrulamanın sonucunu alır; yüz ya da parmak izi verine erişmez.'],
+        ['clock', 'Ne zaman kilitleneceğini sen seçersin', 'Hemen, 1 dakika ya da 5 dakika sonra.'],
+        ['key', 'Şifren her zaman yedek', `${c.ad} olmazsa uygulamayı şifrenle açarsın.`]
+      ])}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Vazgeç', tur: 'secondary', attrs: 'data-sheet-kapat'})}${DD.btn({metin: 'Kilidi kur', ikon: c.ikon, veri: {eylem: 'kilit-kur'}})}</div>`,
+      kapaninca: () => { if (!devam) DD.tazele(); },
+      sonra: d => DD.eylem(d, 'kilit-kur', () => {
+        devam = true; d.kapat();
+        U.istem({neden: 'Uygulama kilidini kurmak için'}).then(s => {
+          if (s === 'basari') { U.yaz({acik: true}); DD.toast(`**Uygulama kilidi** etkin · ${c.ad}`, {tur: 'basari'}); }
+          else if (s === 'izin-yok') DD.toast(`**${c.ad} izni** verilmedi; telefon ayarlarından açabilirsin.`, {tur: 'uyari'});
+          else if (s === 'basarisiz') DD.toast(`**${c.tanimadi}.** Kilit kurulmadı, yeniden dene.`, {tur: 'hata'});
+          DD.tazele();
+        });
+      })
+    });
+  };
+  // Kapatmak da doğrulama ister; Face ID izni kapalıysa onay sorulur.
+  const kilitKapat = () => {
+    const U = DD.uygulamaKilidi, c = U.cihaz(), kapat = () => { U.yaz({acik: false}); DD.toast('**Uygulama kilidi** kapatıldı', {ikon: 'lock-open'}); };
+    U.istem({neden: 'Uygulama kilidini kapatmak için'}).then(s => {
+      if (s === 'basari') { kapat(); DD.tazele(); return; }
+      if (s !== 'izin-yok') { DD.tazele(); return; }
+      DD.dialog({baslik: 'Uygulama kilidi kapansın mı?', metin: `${c.ad} izni kapalı olduğu için **doğrulama yapılamadı**. Kilit kapanınca uygulama doğrudan açılır.`, eylem: 'Kapat', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) kapat(); DD.tazele(); });
+    });
+  };
+  const kilitGecikme = () => {
+    const U = DD.uygulamaKilidi;
+    sheetSec('Kilitlenme zamanı', U.GECIKME, U.durum().gecikme, v => { U.yaz({gecikme: v}); DD.tazele(); DD.toast(`Kilit **${U.gecikmeAd(v).toLocaleLowerCase('tr')}** devreye girer`, {ikon: 'clock'}); });
   };
   const sifreSheet = () => {
     const govde = (h = {}) => `<div class="dd-yigin">${DD.input({ad: 'mevcut', etiket: 'Mevcut şifren', tur: 'password', ikon: 'lock', hata: h.mevcut, otomatik: 'current-password'})}${DD.input({ad: 'yeni', etiket: 'Yeni şifre', tur: 'password', ikon: 'key', hata: h.yeni, otomatik: 'new-password', yardim: H().giris.sifreKurali})}${DD.input({ad: 'tekrar', etiket: 'Yeni şifre (tekrar)', tur: 'password', ikon: 'key', hata: h.tekrar, otomatik: 'new-password'})}</div>`;
@@ -380,7 +439,8 @@
     DD.eylem(kok, 'sifre', sifreSheet),
     DD.eylem(kok, 'kodlar', kodSheet),
     DD.eylem(kok, 'kurulum', kurulumSheet),
-    DD.on(kok, 'biyometrik', v => { ayarYaz('guvenlik', {biyometrik: v}); DD.toast(`**Face ID ile giriş** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: 'fingerprint'}); }),
+    DD.on(kok, 'uygulama-kilidi', v => (v ? kilitKur() : kilitKapat())),
+    DD.eylem(kok, 'kilit-gecikme', kilitGecikme),
     DD.on(kok, 'iki-adim', v => {
       if (v) { kurulumSheet(); return; }
       DD.dialog({baslik: 'İki adımlı doğrulama kapansın mı?', metin: 'Hesabına **yalnız şifreyle** girilebilir.', eylem: 'Kapat', iptal: 'Vazgeç', yikici: true}).then(ok => { if (ok) { ayarYaz('guvenlik', {ikiAdim: false}); DD.toast('İki adımlı doğrulama **kapatıldı**', {tur: 'uyari'}); } DD.tazele(); });
@@ -409,38 +469,19 @@
   }))];
 
   // ---------- Bağlı uygulamalar (K6) ----------
-  const saglikIzin = () => ({...Object.fromEntries(H().saglikIzinleri.map(x => [x.id, x.acik])), ...ayar('bagli').izin});
   const bagli = () => {
-    const b = bagliDurum(), a = ayar('bagli'), son = a.sonEsitleme, es = !!izinler().esitle, n = Object.values(saglikIzin()).filter(Boolean).length;
+    const b = bagliDurum(), son = ayar('bagli').sonEsitleme;
     const durumAlt = (acik, s) => (acik ? `Bağlı · son eşitleme ${s || 'az önce'}` : 'Bağlı değil');
     return DD.gruplar([
-      {baslik: 'Dada uygulamaları', html: `<div class="dd-yigin-12">${DD.p('**Profilin ve hedefin** bağladığın uygulamalarla eşitlenir. Sağlık verilerin eşitlenmez.', {ton: 'ikincil'})}${DD.satirlar([DD.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', alt: durumAlt(b.gastro, son.gastro), secili: !!b.gastro}), DD.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', alt: durumAlt(b.fit, son.fit), secili: !!b.fit})])}${DD.maddeler([['user', 'Eşitlenen: profilin', 'Ad, fotoğraf ve kullanıcı adı'], ['hedef', 'Eşitlenen: hedefin', 'Hedef, hedef kilo ve günlük kalori']])}</div>`},
-      {baslik: 'Sağlık uygulaması', html: `<div class="dd-yigin-12">${DD.satirlar([DD.toggle({ad: 'saglik-esitle', ikon: 'heart-pulse', etiket: 'Apple Health / Health Connect', alt: durumAlt(es, son.saglik), secili: es}), ...(es ? [{ikon: 'sliders', baslik: 'Verilen izinler', alt: `${n} izin açık · her biri ayrı kapatılabilir`, veri: {eylem: 'saglik-izin'}}, {ikon: 'arrows-rotate', baslik: 'Eşitleme sıklığı', deger: secAd(H().siklik, a.siklik), veri: {eylem: 'siklik'}}].map(DD.satir) : [])])}${es ? DD.btn({metin: 'Şimdi eşitle', ikon: 'arrows-rotate', tur: 'secondary', tam: true, veri: {eylem: 'esitle'}}) : DD.veriYok('Bağlanınca **hangi verinin** okunacağını tek tek seçersin.')}</div>`},
+      {baslik: 'Eşitlenen uygulamalar', html: `<div class="dd-yigin-12">${DD.p('**Profilin ve hedefin** bağladığın uygulamalarla eşitlenir. Sağlık verilerin eşitlenmez.', {ton: 'ikincil'})}${DD.satirlar([DD.toggle({ad: 'bagli-gastro', ikon: 'utensils', etiket: 'Dada Gastro', alt: durumAlt(b.gastro, son.gastro), secili: !!b.gastro}), DD.toggle({ad: 'bagli-fit', ikon: 'dumbbell', etiket: 'Dada Fit', alt: durumAlt(b.fit, son.fit), secili: !!b.fit})])}${DD.maddeler([['user', 'Eşitlenen: profilin', 'Ad, fotoğraf ve kullanıcı adı'], ['hedef', 'Eşitlenen: hedefin', 'Hedef, hedef kilo ve günlük kalori']])}</div>`},
       {baslik: 'Hiçbir koşulda gitmeyen', html: `<div class="dd-yigin-12">${DD.maddeler(H().esitlenmeyen)}${DD.gizlilikBant('Diyetisyeninin bu veriyi görmesi **ayrı bir karardır**; Veri izinlerim’den yönetilir.')}${DD.satirlar([{ikon: 'shield-halved', baslik: 'Veri izinlerim', alt: 'Diyetisyenle paylaşım ve açık rıza', git: '#/veri-izinleri'}])}</div>`}
     ]);
-  };
-  const izinSheet = () => {
-    const i = saglikIzin();
-    DD.sheet({
-      baslik: 'Verilen izinler',
-      html: `<div class="dd-yigin">${DD.p('Gelen veriler **bu cihazdaki** sağlık uygulamasından okunur; tek çıkış izni su ve enerji toplamıdır.')}${DD.satirlar(H().saglikIzinleri.map(x => DD.toggle({ad: `si-${x.id}`, ikon: x.yon === 'giden' ? 'arrow-up-from-bracket' : 'arrow-down', etiket: x.ad, alt: x.alt, secili: i[x.id]})))}</div>`,
-      kapaninca: () => DD.tazele(),
-      sonra: d => { const c = H().saglikIzinleri.map(x => DD.on(d, `si-${x.id}`, v => { ayarYaz('bagli', {izin: {...saglikIzin(), [x.id]: v}}); DD.toast(`**${x.ad}** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: 'heart-pulse', yerine: true}); })); return () => c.forEach(f => f()); }
-    });
   };
   const bagliBagla = kok => [
     ...[['bagli-gastro', 'gastro', 'Dada Gastro'], ['bagli-fit', 'fit', 'Dada Fit']].map(([ad, k, m]) => DD.on(kok, ad, v => {
       DD.durum.yaz('bagli-uygulamalar', {...bagliDurum(), [k]: v});
       if (v) ayarYaz('bagli', {sonEsitleme: {...ayar('bagli').sonEsitleme, [k]: `bugün ${noktali(DDV.bugun.simdi)}`}});
       DD.tazele(); DD.toast(`**${m}** ${v ? 'bağlandı' : 'bağlantısı kapatıldı'}`, {ikon: 'arrows-rotate'});
-    })),
-    DD.on(kok, 'saglik-esitle', v => { DD.durum.yaz('veri-izinleri', {...izinler(), esitle: v}); DD.tazele(); DD.toast(`**Sağlık eşitlemesi** ${v ? 'açıldı' : 'kapatıldı'}`, {ikon: 'heart-pulse'}); }),
-    DD.eylem(kok, 'saglik-izin', izinSheet),
-    DD.eylem(kok, 'siklik', () => sheetSec('Eşitleme sıklığı', H().siklik, ayar('bagli').siklik, v => { ayarYaz('bagli', {siklik: v}); DD.tazele(); DD.toast(`Eşitleme: **${secAd(H().siklik, v).toLocaleLowerCase('tr')}**`, {tur: 'basari'}); })),
-    DD.eylem(kok, 'esitle', el => DD.mesgul(el, DD.azHareket() ? 0 : DD.TK.motion.reveal * 3).then(() => {
-      const b = bagliDurum(), s = `bugün ${noktali(DDV.bugun.simdi)}`;
-      ayarYaz('bagli', {sonEsitleme: {...ayar('bagli').sonEsitleme, saglik: s, ...(b.gastro ? {gastro: s} : {}), ...(b.fit ? {fit: s} : {})}});
-      DD.tazele(); DD.toast('Bağlantıların **eşitlendi**', {tur: 'basari'});
     }))
   ];
 

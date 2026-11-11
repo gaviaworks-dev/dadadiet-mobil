@@ -2,6 +2,8 @@
  * DDV.onboarding: { giris:{ baslik, altMetin, gorsel, butonlar[], kvkkKisa },
  *   adimlar:[{ id, no, tur ('tek-secim'|'coklu-secim'|'slider'|'onay'|'protokol'|'alerjen'|'izin'|'sonuc'), ekran, baslik, altMetin, alan, opsiyonel?, kosul?:{alan,deger[]},
  *     secenekler?:[{id,ad,ikon,alt?,...}], min?, max?, adim?, birim?, varsayilan?, ekAlan?, acikRiza?, hassasiyet?, saatAlani?, sonuc? }], kalori }
+ * izin adımları: izin ('bildirim'|'saglik'). saglik adımı yalnız KVKK açık rızası onaylıysa (kosul kvkk = onay); servis, ikon ve okunan/yazılan türler DDV.cihazlar'dan
+ *   (telefonun platform servisi tek kart), gizlilik notu burada. Bağla: açık rıza (DDCihazIzin.rizaAl) → telefonun izin sayfası (DD.sistemIzinPenceresi) → DD.durum 'cihaz-baglanti'.
  * kosul: adım ya da ekAlan yalnız alan değeri deger[] içindeyse gösterilir (hedef kilo ve tempo yalnız kilo hedeflerinde).
  */
 window.DDV = window.DDV || {};
@@ -440,7 +442,26 @@ DDV.onboarding = {
    "baslik": "Hatırlatmaları açalım mı?",
    "altMetin": "Öğün, su ve oruç saatlerini zamanında hatırlatırız.",
    "alan": "bildirimIzni",
+   "izin": "bildirim",
    "buton": "Bildirimlere izin ver"
+  },
+  {
+   "id": "saglik",
+   "no": 13,
+   "tur": "izin",
+   "ekran": "SCR-03",
+   "opsiyonel": true,
+   "kosul": {
+    "alan": "kvkk",
+    "deger": [
+     "onay"
+    ]
+   },
+   "baslik": "Sağlık uygulamanı bağla",
+   "altMetin": "Adımın, kilon ve uykun kendiliğinden gelsin; tükettiğin enerjiyi oraya yazalım.",
+   "alan": "saglikBaglanti",
+   "izin": "saglik",
+   "gizlilik": "Sağlık verin reklam için kullanılmaz. İzni istediğin an Ayarlar’dan geri alırsın."
   },
   {
    "id": "sonuc",

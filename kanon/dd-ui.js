@@ -148,10 +148,10 @@
     bildirimler: {ikon: 'bell', baslik: 'Bildirimlerin', metin: 'Hatırlatmaları ve **diyetisyen mesajlarını** almak için giriş yap.'}
   };
   const SSO = [{yol: 'apple', metin: 'Apple ile devam et', marka: 'apple'}, {yol: 'google', metin: 'Google ile devam et', gorsel: 'assets/marka/sosyal/google.svg'}];
-  // K10: aktarım açık rızaya bağlıdır; rıza yoksa veri cihazda kalır. Metin hukuk onayına kadar taslaktır.
+  // K10: aktarım açık rızaya bağlıdır; rıza yoksa veri cihazda kalır.
   const rizaSheet = yol => DD.sheet({
     baslik: 'Verilerin hesabına geçsin mi?', zorunlu: true,
-    html: `<div class="dd-yigin">${DD.durumRozet({metin: 'Taslak metin · Hukuk onayı bekliyor', ton: 'uyari', ikon: 'clock'})}${DD.p('Bu cihaza girdiğin **su, duygu, öğün ve tabak fotoğrafları** sağlık verisi sayılır. Hesabına aktarılması için **açık rızan** gerekir. Rıza vermezsen hesabın açılır, veriler yalnız bu cihazda kalır.')}</div>`,
+    html: `<div class="dd-yigin">${DD.p('Bu cihaza girdiğin **su, duygu, öğün ve tabak fotoğrafları** sağlık verisi sayılır. Hesabına aktarılması için **açık rızan** gerekir. Rıza vermezsen hesabın açılır, veriler yalnız bu cihazda kalır.')}</div>`,
     altBar: `<div class="dd-yigin-8">${DD.btn({metin: 'Açık rıza veriyorum, aktar', tam: true, veri: {eylem: 'riza-evet'}})}${DD.btn({metin: 'Aktarma, cihazda kalsın', tur: 'text', tam: true, veri: {eylem: 'riza-hayir'}})}</div>`,
     sonra: h => {
       const bitir = riza => { DD.durum.yaz('oturum', {yol, misafirden: true, riza}); DD.durum.yaz('veri-izinleri', {riza}); h.kapat(); DD.tazele(); DD.toast(riza ? 'Bugünkü kayıtların **hesabına aktarıldı**' : 'Hesabın açıldı, kayıtların **bu cihazda kaldı**', {tur: 'basari'}); };

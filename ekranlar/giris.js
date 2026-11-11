@@ -47,6 +47,7 @@
       : DD.bant({ton: 'hata', baslik: 'Giriş geçici olarak kilitlendi', metin: 'Çok sayıda hatalı deneme oldu. **15 dakika** sonra yeniden dene ya da şifreni sıfırla.', eylem: {metin: 'Şifremi sıfırla', veri: {eylem: 'unuttum'}}});
   };
   const giris = ctx => {
+    sonraHedef = sonraAl(ctx.sorgu.sonra);
     const d = ctx.taslak || {eposta: ctx.sorgu.eposta || G().eposta, sifre: ctx.sorgu.eposta ? '' : kayitliSifre()};
     return `${DD.gulucuk({gorsel: 'assets/gorsel/hero/karsilama-sofra.webp', etiket: 'Dada Diet', baslik: 'Tekrar hoş geldin', alt: 'Kaldığın yerden devam et; kayıtların seni bekliyor.', ust: true})}${DD.gruplar([
       `<div class="dd-yigin-12"><div class="dd-ikili">${SSO.map(b => DD.btn({...b, metin: b.yol === 'apple' ? 'Apple' : 'Google', etiket: b.metin, tur: 'secondary', veri: {eylem: 'sso', id: b.yol}})).join('')}</div>${DD.p('Dada Gastro ya da Dada Fit hesabın varsa **aynı hesapla** giriş yapabilirsin.', {orta: true, meta: true, ton: 'ikincil'})}</div>`,
@@ -55,7 +56,10 @@
       DD.btn({metin: 'Hesabın yok mu? Üye ol', tur: 'text', tam: true, yerine: '#/karsilama'})
     ])}`;
   };
-  const oturumAc = (mesaj = `Tekrar hoş geldin, **${DDV.kullanici.ad}**`) => { DD.durum.yaz('oturum', {yol: 'giris'}); DD.yerine('#/bugun'); DD.toast(mesaj, {tur: 'basari'}); };
+  // ?sonra=<rota> (ör. uygulama kilidi şifreyle açılış): iki adım dahil oturum açılınca oraya dönülür; yalnız iç rota, giriş/kilit rotaları hariç.
+  let sonraHedef = null;
+  const sonraAl = s => (s && /^#\/(?!giris|kilit|iki-adim)/.test(s) ? s : null);
+  const oturumAc = (mesaj = `Tekrar hoş geldin, **${DDV.kullanici.ad}**`) => { const h = sonraHedef || '#/bugun'; sonraHedef = null; DD.durum.yaz('oturum', {yol: 'giris'}); DD.yerine(h); DD.toast(mesaj, {tur: 'basari'}); };
   const girisBagla = (kok, ctx) => {
     const v = ad => kok.querySelector(`[name="${ad}"]`)?.value ?? '';
     const formCiz = (d, h) => { ctx.taslak = d; ctx.hatalar = h; kok.querySelector('[data-yuva="form"]').innerHTML = girisForm(d, h); };

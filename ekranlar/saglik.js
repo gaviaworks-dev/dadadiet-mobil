@@ -1,6 +1,8 @@
 /* SCR-51 Sağlık dosyam (#/saglik): Gastro profil başı. Referans: tasks/referanslar.md Sağlık dosyam, §2.8.
  * Durum: saglik-olcumler [{tarih, kiloKg, belCm, yagYuzde}], saglik-tahliller (ai-tahlil ekler; kanTahlilleri şekli), saglik-paylasim {olcum, tahlil, analiz, tabaklar}; eski kayıtta olmayan alan varsayılan açık sayılır.
  * 2 haftalık dönem DDV.gecmis'ten gelir: soluk çizgi ham tartı, kalın çizgi üç günlük ortalama (veride ayrı eğilim yok, türetildi).
+ * Cihazdan gelen veriler (E5): son 7 gün adım, kilo, uyku DDV.hesap.cihazVerisi'nden; durum ve rıza okuyucusu window.DDCihazIzin (ekranlar/veri-izinleri.js).
+ *   Bağlantı yoksa boş hal → #/cihazlar, rıza yoksa "Rıza ver" DDCihazIzin.rizaAl({kaynak:'saglik'}), silindiyse bilgi satırı. Tartıdan gelen kilo DDV.gecmis ile aynı kayıttır (Ölçümlerin grafiğine de işlenir).
  * #/saglik?hal=bos hiç kaydı olmayan dosya (ölçümler 'yeni-' önekiyle), ?hal=hata bağlantı hatası, ?olcum=1 ölçüm sheet'i açık gelir, ?izin=1 paylaşım iznine iner. */
 (() => {
   const nk = s => String(s ?? '').replace(/\b(\d{1,2}):(\d{2})\b/g, '$1.$2');   // görünen saat noktalı (19.30); veri ve durum anahtarı ':' kalır
@@ -132,6 +134,39 @@
     return `<div class="dd-yigin-12">${DD.p(`Bu bilgileri **${d.ad}** görebilir. Tabakta “Diyetisyenim görsün” anahtarını kapattığın kayıt **paylaşılmaz**.`, {ton: 'ikincil'})}${DD.yuzey(DD.satirlar(PAYLASIM.map(x => DD.toggle({...x, ad: `paylas-${x.id}`, secili: p[x.id]}))))}${DD.gizlilikBant(S().bilgiNotu.replace('yalnız sen ve izin verdiğin diyetisyen', '**yalnız sen ve izin verdiğin diyetisyen**'))}</div>`;
   };
 
+  // ---------- Cihazdan gelen veriler (E5) ----------
+  const cihazBolum = () => {
+    const C = window.DDCihazIzin;
+    if (!C) return '';
+    const b = C.baglanti();
+    if (!b) return DD.bos({ikon: 'heart-pulse', baslik: 'Sağlık uygulaman bağlı değil', metin: 'Apple Health ya da Health Connect’i bağladığında **adım, kilo ve uyku** verin burada görünür.', eylem: {metin: 'Bağla', ikon: 'link', git: '#/cihazlar'}});
+    if (!C.rizaEtkin()) return DD.bos({ikon: 'shield-halved', baslik: 'Açık rızan bekleniyor', metin: `${b.ad} bağlı; verinin burada görünmesi için **sağlık uygulaması rızan** gerekir.`, eylem: {metin: 'Rıza ver', ikon: 'shield-halved', veri: {eylem: 'cihaz-riza'}}});
+    const o = C.ozet(), kaynak = {ikon: 'arrows-rotate', baslik: b.ad, alt: b.son ? `Son eşitleme ${kucukBas(nk(b.son))}` : 'İlk eşitleme bekleniyor', git: b.id ? `#/cihaz/${b.id}` : '#/cihazlar'};
+    if (!o) return `<div class="dd-yigin-12">${DD.yuzey(DD.satirlar([kaynak]))}${DD.veriYok(C.oku().silindi ? 'Cihaz kayıtların silindi; **yeni eşitlemeden** sonra burada görünür.' : 'İlk eşitlemeden sonra **son 7 günün** burada görünür.')}</div>`;
+    const l = C.paylasilan(), uz = !DD.yeniHesap() && DDV.diyetisyenler.find(x => x.slug === K().diyetisyen);
+    const turler = [{ad: 'Adım', deger: 'adim'}, o.kilo && {ad: 'Kilo', deger: 'kilo'}, {ad: 'Uyku', deger: 'uyku'}].filter(Boolean);
+    if (!turler.some(t => t.deger === cihazMetrik)) cihazMetrik = 'adim';
+    const satirlar = [kaynak, uz && {ikon: 'user-doctor', baslik: 'Diyetisyenim bunu görür', alt: l.length ? l.map((t, i) => (i ? t.etiket.toLocaleLowerCase('tr') : t.etiket)).join(', ') : 'Paylaşım kapalı · diyetisyenin görmez', git: l.length ? '#/veri-izinleri?onizleme=1' : '#/veri-izinleri?cihaz=1'}].filter(Boolean);
+    return `<div class="dd-yigin-12">${DD.p(`Son **${o.gun} gün**, ${b.ad} üzerinden. Tartından gelen kilolar **Ölçümlerin** grafiğine de işlenir.`, {ton: 'ikincil', meta: true})}${DD.segment({ad: 'cihaz-metrik', etiket: 'Cihaz verisi türü', secili: cihazMetrik, ogeler: turler})}${cihazGrafik(o, cihazMetrik)}${DD.yuzey(DD.satirlar(satirlar))}</div>`;
+  };
+  let cihazMetrik = 'adim';
+  const kucukBas = v => v.charAt(0).toLocaleLowerCase('tr') + v.slice(1);
+  const eksiKg = f => `${f < 0 ? '−' : f > 0 ? '+' : ''}${DD.ondalik(Math.abs(f), 1)} kg`;
+  const saat = dk => `${DD.ondalik(dk / 60, 1)} sa`;
+  const cihazGrafik = (o, m) => {
+    const enUc = (l, f) => l.reduce((a, x) => (f(x.deger, a.deger) ? x : a));
+    if (m === 'kilo') {
+      const k = o.kilo, ilk = k.seri[0].deger;
+      return DD.grafikKart({deger: DD.ondalik(k.son, 1), birim: 'kg', fark: k.n > 1 ? degisimMetin('kilo', k.fark) : null, farkTon: k.fark < 0 ? 'iyi' : 'notr', cumle: `Son ${o.gun} günde tartından **${k.n} ölçüm** geldi; bunlar Ölçümlerin grafiğinde de görünür.`, grafik: k.n > 1 ? DD.grafik({tur: 'eksenli', ad: 'cihaz-grafik', etiket: 'Cihazdan kilo grafiği', birim: 'kg', seri: k.seri}) : DD.veriYok('Eğri için **en az iki tartım** gerekir.'), alt: [{deger: `${DD.ondalik(ilk, 1)} kg`, etiket: 'İlk tartım'}, {deger: `${DD.ondalik(k.son, 1)} kg`, etiket: 'Son tartım'}, {deger: eksiKg(Math.round((k.son - ilk) * 10) / 10), etiket: 'Değişim'}]});
+    }
+    if (m === 'uyku') {
+      const u = o.uyku, sa = u.seri.map(x => ({...x, deger: Math.round(x.deger / 6) / 10}));
+      return DD.grafikKart({deger: DD.ondalik(u.ort / 60, 1), birim: 'saat ortalama', cumle: `Son **${o.gun} gecenin** ortalaması; dün gece **${saat(u.son)}** uyudun.`, grafik: DD.grafik({tur: 'eksenli', ad: 'cihaz-grafik', etiket: 'Uyku grafiği', birim: 'sa', seri: sa}), alt: [{deger: saat(enUc(u.seri, (a, b) => a < b).deger), etiket: 'En kısa'}, {deger: saat(enUc(u.seri, (a, b) => a > b).deger), etiket: 'En uzun'}, {deger: saat(u.son), etiket: 'Dün gece'}]});
+    }
+    const a = o.adim;
+    return DD.grafikKart({deger: DD.sayi(a.ort), birim: 'adım ortalama', cumle: `Tamamlanan günlerin ortalaması; bugün şimdiye dek **${DD.sayi(a.bugun)} adım**.`, grafik: DD.grafik({tur: 'eksenli', ad: 'cihaz-grafik', etiket: 'Adım grafiği', birim: 'adım', ondalik: 0, seri: a.seri}), alt: [{deger: DD.sayi(enUc(a.seri.slice(0, -1), (x, y) => x > y).deger), etiket: 'En yüksek'}, {deger: DD.sayi(a.bugun), etiket: 'Bugün'}, {deger: DD.sayi(a.seri.reduce((t, x) => t + x.deger, 0)), etiket: `${o.gun} gün toplam`}]});
+  };
+
   const tabakGiris = () => { const n = bosMu() ? 0 : (window.DDKayit?.liste() ?? DDV.ogunKayitlari ?? []).filter(k => k.foto).length; return DD.eylemKart({ikon: 'tabak', baslik: 'Tabaklarım', alt: n ? `${DD.sayi(n)} fotoğraflı öğün kaydı` : 'Fotoğraflı öğün kayıtların', git: '#/tabaklarim'}); };
 
   // ---------- Ölçüm ekle ----------
@@ -167,6 +202,7 @@
     }) + DD.bolumler([
       `<div class="dd-yigin-12"><div class="dd-izgara-3">${Object.keys(METRIK).map(metrikKart).join('')}</div>${dolu ? DD.kart({html: DD.yolculuk({bas: k.baslangicKiloKg, simdi: g, hedef: k.hedefKiloKg, etiket: 'Hedefe yolculuğun'})}) : ''}</div>`,
       {baslik: 'Ölçümlerin', html: olcumBolum(s)},
+      {id: 'cihaz-verisi', baslik: 'Cihazdan gelen veriler', html: cihazBolum()},
       {baslik: 'Kalori trendi', html: trendBolum()},
       {baslik: 'Kan tahlilleri', html: belgeBolum()},
       analizler().length && {baslik: 'AI analiz geçmişi', html: analizBolum()},
@@ -208,6 +244,8 @@
         DD.on(kok, 'metrik', v => { s.metrik = v; grafik(); }),
         DD.on(kok, 'donem', v => { s.donem = v; grafik(); }),
         DD.on(kok, 'trend-donem', v => { trendDonem = v; DD.tazele(); }),
+        DD.on(kok, 'cihaz-metrik', v => { cihazMetrik = v; DD.tazele(); }),
+        DD.eylem(kok, 'cihaz-riza', () => window.DDCihazIzin?.rizaAl({kaynak: 'saglik'}).then(ok => { if (ok && kok.isConnected) DD.tazele(); })),
         DD.eylem(kok, 'olcum', () => olcumSheet(kok)),
         DD.eylem(kok, 'tahlil', el => tahlilSheet(el.dataset.id)),
         DD.eylem(kok, 'analiz', el => analizSheet(el.dataset.id)),

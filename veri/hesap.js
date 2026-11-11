@@ -20,6 +20,11 @@
  *   saklamaSecenek:[[deger, ad]], dondurmaSure:[[deger, ad]], ayrilmaNedeni:[[deger, ad]],
  *   alerjenler:[{id, ad}], sevmedikOneri:[ad], paylasimTurleri:[{ id, etiket, alt, ikon, varsayilan }] (ilk dördü ekranlar/saglik.js PAYLASIM ile aynı),
  *   izinIstekleri:[{ tur, tarih, not }], izinGecmisi:[{ tarih, metin, ikon }], izinSureleri:[[deger, ad, gun|null]],
+ *   cihazIzin:{ riza, rizaTarih (ISO|null), paylas, turler:{ adim, kilo, uyku }, silindi (ISO|null), aktarim:{ zaman, bicim }|null }  · DD.durum 'cihaz-izin' başlangıç değeri (E5). Rıza ve diyetisyen paylaşımı varsayılan kapalı; genel sağlık rızasına (veri-izinleri.riza) bağlı kapsam,
+ *   cihazRiza:{ metin, detay, genel (genel rıza yokken sheet'teki açıklama), ozet (taahhüdün tek cümlesi, **vurgu**), taahhut:[[ikon, baslik, alt]] } · sağlık uygulamalarından gelen veri açık rıza kapsamı.
+ *     Kapsamdaki okunan ve yazılan türler sabit yazılmaz: DDV.cihazlar.gruplar + turler (veri/cihazlar.js, E1) okunur,
+ *   cihazTurleri:[{ id ('adim'|'kilo'|'uyku'), etiket, alt, ikon, cihaz }] · diyetisyenle paylaşılabilen cihaz verisi türleri,
+ *   cihazVerisi:{ kaynak:'cihaz', gunler:[{ tarih, adim, kiloKg|null, uykuDk }] } · son 7 gün (son kayıt bugün, adım sürüyor); kilo yalnız tartılan günlerde, değerler DDV.gecmis ile aynı (tartıdan gelen kilo Ölçümlerin grafiğine de işlenir; tek kayıt, kaynak 'cihaz'),
  *   giris:{ eposta, sifre, denemeHakki, kodUzunluk, yenidenGonderSn, sifreKurali,
  *     sifreKurallari:[{ id, ad (hata cümlesindeki adı), desen (RegExp kaynağı) }] · sifreKurali cümlesinin parçaları; yeni şifre hatası eksik olanları sayar,
  *     ikiAdimKod (kayıtlı hesabın SMS kodu; #/iki-adim alanına telefonun önerdiği kod olarak gelir) }
@@ -132,6 +137,37 @@ DDV.hesap = {
     {tarih: '2025-11-08', metin: 'Sağlık verisi açık rızası verildi', ikon: 'shield-halved'}
   ],
   izinSureleri: [['30', '30 gün', 30], ['90', '90 gün', 90], ['surekli', 'Ben geri çekene kadar', null]],
+
+  // Sağlık uygulamalarından (Apple Health, Health Connect) gelen veri. Metin taslaktır (hukuk onayı açık kalem: tasks/handoff.md); ekranda iç not gösterilmez.
+  cihazIzin: {riza: false, rizaTarih: null, paylas: false, turler: {adim: true, kilo: true, uyku: true}, silindi: null, aktarim: null},
+  cihazRiza: {
+    metin: 'Bağladığım sağlık uygulamasından (Apple Health ya da Health Connect) aşağıda sayılan ve bağlantı ayarında açık bıraktığım verilerimin okunmasına, Sağlık dosyamda gösterilmesine ve bana özel beslenme önerileri sunulması amacıyla Dada Diet tarafından işlenmesine; ayrıca Dada Diet’e girdiğim aşağıdaki kayıtların sağlık uygulamama yazılmasına açık rıza veriyorum.',
+    detay: 'Hangi türün okunacağını ya da yazılacağını bağlantı ayarından tek tek seçersin; kapattığın tür okunmaz. Rızanı dilediğin an geri alabilirsin; geri aldığında yeni veri okunmaz ve yazılmaz, mevcut cihaz kayıtların sen silmedikçe saklanır.',
+    genel: 'Sağlık uygulaması verisi, sağlık verilerinin işlenmesine verdiğin genel açık rızaya bağlı ayrı bir kapsamdır. Genel rızan yok; ikisini birlikte vermen gerekir.',
+    ozet: 'Sağlık verin **reklam ya da pazarlama için kullanılmaz**, **üçüncü taraflara satılmaz**. İzni **istediğin an** buradan ya da telefonunun sağlık ayarlarından geri alırsın.',
+    taahhut: [
+      ['ban', 'Reklam ya da pazarlama için kullanılmaz', 'Sağlık verin reklam hedeflemede ve pazarlama iletilerinde kullanılmaz'],
+      ['store-slash', 'Üçüncü taraflara satılmaz', 'Diyetisyeninle paylaşım ayrı bir izindir ve yalnız sen açarsan başlar'],
+      ['rotate-left', 'İzni istediğin an geri alırsın', 'Bu ekrandan ya da telefonunun sağlık ayarlarından']
+    ]
+  },
+  cihazTurleri: [
+    {id: 'adim', etiket: 'Adım', alt: 'Günlük adım sayın ve ortalaman', ikon: 'shoe-prints', cihaz: 'Telefon'},
+    {id: 'kilo', etiket: 'Kilo trendi', alt: 'Tartından gelen ölçümler ve yönü', ikon: 'weight-scale', cihaz: 'Akıllı tartı'},
+    {id: 'uyku', etiket: 'Uyku', alt: 'Gece toplamın ve ortalaman', ikon: 'bed', cihaz: 'Akıllı saat'}
+  ],
+  cihazVerisi: {
+    kaynak: 'cihaz',
+    gunler: [
+      {tarih: '2026-10-31', adim: 9315, kiloKg: 72.8, uykuDk: 418},
+      {tarih: '2026-11-01', adim: 7208, kiloKg: null, uykuDk: 462},
+      {tarih: '2026-11-02', adim: 8954, kiloKg: 72.7, uykuDk: 391},
+      {tarih: '2026-11-03', adim: 6842, kiloKg: 72.6, uykuDk: 436},
+      {tarih: '2026-11-04', adim: 10126, kiloKg: null, uykuDk: 447},
+      {tarih: '2026-11-05', adim: 7581, kiloKg: 72.5, uykuDk: 404},
+      {tarih: '2026-11-06', adim: 6120, kiloKg: 72.4, uykuDk: 429}
+    ]
+  },
 
   giris: {eposta: 'zeynep.kaya@posta.com', sifre: 'Dengeli2026!', denemeHakki: 5, kodUzunluk: 6, yenidenGonderSn: 60, sifreKurali: 'En az 8 karakter; büyük harf, küçük harf, rakam ve özel karakter içermeli.',
     sifreKurallari: [
