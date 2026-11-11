@@ -2,8 +2,9 @@
  * Veri DDV.yasal (veri/yasal.js, web yasal/* sayfalarından; metin değiştirilmez). Slug'lar sabit: kvkk, gizlilik, cerez, kullanim-kosullari, saglik-verisi, tibbi-sorumluluk-reddi, diyetisyen-dogrulama.
  * Dizin: başlık + arama (metin adı ve bölüm başlıkları), dört grup, sonuç yok hali (?q= ile de açılır). Rotalı kalemler (Künye, Bilimsel Kaynaklar) kurumsal ekranına gider.
  * Metin: başlık, sürüm ve son güncelleme, İçindekiler akordiyonu (?icindekiler=acik), bölümler akordiyonda (tek bölüm açık, ?bolum=N açar), önceki/sonraki metin.
- *   Satır içi bağlantılar uygulama adresine gider (data-git). Metin çizici DD.yasalMetin (kurumsal.js de kullanır): cümle içi [yer tutucu] yerine "bilgi bekleniyor" rozeti,
- *   yalnız yer tutucudan oluşan madde/paragraf çizilmez (Gastro K21); liste tamamen boşalırsa "henüz yayımlanmadı" notu çıkar.
+ *   Satır içi bağlantılar uygulama adresine gider (data-git). Metin çizici DD.yasalMetin (kurumsal.js de kullanır): doldurulmamış [yer tutucu] ekranda hiç görünmez
+ *   (11 Kasım: "bilgi bekleniyor" rozeti kaldırıldı): yer tutucu içeren cümle ya da ";" ile ayrılan yan cümle düşer, geriye bir şey kalmayan madde/paragraf çizilmez
+ *   (Gastro K21); boşalan liste ve içeriği kalmayan bölüm de çizilmez.
  *   Bilinmeyen slug: DD.hataEkran bulunamadi. Bloğu olmayan metin ya da ?hal=bos: "henüz yayımlanmadı". ?hal=yukleniyor: satır iskeleti (router). */
 (() => {
   const Y = () => DDV.yasal;
@@ -11,11 +12,19 @@
 
   // ---------- Ortak metin çizici (DD.yasalMetin): yasal ve kurumsal ekranlar birlikte kullanır (kurumsal.js çizimde çağırır) ----------
   // Zengin metin: yalnız strong/em/code ve uygulama içi bağlantı; geri kalan düz metin. Köşeli yer tutucu ("[e-posta]") ekranda yazılmaz (Gastro K21):
-  // cümle içindeyse yerine satır içi "bilgi bekleniyor" rozeti; yalnız yer tutucudan ya da "Etiket: [x]" / "X — [y]" biçiminden oluşan madde ve paragraf düşer;
-  // liste tamamen boşalırsa "henüz yayımlanmadı" notu. Akordiyon özeti aynı süzgeçten geçer.
+  // yer tutucu içeren cümle (ya da ";" sonrası yan cümle) düşer; geriye bir şey kalmayan madde ve paragraf çizilmez ("Etiket: [x]" / "X — [y]" dahil);
+  // boşalan liste ve içeriği kalmayan bölüm çizilmez. Akordiyon özeti aynı süzgeçten geçer.
   const YT = /\[[^\]]+\]/, YT_G = /\[[^\]]+\]/g;
-  const bekliyor = () => DD.durumRozet({metin: 'Bilgi bekleniyor', ton: 'notr', ikon: 'hourglass-half'});   // satır içi: cümle düzeni, sakin nötr çip
-  const metinYaz = t => t.split(/(\[[^\]]+\])/).map((x, i) => (i % 2 ? bekliyor() : esc(x))).join('');
+  const metinYaz = t => esc(t.replace(YT_G, ''));
+  // Yer tutucu süzgeci (ham HTML üstünde): cümlelere, cümleyi ";" yan cümlelerine böler; yer tutucusuz kalanları birleştirir.
+  const temizle = html => {
+    if (!YT.test(html || '')) return html || '';
+    return html.split(/(?<=[.!?])\s+(?=[<A-ZÇĞİÖŞÜ"])/).map(c => {
+      if (!YT.test(c)) return c;
+      const l = c.split(/;\s+/).filter(x => !YT.test(x));
+      return l.length ? l.join('; ').replace(/[\s,;:]*$/, '').replace(/([^.!?])$/, '$1.') : '';
+    }).filter(Boolean).join(' ');
+  };
   const zengin = html => {
     const t = document.createElement('template'); t.innerHTML = html || '';
     const yaz = n => [...n.childNodes].map(c => {
@@ -29,27 +38,33 @@
     return yaz(t.content);
   };
   const duz = html => { const t = document.createElement('template'); t.innerHTML = html || ''; return t.content.textContent.replace(/\s+/g, ' ').trim(); };
+  // Süzgeçten sonra görünür metin kalmayan madde/paragraf (yalnız yer tutucu ya da "Etiket: [x]" biçimi).
   const yerTutucu = x => {
     const t = duz(x); if (!YT.test(t)) return false;
-    return t.replace(/^[^:[\]—–]{1,60}(?::|\s[—–-])\s*/, '').replace(YT_G, '').replace(/[\s.,;:·()/—–-]/g, '') === '';
+    return duz(temizle(x)).replace(/^[^:[\]—–]{1,60}(?::|\s[—–-])\s*/, '').replace(/[\s.,;:·()/—–-]/g, '') === '';
   };
   const blokHtml = ([t, x]) => {
     if (t === 'h2' || t === 'h3') return `<${t}>${zengin(x)}</${t}>`;
-    if (t === 'ul' || t === 'ol') { const l = x.filter(li => !yerTutucu(li)); return l.length ? `<${t}>${l.map(li => `<li>${zengin(li)}</li>`).join('')}</${t}>` : DD.veriYok('Bu bilgiler **henüz yayımlanmadı**.'); }
-    return yerTutucu(x) ? '' : `<p>${zengin(x)}</p>`;
+    if (t === 'ul' || t === 'ol') { const l = x.filter(li => !yerTutucu(li)); return l.length ? `<${t}>${l.map(li => `<li>${zengin(temizle(li))}</li>`).join('')}</${t}>` : ''; }
+    return yerTutucu(x) ? '' : `<p>${zengin(temizle(x))}</p>`;
   };
   const bolumle = bloklar => {
     const giris = [], bolumler = [];
     bloklar.forEach(b => { if (b[0] === 'h2') bolumler.push({baslik: duz(b[1]), bloklar: []}); else (bolumler.length ? bolumler[bolumler.length - 1].bloklar : giris).push(b); });
-    return {giris, bolumler};
+    // Süzgeçten sonra içeriği kalmayan bölüm (ör. yalnız yer tutucudan oluşan liste) çizilmez. Numara veriden değil görünen sıradan:
+    // "4. Başlık" → n. sıra, alt başlık "4.5 …" → "n.5 …" (gizlenen bölüm numarada atlama bırakmaz).
+    const NO = /^\d+\.\s*/, ALT = /^\d+\.(\d+)\s/;
+    return {giris, bolumler: bolumler.filter(b => b.bloklar.some(x => blokHtml(x))).map((b, i) => NO.test(b.baslik)
+      ? {baslik: b.baslik.replace(NO, `${i + 1}. `), bloklar: b.bloklar.map(([t, x]) => (t === 'h3' && typeof x === 'string' ? [t, x.replace(ALT, `${i + 1}.$1 `)] : [t, x]))}
+      : b)};
   };
-  // Özet: bölümün yer tutucusuz ilk paragrafı ya da maddesi; yoksa görünen ilk metin, yer tutucu "…" olur.
+  // Özet: bölümün yer tutucusuz ilk paragrafı ya da maddesi; yoksa süzgeçten geçmiş ilk metin.
   const ozet = (b, yedek = '') => {
     const l = b.bloklar.flatMap(([t, x]) => (t === 'p' ? [x] : t === 'ul' || t === 'ol' ? x : [])).filter(x => !yerTutucu(x));
     const s = l.find(x => !YT.test(duz(x))) ?? l[0];
-    return s ? duz(s).replace(YT_G, '…') : yedek;
+    return s ? duz(temizle(s)) : yedek;
   };
-  DD.yasalMetin = {zengin, duz, yerTutucu, blokHtml, bolumle, ozet, bekliyor};
+  DD.yasalMetin = {zengin, duz, yerTutucu, temizle, blokHtml, bolumle, ozet};
   const metaMetin = m => {
     const s = `Sürüm ${m.surum}`;
     return m.guncelleme ? `${s} · Son güncelleme ${DD.tarihUzun(m.guncelleme)}` : `${s} · ${DD.tarihUzun(m.tarih)}`;

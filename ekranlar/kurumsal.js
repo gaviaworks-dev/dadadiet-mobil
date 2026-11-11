@@ -4,7 +4,7 @@
  * İletişim: web formunun alanları (ad, soyad, e-posta, telefon, konu, mesaj, KVKK onayı). ?konu=oneri|soru|teknik|ihlal konuyu seçer, ?talep=veri-silme mesaja
  *   veri silme şablonunu yazar (Gastro iletisim), ?hal=form-hata form hatası (eski ad hata-form da kabul edilir), ?hal=tamam gönderildi hali. Gönderim bu cihazda kalır; çevrimdışıysa gönderilmez.
  * SSS: web sayfa/sss soruları, akordiyon + arama (?q=), sonuç yok hali.
- * Künye ve Bilimsel Kaynaklar: yasal metin şablonu (taslak uyarısı, içindekiler, bölümler akordiyonda; ?bolum=N o bölümü açar).
+ * Künye ve Bilimsel Kaynaklar: yasal metin şablonu (içindekiler, bölümler akordiyonda; ?bolum=N o bölümü açar).
  * Editoryal Kurul, Nasıl Çalışır?, Sağlık Bilgilendirmesi, Uzmanla Çalışma Rehberi: başlık, giriş, bölümler, listeler; web kartlarındaki bağlantılar uygulama adresine.
  * Diyetisyen Ol: web başvuru formu (dört bölüm, tamamlanma ölçeri, en çok 5 uzmanlık alanı, dosya adı listelenir, taslak bu cihazda: e-posta, telefon, diploma no hariç).
  *   ?hal=form-hata form hatası (eksik alanlar özeti; eski ad hata-form da kabul edilir), ?hal=tamam gönderildi hali (Başvurun Alındı, süreç). Gönderim DD.durum 'diyetisyen-basvuru'ya yazılır;
@@ -17,7 +17,7 @@
   const sayfa = ctx => (ctx.hash || '').split('?')[0].replace(/^#\//, '');
   const BASLIK = {hakkimizda: 'Hakkımızda', iletisim: 'İletişim', kunye: 'Künye', sss: 'Sıkça Sorulan Sorular', 'bilimsel-kaynaklar': 'Bilimsel Kaynaklar', 'editoryal-kurul': 'Editoryal Kurul', 'nasil-calisir': 'Nasıl Çalışır?', 'saglik-bilgilendirmesi': 'Sağlık Bilgilendirmesi', 'uzmanla-calisma': 'Uzmanla Çalışma Rehberi', 'diyetisyen-ol': 'Diyetisyen Ol'};
 
-  // Metin çizici ortak: DD.yasalMetin (ekranlar/yasal.js; yer tutucu süzgeci, "bilgi bekleniyor" rozeti, özet). Çizim anında okunur.
+  // Metin çizici ortak: DD.yasalMetin (ekranlar/yasal.js; yer tutucu süzgeci, özet). Çizim anında okunur.
   const YM = () => DD.yasalMetin;
   const zengin = h => YM().zengin(h), duz = h => YM().duz(h), blokHtml = b => YM().blokHtml(b);
   // Canlı doğrulama (İletişim, Diyetisyen Ol): gönderimden sonra düzeltilen alanın hatası ve özetteki satırı kalkar; yeni hata gönderimde gelir.
@@ -39,8 +39,9 @@
   };
   const baslikBlok = (o, h = 2) => DD.metinBlok({etiket: o.etiket, baslik: o.baslik, metin: o.metin, rol: h === 1 ? 'page' : 'section', h});
   const sayfaBas = o => DD.metinBlok({etiket: o.etiket, baslik: o.h1 || o.baslik, metin: o.alt, h: 1});
-  const kartSatir = k => ({ikon: k.ikon, baslik: k.baslik, alt: k.metin, git: k.git || undefined, ek: k.bekliyor ? YM().bekliyor() : undefined});
-  const kartGrup = o => ({html: `<div class="dd-yigin">${baslikBlok(o)}${DD.satirlar(o.kartlar.map(kartSatir))}</div>`});
+  // İçeriği henüz olmayan kart (bekliyor: true) ekranda gösterilmez (11 Kasım: "bilgi bekleniyor" rozeti kaldırıldı).
+  const kartSatir = k => ({ikon: k.ikon, baslik: k.baslik, alt: k.metin, git: k.git || undefined});
+  const kartGrup = o => ({html: `<div class="dd-yigin">${baslikBlok(o)}${DD.satirlar(o.kartlar.filter(k => !k.bekliyor).map(kartSatir))}</div>`});
   const adimSatir = (a, i) => ({ikon: a.ikon, baslik: `${i + 1}. ${a.baslik}`, alt: a.metin});
 
   // ---------- Hakkımızda ----------

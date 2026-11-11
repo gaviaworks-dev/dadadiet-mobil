@@ -71,8 +71,6 @@ html.dd-menu-locked{overflow:hidden}
 .dd-menu-lang-opt[aria-checked=true]{color:var(--dd-primary-deep);font-family:var(--dd-font-bold)}
 .dd-menu-lang-opt[aria-checked=true] .dd-menu-ic{color:var(--dd-primary-deep)}
 .dd-menu-meta{display:grid;gap:var(--dd-s-4);padding:var(--dd-s-8) var(--dd-s-12) 0}
-.dd-menu-social{display:flex;gap:var(--dd-s-4);margin-left:calc(-1 * var(--dd-s-12))}
-.dd-menu-social a{display:grid;place-items:center;width:var(--dd-size-touch);height:var(--dd-size-touch);color:var(--dd-slate)}
 .dd-menu-brand{font-family:'Font Awesome 6 Brands';font-weight:400;font-style:normal;line-height:1;font-size:var(--dd-size-icon-md)}
 .dd-menu-legal{display:flex;flex-wrap:wrap;column-gap:var(--dd-s-16)}
 .dd-menu-legal a{display:inline-flex;align-items:center;min-height:var(--dd-size-touch);color:var(--dd-slate);font-size:var(--dd-t-meta-size);text-decoration:none;white-space:nowrap}

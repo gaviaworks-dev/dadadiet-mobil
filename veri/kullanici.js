@@ -59,7 +59,7 @@ DDV.kullanici = {
  "diyetisyen": "uzm-dyt-nehir-tunali",
  "hedefTarihi": "2027-04-16",
  "seri": 23,
- "uyelik": "Dada Diet Pro"
+ "uyelik": "Ücretsiz"
 };
 
 DDV.bugun = {

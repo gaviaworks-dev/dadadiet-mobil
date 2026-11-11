@@ -58,7 +58,8 @@
     const h = kcalHedef(), kalan = h ? h - alinan() : null, a = aktifProgram(), d = diyetisyen();
     return DD.profilBas({
       ad: `${k.ad} ${k.soyad}`, alt: k.hedefAd || 'Hedefini henüz seçmedin', kapak: 'assets/gorsel/hero/ritim-sofra.webp', ust: true,
-      eylem: yeni() ? DD.durumRozet({metin: 'Ücretsiz', ton: 'notr', ikon: 'profil'}) : DD.durumRozet({metin: k.uyelik, ton: 'basari', ikon: 'onay'}),
+      // Üyelik kademesi (Pro satışa açılmadı, karar 1): üye de Ücretsiz kademede; rozet nötr.
+      eylem: DD.durumRozet({metin: yeni() ? 'Ücretsiz' : k.uyelik, ton: 'notr', ikon: 'profil'}),
       sayaclar: yeni() && !plan() ? [] : [
         {deger: k.hedefKiloKg ? kg(k.hedefKiloKg) : '–', birim: k.hedefKiloKg ? 'kg' : '', etiket: 'Hedef'},
         {deger: kalan == null ? '–' : DD.sayi(Math.abs(kalan)), birim: kalan == null ? '' : 'kcal', etiket: kalan != null && kalan < 0 ? 'Hedef üstü' : 'Kalan'},

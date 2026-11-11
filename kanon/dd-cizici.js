@@ -149,7 +149,12 @@
   // Kilitli (premium) hal: durum sahnesi + Pro kademesinin özellikleri (DDV.uye.kademeler, uydurma yok) + Pro'ya geç / Şimdi değil.
   DD.premiumKilit = (o = {}) => {
     const k = (window.DDV?.uye?.kademeler || []).find(x => x.kod === (o.kademe || 'pro')) || {tamAd: 'Dada Diet Pro', ozellikler: [], fiyat: null};
-    return DD.durumSahne({isaret: 'lock', baslik: o.baslik || `${k.tamAd} ile açılır`, metin: o.metin || `Bu bölüm **${k.ad || 'Pro'}** üyelikte. ${k.ozet || ''}`.trim(), ipucuBaslik: `${k.ad || 'Pro'} ile gelenler`, ipuclari: (k.ozellikler || []).slice(0, 5).map(x => ['circle-check', x]), ana: {metin: k.fiyat ? `${k.ad}’ya geç · ${sayi(k.fiyat)} TL/ay` : `${k.ad}’ya geç`, ikon: k.ikon || 'bolt', git: DD.uye() ? '#/paketlerim' : '#/pro'}, ikinciller: [{metin: 'Şimdi değil', geri: true}]});
+    // Karar 1 (11 Kasım): Pro satışa açılmadıysa (DDV.uye.pro.satista === false) her girişte aynı dil: durum metni, "Yakında", pasif düğme.
+    const p = window.DDV?.uye?.pro || {}, kapali = p.satista === false, ad = k.ad || 'Pro';
+    return DD.durumSahne({isaret: 'lock', baslik: o.baslik || `${k.tamAd} ile açılır`, metin: o.metin || `Bu bölüm **${ad}** üyelikte. ${kapali ? p.durumMetni : (k.ozet || '')}`.trim(), ipucuBaslik: `${ad} ile gelenler`,
+      ipuclari: [...(kapali ? [['clock', p.rozet, p.fiyatNotu]] : []), ...(k.ozellikler || []).slice(0, 5).map(x => ['circle-check', x])],
+      ana: kapali ? {metin: `${p.dugme} · ${p.rozet}`, ikon: k.ikon || 'bolt', pasif: true} : {metin: k.fiyat ? `${ad}’ya geç · ${sayi(k.fiyat)} TL/ay` : `${ad}’ya geç`, ikon: k.ikon || 'bolt', git: DD.uye() ? '#/paketlerim' : '#/pro'},
+      ikinciller: [...(kapali ? [{metin: k.tamAd, ikon: 'bolt', git: '#/pro'}] : []), {metin: 'Şimdi değil', geri: true}]});
   };
   // Giriş duvarı (Gastro DG.girisDuvari, dg-ui.js 88): durum + eşit ikili düğme (Üye ol ikincil, Giriş yap birincil) + "Giriş yapınca" maddeleri.
   // {ikon, baslik, metin, sunar:[[ikon, baslik, alt]], uyeOl (gerekçe: data-uye-ol ile üyelik sheet'i), tam (sunar yoksa dikeyde ortalı)}

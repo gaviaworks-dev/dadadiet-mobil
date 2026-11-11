@@ -3,8 +3,9 @@
  * Durum: kamera-izin 'verildi'|'reddedildi', kamera-ipucu (kapatıldı), ai-tabak {ogun, cekim, kaynak} (yeni çekimde sıfırlanır, ai-tabak.js okur), barkod-son [ean].
  * ?izin=sor|red izin halleri, ?hal=bulanik net olmayan görüntü, ?hal=yemek-yok fotoğrafta yemek yok (Gastro Tabaktan Tarif "yemek yok").
  * Kullanım hakkı halleri (Gastro tabaktan-tarif.html durum=deneme|deneme-bitti|limit, dolaptan.js durum=limit): ?hal=deneme ücretsiz deneme sheet'i,
- * ?hal=deneme-bitti Pro'ya geç, ?hal=limit bugünkü analiz hakkı doldu. AI kotası iş kuralı karar bekliyor: haller akışa bağlı değil, yalnız ?hal= ile açılır;
- * sayı DDV.ai.kota'dan gelir (null ise metinde sayı yok).
+ * ?hal=deneme-bitti deneme bitti (Pro'ya geç pasif, "Yakında"), ?hal=limit günlük sınır doldu. Haller akışa bağlı değil, yalnız ?hal= ile açılır.
+ * Sayılar DDV.ai.kota'dan (karar 2: Gastro ile aynı; deneme 3, Pro günlük sınır Gastro'da sayısız → null, metinde sayı yok).
+ * Pro satışa açılmadı (karar 1): Pro'ya geç pasif, yanında "Yakında" ve DDV.uye.pro.durumMetni (pro.js, paketlerim.js ile aynı).
  */
 (() => {
   const {esc, sayi} = DD;
@@ -141,8 +142,10 @@
   // ---------- Kullanım hakkı (karar bekliyor) ve tanıma halleri ----------
   const kota = () => DDV.ai.kota || {};
   const pro = () => (DDV.uye?.kademeler || []).find(k => k.kod === 'pro') || {ad: 'Pro'};
-  // Fiyat yalnız tam genişlik düğmede (DD.premiumKilit gibi); sheet ayağındaki ikili düğmede kısa ad.
-  const proGec = (fiyatli = true) => { const k = pro(); return {metin: fiyatli && k.fiyat ? `${k.ad}’ya geç · ${sayi(k.fiyat)} TL/ay` : `${k.ad}’ya geç`, ikon: k.ikon || 'bolt', git: DD.uye() ? '#/paketlerim' : '#/pro'}; };
+  const P = () => DDV.uye.pro;
+  // Pro satışa açılmadı: düğme pasif (fiyatsız), "Yakında" rozeti ve durum cümlesi yanında.
+  const proGec = () => { const k = pro(); return {metin: P().dugme, ikon: k.ikon || 'bolt', pasif: true}; };
+  const yakindaRozet = () => DD.durumRozet({metin: P().rozet, ton: 'uyari', ikon: 'clock'});
   const elleEkle = {metin: 'Besin ara', ikon: 'ara_', git: '#/besin-ara'};
   const SAHNE = {
     'yemek-yok': () => DD.durumSahne({
@@ -154,13 +157,14 @@
     'deneme-bitti': () => DD.durumSahne({
       isaret: 'lock', baslik: 'Ücretsiz deneme hakların bitti',
       metin: `Tabağını fotoğrafla tanımaya **${pro().ad}** ile devam edebilirsin. Bu sırada besinleri **aramayla** ekleyebilirsin.`,
-      ana: proGec(), ikinciller: [elleEkle, {metin: 'Şimdi değil', geri: true}]
+      ana: elleEkle, ikinciller: [proGec(), {metin: 'Şimdi değil', geri: true}],
+      ipucuBaslik: pro().tamAd || 'Dada Diet Pro', ipuclari: [['clock', P().rozet, P().durumMetni]]
     }),
     limit: () => {
       const n = kota().gunluk;
       return DD.durumSahne({
-        isaret: 'hourglass-end', baslik: 'Bugünkü analiz hakkın doldu',
-        metin: `${n ? `Bugünkü **${sayi(n)} analiz** hakkının hepsini kullandın.` : 'Bugünkü **fotoğraf analizi** hakkını kullandın.'} Yeni hakkın **yarın** açılır; bu sırada besinleri aramayla ekleyebilirsin.`,
+        isaret: 'hourglass-end', baslik: 'Bugünkü hakkını kullandın',
+        metin: `${n ? `Bugünkü **${sayi(n)} analiz** hakkının hepsini kullandın.` : 'Günlük kullanım sınırına ulaştın.'} Yeni hakkın **yarın** açılır; bu sırada besinleri aramayla ekleyebilirsin.`,
         ana: elleEkle, ikinciller: [{metin: 'Tabaklarım', ikon: 'tabak', git: '#/tabaklarim'}, {metin: 'Şimdi değil', geri: true}]
       });
     }
@@ -170,8 +174,8 @@
     const n = kota().deneme, k = pro();
     DD.sheet({
       baslik: 'Ne Yedim? · Ücretsiz deneme',
-      html: `<div class="dd-yigin"><div class="dd-sira">${DD.durumRozet({metin: k.ad, ikon: k.ikon || 'bolt'})}</div>${DD.p('Tabağının fotoğrafını çek; **bileşenleri ve kaloriyi** tahmin edelim, sen düzeltip günlüğüne ekle.')}${DD.parcali([{ikon: 'kamera', baslik: 'Çek', bilgi: true}, {ikon: 'duzenle', baslik: 'Düzelt', bilgi: true}, {ikon: 'ekle', baslik: 'Günlüğe ekle', bilgi: true}], {kutu: 'yatay', aria: 'Ne Yedim? nasıl çalışır'})}${DD.p(n ? `**${sayi(n)} ücretsiz deneme** hakkın var.` : `**${k.ad}**’ya geçmeden ücretsiz dene.`, {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Ücretsiz denemeyi kullan', ikon: 'kamera', tam: true, veri: {eylem: 'deneme-kullan'}})}</div>`,
-      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Şimdilik değil', tur: 'secondary', attrs: 'data-sheet-kapat'})}${DD.btn(proGec(false))}</div>`,
+      html: `<div class="dd-yigin"><div class="dd-sira">${DD.durumRozet({metin: k.ad, ikon: k.ikon || 'bolt'})}${yakindaRozet()}</div>${DD.p('Tabağının fotoğrafını çek; **bileşenleri ve kaloriyi** tahmin edelim, sen düzeltip günlüğüne ekle.')}${DD.parcali([{ikon: 'kamera', baslik: 'Çek', bilgi: true}, {ikon: 'duzenle', baslik: 'Düzelt', bilgi: true}, {ikon: 'ekle', baslik: 'Günlüğe ekle', bilgi: true}], {kutu: 'yatay', aria: 'Ne Yedim? nasıl çalışır'})}${DD.p(n ? `**${sayi(n)} ücretsiz deneme** hakkın var.` : `**${k.ad}**’ya geçmeden ücretsiz dene.`, {ton: 'ikincil', meta: true})}${DD.btn({metin: 'Ücretsiz denemeyi kullan', ikon: 'kamera', tam: true, veri: {eylem: 'deneme-kullan'}})}${DD.p(P().durumMetni, {ton: 'ikincil', meta: true})}</div>`,
+      altBar: `<div class="dd-ikili">${DD.btn({metin: 'Şimdilik değil', tur: 'secondary', attrs: 'data-sheet-kapat'})}${DD.btn(proGec())}</div>`,
       // Deneme kullanılmadan kapanırsa (Şimdilik değil, X, aşağı kaydırma) kamera açık kalmaz: geri döner (Gastro dolaptan.js data-dt-simdilik).
       kapaninca: () => { if (!ctx.temiz) DD.geri(); },
       sonra: d => DD.eylem(d, 'deneme-kullan', () => { ctx.temiz = true; d.kapat(); DD.toast('Ücretsiz denemen **başladı**', {tur: 'basari'}); DD.tazele(); })

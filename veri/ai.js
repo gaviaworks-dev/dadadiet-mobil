@@ -841,6 +841,10 @@ DDV.ai = {
   }
  }
 };
-// Ne Yedim? kullanım hakkı. İş kuralı karar bekliyor (durum denetimi Paket 7): gunluk (Pro, günlük analiz sayısı) ve deneme (ücretsiz deneme sayısı)
-// belirlenene kadar null kalır; ai-kamera.js ?hal=limit|deneme|deneme-bitti sayı yoksa metinde sayı göstermez.
-DDV.ai.kota = {gunluk: null, deneme: null};
+// Ne Yedim? kullanım hakkı (karar 2, 11 Kasım: Gastro'daki sınır neyse aynısı). Kaynak, Gastro mobil prototip (v3-app, salt okunur):
+//   deneme: ücretsiz deneme sayısı 3 — runtime.js:9241 (Tabaktan Tarif `dadagastro-photo-trials ?? 3`), ortak/sayfalar/dolaptan.js:54 (`DENEME = 3`);
+//   Flutter dadagastro-mobil-app lib/core/widgets/gallery/blocks/b71_pro_ve_uyelik.dart:147 ("3 ücretsiz deneme hakkın kaldı.").
+//   gunluk: Pro günlük sınırı Gastro'da sayısız ("Günlük üretim sınırına ulaştın", dolaptan.js:87; "Günlük kullanım sınırına ulaştın", runtime.js:9336);
+//   DadaGastro (Laravel) kodunda YZ kotası yok. Sayı uydurulmaz: null kalır, ai-kamera.js ?hal=limit nötr metin gösterir (açık kalem).
+// Gastro'da deneme oturum boyu (sessionStorage) sayılır; gerçek sayım kuralı (hesap başına mı, süresiz mi) arka uçta karar ister.
+DDV.ai.kota = {gunluk: null, deneme: 3};

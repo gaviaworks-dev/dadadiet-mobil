@@ -3,6 +3,8 @@
  * Üyelik kademeleri ve abonelik DDV.uye; diyetisyen paketi DDV.benimDiyetisyenim.paket (Uzmanım ile aynı), paket tanımı DDV.diyetisyenler[].paketler.
  * Durum (Ödemelerim ile ortak): abonelik {kademe, baslangic, donemBas, donemBit, yenileme, kart, iptal?} (varsayılan DDV.uye.abonelik, yeni hesapta {kademe:'ucretsiz'}),
  *   odeme-kartlari (kayıtlı kartlar), odeme-ekleri [ödeme kaydı] (yükseltme farkı ve yeni dönem tahsilatı buraya yazılır).
+ * Pro satışa açılmadı (karar 1, 11 Kasım; web hesabim/paketlerim "Pro ve Pro Max henüz satışa açılmadı"): ücretli kademede fiyat "Örnek fiyat" etiketli,
+ *   geçiş düğmesi pasif ve yanında "Yakında"; metinler DDV.uye.pro (pro.js ve ai-kamera.js ile aynı). Yükseltme/iptal akışı satış açılınca (DDV.uye.pro.satista) çalışır.
  * #/paketlerim?hal=bos ücretsiz ve paketsiz hal, ?hal=hata bağlantı hatası. */
 (() => {
   const U = () => DDV.uye;
@@ -19,6 +21,13 @@
   const kartAd = id => { const k = kartlar().find(x => x.id === id) || kartlar().find(x => x.varsayilan); return k ? `${k.marka} •••• ${k.son}` : null; };
   const odemeEkle = o => DD.durum.yaz('odeme-ekleri', [{id: `e${Date.now()}`, no: `DD-2026-00${4500 + DD.durum.oku('odeme-ekleri', []).length}`, tarih: DD.bugunIso(), durum: 'odendi', ...o}, ...DD.durum.oku('odeme-ekleri', [])]);
   const tl = n => DD.paraTL(n);
+  const P = () => U().pro;
+  // Yönelme eki (pro.js ile aynı): Pro’ya, Pro Max’a.
+  const yonelme = ad => { const s = ad.toLocaleLowerCase('tr'), u = [...s].reverse().find(h => 'aeıioöuü'.includes(h)) || 'a', e = 'eiöü'.includes(u) ? 'e' : 'a'; return `${ad}’${'aeıioöuü'.includes(s.at(-1)) ? 'y' : ''}${e}`; };
+  const satista = k => !k.fiyat || P().satista;
+  const yakindaRozet = () => DD.durumRozet({metin: P().rozet, ton: 'uyari', ikon: 'clock'});
+  // Satışa açılmamış kademeye geçiş: pasif düğme, üstünde "Yakında" ve tek kaynak cümle.
+  const yakindaBlok = k => `<div class="dd-yigin-8"><div class="dd-sira">${yakindaRozet()}</div>${DD.p(P().durumMetni, {ton: 'ikincil', meta: true})}${DD.btn({metin: `${yonelme(k.ad)} geç`, ikon: k.ikon, tam: true, pasif: true})}</div>`;
 
   // ---------- Üyelik kartı ----------
   const uyelikKart = () => {
@@ -33,10 +42,10 @@
         {ikon: 'clock-rotate-left', etiket: 'Üyelik başlangıcı', deger: DD.tarihUzun(a.baslangic)}
       ];
     const eylem = ucretsiz
-      ? DD.btn({metin: 'Pro’ya geç', ikon: 'bolt', tam: true, veri: {eylem: 'gec', id: 'pro'}})
+      ? (satista(kademe('pro')) ? DD.btn({metin: 'Pro’ya geç', ikon: 'bolt', tam: true, veri: {eylem: 'gec', id: 'pro'}}) : yakindaBlok(kademe('pro')))
       : a.iptal
         ? DD.btn({metin: 'İptali geri al', ikon: 'rotate-left', tur: 'secondary', tam: true, veri: {eylem: 'iptal-geri'}})
-        : `${ust ? DD.btn({metin: `${ust.ad}’a yükselt`, ikon: ust.ikon, tam: true, veri: {eylem: 'gec', id: ust.kod}}) : ''}${DD.btn({metin: 'Üyeliği iptal et', tur: 'text', tam: true, veri: {eylem: 'iptal'}})}`;
+        : `${!ust ? '' : satista(ust) ? DD.btn({metin: `${ust.ad}’a yükselt`, ikon: ust.ikon, tam: true, veri: {eylem: 'gec', id: ust.kod}}) : yakindaBlok(ust)}${DD.btn({metin: 'Üyeliği iptal et', tur: 'text', tam: true, veri: {eylem: 'iptal'}})}`;
     const not = a.iptal ? DD.bant({ton: 'uyari', metin: `Üyeliğin **${DD.tarihUzun(a.donemBit)}** tarihinde biter, sonra Ücretsiz kademeye dönersin. Kayıtların, ölçümlerin ve rozetlerin **silinmez**.`}) : '';
     return `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: 'primary', boyut: 'lg'}), baslik: k.tamAd, alt: ucretsiz ? 'Ücretsiz kademe' : 'Aylık üyelik', sag: durum})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'), {ton: 'ikincil'})}${DD.kunye(kunye)}${not}<div class="dd-yigin-8">${eylem}</div></div>`;
   };
@@ -46,9 +55,10 @@
     const k = kademe(kod), a = abonelik(), sira = U().kademeler.indexOf(k), simdi = U().kademeler.findIndex(x => x.kod === a.kademe);
     const miras = sira > 0 ? DD.p(`**${U().kademeler[sira - 1].ad}** kademesinin tamamı, üstüne:`, {ton: 'ikincil', meta: true}) : '';
     const dugme = sira === simdi ? `<div class="dd-sira">${DD.durumRozet({metin: 'Mevcut paketin', ton: 'basari', ikon: 'onay'})}</div>`
-      : sira > simdi ? DD.btn({metin: `${k.ad}’a geç`, ikon: k.ikon, tam: true, veri: {eylem: 'gec', id: k.kod}})
+      : sira > simdi ? (satista(k) ? DD.btn({metin: `${yonelme(k.ad)} geç`, ikon: k.ikon, tam: true, veri: {eylem: 'gec', id: k.kod}}) : yakindaBlok(k))
         : DD.btn({metin: `${k.ad} kademesine dön`, tur: 'secondary', tam: true, veri: {eylem: 'dusur', id: k.kod}});
-    return `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: sira === simdi ? 'primary' : 'notr', boyut: 'lg'}), baslik: k.tamAd, alt: k.fiyat ? `${tl(k.fiyat)} / ay` : 'Her zaman 0 TL'})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'))}${miras}<div class="dd-yigin-8">${k.ozellikler.map(o => DD.madde({metin: o})).join('')}</div>${dugme}</div>`;
+    const etiket = satista(k) ? '' : `<div class="dd-sira">${DD.rozet({metin: P().fiyatEtiketi, ton: 'notr'})}</div>`;
+    return `<div class="dd-yigin">${DD.satir({sol: DD.ikonKutu({ikon: k.ikon, ton: sira === simdi ? 'primary' : 'notr', boyut: 'lg'}), baslik: k.tamAd, alt: k.fiyat ? `${tl(k.fiyat)} / ay` : 'Her zaman 0 TL', ek: etiket})}${DD.p(k.ozet.replace(/^([^.:]+)/, '**$1**'))}${miras}<div class="dd-yigin-8">${k.ozellikler.map(o => DD.madde({metin: o})).join('')}</div>${dugme}</div>`;
   };
 
   // ---------- Diyetisyen paketi ----------

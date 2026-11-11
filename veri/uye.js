@@ -15,7 +15,8 @@
  *   gonderiler: {grupId:[{ id, yazar, metin, zaman, begeni, moderator?, yorumlar:[{yazar, metin, zaman}] }]}
  *   sss: [{ kategori, ikon, sorular:[{soru, yanit, ikon}] }], talepKonulari[],
  *   talepler: [{ id, baslik, konu, durum ('acik'|'yanit'|'cozulen'|'kapali'), tarih, mesajlar:[{kim ('ben'|'destek'), tarih, saat, metin}] }]
- *   kademeler: [{ kod, ad, tamAd, ikon, fiyat (TL/ay), ozet, ozellikler[] }], abonelik: { kademe, baslangic, donemBas, donemBit, yenileme (iso), kart }
+ *   kademeler: [{ kod, ad, tamAd, ikon, fiyat (TL/ay, örnek), ozet, ozellikler[] }], abonelik: { kademe, baslangic?, donemBas?, donemBit?, yenileme? (iso), kart? }
+ *   pro: { satista, rozet, fiyatEtiketi, durumMetni, fiyatNotu, dugme }   // Pro satışa açılmadı (karar 1): Pro'ya giden her ekran bu metni ve etiketi kullanır
  *   kartlar: [{ id, marka, ikon, son, skt, varsayilan }], eklenebilirKart, faturaBilgi: { tip, ad, eposta, telefon, il, ilce, adres, unvan, vergiDairesi, vkn }
  *   odemeler: [{ id, no, tarih, tur ('abonelik'|'paket'|'tek'|'iade'), baslik, tutar, durum ('odendi'|'iade-edildi'|'iade-surecinde'), kart }]
  *   gecmisPaketler: [{ diyetisyen, paket, ad, seans, alinma, bitis }]
@@ -189,8 +190,8 @@ DDV.uye = {
       {ikon: 'user-shield', soru: 'Diyetisyenim verilerimi görüyor mu?', yanit: 'Yalnız **izin verdiğin** veriyi görür. İzinleri Sağlık dosyam ekranından istediğin an kapatırsın.'}]},
     {kategori: 'Pro ve ödeme', ikon: 'credit-card', sorular: [
       {ikon: 'layer-group', soru: 'Pro ve Pro Max arasındaki fark ne?', yanit: 'Pro gelişmiş program ve plan katmanını açar. **Pro Max** buna ayda bir diyetisyen görüşme hakkı ekler. Diyetisyen paketleri üyeliğe dahil değildir.'},
-      {ikon: 'credit-card', soru: 'Kart bilgilerim güvende mi?', yanit: 'Tam kart numarası **Dada Diet’te tutulmaz**; yalnız marka, son dört hane ve son kullanma tarihi görünür.'},
-      {ikon: 'ban', soru: 'Pro üyeliğimi istediğim zaman iptal edebilir miyim?', yanit: 'Evet. Paketlerim ekranından iptal edersin; erişimin **dönem sonuna kadar** sürer, kayıtların silinmez.'},
+      {ikon: 'credit-card', soru: 'Kart bilgilerim güvende mi?', yanit: 'Pro planları için bugün ödeme alınmıyor; Dada Diet Pro için **kart bilgisi istemez**. Diyetisyen ödemelerinde tam kart numarası Dada Diet’te tutulmaz; yalnız marka, son dört hane ve son kullanma tarihi görünür.'},
+      {ikon: 'ban', soru: 'Pro üyeliğimi istediğim zaman iptal edebilir miyim?', yanit: 'Pro planları **henüz satışa açılmadı**; bugün iptal edilecek bir Pro aboneliği yok. Üyelik ve iptal koşulları Kullanım Koşulları’nda yazar.'},
       {ikon: 'file-invoice', soru: 'Faturamı nereden alırım?', yanit: 'Ödemelerim ekranında her ödemenin **faturasını** açıp indirebilirsin.'}]},
     {kategori: 'Topluluk ve veri', ikon: 'people-group', sorular: [
       {ikon: 'people-group', soru: 'Destek grupları nedir?', yanit: 'Benzer hedefteki üyelerin **paylaşım alanıdır**. Gruplarda sağlık verin paylaşılmaz; yalnız yazdıkların görünür.'},
@@ -221,7 +222,18 @@ DDV.uye = {
     {kod: 'pro', ad: 'Pro', tamAd: 'Dada Diet Pro', ikon: 'bolt', fiyat: 149, ozet: 'Program, plan ve araç katmanının tamamı: düzenli takip eden biri için.', ozellikler: ['Gelişmiş programlar', 'Kişisel beslenme planı ve PDF çıktısı', 'Gelişmiş menü planlama', 'Sınırsız kayıt geçmişi', 'Sağlık dosyası: belge, tahlil ve dışa aktarım', 'Reklamsız kullanım', 'Öncelikli destek']},
     {kod: 'promax', ad: 'Pro Max', tamAd: 'Dada Diet Pro Max', ikon: 'gem', fiyat: 449, ozet: 'Pro’nun tamamı, üstüne ayda bir diyetisyen görüşmesi ve sağlık dosyanı paylaşma.', ozellikler: ['Ayda bir diyetisyen görüşmesi', 'Sağlık dosyanı diyetisyeninle paylaşma (açık rızayla)']}
   ],
-  abonelik: {kademe: 'pro', baslangic: '2026-08-15', donemBas: '2026-10-15', donemBit: '2026-11-14', yenileme: '2026-11-15', kart: 'k1'},
+  // Pro satışa açılmadı (karar 1, 11 Kasım; web /pro ve hesabim/paketlerim ile aynı): üye Ücretsiz kademede, Pro tahsilatı yok.
+  // Metinler web dadadiet-prototip pro/index.html ("Pro planları henüz satışa açılmadı; sitede bugün Pro için ödeme alınmıyor.", düğme "Satışa Açılmadı")
+  // ve _src/sayfalar/uye-gastro/paketlerim.mjs:19/23 ("Pro ve Pro Max henüz satışa açılmadı", "tutar henüz belirlenmedi"). Fiyatlar örnek (Beyar: "örnek" etiketiyle).
+  pro: {
+    satista: false,
+    rozet: 'Yakında',
+    fiyatEtiketi: 'Örnek fiyat',
+    durumMetni: 'Pro planları henüz satışa açılmadı; bugün Pro için ödeme alınmıyor.',
+    fiyatNotu: 'Fiyatlar örnektir; Pro ve Pro Max için tutar henüz belirlenmedi.',
+    dugme: 'Pro’ya geç'
+  },
+  abonelik: {kademe: 'ucretsiz'},
   kartlar: [
     {id: 'k1', marka: 'Visa', ikon: 'credit-card', son: '4242', skt: '08/27', varsayilan: true},
     {id: 'k2', marka: 'Mastercard', ikon: 'credit-card', son: '8821', skt: '03/27', varsayilan: false}
@@ -229,12 +241,9 @@ DDV.uye = {
   eklenebilirKart: {id: 'k3', marka: 'Troy', ikon: 'credit-card', son: '1907', skt: '11/28', varsayilan: false},
   faturaBilgi: {tip: 'bireysel', ad: 'Zeynep Kaya', eposta: 'zeynep.kaya@posta.com', telefon: '0532 418 26 70', il: 'Ankara', ilce: 'Çankaya', adres: 'Bahçelievler Mah. 7. Cadde No: 14 D: 3', unvan: '', vergiDairesi: '', vkn: ''},
   odemeler: [
-    {id: 'o6', no: 'DD-2026-004415', tarih: '2026-10-15', tur: 'abonelik', baslik: 'Pro üyelik · Ekim', tutar: 149, durum: 'odendi', kart: 'k1'},
     {id: 'o5', no: 'DD-2026-004298', tarih: '2026-09-22', tur: 'paket', baslik: '3 ay paketi · 12 görüşme', tutar: 13900, durum: 'odendi', kart: 'k1', diyetisyen: 'uzm-dyt-nehir-tunali'},
     {id: 'o4', no: 'DD-2026-004281', tarih: '2026-09-16', tur: 'iade', baslik: 'Tek seans · mükerrer çekim iadesi', tutar: -1450, durum: 'iade-edildi', kart: 'k2', diyetisyen: 'uzm-dyt-nehir-tunali'},
-    {id: 'o3', no: 'DD-2026-004266', tarih: '2026-09-15', tur: 'tek', baslik: 'Tek seans · ilk görüşme', tutar: 1450, durum: 'odendi', kart: 'k2', diyetisyen: 'uzm-dyt-nehir-tunali'},
-    {id: 'o2', no: 'DD-2026-004207', tarih: '2026-09-15', tur: 'abonelik', baslik: 'Pro üyelik · Eylül', tutar: 149, durum: 'odendi', kart: 'k1'},
-    {id: 'o1', no: 'DD-2026-004102', tarih: '2026-08-15', tur: 'abonelik', baslik: 'Pro üyelik · Ağustos', tutar: 149, durum: 'odendi', kart: 'k1'}
+    {id: 'o3', no: 'DD-2026-004266', tarih: '2026-09-15', tur: 'tek', baslik: 'Tek seans · ilk görüşme', tutar: 1450, durum: 'odendi', kart: 'k2', diyetisyen: 'uzm-dyt-nehir-tunali'}
   ],
   gecmisPaketler: [
     {diyetisyen: 'uzm-dyt-nehir-tunali', paket: 'tek', ad: 'Tek seans', seans: 1, alinma: '2026-09-15', bitis: '2026-09-15'}

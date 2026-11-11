@@ -2,7 +2,11 @@
  * Kaynak: web dadadiet-prototip yasal/<slug>/index.html ve sayfa/{hakkimizda,iletisim,kunye,sss}/index.html (başlık, sürüm satırı, bölüm başlıkları, paragraflar, maddeler);
  *   Paket 1b: sayfa/{bilimsel-kaynaklar,editoryal-kurul,nasil-calisir,saglik-bilgilendirmesi,uzmanla-calisma-rehberi}, diyetisyen-ol/ (_src/sayfalar/public-beslenme/kurumsal.mjs, public-araclar/diyetisyen-ol.mjs, metin.json).
  * Metin değiştirilmedi. Satır içi yalnız <strong>, <em>, <code>, <a href="#/...">; web bağlantısı uygulamada ekranı olan adrese çevrildi (1b: Bilimsel Kaynaklar, Editoryal Kurul, Diyetisyen Ol da); karşılığı olmayan düz metin kaldı.
- * Web'deki "[unvan] · bekliyor" rozetleri ve [yer tutucu] alanları olduğu gibi duruyor (şirket bilgisi henüz yok); ekran yalnız "Etiket: [yer tutucu]" satırlarını çizmez.
+ * Şirket bilgisi (karar 4, 11 Kasım): Gastro'daki gibi yalnız üç alan doldu: [unvan], [adres], [e-posta] (DadaGastro app/Servisler/Kurumsal/YasalKurumsalBilgiler.php:9-11;
+ *   Gastro mobil v3-app ortak/veri/icerik.js aynı değerler). Diet web footer'ı aynı unvanı kullanır (dadadiet-prototip _src/kabuk/kabuk.mjs:95, DadaDiet resources/lang/tr/arayuz_footer_a106.php:9).
+ *   MERSİS, vergi, KEP, telefon, yasal temsilci vb. Gastro'da da [yer tutucu]; ekran yer tutucu içeren satırı/cümleyi hiç çizmez (ekranlar/yasal.js temizle).
+ * 11 Kasım: "Durum: Taslak" uyarıları (künye, bilimsel kaynaklar) kaldırıldı; Sağlık Verisi Politikası 1.1 bağlı sağlık uygulamalarını (Apple Sağlık, Health Connect)
+ *   kapsar (§2, §3, §4.5-4.6, §5, §6, §8-§10; kaynak tasks/entegrasyon/backend-plan.md §1.6, §4.1, §5 ve rapor-E5.md). Saklama süresi yazılmadı (açık kalem).
  *
  * DDV.yasal: {
  *   dizin: { baslik, alt, giris, ayak, gruplar:[{ baslik, kalemler:[{ slug } | { ad, ikon, git }] }] }   // web yasal/index.html; { git } kalemi DDV.kurumsal[<rota>] belgesini gösterir (kunye, bilimsel-kaynaklar)
@@ -32,7 +36,7 @@ DDV.yasal = {
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Taraflar ve Konu"],
-   ["p", "İşbu Kullanım Koşulları; DadaDiet platformunu işleten [unvan] (\"<strong>DadaDiet</strong>\" veya \"<strong>Platform</strong>\") ile Platform'u ziyaret eden, üye olan veya Platform üzerinden hizmet alan gerçek kişi (\"<strong>Kullanıcı</strong>\") arasındaki ilişkiyi düzenler. Platform'u kullanmaya devam ederek bu koşulları kabul etmiş sayılırsınız."],
+   ["p", "İşbu Kullanım Koşulları; DadaDiet platformunu işleten Dada İst Ajans Hizmetleri Ticaret Limited Şirketi (\"<strong>DadaDiet</strong>\" veya \"<strong>Platform</strong>\") ile Platform'u ziyaret eden, üye olan veya Platform üzerinden hizmet alan gerçek kişi (\"<strong>Kullanıcı</strong>\") arasındaki ilişkiyi düzenler. Platform'u kullanmaya devam ederek bu koşulları kabul etmiş sayılırsınız."],
    ["p", "Bu metin; <a href=\"#/yasal/tibbi-sorumluluk-reddi\">Tıbbi Sorumluluk Reddi</a>, <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a> ve Platformun Rolü ve Aracılık Bildirimi metinlerine atıf yapar ve onlarla birlikte bir bütün oluşturur."],
    ["h2", "2. Tanımlar"],
    ["ul", ["<strong>Hesaplayıcı</strong> — Kullanıcının girdiği ölçü ve bilgilerden referans denklemlerle tahmini bir sonuç üreten araç.", "<strong>Program</strong> — Platform'da yayımlanan örnek nitelikteki beslenme içeriği ve takip planı.", "<strong>Rehber içerik</strong> — Beslenme ve besin bilgisine ilişkin editoryal yazı ve besin kütüphanesi kayıtları.", "<strong>Sağlık verisi</strong> — Boy, kilo, vücut ölçüleri, hedefler, öğün kayıtları ve diyetisyene aktarılan sağlık geçmişi.", "<strong>Uzman</strong> — Platform üzerinde doğrulanmış, bağımsız meslek mensubu diyetisyen."]],
@@ -40,7 +44,7 @@ DDV.yasal = {
    ["p", "<strong>DadaDiet bir sağlık kuruluşu değildir ve sağlık hizmeti sunmaz.</strong> Platform; hesaplayıcı, rehber içerik ve beslenme programı yayımlar ve kullanıcı ile bağımsız diyetisyeni buluşturan aracılık, randevu ve altyapı hizmeti verir. Bu ayrımın kapsamı Platformun Rolü ve Aracılık Bildirimi'nde düzenlenmiştir."],
    ["p", "Platform'da yayımlanan içerikler genel bilgi amaçlıdır; kişiye özel tıbbi ya da beslenme önerisi değildir ve teşhis veya tedavi yerine geçmez. Sınırların tamamı <a href=\"#/yasal/tibbi-sorumluluk-reddi\">Tıbbi Sorumluluk Reddi</a>'ndedir."],
    ["h2", "4. Hesap Açma ve Hesabın Kullanımı"],
-   ["ul", ["Üyelik sırasında verilen bilgilerin doğru ve güncel olması Kullanıcı'nın sorumluluğundadır.", "Hesap kişiseldir; giriş bilgilerinin gizliliğinden ve hesap üzerinden yapılan işlemlerden Kullanıcı sorumludur.", "Sağlık verisi barındıran bir hesapta iki adımlı doğrulamanın açılması önerilir; ayarları \"Giriş ve Güvenlik\" bölümündedir.", "Yetkisiz erişim şüphesinde Kullanıcı derhal <strong>[e-posta]</strong> adresine bildirimde bulunur.", "Üyelik için asgari yaş ve küçüklere ilişkin kurallar Yaş Sınırı ve Küçüklerin Korunması metnindedir."]],
+   ["ul", ["Üyelik sırasında verilen bilgilerin doğru ve güncel olması Kullanıcı'nın sorumluluğundadır.", "Hesap kişiseldir; giriş bilgilerinin gizliliğinden ve hesap üzerinden yapılan işlemlerden Kullanıcı sorumludur.", "Sağlık verisi barındıran bir hesapta iki adımlı doğrulamanın açılması önerilir; ayarları \"Giriş ve Güvenlik\" bölümündedir.", "Yetkisiz erişim şüphesinde Kullanıcı derhal <strong>dadamentorcom@gmail.com</strong> adresine bildirimde bulunur.", "Üyelik için asgari yaş ve küçüklere ilişkin kurallar Yaş Sınırı ve Küçüklerin Korunması metnindedir."]],
    ["h2", "5. Onayların Ayrı Alınması"],
    ["p", "DadaDiet'te onaylar tek kutuda toplanmaz. <strong>Üyelik onayı, sağlık verisi rızası, uzmanla paylaşım rızası ve pazarlama izni dört ayrı onaydır</strong>; ayrı ayrı verilir, ayrı ayrı kaydedilir ve ayrı ayrı geri çekilebilir. Tek kutuda birleştirilen rıza geçersiz sayılır."],
    ["ul", ["<strong>Zorunlu:</strong> Kullanım Koşulları ve <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a>'nın kabulü.", "<strong>İsteğe bağlı ve ayrı:</strong> sağlık verisinin diyetisyenle paylaşılması izni — hesabınızın \"Veri ve İzinlerim\" bölümünde ayrı bir anahtar.", "<strong>İsteğe bağlı ve ayrı:</strong> pazarlama iletileri izni — aynı bölümde ayrı bir anahtar.", "<strong>İsteğe bağlı ve ayrı:</strong> sağlık verisinin işlenmesine ilişkin açık rıza — bkz. Açık Rıza Metni. <strong>Bu rızayı ayrı olarak isteyen bir ekran bugün Platform'da bulunmamaktadır</strong>; ilgili metnin §4'ü bugünkü durumu ayrıca bildirir."]],
@@ -62,13 +66,13 @@ DDV.yasal = {
    ["h2", "12. Sorumluluğun Sınırlandırılması"],
    ["p", "İçeriklerin niteliği, hesaplama sonuçlarının tahmini oluşu, program menülerinin örnek niteliği, besin değeri bilgilerinin kaynaklara göre değişebilmesi ve acil sağlık durumunda izlenecek yol <a href=\"#/yasal/tibbi-sorumluluk-reddi\">Tıbbi Sorumluluk Reddi</a>'nde düzenlenmiştir. Uzmandan kaynaklanan hususlarda sorumluluğun kimde olduğu Platformun Rolü ve Aracılık Bildirimi'nde yazılıdır."],
    ["h2", "13. Hesabın Askıya Alınması ve Sonlandırılması"],
-   ["p", "Bu koşulların ihlali hâlinde içerik yayından kaldırılabilir, hesap geçici olarak askıya alınabilir veya sonlandırılabilir. Kullanıcı'nın karara itiraz hakkı saklıdır; itiraz başvuruları <strong>[e-posta]</strong> adresinden yapılır ve <strong>[yanıt süresi]</strong> içinde sonuçlandırılır."],
+   ["p", "Bu koşulların ihlali hâlinde içerik yayından kaldırılabilir, hesap geçici olarak askıya alınabilir veya sonlandırılabilir. Kullanıcı'nın karara itiraz hakkı saklıdır; itiraz başvuruları <strong>dadamentorcom@gmail.com</strong> adresinden yapılır ve <strong>[yanıt süresi]</strong> içinde sonuçlandırılır."],
    ["p", "Kullanıcı hesabını dilediği zaman kapatabilir. Hesap silindiğinde sağlık verileri kalıcı olarak silinir; uzmanla paylaşılmış veri ve görüşme kayıtları için mesleki saklama yükümlülükleri geçerli olabilir. Ayrıntı <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a>'ndadır."],
    ["h2", "14. Değişiklikler ve Versiyonlama"],
    ["p", "Her metnin başında yürürlük tarihi, son güncelleme tarihi ve sürüm numarası gösterilir. Metin güncellendiğinde kayıtlı kullanıcılara bildirim gönderilir; esaslı değişiklikte yeniden onay istenir. Sağlık içeriğinde güncellik ayrıca bir güvenilirlik göstergesidir; rehber ve hesaplayıcı sayfalarında da son güncelleme tarihi gösterilir."],
    ["h2", "15. Uygulanacak Hukuk ve İletişim"],
    ["p", "Bu koşullara Türk hukuku uygulanır. Uyuşmazlıklarda <strong>[yetkili mahkeme ve icra daireleri]</strong> yetkilidir."],
-   ["ul", ["<strong>Unvan:</strong> [unvan]", "<strong>Adres:</strong> [adres]", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>Vergi dairesi / vergi no:</strong> [vergi dairesi / vergi no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> [e-posta]"]],
+   ["ul", ["<strong>Unvan:</strong> Dada İst Ajans Hizmetleri Ticaret Limited Şirketi", "<strong>Adres:</strong> Yavuz Sultan Selim Mah. No:52/B, Fatih/İstanbul 34083", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>Vergi dairesi / vergi no:</strong> [vergi dairesi / vergi no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> dadamentorcom@gmail.com"]],
    ["p", "Yer sağlayıcı bilgileri <a href=\"#/kunye\">Künye / Yer Sağlayıcı Bilgisi</a> sayfasındadır."],
    ["h2", "16. İlgili Metinler"],
    ["ul", ["<a href=\"#/yasal/tibbi-sorumluluk-reddi\">Tıbbi Sorumluluk Reddi</a>", "<a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a>", "Platformun Rolü ve Aracılık Bildirimi", "Yaş Sınırı ve Küçüklerin Korunması"]]
@@ -104,13 +108,13 @@ DDV.yasal = {
    ["h2", "11. Uzman Hizmetleri Bakımından Sorumluluk"],
    ["p", "Bir diyetisyenin hazırladığı kişiye özel plan bakımından mesleki sorumluluk uzmandadır; Platform aracılık, randevu ve altyapı hizmeti verir. Bu ayrım Platformun Rolü ve Aracılık Bildirimi'nde düzenlenmiştir."],
    ["h2", "12. Bildirim Kanalı"],
-   ["p", "Platform'da hatalı veya yanıltıcı olduğunu düşündüğünüz bir sağlık içeriğini <strong>[e-posta]</strong> adresine bildirebilirsiniz. Bildirimler <strong>[inceleme süresi]</strong> içinde incelenir; içerik gerekiyorsa düzeltilir veya yayından kaldırılır ve sonuç gerekçesiyle bildirilir."],
+   ["p", "Platform'da hatalı veya yanıltıcı olduğunu düşündüğünüz bir sağlık içeriğini <strong>dadamentorcom@gmail.com</strong> adresine bildirebilirsiniz. Bildirimler <strong>[inceleme süresi]</strong> içinde incelenir; içerik gerekiyorsa düzeltilir veya yayından kaldırılır ve sonuç gerekçesiyle bildirilir."],
    ["h2", "13. İlgili Metinler"],
    ["ul", ["Hesaplayıcı Sınırlılıkları Bildirimi", "Hassas Gruplar ve Kontrendikasyon Bildirimi", "<a href=\"#/bilimsel-kaynaklar\">Bilimsel Kaynaklar ve Metodoloji</a>", "Editoryal ve Tıbbi Denetim Politikası"]]
   ]
  },
  "saglik-verisi": {
-  baslik: "Sağlık Verisi Politikası", ikon: "heart-pulse", surum: "1.0", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-10-28",
+  baslik: "Sağlık Verisi Politikası", ikon: "heart-pulse", surum: "1.1", tarih: "2026-10-28", yururluk: "2026-10-28", guncelleme: "2026-11-11",
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Neden Ayrı Bir Metin?"],
@@ -118,9 +122,12 @@ DDV.yasal = {
    ["h2", "2. Hangi Veriler Sağlık Verisi Sayılır?"],
    ["p", "Aşağıdaki veriler sağlık verisi kapsamındadır:"],
    ["ul", ["<strong>Boy</strong>", "<strong>Kilo</strong>", "<strong>Vücut ölçüleri</strong>", "<strong>Hedefler</strong> — girdiğiniz kilo, ölçü ve beslenme hedefleri", "<strong>Öğün kayıtları</strong> — tükettiğiniz besinlere ilişkin kayıtlar", "<strong>Diyetisyene aktarılan sağlık geçmişi</strong>"]],
+   ["p", "Telefonunuzdaki sağlık uygulamasını (Apple Sağlık ya da Health Connect) bağlarsanız, bu uygulamadan okunan aşağıdaki veriler de sağlık verisi kapsamındadır:"],
+   ["ul", ["<strong>Adım ve hareket</strong> — adım sayısı, aktif enerji ve egzersiz kayıtları", "<strong>Vücut ölçümleri</strong> — kilo, boy ve vücut yağ oranı", "<strong>Su</strong> — sağlık uygulamasına kaydedilmiş su tüketimi", "<strong>Uyku</strong> — uyku süresi", "<strong>Dinlenme nabzı</strong>"]],
+   ["p", "Bağlantı ayarlarında izin verirseniz Platform, kendi kayıtlarınızı telefonunuzdaki sağlık uygulamasına da yazar: öğünlerinizden hesaplanan <strong>enerji ve makrolar</strong>, <strong>su</strong> ve Platform'da elle girdiğiniz <strong>kilo</strong>. Sağlık uygulamasından okunan kilo o uygulamaya geri yazılmaz. Yazılan kayıtlar telefonunuzdaki sağlık uygulamasında durur ve orada o uygulamanın kendi koşullarına tabidir."],
    ["p", "Bu verilerden üretilen hesaplama sonuçları ve bunlara dayalı program eşleştirmeleri de aynı rejime tabidir."],
    ["h2", "3. Bu Veri Nasıl Doğuyor?"],
-   ["ul", ["Sağlık verisi Platform'da <strong>yalnızca sizin bir forma kendi elinizle girmenizle</strong> doğar. Ölçülerinizi girmediğiniz sürece bu kategoride hiçbir kaydınız oluşmaz.", "Girdiğiniz veri, girdiğiniz aracın amacıyla sınırlı olarak işlenir ve <strong>hesabınızın dışına çıkarılmaz</strong>.", "<strong>Bugünkü durum — açıkça bildiriyoruz:</strong> girişten ayrı, amaç amaç işaretlenen bir açık rıza ekranı Platform'da <strong>henüz bulunmamaktadır</strong>. Sağlık verisi yalnızca sizin girişinizle doğduğu ve dışarıya aktarılmadığı için işleme bu girişle sınırlıdır. Rıza metninin kendisi Açık Rıza Metni (Özel Nitelikli Veri) sayfasındadır.", "<strong>Kritik kural:</strong> sağlık verisine ilişkin açık rıza, üyelik sözleşmesi onayıyla aynı kutuda alınamaz. Rıza özgür iradeye dayanmalı, ayrı ve anlaşılır biçimde sunulmalı, hizmetin kullanımının koşulu hâline getirilmemelidir. <strong>Tek kutuda birleştirilen rıza geçersiz sayılır.</strong>"]],
+   ["ul", ["Sağlık verisi Platform'da iki yolla doğar: <strong>bir forma kendi elinizle girmenizle</strong> ya da <strong>bağladığınız sağlık uygulamasından, bunun için ayrıca verdiğiniz açık rızayla okunmasıyla</strong>. Ölçülerinizi girmediğiniz ve bir sağlık uygulaması bağlamadığınız sürece bu kategoride hiçbir kaydınız oluşmaz.", "Girdiğiniz veri, girdiğiniz aracın amacıyla sınırlı olarak işlenir ve <strong>hesabınızın dışına çıkarılmaz</strong>.", "Sağlık uygulamasından yalnızca bağlantı ayarlarında açtığınız veri türleri okunur; kapattığınız tür okunmaz. Her kayıt kaynağını taşır: elle girdiğiniz kayıt <strong>\"elle\"</strong>, sağlık uygulamasından gelen kayıt <strong>\"cihazdan\"</strong> olarak işaretlenir ve bu işaret sonradan değişmez.", "<strong>Bugünkü durum — açıkça bildiriyoruz:</strong> elle girdiğiniz veri için girişten ayrı, amaç amaç işaretlenen bir açık rıza ekranı Platform'da <strong>henüz bulunmamaktadır</strong>. Sağlık verisi yalnızca sizin girişinizle doğduğu ve dışarıya aktarılmadığı için işleme bu girişle sınırlıdır. Rıza metninin kendisi Açık Rıza Metni (Özel Nitelikli Veri) sayfasındadır.", "<strong>Kritik kural:</strong> sağlık verisine ilişkin açık rıza, üyelik sözleşmesi onayıyla aynı kutuda alınamaz. Rıza özgür iradeye dayanmalı, ayrı ve anlaşılır biçimde sunulmalı, hizmetin kullanımının koşulu hâline getirilmemelidir. <strong>Tek kutuda birleştirilen rıza geçersiz sayılır.</strong>"]],
    ["h2", "4. İşleme Amaçları — Her Amaç Ayrı"],
    ["p", "Sağlık veriniz yalnızca aşağıdaki amaçlarla işlenir ve her amaç ayrı ayrı bildirilir:"],
    ["h3", "4.1 Hesaplama"],
@@ -131,25 +138,32 @@ DDV.yasal = {
    ["p", "Hesaplama geçmişinin ve öğün kayıtlarının hesabınızda saklanarak zaman içinde görüntülenebilmesi."],
    ["h3", "4.4 Uzman paylaşımı"],
    ["p", "Verinin, izin verdiğiniz diyetisyenle paylaşılması. Bu izin hesabınızın <strong>\"Veri ve İzinlerim\"</strong> bölümünde ayrı bir anahtar olarak durur ve <strong>varsayılan olarak kapalıdır</strong>."],
-   ["p", "Bu amaçların dışında — örneğin profil çıkarma, reklam hedefleme veya üçüncü taraflara satış amacıyla — sağlık veriniz işlenmez."],
+   ["h3", "4.5 Sağlık uygulamalarından okunan veri"],
+   ["p", "Bağladığınız sağlık uygulamasından okunan veriler; günlük takibinizin ve ölçüm geçmişinizin tamamlanması (örneğin adım ve aktif enerjinin gününüzde, kilonun ölçüm geçmişinizde görünmesi) ve ayrıca izin vermeniz hâlinde diyetisyeninizle paylaşılması amacıyla işlenir. Nabız ve uyku verisi tanı ya da uyarı amacıyla yorumlanmaz."],
+   ["h3", "4.6 Açık rıza ve geri alma"],
+   ["p", "Sağlık uygulamasından veri okunması, bu iş için <strong>ayrıca verdiğiniz açık rızayla</strong> başlar. Bu rıza üyelik onayından ve diğer izinlerden ayrı alınır; vermemeniz Platform'un geri kalanını kullanmanızı engellemez. Rızanızı <strong>\"Veri ve İzinlerim\"</strong> bölümünden ya da telefonunuzun sağlık ayarlarından istediğiniz an geri alabilirsiniz; geri almak vermek kadar kolaydır. Geri alma ileriye etkilidir; hangi metni ne zaman onayladığınızın kaydı silinmez."],
+   ["p", "Bu amaçların dışında — örneğin profil çıkarma, reklam hedefleme veya üçüncü taraflara satış amacıyla — sağlık veriniz işlenmez. <strong>Sağlık uygulamalarından okunanlar dâhil sağlık veriniz reklam ya da pazarlama için kullanılmaz ve satılmaz.</strong>"],
    ["h2", "5. Uzmanla Paylaşım"],
    ["p", "<strong>Bugünkü durum:</strong> Platform'da diyetisyene sağlık verisi aktaran çalışan bir akış <strong>bulunmamaktadır</strong>; \"Veri ve İzinlerim\" bölümündeki paylaşım anahtarı bu akış için önceden alınmış bir tercihtir. Aşağıdaki kurallar, paylaşım açıldığında uygulanacak olanlardır ve bu metnin taahhüdüdür:"],
-   ["ul", ["<strong>Hangi veri:</strong> yalnızca ilgili danışan ilişkisi için gerekli olan veriler paylaşılır; paylaşılacak veri kalemleri paylaşım öncesinde size gösterilir.", "<strong>Ne zaman:</strong> paylaşım, siz onay verdiğiniz anda ve yalnızca çalışmayı kabul ettiğiniz uzman bakımından başlar.", "<strong>Kimin onayıyla:</strong> paylaşım yalnızca sizin ayrı izninizle yapılır; uzmanın talebi tek başına yeterli değildir.", "<strong>Erişim sınırı:</strong> diyetisyen yalnızca kendisiyle çalışmayı kabul etmiş ve veri paylaşımına ayrıca izin vermiş danışanların verisini görebilir. Platform genelinde kullanıcı verisine erişim yetkisi tanımlanmaz.", "<strong>Paylaşımın kaldırılması:</strong> paylaşım anahtarını \"Veri ve İzinlerim\" bölümünden kapatabilirsiniz."]],
+   ["ul", ["<strong>Hangi veri:</strong> yalnızca ilgili danışan ilişkisi için gerekli olan veriler paylaşılır; paylaşılacak veri kalemleri paylaşım öncesinde size gösterilir.", "<strong>Ne zaman:</strong> paylaşım, siz onay verdiğiniz anda ve yalnızca çalışmayı kabul ettiğiniz uzman bakımından başlar.", "<strong>Kimin onayıyla:</strong> paylaşım yalnızca sizin ayrı izninizle yapılır; uzmanın talebi tek başına yeterli değildir.", "<strong>Erişim sınırı:</strong> diyetisyen yalnızca kendisiyle çalışmayı kabul etmiş ve veri paylaşımına ayrıca izin vermiş danışanların verisini görebilir. Platform genelinde kullanıcı verisine erişim yetkisi tanımlanmaz.", "<strong>Sağlık uygulamalarından okunan veri:</strong> diyetisyeninizle yalnızca <strong>ayrı bir paylaşım izniyle</strong> paylaşılır; okuma rızası paylaşım izni sayılmaz. Hangi türlerin paylaşılacağını tek tek seçersiniz ve diyetisyeninizin göreceğini paylaşımdan önce görebilirsiniz. Paylaşılan değerler günlük değer ve dönem ortalaması düzeyindedir ve \"cihazdan\" etiketiyle gösterilir.", "<strong>Paylaşımın kaldırılması:</strong> paylaşım anahtarını \"Veri ve İzinlerim\" bölümünden kapatabilirsiniz."]],
    ["h2", "6. Saklama Süreleri"],
    ["ul", ["<strong>Hesaplama geçmişi</strong> — [saklama süresi — hesaplama geçmişi]", "<strong>Öğün kaydı</strong> — [saklama süresi — öğün kaydı]", "<strong>Danışan dosyası</strong> — [saklama süresi — danışan dosyası]", "<strong>Görüşme kayıtları</strong> — [saklama süresi — görüşme kayıtları]"]],
+   ["p", "Sağlık uygulamalarından okunan veriler, hesabınız açık kaldığı sürece ve hesap ayarlarınızdaki saklama tercihinize göre saklanır. Okuma rızanızı geri aldığınızda ya da bağlantıyı kesip bu verilerin silinmesini istediğinizde, mevzuattan doğan saklama yükümlülükleri saklı kalmak kaydıyla silinir."],
    ["p", "Sürenin sonunda veriler silinir, yok edilir veya anonim hâle getirilir. Uzmanın mesleki kayıt tutma yükümlülüğü ile silme talebiniz çakışabilir; bu çakışmanın nasıl çözüleceği §9'da ve diyetisyenle imzalanan hizmet sözleşmesinde tanımlanır."],
    ["h2", "7. Güvenlik Tedbirleri"],
    ["ul", ["<strong>Şifreli bağlantı</strong> — site ile tarayıcınız arasındaki tüm trafik şifreli bağlantı üzerinden taşınır.", "<strong>Erişim yetkilendirmesi</strong> — yönetim arayüzüne erişim yetkilendirilmiş hesaplarla sınırlıdır; genel erişim yetkisi tanımlanmaz.", "<strong>Hesap ayrımı</strong> — sağlık kayıtları hesabınıza bağlıdır; başka bir üyenin kaydına erişim uygulama düzeyinde engellenir."]],
    ["p", "<strong>Bugünkü durum:</strong> sağlık verisine yapılan her erişimi zaman damgasıyla tutan ayrı bir erişim kaydı modülü <strong>bulunmamaktadır</strong>. Veritabanı üzerinde şifreli saklama (at-rest) da uygulanmamaktadır."],
    ["h2", "8. Kullanıcı Kontrolü"],
    ["p", "Sağlık veriniz üzerinde bugün fiilen kullanabildiğiniz kontroller şunlardır:"],
-   ["ul", ["<strong>Görüntüleme ve değiştirme</strong> — ölçüleriniz, hedefleriniz ve beslenme tercihleriniz hesabınızın <strong>\"Sağlık Profilim\"</strong> bölümünde durur; buradan güncellenir.", "<strong>İzinlerin yönetimi</strong> — diyetisyen paylaşımı, kişiselleştirilmiş öneriler, anonim kullanım ve pazarlama iletileri izinleri <strong>\"Veri ve İzinlerim\"</strong> bölümünden tek tek açılıp kapatılır. Kapatma ileriye etkilidir; o ana kadar yapılmış işlemenin hukuka uygunluğunu etkilemez."]],
-   ["p", "<strong>Bugünkü durum:</strong> verilerinizi kendi başınıza dışa aktarabileceğiniz bir \"indir\" işlevi ve kayıtlarınızı tek tuşla silen bir düğme hesabınızda <strong>bulunmamaktadır</strong>. Silme ve kopya talepleriniz <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese başvurularak karşılanır; başvuru elle işlenir."],
+   ["ul", ["<strong>Görüntüleme ve değiştirme</strong> — ölçüleriniz, hedefleriniz ve beslenme tercihleriniz hesabınızın <strong>\"Sağlık Profilim\"</strong> bölümünde durur; buradan güncellenir.", "<strong>İzinlerin yönetimi</strong> — diyetisyen paylaşımı, kişiselleştirilmiş öneriler, anonim kullanım ve pazarlama iletileri izinleri <strong>\"Veri ve İzinlerim\"</strong> bölümünden tek tek açılıp kapatılır. Kapatma ileriye etkilidir; o ana kadar yapılmış işlemenin hukuka uygunluğunu etkilemez.", "<strong>Sağlık uygulaması verileri</strong> — hangi türlerin okunacağını bağlantı ayarlarından seçer, okumayı istediğiniz an durdurursunuz. Sağlık uygulamalarından okunan verilerinizi <strong>\"Veri ve İzinlerim\"</strong> bölümünden dışa aktarabilir ya da silebilirsiniz. Silme geri alınamaz; elle girdiğiniz kayıtlara ve telefonunuzdaki sağlık uygulamasında duran veriye dokunmaz."]],
+   ["p", "<strong>Bugünkü durum:</strong> elle girdiğiniz verileri kendi başınıza dışa aktarabileceğiniz bir \"indir\" işlevi ve kayıtlarınızı tek tuşla silen bir düğme hesabınızda <strong>bulunmamaktadır</strong>. Silme ve kopya talepleriniz <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese başvurularak karşılanır; başvuru elle işlenir."],
    ["h2", "9. Hesap Silme ve Sağlık Verisinin İmhası"],
    ["p", "Hesabınızın ve sağlık verilerinizin (ölçüler, hesaplama geçmişi, öğün kayıtları) silinmesini <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese başvurarak talep edebilirsiniz. Talep elle işlenir ve sonucu size bildirilir."],
    ["p", "Diyetisyeninizle paylaştığınız veriler ve görüşme kayıtları için mesleki saklama yükümlülükleri geçerli olabilir; bu durumda hangi verinin hangi süreyle saklandığı size bildirilir. İşlem geri alınamaz."],
+   ["p", "Hesabınız silindiğinde sağlık uygulamalarından okunan veriler de silinir. Telefonunuzdaki sağlık uygulamasında duran veriler bundan etkilenmez; onları o uygulamadan yönetirsiniz."],
    ["h2", "10. Rıza Verilmediğinde"],
    ["p", "<strong>Rıza vermeden de Platform'u kullanmaya devam edebilirsiniz:</strong> rehberleri okuyabilir, besin kütüphanesini görüntüleyebilir ve programları inceleyebilirsiniz. Rıza verilmediğinde çalışmayan bölümler, ölçü girişi gerektiren hesaplayıcılar, kişisel takip ve uzmanla veri paylaşımıdır."],
+   ["p", "Sağlık uygulaması bağlamamak ya da bu okumaya rıza vermemek de Platform'un geri kalanını kısıtlamaz; bu durumda verilerinizi elle girmeye devam edersiniz."],
    ["p", "Rıza vermeyen kullanıcının Platform'u kullanmaya devam edebilmesi, rızanın geçerliliği için gereklidir."],
    ["h2", "11. Onay Kaydı"],
    ["p", "Üyelik sırasında hangi metnin hangi sürümünü ne zaman kabul ettiğiniz kaydedilir ve bu kayıt bir uyuşmazlıkta tek dayanaktır. Kaydın kendisi <strong>hesabınızda görüntülenmemektedir</strong>; içeriğini <a href=\"#/yasal/gizlilik\">Gizlilik Politikası</a> §11'deki adrese başvurarak öğrenebilirsiniz."],
@@ -162,8 +176,8 @@ DDV.yasal = {
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Veri Sorumlusu"],
-   ["p", "DadaDiet platformunda işlenen kişisel veriler bakımından veri sorumlusu [unvan]'dır."],
-   ["ul", ["<strong>Adres:</strong> [adres]", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> [e-posta]"]],
+   ["p", "DadaDiet platformunda işlenen kişisel veriler bakımından veri sorumlusu Dada İst Ajans Hizmetleri Ticaret Limited Şirketi'dır."],
+   ["ul", ["<strong>Adres:</strong> Yavuz Sultan Selim Mah. No:52/B, Fatih/İstanbul 34083", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> dadamentorcom@gmail.com"]],
    ["p", "Bu metin, verilerinizi nasıl işlediğimizi ve bunun üzerinde hangi kontrollere sahip olduğunuzu anlatır. Aydınlatma yükümlülüğünün mevzuat karşılığı için <a href=\"#/yasal/kvkk\">KVKK Aydınlatma Metni</a>'ne, yer sağlayıcı bilgileri için <a href=\"#/kunye\">Künye / Yer Sağlayıcı Bilgisi</a> sayfasına bakınız."],
    ["p", "<strong>Sağlık verisi bu metnin dışında ayrıca düzenlenmiştir:</strong> boy, kilo, vücut ölçüleri, hedefler, öğün kayıtları ve diyetisyene aktarılan sağlık geçmişi için <a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a> geçerlidir."],
    ["h2", "2. İşlediğimiz Veriler"],
@@ -191,7 +205,7 @@ DDV.yasal = {
    ["h2", "10. Çerezler"],
    ["p", "Tarayıcınıza yerleştirilen çerezler ve benzeri teknolojiler ayrıca <a href=\"#/yasal/cerez\">Çerez Politikası</a>'nda açıklanmıştır."],
    ["h2", "11. Başvuru"],
-   ["p", "Bu politikaya ilişkin talep ve sorularınızı <strong>[e-posta]</strong> adresine iletebilirsiniz. Mevzuattan doğan haklara ilişkin başvurular en geç <strong>30 gün</strong> içinde sonuçlandırılır; diğer başvurular <strong>[yanıt süresi]</strong> içinde yanıtlanır."],
+   ["p", "Bu politikaya ilişkin talep ve sorularınızı <strong>dadamentorcom@gmail.com</strong> adresine iletebilirsiniz. Mevzuattan doğan haklara ilişkin başvurular en geç <strong>30 gün</strong> içinde sonuçlandırılır; diğer başvurular <strong>[yanıt süresi]</strong> içinde yanıtlanır."],
    ["h2", "12. İlgili Metinler"],
    ["ul", ["<a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a>", "<a href=\"#/yasal/kvkk\">KVKK Aydınlatma Metni</a>", "Açık Rıza Metni (Özel Nitelikli Veri)", "<a href=\"#/yasal/cerez\">Çerez Politikası</a>"]]
   ]
@@ -202,7 +216,7 @@ DDV.yasal = {
   bloklar: [
    ["h2", "1. Veri Sorumlusunun Kimliği"],
    ["p", "Bu aydınlatma metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu (\"<strong>KVKK</strong>\") m.10 uyarınca, DadaDiet platformunu işleten veri sorumlusu tarafından hazırlanmıştır."],
-   ["ul", ["<strong>Unvan:</strong> [unvan]", "<strong>Adres:</strong> [adres]", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>Vergi dairesi / vergi no:</strong> [vergi dairesi / vergi no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> [e-posta]"]],
+   ["ul", ["<strong>Unvan:</strong> Dada İst Ajans Hizmetleri Ticaret Limited Şirketi", "<strong>Adres:</strong> Yavuz Sultan Selim Mah. No:52/B, Fatih/İstanbul 34083", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>Vergi dairesi / vergi no:</strong> [vergi dairesi / vergi no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> dadamentorcom@gmail.com"]],
    ["h2", "2. İşlenen Kişisel Veri Kategorileri"],
    ["h3", "2.1 Genel nitelikli kişisel veriler"],
    ["ul", ["<strong>Kimlik verisi</strong> — ad, soyad, kullanıcı adı, doğum tarihi beyanı.", "<strong>İletişim verisi</strong> — e-posta adresi ve varsa telefon numarası.", "<strong>Müşteri işlem verisi</strong> — ücretli hizmet alındığında abonelik, randevu ve fatura kayıtları.", "<strong>İşlem güvenliği verisi</strong> — IP adresi, oturum ve giriş kayıtları, cihaz ve tarayıcı bilgisi.", "<strong>Görsel veri</strong> — profil fotoğrafı.", "<strong>Pazarlama verisi</strong> — açık rıza hâlinde iletişim tercihleri ve etkileşim kayıtları."]],
@@ -231,7 +245,7 @@ DDV.yasal = {
    ["p", "Açık rızaya dayalı işlemelerde (sağlık verisi, uzmanla paylaşım, pazarlama) rızanızı dilediğiniz zaman ve her biri için ayrı ayrı geri çekebilirsiniz; geri çekme, o ana kadar yapılmış işlemenin hukuka uygunluğunu etkilemez."],
    ["h2", "9. Başvuru Yolu"],
    ["p", "Başvurularınızı, Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ'e uygun olarak şu yollardan biriyle iletebilirsiniz:"],
-   ["ul", ["Yazılı olarak [adres] adresine", "KEP adresinizden <strong>[KEP adresi]</strong> adresine", "Sistemimizde kayıtlı e-posta adresinizden <strong>[e-posta]</strong> adresine"]],
+   ["ul", ["Yazılı olarak Yavuz Sultan Selim Mah. No:52/B, Fatih/İstanbul 34083 adresine", "KEP adresinizden <strong>[KEP adresi]</strong> adresine", "Sistemimizde kayıtlı e-posta adresinizden <strong>dadamentorcom@gmail.com</strong> adresine"]],
    ["p", "Başvurunuz talebin niteliğine göre en geç <strong>30 gün</strong> içinde ücretsiz olarak sonuçlandırılır. İşlemin ayrıca bir maliyet gerektirmesi hâlinde Kurul'ca belirlenen tarifedeki ücret alınabilir."],
    ["h2", "10. İlgili Metinler"],
    ["ul", ["Sağlık Verisi Politikası", "Açık Rıza Metni (Özel Nitelikli Veri)", "Gizlilik Politikası"]]
@@ -291,7 +305,7 @@ DDV.yasal = {
    ["h2", "8. Başvurunun Reddi ve İtiraz"],
    ["p", "Başvurusu reddedilen veya rozeti kaldırılan uzman, karara <strong>[itiraz süresi]</strong> içinde itiraz edebilir. İtiraz, ilk kararı veren kişiden bağımsız olarak incelenir ve sonucu gerekçesiyle bildirilir."],
    ["h2", "9. Kullanıcı Bildirimi"],
-   ["p", "Bir uzmanın belgesi veya beyanı hakkında şüpheniz varsa <strong>[e-posta]</strong> adresine bildirebilirsiniz. Bildirimler <strong>[inceleme süresi]</strong> içinde incelenir ve sonuç gerekçesiyle bildirilir."],
+   ["p", "Bir uzmanın belgesi veya beyanı hakkında şüpheniz varsa <strong>dadamentorcom@gmail.com</strong> adresine bildirebilirsiniz. Bildirimler <strong>[inceleme süresi]</strong> içinde incelenir ve sonuç gerekçesiyle bildirilir."],
    ["h2", "10. İlgili Metinler"],
    ["ul", ["Platformun Rolü ve Aracılık Bildirimi", "<a href=\"#/yasal/saglik-verisi\">Sağlık Verisi Politikası</a>", "Editoryal ve Tıbbi Denetim Politikası"]]
   ]
@@ -301,20 +315,19 @@ DDV.yasal = {
 DDV.kurumsal = {
  kunye: {
   baslik: "Künye", ikon: "id-card", surum: "1.0", tarih: "2026-09-14", yururluk: null, guncelleme: null,
-  uyari: {"baslik": "Durum: Taslak — hukuki inceleme bekliyor.", "metin": "Bu metin DadaDiet ekibi tarafından taslak olarak hazırlanmıştır. Hukuki incelemesi sürmektedir; nihai hâlini almadan önce değişebilir ve bu hâliyle hukuki görüş niteliği taşımaz."},
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Bu Sayfa Nedir?"],
    ["p", "Bu sayfa, 5651 sayılı İnternet Ortamında Yapılan Yayınların Düzenlenmesi ve Bu Yayınlar Yoluyla İşlenen Suçlarla Mücadele Edilmesi Hakkında Kanun ve ilgili mevzuat uyarınca, DadaDiet'i işleten kuruluşun kimlik ve iletişim bilgilerini kamuya açık biçimde bildirir."],
    ["h2", "2. Kimlik ve İletişim Bilgileri"],
-   ["ul", ["<strong>Unvan:</strong> [unvan]", "<strong>Adres:</strong> [adres]", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>Vergi dairesi / vergi no:</strong> [vergi dairesi / vergi no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> [e-posta]", "<strong>Telefon:</strong> [telefon]"]],
+   ["ul", ["<strong>Unvan:</strong> Dada İst Ajans Hizmetleri Ticaret Limited Şirketi", "<strong>Adres:</strong> Yavuz Sultan Selim Mah. No:52/B, Fatih/İstanbul 34083", "<strong>MERSİS no:</strong> [MERSİS no]", "<strong>Vergi dairesi / vergi no:</strong> [vergi dairesi / vergi no]", "<strong>KEP adresi:</strong> [KEP adresi]", "<strong>E-posta:</strong> dadamentorcom@gmail.com", "<strong>Telefon:</strong> [telefon]"]],
    ["h2", "3. Sorumlular"],
    ["ul", ["<strong>Yasal temsilci:</strong> [yasal temsilci]", "<strong>İçerik sorumlusu:</strong> [içerik sorumlusu]", "<strong>Barındırma (hosting) sağlayıcısı:</strong> [barındırma sağlayıcısı]"]],
    ["h2", "4. Yer Sağlayıcı Sıfatı"],
    ["p", "DadaDiet, kullanıcıların girdiği ölçü, öğün, hedef ve profil bilgilerini barındıran bir platformdur. Kullanıcı içeriği bakımından <strong>yer sağlayıcı</strong> konumundadır; yayımlanan kullanıcı içeriğini yayımdan önce kontrol etmek ve hukuka aykırı olup olmadığını araştırmakla yükümlü değildir."],
    ["p", "Bununla birlikte, hukuka aykırı içerikten haberdar edildiğinde, teknik olarak imkân bulunduğu ölçüde içeriği yayından kaldırır. Platform'un kendi ürettiği editoryal içerikler bakımından ise içerik sağlayıcı sıfatı geçerlidir."],
    ["h2", "5. İçeriğe İlişkin Başvuru ve Kaldırma Talepleri"],
-   ["p", "Bir içeriğin haklarınızı ihlal ettiğini düşünüyorsanız başvurunuzu <strong>[e-posta]</strong> veya <strong>[KEP adresi]</strong> üzerinden iletebilirsiniz. Başvuruda; talep sahibinin kimlik ve iletişim bilgileri, içeriğin Platform'daki adresi ve talebin gerekçesi bulunmalıdır."],
+   ["p", "Bir içeriğin haklarınızı ihlal ettiğini düşünüyorsanız başvurunuzu <strong>dadamentorcom@gmail.com</strong> veya <strong>[KEP adresi]</strong> üzerinden iletebilirsiniz. Başvuruda; talep sahibinin kimlik ve iletişim bilgileri, içeriğin Platform'daki adresi ve talebin gerekçesi bulunmalıdır."],
    ["p", "Başvurular <strong>[inceleme süresi]</strong> içinde sonuçlandırılır ve sonuç gerekçesiyle bildirilir. Hesap kurallarına dayalı talepler için Kullanım Koşulları, kişisel veriye ilişkin talepler için <a href=\"#/yasal/kvkk\">KVKK Aydınlatma Metni</a> metinlerine bakınız."],
    ["p", "Mevzuatın öngördüğü hâllerde başvurular, kanunda belirtilen mercilere de yapılabilir."],
    ["h2", "6. Veri Sorumlusu"],
@@ -408,7 +421,6 @@ DDV.kurumsal = {
  // Anahtar = rota (#/<anahtar>). Bağlantılar uygulama adresine çevrildi; web'de karşılığı olmayan hedef (Bana Uygun Olanı Bul) bağlantısız kaldı.
  "bilimsel-kaynaklar": {
   baslik: "Bilimsel Kaynaklar", ikon: "flask", surum: "1.0", tarih: "2026-08-19", yururluk: null, guncelleme: null,
-  uyari: {"baslik": "Durum: Taslak — hukuki ve tıbbi inceleme bekliyor.", "metin": "Bu metin Dada Diet tarafından taslak olarak hazırlanmıştır. Hukuki incelemesi sürmekte, sağlık içeriğine ilişkin bölümleri ayrıca yetkili bir diyetisyen ve hekim tarafından gözden geçirilmektedir. Nihai hâlini almadan önce değişebilir; bu hâliyle hukuki veya tıbbi görüş niteliği taşımaz."},
   ayak: "Bu metin bilgilendirme amaçlıdır; güncel sürüm her zaman bu sayfada yayımlanır.",
   bloklar: [
    ["h2", "1. Bu Sayfanın Amacı"],
@@ -427,7 +439,7 @@ DDV.kurumsal = {
    ["h2", "5. Kaynak Gösteriminin Sınırı"],
    ["p", "Bir içeriğin kaynak göstermesi, o içeriğin size uygun olduğu anlamına gelmez. Kaynaklar genel bilgi düzeyinde geçerlidir; kişiye uygunluk değerlendirmesi hekim ve diyetisyen tarafından yapılır. Bu sınırın tamamı Tıbbi Sorumluluk Reddi'ndedir."],
    ["h2", "6. Kaynak Hatası Bildirimi"],
-   ["p", "Bir kaynağın hatalı, eksik veya güncelliğini yitirmiş olduğunu düşünüyorsanız <strong>[e-posta]</strong> adresine bildirin. Bildirimler <strong>[inceleme süresi]</strong> içinde incelenir; düzeltme yapılırsa sayfanın son güncelleme tarihi yenilenir."],
+   ["p", "Bir kaynağın hatalı, eksik veya güncelliğini yitirmiş olduğunu düşünüyorsanız <strong>dadamentorcom@gmail.com</strong> adresine bildirin. Bildirimler <strong>[inceleme süresi]</strong> içinde incelenir; düzeltme yapılırsa sayfanın son güncelleme tarihi yenilenir."],
    ["h2", "7. İlgili Metinler"],
    ["ul", ["Hesaplayıcı Sınırlılıkları Bildirimi", "Editoryal ve Tıbbi Denetim Politikası", "Tıbbi Sorumluluk Reddi"]]
 
@@ -449,7 +461,7 @@ DDV.kurumsal = {
    {ikon: 'book-medical', baslik: 'Kaynak Politikası', metin: 'İçeriklerimiz öncelikle ulusal ve uluslararası beslenme rehberlerine, sonra hakemli yayınlara dayanır. Tek bir çalışmaya dayanan kesin ifadeler kullanılmaz. Kanıt düzeyi zayıfsa bu içerikte açıkça belirtilir.'},
    {ikon: 'handshake-slash', baslik: 'Ticari İş Birliklerinden Bağımsızlık', metin: 'Sponsorlu bir içerik de sponsorsuz içerikle aynı incelemeden geçer. Sponsor bir bulgunun çıkarılmasını ya da bir önerinin değiştirilmesini isteyemez. Ticari iş birliğiyle üretilen içerik okuyucuya açıkça belirtilir.'},
    {ikon: 'shield-halved', baslik: 'Sınırımız', metin: 'Kurul, içeriğin bilimsel dayanağını denetler; kişiye özel tıbbi karar vermez. Buradaki hiçbir içerik hekim ya da diyetisyen değerlendirmesinin yerine geçmez.'}]},
-  // İki politika metninin kendisi henüz yok (web'de yasal/ dizinine gider): bağlantısız, "bilgi bekleniyor" rozetiyle.
+  // İki politika metninin kendisi henüz yok (web'de yasal/ dizinine gider): bekliyor: true, ekranda gösterilmez (kurumsal.js kartGrup).
   belgeler: {etiket: 'Dayanağımız', baslik: 'İlgili Belgeler', metin: 'Bu sayfa kurulu ve süreci tanıtır; kuralın kendisi aşağıdaki belgelerde yazılıdır.', kartlar: [
    {ikon: 'file-shield', baslik: 'Editoryal ve Tıbbi Denetim Politikası', metin: 'Denetim sürecinin bağlayıcı kuralları.', bekliyor: true},
    {ikon: 'flask', baslik: 'Bilimsel Kaynaklar ve Metodoloji', metin: 'Hangi kaynaklara dayandığımız ve yöntemimiz.', git: '#/bilimsel-kaynaklar'},
