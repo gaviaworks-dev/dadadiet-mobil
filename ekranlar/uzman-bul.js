@@ -183,6 +183,9 @@
   };
 
   DD.ekran('uzman-bul', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
+    iskelet: 'liste',
+    bos: {ikon: 'uzman', baslik: 'Uygun diyetisyen yok', metin: 'Seçtiğin filtrelere uyan diyetisyen bulamadık. **Filtreleri gevşetip** yeniden dene.', eylem: {metin: 'Filtresiz listele', ikon: 'filtre', yerine: '#/uzman/bul'}},   // ?hal=bos (ortak DD.bos)
     tur: 'banner',
     nav: 'profil',
     ust: '#/uzman',

@@ -143,6 +143,7 @@
 
   const bulanikMi = ctx => (ctx.sorgu.hal === 'bulanik' && !ctx.temiz) || !!ctx.bulanik;
   DD.ekran('ai-kamera', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'tam',
     tabagim: 'ust',
     baslik: 'Ne Yedim?',

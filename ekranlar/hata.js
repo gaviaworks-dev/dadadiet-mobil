@@ -13,6 +13,7 @@
   };
 
   DD.ekran('hata', {
+    haller: false,   // akış ekranı: ?hal= durum halleri uygulanmaz
     tur: 'alt',
     baslik: ctx => BASLIK[turBul(ctx)],
     tabagim: false,

@@ -152,6 +152,7 @@
   // ---------- Ekran ----------
   const BASLIK = {'#/giris': 'Giriş yap', '#/sifre-sifirla': 'Şifreni sıfırla', '#/eposta-dogrula': 'E-posta doğrulama'};
   DD.ekran('giris', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'alt',
     tabagim: false,
     get ust() { return location.hash.startsWith('#/eposta-dogrula') ? (DD.uye() ? '#/ayarlar/profil' : '#/karsilama') : location.hash.startsWith('#/sifre-sifirla') ? '#/giris' : '#/karsilama'; },

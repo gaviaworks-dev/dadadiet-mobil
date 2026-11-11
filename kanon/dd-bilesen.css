@@ -310,6 +310,7 @@ body.dd .dd-app.has-bar ~ .dd-snack{--pageEnd:calc(var(--dd-size-control-lg) + v
 .dd-cevrimdisi{position:sticky;top:var(--dd-ust-h);z-index:20;display:flex;align-items:center;gap:var(--dd-s-8);min-height:var(--dd-s-32);padding:0 var(--dd-gutter);background:var(--dd-primary-dark);color:var(--dd-paper);font-family:var(--dd-font-bold);font-size:var(--dd-t-meta-size)}
 /* Çevrimdışı göstergesi (Beyar revize B8): siyah değil primary — header altında koyu primary şerit (beyaz metin, kontrast ≥4.5). */
 .dd-cevrimdisi .icon{font-size:var(--dd-size-icon-sm)}
+.dd-cevrimdisi small{margin-inline-start:auto;font-family:var(--dd-font);font-weight:var(--dd-weight-body);font-size:var(--dd-t-meta-size);opacity:.8;white-space:nowrap}
 .dd-onizleme{display:flex;gap:var(--dd-s-8);padding:var(--dd-s-12) var(--dd-s-16);border-radius:var(--dd-r-control);background:var(--dd-bg);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line);color:var(--dd-slate)}
 .dd-onizleme .icon{margin-top:var(--dd-s-4);font-size:var(--dd-size-icon-sm)}
 

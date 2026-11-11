@@ -160,6 +160,7 @@
 
   let hataGosterildi = false;
   DD.ekran('rozetler', {
+    bos: {ikon: 'medal', baslik: 'İlk rozetin yolda', metin: 'Kayıt tuttukça ve hedeflerine ulaştıkça **rozetlerin** burada açılır.', eylem: {metin: 'Bugün’e dön', ikon: 'house', yerine: '#/bugun'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     nav: 'profil',
     ust: '#/profil',

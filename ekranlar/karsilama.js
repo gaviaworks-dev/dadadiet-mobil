@@ -30,6 +30,7 @@
   });
 
   DD.ekran('karsilama', {
+    haller: false,   // akış ekranı: ?hal= durum halleri uygulanmaz
     tur: 'tam',
     tabagim: false,
     ciz: () => {

@@ -83,6 +83,7 @@
   };
 
   DD.ekran('barkod', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'alt',
     ust: '#/ai/kamera?mod=barkod',
     baslik: ctx => (urunBul(ctx.param.ean) ? 'Ürün analizi' : 'Barkod'),

@@ -47,6 +47,11 @@ DD.ekran('ogun', {
 | `cekYenile` | `ctx => Promise`: aşağı çekip yenile |
 | `dock` | `true`: alt/banner ekranda alt menü de görünür |
 | `tabagim` | `true` tam ekranda da, `'ust'` üstte (kamera), `false` gizle |
+| `bos` | `{ikon, baslik, metin, eylem}`: `?hal=bos` ortak `DD.bos` ile tam sayfa boş hal. Tanımsızsa ekran kendi boş halini çizer ya da boş kavramı yoktur |
+| `cevrimici` | `true`: ağ gerekir (canlı sohbet, analiz, giriş); `?hal=cevrimdisi` önbellek yerine bağlantı hatası verir |
+| `haller` | `false`: akış ekranı (açılış, karşılama, hata, güncelleme, bakım, durum menüsü); `?hal=` uygulanmaz |
+
+**Durum halleri (`?hal=`), router tek yerden (`dd-ui.js` `halCiz`):** `yukleniyor` → `DD.iskelet(e.iskelet)` · `bos` → `DD.bos(e.bos)` · `hata` → `DD.hataEkran({tur:'sunucu'})` + Tekrar dene (hal'siz adrese) · `cevrimdisi` → `DD.cevrimdisi('Çevrimdışısın', {saat})` şeridi + ekran önbellekten (e.cevrimici ise bağlantı hatası) · `giris` → `DD.girisGerekli()` · `kilitli` → `DD.premiumKilit()` (DDV.uye.kademeler Pro özellikleri). Hal ekranlarında (çevrimdışı hariç) üst bar düz çizilir, altBar ve `sonra` çalışmaz. Bütün rotalar ve haller `#/durumlar` (gizli) menüsünden açılır; tur `tasks/durum-denetimi/hal-tur.cjs`.
 | `ust` | Doğrudan açılınca geri rotası (varsayılan `#/bugun`) |
 
 Yönlendirme: `DD.git('#/x')`, `DD.geri()`, `DD.yerine('#/x')`, `DD.tazele()`, `DD.aktif()`. HTML: `data-git`, `data-yerine`, `data-geri`, `data-menu`. Bileşen seçeneklerinde `git`, `yerine`, `geri`, `id`, `etiket` (aria-label), `veri:{eylem:'x', id:1}`, `attrs` ortaktır. Sorgu `ctx.sorgu.mod`, parametre `ctx.param.slug`.
@@ -225,6 +230,7 @@ Hepsi HTML string döner. Etkileşim ve animasyon çekirdekte, bağlama gerekmez
 | `DD.bant({ton, baslik, metin, ikon, eylem})`, `DD.ipucu({ikon, baslik, metin, html, ton, eylem})` | ipucu kutusu, 4 ton |
 | `DD.bilgi({etiket, ikon, metin, html})`, `DD.veriYok(metin)`, `DD.cevrimdisi(metin)` | |
 | `DD.bos({ikon, baslik, metin, eylem, ikincil, tam})` | Gastro durum |
+| `DD.premiumKilit({kademe, baslik, metin})`, `DD.girisGerekli({ikon, baslik, metin})` | Kilitli (Pro) ve giriş gerekli halleri; `DD.hataEkran` türleri: baglanti, genel, sunucu, zaman, bulunamadi |
 | `DD.durumSahne({tema, gorsel, isaret, baslik, metin, not, ana, ikinciller, ipuclari, ipucuBaslik, ipucuParcali, oneriler, onerilerBaslik})`, `DD.hataEkran({tur, eylem, ikinciller})` | tur baglanti, genel, zaman, bulunamadi |
 | `DD.vizor({foto, isaret, yonerge, tarama, bulanik, kompakt, ek})` | |
 | `DD.izinIstemi({ikon, gorsel, baslik, metin, maddeler, izin, alternatif, red, reddedildi})` → `{html, bar}`, `DD.maddeler(l)` | `data-izin-ver`, `data-izin-ayar` |

@@ -43,6 +43,7 @@
   };
 
   DD.ekran('ai-tahlil', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'alt',
     ust: '#/ai/kamera?mod=tahlil',
     baslik: 'Tahlil sonucu',

@@ -97,6 +97,7 @@
   };
 
   DD.ekran('uzman-profil', {
+    iskelet: 'profil',
     tur: 'banner',
     nav: 'profil',
     ust: '#/uzman/bul',

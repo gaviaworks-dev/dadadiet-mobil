@@ -73,6 +73,8 @@
   };
 
   DD.ekran('etiket', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
+    iskelet: 'detay',
     tur: 'alt',
     ust: '#/ai/kamera?mod=barkod',
     baslik: 'Etiket okuma',

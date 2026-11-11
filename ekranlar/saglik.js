@@ -181,6 +181,7 @@
   let hazir = false, hataGosterildi = false;
 
   DD.ekran('saglik', {
+    bos: {ikon: 'file-medical', baslik: 'Sağlık dosyan boş', metin: 'Tahlil, ölçüm ve belgelerin **burada** toplanır.', eylem: {metin: 'Tahlil yükle', ikon: 'tahlil', git: '#/ai/tahlil'}},   // ?hal=bos (ortak DD.bos)
     tur: 'banner',
     nav: 'profil',
     ust: '#/profil',

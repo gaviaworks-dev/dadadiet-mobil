@@ -169,6 +169,7 @@
   };
 
   DD.ekran('ai-tabak', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'alt',
     ust: '#/ai/kamera?mod=tabak',
     baslik: 'Tabağın',

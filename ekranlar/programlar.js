@@ -72,6 +72,8 @@
   };
 
   DD.ekran('programlar', {
+    iskelet: 'liste',
+    bos: {ikon: 'program', baslik: 'Program bulunamadı', metin: 'Seçimlerine uyan program yok. **Program Bul** ile sana uyanı birlikte seçelim.', eylem: {metin: 'Program Bul', ikon: 'wand-magic-sparkles', git: '#/program-bul'}},   // ?hal=bos (ortak DD.bos)
     tur: 'banner',
     nav: 'bugun',
     dock: true,

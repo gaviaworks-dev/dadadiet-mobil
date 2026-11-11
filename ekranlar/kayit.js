@@ -206,6 +206,7 @@
   };
 
   DD.ekran('kayit', {
+    iskelet: 'detay',
     tur: 'banner',
     nav: 'bugun',
     ust: '#/tabaklarim',

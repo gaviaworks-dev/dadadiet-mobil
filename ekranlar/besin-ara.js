@@ -96,6 +96,7 @@
 
   let hataGosterildi = false;
   DD.ekran('besin-ara', {
+    bos: {ikon: 'ara_', baslik: 'Sonuç yok', metin: 'Bu adla bir besin bulamadık. **Barkod** ya da **fotoğrafla** dene.', eylem: {metin: 'Barkod tara', ikon: 'barkod', git: '#/ai/kamera?mod=barkod'}},   // ?hal=bos (ortak DD.bos)
     tur: 'modal',
     nav: 'bugun',
     baslik: 'Besin ekle',

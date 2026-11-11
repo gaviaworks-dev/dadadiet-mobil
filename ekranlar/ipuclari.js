@@ -73,6 +73,7 @@
 
   let hataGosterildi = false;
   DD.ekran('ipuclari', {
+    bos: {ikon: 'ipucu', baslik: 'İpucu bulunamadı', metin: 'Bu konuda henüz ipucu yok. **Diğer konulara** göz at.', eylem: {metin: 'Tüm ipuçları', ikon: 'tumu', yerine: '#/ipuclari'}},   // ?hal=bos (ortak DD.bos)
     tur: 'banner',
     nav: 'bugun',
     dock: true,

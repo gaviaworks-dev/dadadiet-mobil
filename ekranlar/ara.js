@@ -84,6 +84,7 @@
 
   let hataGosterildi = false;
   DD.ekran('ara', {
+    bos: {ikon: 'ara_', baslik: 'Sonuç yok', metin: 'Aradığını bulamadık. **Farklı bir sözcük** dene.', eylem: {metin: 'Yeni arama', ikon: 'ara_', yerine: '#/ara'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     baslik: 'Ara',
     iskelet: 'liste',

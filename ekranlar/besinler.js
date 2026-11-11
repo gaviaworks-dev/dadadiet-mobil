@@ -72,6 +72,7 @@
 
   let hataGosterildi = false;
   DD.ekran('besinler', {
+    bos: {ikon: 'ara_', baslik: 'Besin bulunamadı', metin: 'Aramanı kısalt ya da **başka bir ad** dene.', eylem: {metin: 'Tüm besinler', ikon: 'tumu', yerine: '#/besinler'}},   // ?hal=bos (ortak DD.bos)
     tur: 'banner',
     nav: 'denge',
     dock: true,

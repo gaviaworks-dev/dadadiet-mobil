@@ -55,6 +55,7 @@
   };
 
   DD.ekran('ai-menu', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
     tur: 'banner',
     ust: '#/ai/kamera?mod=menu',
     baslik: 'Dışarıda ne yesem?',

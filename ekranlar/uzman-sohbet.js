@@ -35,6 +35,8 @@
   };
 
   DD.ekran('uzman-sohbet', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
+    bos: {ikon: 'sohbet', baslik: 'Henüz mesaj yok', metin: 'Diyetisyenine sorunu yaz; yanıtı **bildirimle** haber verilir.', eylem: {metin: 'İlk mesajını yaz', ikon: 'gonder', yerine: '#/uzman/sohbet'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     nav: 'profil',
     ust: '#/uzman',

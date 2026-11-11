@@ -84,6 +84,7 @@
   // ---------- Ekran kaydı ve yönlendirme ----------
   const ekranlar = DD._ekranlar = {};
   DD.ekran = (ad, tanim) => { ekranlar[ad] = tanim; };
+  DD.ekranTanim = ad => ekranlar[ad] || null;   // #/durumlar kapsam listesi okur
 
   const R = {yigin: [], sekmeler: {}, idx: 0, anim: [], hazir: false, sahne: null, yiginEl: null};
   const ust = () => R.yigin[R.yigin.length - 1];
@@ -159,15 +160,31 @@
   // Kayıt kancası: misafire özelliğin üye tarafını söyleyen tek satır.
   DD.kanca = (o = {}) => `<button type="button" class="dd-kanca" data-uye-ol="${esc(o.metin)}">${ik(o.ikon || 'lock')}<span>${esc(o.metin)}</span>${ik('chevron-right')}</button>`;
 
+  const HALLER = ['yukleniyor', 'bos', 'hata', 'cevrimdisi', 'giris', 'kilitli'];
+  const halsiz = h => h.replace(/([?&])hal=[^&]*&?/, '$1').replace(/[?&]$/, '');
+  // Hal içeriği. Çevrimdışı: ağ gerektirmeyen ekran önbellekten çizilir, üstte şerit; e.cevrimici ekranlar (canlı sohbet, analiz, arama) bağlantı hatası verir.
+  const halCiz = (hal, e, ctx) => {
+    const tekrar = {metin: 'Tekrar dene', ikon: 'yenile', yerine: halsiz(ctx.hash)}, saat = DD.simdi().toTimeString().slice(0, 5).replace(':', '.');
+    if (hal === 'yukleniyor') { const t = e.iskelet || 'ekran'; return ['ekran', 'detay', 'profil'].includes(t) ? DD.iskelet(t) : `<div class="dd-ic">${DD.iskelet(t)}</div>`; }
+    if (hal === 'bos') return DD.bos({tam: true, ...e.bos});
+    if (hal === 'hata') return DD.hataEkran({tur: 'sunucu', eylem: tekrar});
+    if (hal === 'giris') return DD.girisGerekli(DD.UYE_KILIT[ctx.ad] || {});
+    if (hal === 'kilitli') return DD.premiumKilit();
+    return e.cevrimici
+      ? `${DD.cevrimdisi('Çevrimdışısın', {saat})}${DD.hataEkran({tur: 'baglanti', eylem: tekrar})}`
+      : `${DD.cevrimdisi('Çevrimdışısın', {saat})}${e.ciz(ctx)}`;
+  };
   const ciz = g => {
     const {e, ctx, el} = g;
     g.temizle?.(); g.temizle = null;
     let bar = '', icerik = '', alt = '';
-    const kilit = !DD.uye() && DD.UYE_KILIT[g.ad], bekliyor = !kilit && e.yukle && !g.yuklendi;
+    // Durum halleri (?hal=): router her ekrana ortak bileşenle verir; boş hal yalnız e.bos tanımlıysa (yoksa ekran kendisi çizer). e.haller === false: akış ekranları.
+    const halAd = e.haller === false ? null : HALLER.includes(ctx.sorgu?.hal) && (ctx.sorgu.hal !== 'bos' || e.bos) ? ctx.sorgu.hal : null;
+    const kilit = !halAd && !DD.uye() && DD.UYE_KILIT[g.ad], bekliyor = !halAd && !kilit && e.yukle && !g.yuklendi;
     try {
-      if ((e.tur || 'alt') !== 'tam') bar = DD.ustBar(kilit ? (e.dock ? {tur: 'sekme'} : {tur: 'alt', baslik: kilit.baslik}) : barAyar(e, ctx));
-      icerik = kilit ? DD.bos({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, eylem: {metin: 'Üye ol', veri: {'uye-ol': kilit.metin.replace(/\*\*/g, '')}}, ikincil: {metin: 'Giriş yap', git: '#/giris'}}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
-      if (!kilit && !bekliyor && e.altBar) alt = e.altBar(ctx) || '';
+      if ((e.tur || 'alt') !== 'tam') bar = DD.ustBar(halAd && halAd !== 'cevrimdisi' ? {...barAyar(e, ctx), saydam: false} : kilit ? (e.dock ? {tur: 'sekme'} : {tur: 'alt', baslik: kilit.baslik}) : barAyar(e, ctx));
+      icerik = halAd ? halCiz(halAd, e, ctx) : kilit ? DD.bos({tam: true, ikon: kilit.ikon, baslik: kilit.baslik, metin: kilit.metin, eylem: {metin: 'Üye ol', veri: {'uye-ol': kilit.metin.replace(/\*\*/g, '')}}, ikincil: {metin: 'Giriş yap', git: '#/giris'}}) : bekliyor ? DD.iskelet(e.iskelet || 'ekran') : e.ciz(ctx);
+      if (!kilit && !bekliyor && (!halAd || halAd === 'cevrimdisi' && !e.cevrimici) && e.altBar) alt = e.altBar(ctx) || '';
     } catch (hata) {
       console.error(`[ekran ${g.ad}]`, hata);
       icerik = DD.hataEkran({tur: 'genel', eylem: {metin: 'Bugün’e dön', yerine: '#/bugun'}, ikinciller: []});
@@ -184,7 +201,7 @@
         .catch(() => { el.querySelector('.dd-icerik').innerHTML = DD.hataEkran({tur: 'baglanti', eylem: {metin: 'Tekrar dene', veri: {'dd-tazele': 1}}}); });
       return;
     }
-    if (!kilit && e.sonra) { try { g.temizle = e.sonra(el, ctx) || null; } catch (hata) { console.error(`[ekran ${g.ad}]`, hata); } }
+    if (!kilit && (!halAd || halAd === 'cevrimdisi' && !e.cevrimici) && e.sonra) { try { g.temizle = e.sonra(el, ctx) || null; } catch (hata) { console.error(`[ekran ${g.ad}]`, hata); } }
     DD.tabagim._bar();
   };
 

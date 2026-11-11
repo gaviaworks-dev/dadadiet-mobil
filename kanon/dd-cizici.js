@@ -119,7 +119,8 @@
   DD.bant = (o = {}) => DD.ipucu({...o, ton: o.ton || 'bilgi', ikon: o.ikon || {bilgi: 'bilgi', basari: 'basari', uyari: 'uyari', hata: 'hata'}[o.ton || 'bilgi']});
   DD.bilgi = (o = {}) => `<div class="dd-bilgi">${o.etiket ? `<span class="dd-t-label">${o.ikon ? ik(o.ikon) : ''}${esc(o.etiket)}</span>` : ''}${o.metin ? DD.p(o.metin) : ''}${o.html || ''}</div>`;
   DD.veriYok = metin => `<p class="dd-veri-yok">${ik('bilgi')}<span>${vurgu(metin)}</span></p>`;
-  DD.cevrimdisi = (metin = 'Bağlantı yok, kayıtlar bu cihazda duruyor') => `<div class="dd-cevrimdisi">${ik('baglanti')}<span>${esc(metin)}</span></div>`;
+  // Çevrimdışı şeridi: içeriğin üstüne yapışır, ekran önbellekten gösterilir. {saat} son eşitleme.
+  DD.cevrimdisi = (metin = 'Bağlantı yok, kayıtlar bu cihazda duruyor', o = {}) => `<div class="dd-cevrimdisi" role="status">${ik('wifi')}<span>${esc(metin)}</span>${o.saat ? `<small>Son eşitleme ${esc(o.saat)}</small>` : ''}</div>`;
   // Boş durum: Gastro DG.durum. {ikon, baslik, metin, eylem (btn seçenekleri), tam}
   DD.bos = (o = {}) => `<div class="${liste('dd-durum', o.tam && 'is-tam', o.sinif)}"><span class="dd-durum-ikon">${ik(o.ikon || 'bilgi')}</span><h2 class="dd-t-section">${esc(o.baslik)}</h2>${o.metin ? `<p>${vurgu(o.metin)}</p>` : ''}${o.eylem ? DD.btn(o.eylem) : ''}${o.ikincil ? DD.btn({tur: 'text', ...o.ikincil}) : ''}</div>`;
   // Gastro DG.vizor: durum sahnesinin üst parçası.
@@ -137,10 +138,18 @@
   const HATA = {
     baglanti: {isaret: 'baglanti', baslik: 'Bağlantı yok', metin: 'İnternet bağlantını kontrol edip **tekrar dene**.', ipucuBaslik: 'Kontrol edebileceklerin', ipuclari: [['wifi', 'Wi-Fi ya da mobil veri', 'Bağlantının açık olduğundan emin ol.'], ['plane', 'Uçak modu', 'Açıksa kapat.'], ['rotate-right', 'Yeniden dene', 'Bağlantı gelince ekran kaldığı yerden açılır.']]},
     genel: {isaret: 'uyari', baslik: 'Bir şeyler ters gitti', metin: 'Beklenmedik bir hata oluştu. **Biraz sonra** tekrar dene.'},
+    sunucu: {isaret: 'server', baslik: 'Sunucuya ulaşamadık', metin: 'Sorun bizde, **kayıtların güvende**. Birkaç dakika sonra tekrar dene.', ipucuBaslik: 'Bu sırada', ipuclari: [['mobile-screen', 'Kayıtların cihazında', 'Bağlantı düzelince kendiliğinden eşitlenir.'], ['rotate-right', 'Tekrar dene', 'Çoğu kesinti birkaç dakika sürer.']]},
     zaman: {isaret: 'hourglass-half', baslik: 'Yanıt gecikti', metin: 'Sunucu zamanında yanıt vermedi. **Tekrar dene.**'},
     bulunamadi: {isaret: 'ara_', baslik: 'Bu sayfa burada değil', metin: 'Bağlantı eskimiş olabilir. **Bugün’e dönüp** oradan devam edebilirsin.'}
   };
   DD.hataEkran = (o = {}) => { const h = {...HATA[o.tur || 'genel'], ...o}; return DD.durumSahne({...h, ana: o.eylem || {metin: 'Tekrar dene', ikon: 'yenile', veri: {'dd-tazele': 1}}, ikinciller: o.ikinciller ?? (o.tur === 'bulunamadi' ? [] : [{metin: 'Bugün’e dön', ikon: 'house', yerine: '#/bugun'}])}); };
+  // Kilitli (premium) hal: durum sahnesi + Pro kademesinin özellikleri (DDV.uye.kademeler, uydurma yok) + Pro'ya geç / Şimdi değil.
+  DD.premiumKilit = (o = {}) => {
+    const k = (window.DDV?.uye?.kademeler || []).find(x => x.kod === (o.kademe || 'pro')) || {tamAd: 'Dada Diet Pro', ozellikler: [], fiyat: null};
+    return DD.durumSahne({isaret: 'lock', baslik: o.baslik || `${k.tamAd} ile açılır`, metin: o.metin || `Bu bölüm **${k.ad || 'Pro'}** üyelikte. ${k.ozet || ''}`.trim(), ipucuBaslik: `${k.ad || 'Pro'} ile gelenler`, ipuclari: (k.ozellikler || []).slice(0, 5).map(x => ['circle-check', x]), ana: {metin: k.fiyat ? `${k.ad}’ya geç · ${sayi(k.fiyat)} TL/ay` : `${k.ad}’ya geç`, ikon: k.ikon || 'bolt', git: '#/paketlerim'}, ikinciller: [{metin: 'Şimdi değil', geri: true}]});
+  };
+  // Giriş gerekli hal (herhangi bir ekran): DD.bos tam + Giriş yap / Üye ol.
+  DD.girisGerekli = (o = {}) => DD.bos({tam: true, ikon: o.ikon || 'lock', baslik: o.baslik || 'Önce giriş yap', metin: o.metin || 'Bu bölüm **hesabına bağlı**. Giriş yapınca kayıtların her cihazda seninle olur.', eylem: {metin: 'Giriş yap', ikon: 'right-to-bracket', git: '#/giris'}, ikincil: {metin: 'Hesabın yok mu? Üye ol', git: '#/karsilama'}});
   // Gastro DG.izinIstemi. {ikon, gorsel, baslik, metin, maddeler, izin, alternatif:{metin,git}, red, reddedildi:{baslik,metin}} → {html, bar}
   DD.maddeler = l => `<ul class="dd-izin-maddeler">${l.map(([i, t, a]) => `<li><span class="dd-izin-madde-ikon" aria-hidden="true">${ik(i)}</span><span><b>${esc(t)}</b>${a ? `<small>${esc(a)}</small>` : ''}</span></li>`).join('')}</ul>`;
   DD.izinIstemi = (o = {}) => {

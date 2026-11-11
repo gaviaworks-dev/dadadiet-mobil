@@ -171,6 +171,7 @@
 
   let hataGosterildi = false;
   DD.ekran('ogun', {
+    bos: {ikon: 'ogun', baslik: 'Bu öğün boş', metin: 'Ne yediğini ekle; **kalori ve makrolar** kendiliğinden hesaplanır.', eylem: {metin: 'Besin ekle', ikon: 'ekle', git: '#/besin-ara'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     nav: 'bugun',
     yenile: true,

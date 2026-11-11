@@ -114,6 +114,7 @@
 
   let hataGosterildi = false;
   DD.ekran('programlarim', {
+    bos: {ikon: 'program', baslik: 'Henüz programın yok', metin: 'Başladığın ve kaydettiğin programlar **burada** görünür.', eylem: {metin: 'Programlara göz at', ikon: 'tumu', git: '#/programlar'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     nav: 'profil',
     ust: '#/profil',

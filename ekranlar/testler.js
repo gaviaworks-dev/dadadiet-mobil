@@ -24,6 +24,8 @@
   };
 
   DD.ekran('testler', {
+    iskelet: 'liste',
+    bos: {ikon: 'clipboard-list', baslik: 'Test bulunamadı', metin: 'Bu başlıkta henüz test yok. **Diğer testlere** göz at.', eylem: {metin: 'Tüm testler', ikon: 'tumu', yerine: '#/testler'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     ust: '#/bugun',
     baslik: 'Sağlık Testleri',

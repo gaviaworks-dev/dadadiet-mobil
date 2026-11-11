@@ -134,6 +134,7 @@
   };
 
   DD.ekran('program-bul', {
+    iskelet: 'liste',
     tur: 'tam',
     tabagim: false,
     ust: '#/programlar',

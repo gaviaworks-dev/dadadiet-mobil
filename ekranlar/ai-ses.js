@@ -110,6 +110,8 @@
   };
 
   DD.ekran('ai-ses', {
+    cevrimici: true,   // ağ gerekir: çevrimdışında bağlantı hatası (önbellek yok)
+    iskelet: 'detay',
     tur: 'modal',
     tabagim: false,
     baslik: () => S().baslik,

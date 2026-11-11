@@ -82,6 +82,8 @@
   });
 
   DD.ekran('tabak-kur', {
+    iskelet: 'detay',
+    bos: {ikon: 'tabak', baslik: 'Tabağın boş', metin: 'Tabağına besin ekle; **oranlar ve puan** kendiliğinden çıkar.', eylem: {metin: 'Besin ekle', ikon: 'ekle', yerine: '#/denge/tabak'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     ust: '#/denge',
     baslik: 'Tabak Kur',

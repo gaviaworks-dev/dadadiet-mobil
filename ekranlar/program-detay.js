@@ -175,6 +175,7 @@
   };
 
   DD.ekran('program-detay', {
+    iskelet: 'detay',
     tur: 'banner',
     nav: 'bugun',
     ust: '#/programlar',

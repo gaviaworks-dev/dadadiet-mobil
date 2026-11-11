@@ -8,6 +8,7 @@
   };
 
   DD.ekran('splash', {
+    haller: false,   // akış ekranı: ?hal= durum halleri uygulanmaz
     tur: 'tam',
     tabagim: false,
     ciz: () => DD.acilis({gorseller: DDV.programlar.slice(0, KOLAJ).map(p => p.kapak)}),

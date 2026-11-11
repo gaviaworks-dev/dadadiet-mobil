@@ -29,6 +29,8 @@
 
   let hataGosterildi = false;
   DD.ekran('tabaklarim', {
+    iskelet: 'izgara',
+    bos: {ikon: 'tabak', baslik: 'Henüz tabak yok', metin: 'Çektiğin ya da eklediğin tabaklar **burada birikir**.', eylem: {metin: 'Tabağını çek', ikon: 'kamera', git: '#/ai/kamera'}},   // ?hal=bos (ortak DD.bos)
     tur: 'alt',
     nav: 'bugun',
     baslik: 'Tabaklarım',
