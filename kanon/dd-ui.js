@@ -480,7 +480,7 @@
   };
 
   // ---------- Tabağım: fotoğraf, barkod, ses ve aramadan gelenler aynı taslakta birikir ----------
-  const tKey = 'tabagim', mKey = 'tabagim-meta', META = ['foto', 'not', 'kaynak', 'guven'];
+  const tKey = 'tabagim', mKey = 'tabagim-meta', kKey = 'tabagim-kucuk', META = ['foto', 'not', 'kaynak', 'guven'];
   const PORS = ['kcal', 'P', 'K', 'Y', 'Lif', 'gram', 'miktar'];
   // Öğünler veriden (DDV.bugun.ogunler sırası); kısa ad segment için, yönelme bildirim için.
   const OGUN_AD = {kahvalti: ['Kahvaltı', 'Kahvaltıya'], ogle: ['Öğle', 'Öğle yemeğine'], ara: ['Ara', 'Ara öğüne'], aksam: ['Akşam', 'Akşam yemeğine']};
@@ -493,8 +493,10 @@
     // Tabağa ait tek meta. Argümansız okur, verilen alanları yazar; kayıt ya da temizlikte silinir.
     meta(m) { if (m === undefined) return DD.durum.oku(mKey, {}); return DD.durum.yaz(mKey, {...this.meta(), ...m}); },
     ekle(oge) { const m = Object.fromEntries(META.filter(k => oge[k] != null).map(k => [k, oge[k]])); if (Object.keys(m).length) this.meta({...m, ...this.meta()}); const l = this.liste(); l.push({id: `t${Date.now()}${l.length}`, ...oge}); DD.durum.yaz(tKey, l); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
-    cikar(id) { const l = this.liste().filter(x => x.id !== id); DD.durum.yaz(tKey, l); if (!l.length) DD.durum.sil(mKey); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
-    temizle() { DD.durum.sil(tKey); DD.durum.sil(mKey); this._bar(); yay(belge, 'dd-tabagim', {liste: []}); },
+    cikar(id) { const l = this.liste().filter(x => x.id !== id); DD.durum.yaz(tKey, l); if (!l.length) { DD.durum.sil(mKey); DD.durum.sil(kKey); } this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
+    temizle() { DD.durum.sil(tKey); DD.durum.sil(mKey); DD.durum.sil(kKey); this._bar(); yay(belge, 'dd-tabagim', {liste: []}); },
+    // Küçültülmüş kart (çarpı): öğeler kalır, yalnız sayılı yuvarlak düğme görünür. Tabak boşalınca sıfırlanır; yeni öğe kartı kendiliğinden açmaz.
+    kucuk(v) { if (v === undefined) return !!DD.durum.oku(kKey, false); if (v) DD.durum.yaz(kKey, true); else DD.durum.sil(kKey); this._bar(); },
     // Porsiyon çarpanı (×0,5 adım). İlk değerler 'taban'da kalır; kcal, makro, gram ve miktar tabandan yeniden hesaplanır (yuvarlama birikmez).
     porsiyon(id, kat) {
       const l = this.liste().map(x => {
@@ -515,7 +517,9 @@
       DD.durum.yaz('tabagim-ogun', ogun);
       yay(belge, 'dd-tabagim-kaydet', {liste: l, toplam: t, meta: m, ...m});
       this.temizle();
-      DD.toast(`${o ? o.yonelme : 'Öğüne'} eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari', eylem: 'Tabaklarım', onEylem: () => DD.git('#/tabaklarim')});
+      // Bugün'deyse ekran öğün kartına kayar ve kartı vurgular (bugun.js); başka ekrandaysa düğme oraya götürür.
+      const bugunde = DD.aktif()?.ad === 'bugun';
+      DD.toast(`${o ? o.yonelme : 'Öğüne'} eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari', eylem: bugunde ? 'Tabaklarım' : 'Öğünü gör', onEylem: () => DD.git(bugunde ? '#/tabaklarim' : '#/bugun')});
     },
     ac(o = {}) {
       let ogun = this.ogun();
@@ -554,11 +558,11 @@
     _bar() {
       const kat = belge.getElementById('dd-tabagim'); if (!kat) return;
       const g = ust(), t = this.toplam();
-      const goster_ = g && (t.adet || g.e.tabagimBos) && (g.e.tabagim === true || g.e.tabagim === 'ust' || (g.e.tabagim !== false && g.e.tur !== 'tam'));
+      const goster_ = g && t.adet && (g.e.tabagim === true || g.e.tabagim === 'ust' || (g.e.tabagim !== false && g.e.tur !== 'tam'));
       R.sahne.classList.toggle('has-tabagim-ust', !!goster_ && g.e.tabagim === 'ust');
-      kat.innerHTML = goster_ ? DD.tabagimBar({liste: this.liste(), toplam: t, ogun: OGUNLER().find(x => x.id === this.ogun())}) : '';
+      kat.innerHTML = goster_ ? DD.tabagimBar({liste: this.liste(), toplam: t, kucuk: this.kucuk(), ogun: OGUNLER().find(x => x.id === this.ogun())}) : '';
       R.sahne.classList.toggle('has-tabagim', !!goster_);
-      R.sahne.classList.toggle('has-tabagim-bos', !!goster_ && !t.adet);
+      R.sahne.classList.toggle('has-tabagim-kucuk', !!goster_ && this.kucuk());
       if (g) kat.style.setProperty('--dd-tabagim-alt', `${g.el.querySelector('.dd-altbar')?.offsetHeight || 0}px`);
     }
   };
@@ -730,6 +734,8 @@
     if (sw) { const k = sw.closest('.dd-swipe'); swipeKapat(k); yay(k, 'dd-eylem', {eylem: sw.dataset.eylem, id: k.dataset.id}); return; }
     if (t.closest('[data-tabagim-ac]')) { DD.tabagim.ac(); return; }
     if (t.closest('[data-tabagim-kaydet]') && !t.closest('.dd-sheet')) { DD.tabagim.kaydet(); return; }
+    if (t.closest('[data-tabagim-kucult]')) { DD.tabagim.kucuk(true); belge.querySelector('[data-tabagim-buyut]')?.focus({preventScroll: true}); return; }
+    if (t.closest('[data-tabagim-buyut]')) { DD.tabagim.kucuk(false); belge.querySelector('[data-tabagim-ac]')?.focus({preventScroll: true}); return; }
     const ub = t.closest('[data-uzunbas]');
     if (ub && ev.detail === 0) { // klavye ve ekran okuyucu: uzun bas yerine onay
       DD.dialog({baslik: ub.dataset.onayBaslik || ub.textContent.trim(), metin: ub.dataset.onayMetin || '', eylem: ub.dataset.onayEylem || 'Onayla'}).then(v => { if (v) yay(ub, 'dd-onay', {ad: ub.dataset.ad}); });

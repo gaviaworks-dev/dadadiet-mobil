@@ -356,6 +356,16 @@
     });
   };
 
+  // Tabağım kaydı yerleşti: Bugün o öğün kartına kayar ve kartı kısa süre vurgular. Başka ekrandan kaydedildiyse Bugün'e dönünce olur.
+  const yerlestir = () => setTimeout(() => {
+    const id = DD.durum.oku('tabagim-yerlesti', null), kok = document.querySelector('.dd-ekran[data-ekran="bugun"]:not(.is-gizli)');
+    if (!id || !kok || secili !== DD.bugunIso()) return;
+    DD.durum.sil('tabagim-yerlesti');
+    const el = kok.querySelector(`.dd-ogun[data-ogun="${id}"]`); if (!el) return;
+    el.scrollIntoView({block: 'center', behavior: DD.azHareket() ? 'auto' : 'smooth'});
+    el.classList.remove('is-yerlesti'); void el.offsetWidth; el.classList.add('is-yerlesti');
+    setTimeout(() => el.classList.remove('is-yerlesti'), DD.TK.motion.dolum * 2);
+  }, DD.TK.motion.base);
   let kayitYaziliyor = false;   // ekle kendi dd-kayit olayını yayar; ek kalemler yazılmadan ekran tazelenmesin
   // Bugün hiç çizilmemiş olsa da kayıt kaybolmasın: dinleyici ekrandan bağımsızdır. 'tabagim-ogun' #/ogun/:id üzerinden gelen hedeftir.
   document.addEventListener('dd-tabagim-kaydet', e => {
@@ -373,8 +383,9 @@
     DD.durum.yaz(anahtar('ek'), {...l, [id]: [...(l[id] || []), ...ek.map(b => ({...b, kayitId}))]});
     DD.durum.sil('tabagim-ogun');
     hedefOgun = null;
+    if (ek.length) DD.durum.yaz('tabagim-yerlesti', id);
     // Tabakların bölümü ilk kayıtla ortaya çıkabilir; parça değil ekran yenilenir.
-    if (DD.aktif()?.ad === 'bugun' && hazir) DD.tazele();
+    if (DD.aktif()?.ad === 'bugun' && hazir) { DD.tazele(); yerlestir(); }
   });
   document.addEventListener('dd-kayit', () => { if (!kayitYaziliyor && DD.aktif()?.ad === 'bugun' && hazir) DD.tazele(); });
   // Öğün Hatırlatıcı işareti (Profil'de Yedim / Atladım) Bugün'ün öğün durumuna yazar; öğün bölümü yerinde yenilenir, kalan parçalar dönüşte (imza).
@@ -384,7 +395,6 @@
     tur: 'sekme',
     nav: 'bugun',
     baslik: 'Bugün',
-    tabagimBos: true,   // Tabağım boşken de görünür: "Tabağın boş · Ne yedin?"
     ustBar: () => ({saydam: hazir}),   // iskelet ve hata fotoğrafsızdır; beyaz logo solid barda kalır
     yukle: () => {
       if (hal() === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }
@@ -394,6 +404,7 @@
     cekYenile: () => new Promise(tamam => setTimeout(tamam, DD.TK.motion.reveal)),
     sonra: kok => {
       cizilen = imza(); if (!bagli.has(kok)) { bagli.add(kok); bagla(kok); }
+      if (hazir) yerlestir();
       // Tek satırda sığmayan kayıtlı seçim görünür kalsın; sayfa kaydırılmaz.
       const d = kok.querySelector('.dd-duygu'), b = d?.querySelector('[aria-pressed=true]');
       if (b) d.scrollLeft += b.getBoundingClientRect().left - d.getBoundingClientRect().left - (d.clientWidth - b.offsetWidth) / 2;
@@ -404,6 +415,6 @@
         if (ikinci) { DD.durum.yaz('misafir-duvar', true); DD.uyeDuvar(); }
       }
     },
-    donus: kok => { if (imza() !== cizilen) DD.tazele(); else yuva(kok, 'pencere', pencere()); }
+    donus: kok => { if (imza() !== cizilen) DD.tazele(); else yuva(kok, 'pencere', pencere()); yerlestir(); }
   });
 })();

@@ -507,10 +507,10 @@
 .dd-kok.has-dock .dd-tabagim-kat{bottom:calc(var(--dd-size-nav-bar) + var(--dd-size-nav-bottom) + var(--dd-s-24) + env(safe-area-inset-bottom,0px))}
 .dd-kok.has-tabagim-ust .dd-tabagim-kat{top:calc(env(safe-area-inset-top,0px) + var(--dd-s-64));bottom:auto}
 /* Kart: Gastro menü tepsisi (bul.css .bul-tepsi-ac) ölçüsü — kart radius'u 24, sh-md, iç 12/16 — kâğıt zemin, primary-line kenar.
-   Sol + orta tek düğme (sayfayı açar), sağda ayrı birincil düğme (Öğüne ekle). */
+   Sol + orta tek düğme (sayfayı açar), sağda ayrı birincil düğme (Öğüne ekle), sağ üst köşede küçültme. */
 .dd-tabagim-kart{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-size-tabagim-bar);padding:var(--dd-s-12) var(--dd-s-12) var(--dd-s-12) var(--dd-s-16);border:var(--dd-size-border) solid var(--dd-primary-line);border-radius:var(--dd-r-surface);background:var(--dd-paper);color:var(--dd-ink);box-shadow:var(--dd-sh-sm),var(--dd-sh-md)}
 .dd-tabagim-ac{display:flex;align-items:center;gap:var(--dd-s-12);flex:1;min-width:0;align-self:stretch;padding:0;border:0;border-radius:var(--dd-r-control);background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
-.dd-tabagim-ac:focus-visible,.dd-tabagim.is-bos .dd-tabagim-kart:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
+.dd-tabagim-ac:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
 .dd-tabagim-ekle{flex:none}
 /* Üst üste yuvarlak görseller: en çok 3, fazlası sağ altta sayaç rozeti. */
 .dd-tabagim-fotolar{position:relative;display:flex;flex:none;padding-block-end:var(--dd-s-2)}
@@ -541,12 +541,20 @@
 .dd-tabagim-makro.is-genis .dd-tabagim-gram>span::before{content:'';flex:none;width:var(--dd-s-8);height:var(--dd-s-8);border-radius:50%}
 .dd-tabagim-makro.is-genis .dd-tabagim-gram b{color:var(--dd-ink);font-family:var(--dd-font);font-weight:var(--dd-t-meta-weight)}
 .dd-tabagim-makro.is-genis .dd-tabagim-gram b+*{font-family:var(--dd-font-bold)}
-/* Boş hal: kesik çizgili tabak, tek satır metin, sağda artı kutusu. */
-.dd-tabagim.is-bos .dd-tabagim-kart{min-height:0;padding:var(--dd-s-8) var(--dd-s-8) var(--dd-s-8) var(--dd-s-12);font:inherit;text-align:start;cursor:pointer}
-.dd-tabagim-bos-ikon{display:grid;place-items:center;flex:none;width:var(--dd-size-box-md);height:var(--dd-size-box-md);border:var(--dd-size-choice-border) dashed var(--dd-primary-line);border-radius:50%;background:var(--dd-primary-tint);color:var(--dd-primary-dark);font-size:var(--dd-size-icon-md)}
-.dd-tabagim-bos-metin{display:flex;align-items:baseline;gap:var(--dd-s-8);flex:1;min-width:0;color:var(--dd-slate);font-size:var(--dd-t-body-size);line-height:1.3;white-space:nowrap}
-.dd-tabagim-bos-metin b{color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
-.dd-tabagim-arti{display:grid;place-items:center;flex:none;width:var(--dd-size-box-md);height:var(--dd-size-box-md);border-radius:var(--dd-r-control);background:var(--dd-primary);color:var(--dd-paper);font-size:var(--dd-size-icon-md)}
+/* Küçültme: kartın sağ üst köşesinde kâğıt daire çarpı (dokunma alanı 44). Küçük hal: sağda sayı rozetli yuvarlak tabak düğmesi. */
+.dd-tabagim-kart{position:relative}
+.dd-tabagim-kucult{position:absolute;top:calc(-1 * var(--dd-s-8));right:calc(-1 * var(--dd-s-4));display:grid;place-items:center;width:var(--dd-size-badge);height:var(--dd-size-badge);padding:0;border:var(--dd-size-border) solid var(--dd-line);border-radius:50%;background:var(--dd-paper);color:var(--dd-slate);font-size:var(--dd-size-icon-check);box-shadow:var(--dd-sh-sm);cursor:pointer}
+.dd-tabagim-kucult::before{content:'';position:absolute;inset:calc(-1 * var(--dd-s-12))}
+.dd-tabagim-kucult:focus-visible,.dd-tabagim-mini:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
+.dd-tabagim.is-kucuk{display:flex;justify-content:flex-end}
+.dd-tabagim-mini{position:relative;display:grid;place-items:center;width:var(--dd-size-fab);height:var(--dd-size-fab);padding:0;border:var(--dd-size-border) solid var(--dd-primary-line);border-radius:50%;background:var(--dd-paper);color:var(--dd-primary-dark);font-size:var(--dd-size-icon-lg);box-shadow:var(--dd-sh-sm),var(--dd-sh-md);cursor:pointer;animation:dd-tabagim-mini var(--dd-spring-yaylanma-ms) var(--dd-spring-yaylanma) both}
+.dd-tabagim-mini-sayi{position:absolute;top:calc(-1 * var(--dd-s-4));right:calc(-1 * var(--dd-s-4));display:grid;place-items:center;min-width:var(--dd-size-badge-sm);height:var(--dd-size-badge-sm);padding:0 var(--dd-s-4);border:var(--dd-size-border2) solid var(--dd-paper);border-radius:var(--dd-r-switch);background:var(--dd-primary-dark);color:var(--dd-paper);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-label-size);line-height:1;font-variant-numeric:tabular-nums}
+/* Tabağım kaydı öğüne yerleşince öğün kartı kısa süre vurgulanır (bugun.js). */
+.dd-ogun.is-yerlesti{animation:dd-yerlesti calc(var(--dd-m-dolum) * 2) var(--dd-e-standard)}
+@keyframes dd-yerlesti{0%,40%{background-color:var(--dd-primary-tint);box-shadow:0 0 0 var(--dd-size-border2) var(--dd-primary-line)}100%{background-color:transparent;box-shadow:0 0 0 var(--dd-size-border2) transparent}}
+@media (prefers-reduced-motion:reduce){.dd-ogun.is-yerlesti{animation:none;background-color:var(--dd-primary-tint)}}
+@keyframes dd-tabagim-mini{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.dd-tabagim-mini{animation:none}}
 /* Sayfa: satırda kcal adın altında, adımlayıcı sağda; altta toplam, hedefe etki, makro, öğün segmenti, düğme. */
 .dd-tabagim-oge-kcal{display:block;margin-top:var(--dd-s-2);color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-meta-size);line-height:1.3;font-variant-numeric:tabular-nums}
 .dd-tabagim-liste .dd-satir .dd-adimlayici{flex:none}
