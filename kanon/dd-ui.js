@@ -132,8 +132,19 @@
     saglik: {ikon: 'file-medical', baslik: 'Sağlık dosyan', metin: 'Geçmiş günlerin **trendini** görmek için ücretsiz profil oluştur.'},
     profil: {ikon: 'user', baslik: 'Profilin', metin: 'Hedeflerini ve **verilerini** korumak için ücretsiz profil oluştur.'},
     'uzman-sohbet': {ikon: 'comment-dots', baslik: 'Diyetisyeninle yazış', metin: 'Diyetisyeninle **doğrudan iletişim** kurmak için kaydol.'},
-    // Üye alanı (web Hesabım eşi): misafire kapalı, tek metin
-    ...Object.fromEntries(['ogun-saatleri', 'ayarlar', 'tercihler', 'veri-izinleri', 'programlarim', 'kaydedilenler', 'rozetler', 'haftalik-menu', 'beslenme-plani', 'destek-gruplari', 'cozum-merkezi', 'paketlerim', 'odemelerim'].map(ad => [ad, {ikon: 'user', baslik: 'Üye alanı', metin: 'Bu bölüm **hesabına bağlı** çalışır; ücretsiz profil oluştur ya da giriş yap.'}]))
+    // Üye alanı (web Hesabım eşi): misafire kapalı; Gastro girişDuvarı gibi her ekranın kendi ikonu ve cümlesi. Ayarlar ve Çözüm Merkezi misafire açık, kapıyı ekran içinde kurar.
+    'ogun-saatleri': {ikon: 'clock', baslik: 'Öğün hatırlatıcın', metin: 'Öğün saatlerini kurup **zamanında hatırlatma** almak için giriş yap.'},
+    tercihler: {ikon: 'sliders', baslik: 'Tercihlerin', metin: 'Alerjen ve sevmediklerini **hesabına kaydetmek** için giriş yap.'},
+    'veri-izinleri': {ikon: 'shield-halved', baslik: 'Veri izinlerin', metin: 'Sağlık verilerine verdiğin izinleri **yönetmek** için giriş yap.'},
+    programlarim: {ikon: 'clipboard-list', baslik: 'Programların', metin: 'Başladığın programları **her cihazda** sürdürmek için giriş yap.'},
+    kaydedilenler: {ikon: 'bookmark', baslik: 'Kaydettiklerin', metin: 'Beğendiğin program, besin ve yazıları **bir arada** tutmak için giriş yap.'},
+    rozetler: {ikon: 'medal', baslik: 'Rozetlerin', metin: 'Kayıt tuttukça kazandığın **rozetleri** görmek için giriş yap.'},
+    'haftalik-menu': {ikon: 'calendar-week', baslik: 'Haftalık menün', metin: 'Diyetisyeninin hazırladığı **haftalık menüyü** görmek için giriş yap.'},
+    'beslenme-plani': {ikon: 'file-lines', baslik: 'Beslenme planın', metin: 'Sana özel **beslenme planını** görmek için giriş yap.'},
+    'destek-gruplari': {ikon: 'people-group', baslik: 'Destek grupları', metin: 'Gruplara katılıp **deneyim paylaşmak** için giriş yap.'},
+    paketlerim: {ikon: 'box-open', baslik: 'Paketlerin', metin: 'Üyelik ve diyetisyen **paketlerini** yönetmek için giriş yap.'},
+    odemelerim: {ikon: 'credit-card', baslik: 'Ödemelerin', metin: 'Ödeme geçmişini ve **faturalarını** görmek için giriş yap.'},
+    bildirimler: {ikon: 'bell', baslik: 'Bildirimlerin', metin: 'Hatırlatmaları ve **diyetisyen mesajlarını** almak için giriş yap.'}
   };
   const SSO = [{yol: 'apple', metin: 'Apple ile devam et', marka: 'apple'}, {yol: 'google', metin: 'Google ile devam et', gorsel: 'assets/marka/sosyal/google.svg'}];
   // K10: aktarım açık rızaya bağlıdır; rıza yoksa veri cihazda kalır. Metin hukuk onayına kadar taslaktır.
