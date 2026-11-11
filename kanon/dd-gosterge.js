@@ -44,20 +44,28 @@
 
   // ---------- Oruç sayacı: tam daire, faz işaretleri halkaya oturur ----------
   // {durum:'oruc'|'pencere'|'bos'|'bitti', gecenDk, hedefSaat, rozet, fazlar, canli, altMetin, git, veri}
-  DD.sayacHtml = sn => { const m = DD.sayacMetin(sn); return `<span class="dd-t-numeral-xl">${DD.rakamlar(m.slice(0, 5))}</span><span class="dd-oruc-sn">${DD.rakamlar(m.slice(5))}</span>`; };
+  // Saat:dakika orantılı rakamla (Gilroy'da sabit hücre "1"in yanında boşluk bırakıyordu), saniye küçük ve hücreli (her saniye kaymasın).
+  DD.sayacHtml = sn => { const m = DD.sayacMetin(sn); return `<span class="dd-t-numeral-xl dd-oruc-ana">${esc(m.slice(0, 5))}</span><span class="dd-oruc-sn">${DD.rakamlar(m.slice(5))}</span>`; };
+  // Görünüm (11 Kasım v2, oruç uygulamaları kalıbı: Zero, Simple, FastBreak): açık gri iz, marka yeşilinde halka boyunca geçişli ilerleme (oruç koyu, pencere açık yeşil),
+  // ucunda kâğıt düğme, iz içinde hedefin her saati için çentik, ortada gölgeli kâğıt disk; disk içinde durum rozeti, "Geçen süre · %", saat, alt metin.
   DD.orucSayac = (o = {}) => {
     const {gecenDk = 0, hedefSaat = 16, durum = 'oruc'} = o;
     const hedefDk = hedefSaat * 60, oran = durum === 'bitti' ? 1 : durum === 'bos' ? 0 : kisit(gecenDk / hedefDk, 0, 1), r = 135, c = 148;
     const fazlar = durum === 'oruc' || durum === 'bitti' ? (o.fazlar || []).filter(f => f.baslangicSaat > 0 && f.baslangicSaat < hedefSaat) : [];
     const gecenSaat = durum === 'bitti' ? hedefSaat : gecenDk / 60;
     const isaret = fazlar.map(f => `<span class="dd-oruc-faz${gecenSaat >= f.baslangicSaat ? ' is-gecti' : ''}" style="--a:${yuvarla(f.baslangicSaat / hedefSaat * 360)}deg"><i>${ik(f.ikon)}</i></span>`).join('');
-    const uzun = yuvarla(oran * 100), ton = {oruc: 'basari', pencere: 'uyari', bitti: 'basari', bos: 'notr'}[durum];
+    // Saat çentikleri: izin iç kenarında, hedefin her saati için bir; geçilenler renkli.
+    const centik = Array.from({length: hedefSaat}, (_, i) => { const a = rad(i / hedefSaat * 360 - 90), p = k => [c + k * Math.cos(a), c + k * Math.sin(a)].map(yuvarla); const [x1, y1] = p(112), [x2, y2] = p(i % 4 ? 116 : 118); return `<line class="${i / hedefSaat <= oran && oran > 0 ? 'is-gecti' : ''}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
+    const uzun = yuvarla(oran * 100), ton = {oruc: 'basari', pencere: 'basari', bitti: 'basari', bos: 'notr'}[durum];
     const metin = o.rozet || {oruc: 'Oruçtasın', pencere: 'Yeme penceresi açık', bitti: 'Tamamlandı', bos: 'Hazır'}[durum];
+    const etiket = {oruc: `Geçen süre · %${Math.round(oran * 100)}`, pencere: `Geçen süre · %${Math.round(oran * 100)}`, bitti: 'Toplam süre', bos: 'Hedef'}[durum];
     const zaman = durum === 'bos'
-      ? `<b class="dd-t-numeral-xl dd-oruc-zaman">${esc(hedefSaat)}<span class="dd-oruc-sn"> saat</span></b>`
+      ? `<b class="dd-oruc-zaman"><span class="dd-t-numeral-xl dd-oruc-ana">${esc(hedefSaat)}</span><span class="dd-oruc-sn"> saat</span></b>`
       : `<b class="dd-oruc-zaman" ${o.canli === false || durum === 'bitti' ? '' : `data-c="sayac" data-saniye="${gecenDk * 60}"`}>${DD.sayacHtml(gecenDk * 60)}</b>`;
-    const merkez = `<div class="dd-oruc-orta">${DD.durumRozet({metin, ton, ikon: {oruc: 'oruc', pencere: 'pencere', bitti: 'onay', bos: 'saat'}[durum]})}${zaman}<small>${esc(o.altMetin || `Hedef ${hedefSaat} saat`)}</small></div>`;
-    return `<div class="${liste('dd-oruc', `is-${durum}`, o.sinif)}"><svg viewBox="0 0 296 296" aria-hidden="true"><circle class="dd-oruc-iz" cx="${c}" cy="${c}" r="${r}"/>${uzun > 0 ? `<circle class="dd-oruc-dolu" cx="${c}" cy="${c}" r="${r}" pathLength="100" stroke-dasharray="${uzun} 100" data-c="yay" data-uzun="${uzun}" transform="rotate(-90 ${c} ${c})"/>` : ''}</svg>${isaret}${uzun > 0 && uzun < 100 ? `<span class="dd-oruc-uc" data-c="bar" style="--a:${yuvarla(oran * 360)}deg"><i></i></span>` : ''}${o.git || o.veri ? `<button type="button" class="dd-oruc-dokun"${at({git: o.git, veri: o.veri, etiket: 'Fazları göster'})}>${merkez}</button>` : merkez}</div>`;
+    const merkez = `<div class="dd-oruc-orta">${DD.durumRozet({metin, ton, ikon: {oruc: 'oruc', pencere: 'pencere', bitti: 'onay', bos: 'saat'}[durum]})}<span class="dd-oruc-etiket">${esc(etiket)}</span>${zaman}<small>${esc(o.altMetin || `Hedef ${hedefSaat} saat`)}</small></div>`;
+    // İlerleme: halka boyunca dönen renk geçişi (conic, maske ile şerit); açılışta uç düğmesiyle birlikte dolar (data-c="bar" → is-canli).
+    const svg = `<svg viewBox="0 0 296 296" aria-hidden="true"><circle class="dd-oruc-iz" cx="${c}" cy="${c}" r="${r}"/><g class="dd-oruc-centik">${centik}</g></svg>${oran > 0 ? `<span class="dd-oruc-yay${oran >= 1 ? ' is-tam' : ''}" data-c="bar" style="--o:${yuvarla(oran)}" aria-hidden="true"></span>` : ''}`;
+    return `<div class="${liste('dd-oruc', `is-${durum}`, o.sinif)}">${svg}${isaret}${uzun > 0 && uzun < 100 ? `<span class="dd-oruc-uc" data-c="bar" style="--a:${yuvarla(oran * 360)}deg"><i></i></span>` : ''}${o.git || o.veri ? `<button type="button" class="dd-oruc-dokun"${at({git: o.git, veri: o.veri, etiket: 'Fazları göster'})}>${merkez}</button>` : merkez}</div>`;
   };
   // Kompakt oruç pili (Bugün). {durum, baslik, alt, oran, git}
   DD.orucPil = (o = {}) => {
