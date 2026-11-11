@@ -197,6 +197,24 @@
 /* Grafik kartı */
 .dd-grafik-kart{gap:var(--dd-s-16)}
 .dd-grafik-kart .dd-metrik-fark{margin-inline-start:var(--dd-s-8)}
+.dd-denge-satirlar{display:grid}
+.dd-denge-oge{--renk:var(--dd-primary);--iz:var(--dd-primary-tint);--yazi:var(--dd-primary-dark);display:grid;grid-template-columns:var(--dd-size-box-md) minmax(0,1fr);gap:var(--dd-s-12);align-items:start;padding-block:var(--dd-s-16)}
+.dd-denge-oge:first-child{padding-top:0}
+.dd-denge-oge:last-child{padding-bottom:0}
+.dd-denge-oge+.dd-denge-oge{border-top:var(--dd-size-border) solid var(--dd-line)}
+.dd-denge-oge.is-protein{--renk:var(--dd-protein);--iz:var(--dd-protein-tint);--yazi:var(--dd-protein-text)}
+.dd-denge-oge.is-karb{--renk:var(--dd-karb);--iz:var(--dd-karb-tint);--yazi:var(--dd-karb-text)}
+.dd-denge-oge.is-yag{--renk:var(--dd-yag);--iz:var(--dd-yag-tint);--yazi:var(--dd-yag-text)}
+.dd-denge-oge.is-lif{--renk:var(--dd-lif);--iz:var(--dd-lif-tint);--yazi:var(--dd-lif-text)}
+.dd-denge-ikon{display:grid;place-items:center;width:var(--dd-size-box-md);height:var(--dd-size-box-md);border-radius:var(--dd-r-round);background:var(--iz);color:var(--yazi);font-size:var(--dd-size-icon-md)}
+.dd-denge-govde{display:grid;gap:var(--dd-s-8);min-width:0}
+.dd-denge-bas{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dd-s-12);min-height:var(--dd-s-20);color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:var(--dd-t-meta-line)}
+.dd-denge-bas>b{color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-body-size);line-height:1.3}
+.dd-denge-bas span b{color:var(--dd-ink);font-family:var(--dd-font-bold);font-variant-numeric:tabular-nums}
+.dd-denge-oge progress.dd-ilerleme{height:var(--dd-size-macro-bar);border-radius:var(--dd-r-switch);color:var(--renk)}
+.dd-denge-oge progress.dd-ilerleme::-webkit-progress-bar{background:var(--iz);border-radius:var(--dd-r-switch)}
+.dd-denge-oge progress.dd-ilerleme::-webkit-progress-value{background:var(--renk);border-radius:var(--dd-r-switch)}
+.dd-denge-oge progress.dd-ilerleme::-moz-progress-bar{background:var(--renk);border-radius:var(--dd-r-switch)}
 .dd-denge-satir{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--dd-s-12);align-items:start}
 
 /* Pencere bandı */
