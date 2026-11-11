@@ -20,7 +20,9 @@
  *   saklamaSecenek:[[deger, ad]], dondurmaSure:[[deger, ad]], ayrilmaNedeni:[[deger, ad]],
  *   alerjenler:[{id, ad}], sevmedikOneri:[ad], paylasimTurleri:[{ id, etiket, alt, ikon, varsayilan }] (ilk dördü ekranlar/saglik.js PAYLASIM ile aynı),
  *   izinIstekleri:[{ tur, tarih, not }], izinGecmisi:[{ tarih, metin, ikon }], izinSureleri:[[deger, ad, gun|null]],
- *   giris:{ eposta, sifre, denemeHakki, kodUzunluk, yenidenGonderSn, sifreKurali }
+ *   giris:{ eposta, sifre, denemeHakki, kodUzunluk, yenidenGonderSn, sifreKurali,
+ *     sifreKurallari:[{ id, ad (hata cümlesindeki adı), desen (RegExp kaynağı) }] · sifreKurali cümlesinin parçaları; yeni şifre hatası eksik olanları sayar,
+ *     ikiAdimKod (kayıtlı hesabın SMS kodu; #/iki-adim alanına telefonun önerdiği kod olarak gelir) }
  * } */
 window.DDV = window.DDV || {};
 DDV.hesap = {
@@ -71,7 +73,7 @@ DDV.hesap = {
     haftaBasi: [['pazartesi', 'Pazartesi'], ['pazar', 'Pazar']],
     saat: [['24', '24 saat · 19.30'], ['12', '12 saat · 7.30 ÖS']],
     agirlik: [['kg', 'Kilogram (kg)'], ['lb', 'Pound (lb)']],
-    boy: [['cm', 'Santimetre (cm)'], ['inc', 'İnç (inç)']],
+    boy: [['cm', 'Santimetre (cm)'], ['inc', 'İnç (in)']],
     enerji: [['kcal', 'Kilokalori (kcal)'], ['kj', 'Kilojul (kJ)']],
     sivi: [['ml', 'Mililitre (ml)'], ['bardak', 'Bardak'], ['floz', 'Ons (fl oz)']],
     tarih: [['gg.aa.yyyy', '06.11.2026 (gg.aa.yyyy)'], ['yyyy-aa-gg', '2026-11-06 (yyyy-aa-gg)']]
@@ -131,5 +133,13 @@ DDV.hesap = {
   ],
   izinSureleri: [['30', '30 gün', 30], ['90', '90 gün', 90], ['surekli', 'Ben geri çekene kadar', null]],
 
-  giris: {eposta: 'zeynep.kaya@posta.com', sifre: 'Dengeli2026!', denemeHakki: 5, kodUzunluk: 6, yenidenGonderSn: 60, sifreKurali: 'En az 8 karakter; büyük harf, küçük harf, rakam ve özel karakter içermeli.'}
+  giris: {eposta: 'zeynep.kaya@posta.com', sifre: 'Dengeli2026!', denemeHakki: 5, kodUzunluk: 6, yenidenGonderSn: 60, sifreKurali: 'En az 8 karakter; büyük harf, küçük harf, rakam ve özel karakter içermeli.',
+    sifreKurallari: [
+      {id: 'uzunluk', ad: 'en az 8 karakter', desen: '.{8,}'},
+      {id: 'buyuk', ad: 'büyük harf', desen: '[A-ZÇĞİÖŞÜ]'},
+      {id: 'kucuk', ad: 'küçük harf', desen: '[a-zçğıöşü]'},
+      {id: 'rakam', ad: 'rakam', desen: '\\d'},
+      {id: 'ozel', ad: 'özel karakter', desen: '[^\\wçğıöşüÇĞİÖŞÜ]'}
+    ],
+    ikiAdimKod: '482913'}
 };
