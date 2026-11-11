@@ -205,10 +205,10 @@
   const oneriYay = k => { const ad = k.dataset.oneriNot, serbest = k.querySelector('input').value.trim(), oneriler = [...k.querySelectorAll('[data-cip][aria-pressed=true]')].map(b => b.dataset.cip); DD.degisim(k, ad, [...oneriler, serbest].filter(Boolean).join(', '), {oneriler, serbest}); };
   document.addEventListener('input', ev => { const k = ev.target.closest?.('[data-oneri-not]'); if (k) oneriYay(k); });
   document.addEventListener('dd-degisim', ev => { const k = ev.target.closest?.('[data-oneri-not]'); if (k && ev.detail.ad === `${k.dataset.oneriNot}-oneri`) oneriYay(k); });
-  // besinSatir(b, {swipe, eylemler, git, veri, sag, alt, ok})
+  // besinSatir(b, {swipe, eylemler, git, veri, sag, alt, ek, deger (null: sağda kcal yok), ok})
   DD.besinSatir = (b, o = {}) => {
     const alt = o.alt ?? [b.miktar != null ? `${ondalik(b.miktar, 2)} ${b.birim || ''}`.trim() : '', b.gram ? `${sayi(b.gram)} g` : ''].filter(Boolean).join(' · ');
-    const satir = DD.satir({sol: DD.gorsel({src: b.gorsel, ad: b.ad, ton: DD.makroTon(b)}), baslik: b.ad, alt, deger: b.kcal != null ? `${sayi(b.kcal)} kcal` : null, git: o.git, veri: o.veri, sag: o.sag, ok: o.ok ?? false, duz: !!o.sag});
+    const satir = DD.satir({sol: DD.gorsel({src: b.gorsel, ad: b.ad, ton: DD.makroTon(b)}), baslik: b.ad, alt, ek: o.ek, deger: 'deger' in o ? o.deger : b.kcal != null ? `${sayi(b.kcal)} kcal` : null, git: o.git, veri: o.veri, sag: o.sag, ok: o.ok ?? false, duz: !!o.sag});
     if (!o.swipe) return satir;
     const ey = o.eylemler || [{eylem: 'miktar', ikon: 'duzenle', metin: 'Miktar', ton: 'notr'}, {eylem: 'sil', ikon: 'sil', metin: 'Sil', ton: 'yikici'}];
     return `<div class="dd-swipe" data-id="${esc(b.id ?? b.slug)}"><div class="dd-swipe-eylemler">${ey.map(e => `<button type="button" class="dd-swipe-eylem is-${e.ton || 'notr'}" data-eylem="${esc(e.eylem)}">${ik(e.ikon)}<span>${esc(e.metin)}</span></button>`).join('')}</div><div class="dd-swipe-on">${satir}</div></div>`;
@@ -354,10 +354,37 @@
   DD.guvenRozet = g => DD.durumRozet({metin: g >= 90 ? 'Eminim' : g >= 80 ? 'Büyük ihtimalle' : 'Kontrol et', ton: g >= 90 ? 'basari' : g >= 80 ? 'notr' : 'uyari', ikon: g >= 90 ? 'onay' : g >= 80 ? 'circle-info' : 'uyari'});
   DD.aiSatir = (b, o = {}) => DD.satir({sol: DD.gorsel({src: b.gorsel ?? null, ad: b.ad, ton: DD.makroTon(b)}), baslik: b.ad, alt: `${sayi(b.gram)} g · ${sayi(b.kcal)} kcal`, sag: `${DD.guvenRozet(b.guven)}${DD.ikonBtn({ikon: 'duzenle', etiket: `${b.ad} düzelt`, veri: {eylem: 'duzelt', id: b.id}})}`, ok: false, duz: true, sinif: liste('dd-ai-satir', o.secili && 'is-secili'), attrs: `data-ai-id="${esc(b.id)}"`});
   DD.varsayim = (o = {}) => `<button type="button" class="dd-veri-yok dd-varsayim"${at(o)}>${ik('bilgi')}<span>${vurgu(o.metin)}</span>${o.eylem ? `<b>${esc(o.eylem)}</b>` : ''}</button>`;
-  // Tabağım çubuğu: Gastro menü tepsisi (.bul-tepsi-ac, bul.js; Flutter DgMenuTray) — tint zemin, koyu kenar, kart radius'u 24, sh-md; 44'lük ikon kutusu,
-  // başlık + "N öğe · kcal", yukarı ok. Dokununca DD.tabagim.ac() (data-tabagim-ac, dd-ui.js). {adet, kcal, ogeler (geriye uyum; çizilmez)}
-  DD.tabagimBar = (o = {}) => `<div class="dd-tabagim"><button type="button" class="dd-tabagim-ac" data-tabagim-ac aria-label="Tabağımı aç: ${esc(o.adet)} öğe, ${sayi(o.kcal)} kcal"><span class="dd-eylem-ikon" aria-hidden="true">${ik('tabak')}</span><span class="dd-eylem-metin"><b>Tabağım</b><small>${esc(o.adet)} öğe · ${sayi(o.kcal)} kcal</small></span>${ik('chevron-up')}</button></div>`;
-  DD.tabagimListe = l => (l.length ? DD.satirlar(l.map(x => DD.besinSatir(x, {sag: DD.ikonBtn({ikon: 'sil', etiket: `${x.ad} çıkar`, veri: {'tabagim-cikar': x.id}})}))) : DD.bos({ikon: 'tabak', baslik: 'Tabağın boş', metin: 'Fotoğraf, barkod ya da aramayla eklediklerin **burada birikir**.'}));
+  // ---------- Tabağım: alt nav'ın üstünde yüzer kart + alttan açılan sayfa (DD.tabagim, dd-ui.js) ----------
+  // Gastro menü tepsisinden (.bul-tepsi-ac, bul.js) türer: kart radius 24, sh-md, 12/16 iç boşluk. Görseller Gastro .dgu-medya gibi span + background-image cover.
+  // Kapalı: üst üste en çok 3 yuvarlak görsel (+N rozeti), toplam kcal, enerji payına göre 3 renkli makro çubuğu ve gramlar, sağda "Öğüne ekle".
+  // Boş: tek düğme "Tabağın boş · Ne yedin?". Dokununca DD.tabagim.ac() (data-tabagim-ac); "Öğüne ekle" DD.tabagim.kaydet() (data-tabagim-kaydet).
+  const TABAK_MAKRO = [['P', 'protein', 'Protein', 4], ['K', 'karb', 'Karbonhidrat', 4], ['Y', 'yag', 'Yağ', 9]];
+  const tabakFoto = x => (x.gorsel ? `<span class="dd-tabagim-foto" style="background-image:url('${esc(x.gorsel)}')"></span>` : `<span class="dd-tabagim-foto is-yok">${ik('tabak')}</span>`);
+  DD.tabagimFotolar = l => `<span class="dd-tabagim-fotolar" aria-hidden="true">${l.slice(0, 3).map(tabakFoto).join('')}${l.length > 3 ? `<span class="dd-tabagim-fazla">+${l.length - 3}</span>` : ''}</span>`;
+  // {P, K, Y} gram. Çubuk enerji payını (4/4/9 kcal) gösterir, altında gramlar.
+  DD.tabagimMakro = (t, o = {}) => {
+    const e = TABAK_MAKRO.map(([k, , , c]) => (t[k] || 0) * c), top = e.reduce((a, b) => a + b, 0);
+    const aria = TABAK_MAKRO.map(([k, , ad]) => `${ad} ${sayi(t[k] || 0)} g`).join(', ');
+    return `<span class="${liste('dd-tabagim-makro', o.genis && 'is-genis')}"><span class="dd-tabagim-cubuk" role="img" aria-label="${esc(aria)}">${top ? TABAK_MAKRO.map(([, ton], i) => `<i class="is-${ton}" style="--pay:${(e[i] / top).toFixed(3)}"></i>`).join('') : ''}</span><span class="dd-tabagim-gram" aria-hidden="true">${TABAK_MAKRO.map(([k, ton, ad], i) => (o.genis ? `<span class="is-${ton}"><b>${ad}</b><span>${sayi(t[k] || 0)} g</span></span>` : `<span class="is-${ton}"><b>${k}</b>${sayi(t[k] || 0)}${i === 2 ? ' g' : ''}</span>`)).join('')}</span></span>`;
+  };
+  DD.tabagimKcal = kcal => `<b class="dd-tabagim-kcal">${sayi(kcal)}<small>kcal</small></b>`;
+  // {liste, toplam, eylem, ogun:{ad}}. Eski çağrı {adet, kcal, ogeler} de çizilir.
+  DD.tabagimBar = (o = {}) => {
+    const l = o.liste || o.ogeler || [], t = o.toplam || {adet: o.adet ?? l.length, kcal: o.kcal ?? 0};
+    if (!t.adet) return `<div class="dd-tabagim is-bos"><button type="button" class="dd-tabagim-kart" data-tabagim-ac aria-label="Tabağın boş. Ne yediğini ekle"><span class="dd-tabagim-bos-ikon" aria-hidden="true">${ik('tabak')}</span><span class="dd-tabagim-bos-metin"><b>Tabağın boş</b><span aria-hidden="true">·</span><span>Ne yedin?</span></span><span class="dd-tabagim-arti" aria-hidden="true">${ik('ekle')}</span></button></div>`;
+    return `<div class="dd-tabagim"><div class="dd-tabagim-kart"><button type="button" class="dd-tabagim-ac" data-tabagim-ac aria-label="Tabağımı aç: ${esc(t.adet)} öğe, ${sayi(t.kcal)} kcal">${DD.tabagimFotolar(l)}<span class="dd-tabagim-ozet">${DD.tabagimKcal(t.kcal)}${DD.tabagimMakro(t)}</span></button>${DD.btn({metin: o.eylem || 'Öğüne ekle', boyut: 'sm', sinif: 'dd-tabagim-ekle', etiket: o.ogun ? `${o.eylem || 'Öğüne ekle'}: ${o.ogun.ad}` : undefined, veri: {'tabagim-kaydet': 1}})}</div></div>`;
+  };
+  // Sayfa listesi: görsel, ad, porsiyon (adımlayıcı ×0,5), kcal; sola kaydırınca Sil (dd-eylem 'tabagim-sil'). Boşsa ekleme yolları.
+  const porsiyonAlt = x => [x.miktar != null && !/^(g|gram)$/.test(x.birim || '') ? `${ondalik(x.miktar, 2)} ${x.birim || ''}`.trim() : '', x.gram ? `${sayi(x.gram)} g` : x.miktar != null ? `${sayi(x.miktar)} g` : ''].filter(Boolean).join(' · ');
+  DD.besinSatirAlt = porsiyonAlt;
+  DD.tabagimListe = l => (l.length
+    ? `<div class="dd-tabagim-liste">${DD.satirlar(l.map(x => DD.besinSatir(x, {swipe: true, eylemler: [{eylem: 'tabagim-sil', ikon: 'sil', metin: 'Sil', ton: 'yikici'}], alt: porsiyonAlt(x), deger: null, ek: `<b class="dd-tabagim-oge-kcal">${sayi(x.kcal || 0)} kcal</b>`, sag: DD.stepper({ad: `tabagim-kat:${x.id}`, deger: x.kat || 1, min: .5, max: 10, adim: .5, aria: `${x.ad} porsiyon`})})))}<p class="dd-tabagim-ipucu">${ik('left-long')}<span>Çıkarmak için satırı sola kaydır</span></p></div>`
+    : `<div class="dd-yigin">${DD.bos({ikon: 'tabak', baslik: 'Tabağın boş', metin: 'Ne yediğini fotoğraf, arama, barkod ya da sesle ekle; **hepsi burada birikir**.'})}${DD.satirlar([
+      {ikon: 'kamera', baslik: 'Fotoğraf çek', alt: 'Tabağını tanıyalım', git: '#/ai/kamera'},
+      {ikon: 'ara_', baslik: 'Besin ara', alt: 'Listeden seç', git: '#/besin-ara'},
+      {ikon: 'barkod', baslik: 'Barkod tara', alt: 'Paketli ürün ekle', git: '#/ai/kamera?mod=barkod'},
+      {ikon: 'mikrofon', baslik: 'Sesle anlat', alt: 'Ne yediğini söyle', git: '#/ai/ses'}
+    ])}</div>`);
   // Öneri kartı: Gastro .dd-kart + .dd-eylem.is-secili dili; en uygun hali yeşil çerçeve.
   // Menü satırı sağı: tahmini kalori önde, puan altta.
   DD.menuDeger = (o = {}) => `<span class="dd-menu-deger"><b>≈ ${sayi(o.kcal)} kcal</b>${o.puan != null ? DD.skorRozet({skor: o.puan}) : ''}</span>`;

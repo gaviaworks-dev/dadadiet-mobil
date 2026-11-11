@@ -5,12 +5,8 @@
 (() => {
   const {sayi} = DD;
   const D = () => DDV.ai.disarida;
-  const toplam = (l, a) => l.reduce((t, x) => t + (x[a] || 0), 0);
-  const gunKalan = () => {
-    if (DD.yeniHesap()) return DD.yeniKalan();
-    const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
-    return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal') - DD.tabagim.toplam().kcal;
-  };
+  // Günün kalanı Bugün'deki halkayla aynı (DD.gunKalan, bugun.js); Tabağım'dakiler de düşülür.
+  const gunKalan = () => { const k = DD.gunKalan(); return k == null ? null : k - DD.tabagim.toplam().kcal; };
   const vurgu = s => s.replace(/(\d+(?:,\d+)? (?:kcal|g))/, '**$1**');
 
   const eklendi = slug => DD.tabagim.liste().some(x => x.slug === slug && x.taslak === 'ai-menu');

@@ -8,12 +8,8 @@
   const skorSozcuk = u => (u.skor < 40 ? 'Sık tüketmeye uygun değil' : u.skor >= 70 ? 'İyi seçim' : 'Ölçülü tüket');
   // Uzun sözcük satıra sığsın diye düşük skorda kategori yazılmaz.
   const urunKart = u => DD.skorKart({ad: u.ad, kategori: u.skor < 40 ? null : u.kategori, skor: u.skor, etiket: skorSozcuk(u)});
-  const toplam = (l, a) => l.reduce((t, x) => t + (x[a] || 0), 0);
-  const gunKalan = () => {
-    if (DD.yeniHesap()) return DD.yeniKalan();
-    const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
-    return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal') - DD.tabagim.toplam().kcal;
-  };
+  // Günün kalanı Bugün'deki halkayla aynı (DD.gunKalan, bugun.js); Tabağım'dakiler de düşülür.
+  const gunKalan = () => { const k = DD.gunKalan(); return k == null ? null : k - DD.tabagim.toplam().kcal; };
   const sonaEkle = ean => DD.durum.yaz('barkod-son', [ean, ...DD.durum.oku('barkod-son', []).filter(x => x !== ean)].slice(0, 5));
 
   const SATIR = [['kcal', 'Enerji', 'kcal', 'kalori'], ['P', 'Protein', 'g', 'protein'], ['K', 'Karbonhidrat', 'g', 'karb'], ['seker', 'Şeker', 'g', 'cube'], ['Y', 'Yağ', 'g', 'yag'], ['doymusYag', 'Doymuş yağ', 'g', 'yag'], ['Lif', 'Lif', 'g', 'lif'], ['tuz', 'Tuz', 'g', 'cubes-stacked']];

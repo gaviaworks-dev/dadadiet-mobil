@@ -84,7 +84,8 @@
   const govde = (b, p) => `${porsiyonHtml(b, p)}<div data-yuva="degerler">${degerler(b, p)}</div>${mikrolar(b)}${dagilim(b)}${araclar(b)}`;
 
   // ---------- Öğüne ekle ----------
-  const siradaki = () => { const d = DD.durum.oku('bugun-ogun', {}) || {}; return DDV.bugun.ogunler.find(o => o.durum === 'planli' && !d[o.id])?.id || 'ara'; };
+  // Seçilmiş hedef öğün yoksa saate göre (DD.saatOgunu): Tabağım çubuğu ve sayfasıyla aynı varsayılan.
+  const siradaki = () => DD.saatOgunu();
   const kalem = (b, p) => ({anahtar: b.slug, slug: b.slug, ad: b.ad, miktar: p.miktar, birim: p.birim, gram: p.gram, gorsel: b.gorsel, ...deger(b, p.gram)});
   const ogunSheet = (b, p) => {
     let ogun = DD.durum.oku('tabagim-ogun', null) || siradaki();

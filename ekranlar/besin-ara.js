@@ -36,8 +36,8 @@
 
   // ---------- Öğün ----------
   const ogunBul = id => DDV.bugun.ogunler.find(o => o.id === id);
-  // Bugün'ün kuralıyla aynı: seçim yoksa sıradaki planlı öğün, o da yoksa ara öğün.
-  const siradaki = () => { const d = DD.durum.oku('bugun-ogun', {}); return DDV.bugun.ogunler.find(o => o.durum === 'planli' && !d[o.id])?.id || 'ara'; };
+  // Seçilmiş hedef öğün yoksa saate göre (DD.saatOgunu): Tabağım çubuğu ve sayfasıyla aynı varsayılan.
+  const siradaki = () => DD.saatOgunu();
 
   // ---------- Parçalar ----------
   // Kaynak ilk ekleyenindir: fotoğraftan gelen tabağa aramayla eklemek kaynağı değiştirmez.

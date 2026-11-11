@@ -15,7 +15,7 @@
   const adimSure = () => (DD.azHareket() ? 0 : DD.TK.motion.counter);
   const modAd = id => DDV.ai.kamera.modlar.find(m => m.id === id)?.ad;
   const ogunBul = id => DDV.bugun.ogunler.find(o => o.id === id);
-  const varsayilanOgun = ctx => (ogunBul(ctx.sorgu.ogun) || ogunBul(DD.durum.oku('tabagim-ogun', null)) || DDV.bugun.ogunler.find(o => o.durum === 'planli') || ogunBul(DDV.ai.tabak.ogunOnerisi)).id;
+  const varsayilanOgun = ctx => (ogunBul(ctx.sorgu.ogun) || ogunBul(DD.durum.oku('tabagim-ogun', null)) || ogunBul(DD.saatOgunu()) || ogunBul(DDV.ai.tabak.ogunOnerisi)).id;
 
   // Vizördeki kâğıtlar veriden gelir: menü DDV.ai.disarida, tahlil son kan tahlili.
   const menuBelge = () => {

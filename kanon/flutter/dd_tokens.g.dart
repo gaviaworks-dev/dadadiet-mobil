@@ -182,7 +182,7 @@ abstract final class DDSize {
   static const double chartDot = 10;
   static const double waveH = 64;
   static const double waveBar = 4;
-  static const double tabagimBar = 56;
+  static const double tabagimBar = 76;
   static const double countdownCell = 64;
   static const double line3 = 3;
   static const double choiceBorder = 1.5;

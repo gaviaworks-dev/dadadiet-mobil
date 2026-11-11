@@ -62,6 +62,8 @@
       kayitVar: l.some(x => x.durum !== 'bos')
     };
   };
+  // Günün kalanı, halkadaki "Kalan" ile aynı hesap. Tabağım sayfası, barkod, menü ve AI tabak buradan okur; hedef yoksa null.
+  DD.gunKalan = () => { if (DD.hedefsiz()) return null; const z = gunOzet(); return z.hedef - z.alinan; };
   const suOku = () => DD.durum.oku(anahtar('su'), yeniMi() ? {icilenMl: 0, kayitlar: []} : {icilenMl: DDV.bugun.su.icilenMl, kayitlar: DDV.bugun.su.kayitlar});
   const suYaz = s => DD.durum.yaz(anahtar('su'), {...s, icilenMl: toplam(s.kayitlar, 'ml')});
   const duyguOku = () => DD.durum.oku(anahtar('duygu'), yeniMi() ? null : DDV.bugun.duygu.secili);
@@ -358,7 +360,7 @@
   // Bugün hiç çizilmemiş olsa da kayıt kaybolmasın: dinleyici ekrandan bağımsızdır. 'tabagim-ogun' #/ogun/:id üzerinden gelen hedeftir.
   document.addEventListener('dd-tabagim-kaydet', e => {
     const ek = (e.detail.liste || []).filter(b => b.ad), l = DD.durum.oku(anahtar('ek'), {});
-    const id = DD.durum.oku('tabagim-ogun', null) || hedefOgun || ogunler().find(x => x.durum === 'planli')?.id || 'ara';
+    const id = DD.durum.oku('tabagim-ogun', null) || hedefOgun || DD.tabagim.ogun();
     const {foto, not, kaynak, guven} = e.detail, adlar = ek.map(b => b.ad.split(' (')[0]);
     kayitYaziliyor = true;
     const kayitId = !ek.length ? undefined : kayitDefteri()?.ekle({
@@ -382,6 +384,7 @@
     tur: 'sekme',
     nav: 'bugun',
     baslik: 'Bugün',
+    tabagimBos: true,   // Tabağım boşken de görünür: "Tabağın boş · Ne yedin?"
     ustBar: () => ({saydam: hazir}),   // iskelet ve hata fotoğrafsızdır; beyaz logo solid barda kalır
     yukle: () => {
       if (hal() === 'hata' && !hataGosterildi) { hataGosterildi = true; return Promise.reject(new Error('baglanti')); }

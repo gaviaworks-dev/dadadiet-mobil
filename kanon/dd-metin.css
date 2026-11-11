@@ -73,7 +73,6 @@ body :is(.dd-bayrak-metin b,.v3-cuisine .v3-cuisine-text b,.dd-uz-feature .dd-uz
 :root :is(.dd-tk-ozet){text-align:center}  /* dd-takvim.css */
 :root :is(.dd-tk-deger){text-align:start}  /* dd-takvim.css */
 :root :is(.dd-ogun-ust){text-align:start}  /* dd-yeni.css */
-:root :is(.dd-tabagim-ac){text-align:start}  /* dd-yeni.css */
 :root :is(.dd-halka-hedef,.dd-halka-orta,.dd-halka-yan,.dd-oruc-orta,.dd-skor-orta,.dd-kiyas-satir em,.dd-kiyas-bas){text-align:center}  /* dd-yeni.css */
 :root :is(.dd-pil,.dd-pil-metin){text-align:start}  /* dd-yeni.css */
 :root :is(.dd-yrm .dd-uz-rating-score){text-align:center}  /* dd-yorum.css */

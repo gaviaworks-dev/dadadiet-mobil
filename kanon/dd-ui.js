@@ -465,7 +465,7 @@
     el.innerHTML = `${ikon ? ik(ikon) : ''}<span>${vurgu(metin)}</span>${o.eylem ? `<button type="button">${esc(o.eylem)}</button>` : ''}`;
     const g = ust();
     // Gastro .dgu-snack: dock varken sayfa sonu boşluğu (pageEnd), yokken 24; alt eylem çubuğu varsa çubuğun 24 üstü.
-    if (g) el.style.setProperty('--dd-snack-alt', `${(R.sahne.classList.contains('has-dock') ? TK.size.pageEnd : TK.space[24]) + (g.el.querySelector('.dd-altbar')?.offsetHeight || 0) + (R.sahne.classList.contains('has-tabagim') && !R.sahne.classList.contains('has-tabagim-ust') ? TK.size.tabagimBar + TK.space[8] : 0)}px`);
+    if (g) el.style.setProperty('--dd-snack-alt', `${(R.sahne.classList.contains('has-dock') ? TK.size.pageEnd : TK.space[24]) + (g.el.querySelector('.dd-altbar')?.offsetHeight || 0) + (R.sahne.classList.contains('has-tabagim') && !R.sahne.classList.contains('has-tabagim-ust') ? TK.size.tabagimBar + TK.space[24] : 0)}px`);
     kat.append(el);
     requestAnimationFrame(() => el.classList.add('is-on'));
     let bitti = false;
@@ -481,6 +481,12 @@
 
   // ---------- Tabağım: fotoğraf, barkod, ses ve aramadan gelenler aynı taslakta birikir ----------
   const tKey = 'tabagim', mKey = 'tabagim-meta', META = ['foto', 'not', 'kaynak', 'guven'];
+  const PORS = ['kcal', 'P', 'K', 'Y', 'Lif', 'gram', 'miktar'];
+  // Öğünler veriden (DDV.bugun.ogunler sırası); kısa ad segment için, yönelme bildirim için.
+  const OGUN_AD = {kahvalti: ['Kahvaltı', 'Kahvaltıya'], ogle: ['Öğle', 'Öğle yemeğine'], ara: ['Ara', 'Ara öğüne'], aksam: ['Akşam', 'Akşam yemeğine']};
+  const OGUNLER = () => { const l = (window.DDV?.bugun?.ogunler || []).filter(o => OGUN_AD[o.id]); return (l.length ? l : Object.keys(OGUN_AD).map(id => ({id, ad: OGUN_AD[id][0]}))).map(o => ({id: o.id, ad: o.ad, kisa: OGUN_AD[o.id][0], yonelme: OGUN_AD[o.id][1]})); };
+  // Saate göre öğün: 04.00-10.59 kahvaltı, 11.00-14.59 öğle, 18.00-21.59 akşam, kalanı ara öğün.
+  DD.saatOgunu = (an = DD.simdi()) => { const h = an.getHours(); return h >= 4 && h < 11 ? 'kahvalti' : h >= 11 && h < 15 ? 'ogle' : h >= 18 && h < 22 ? 'aksam' : 'ara'; };
   DD.tabagim = {
     liste: () => DD.durum.oku(tKey, []),
     toplam() { const l = this.liste(); return {adet: l.length, kcal: l.reduce((a, x) => a + (x.kcal || 0), 0), P: l.reduce((a, x) => a + (x.P || 0), 0), K: l.reduce((a, x) => a + (x.K || 0), 0), Y: l.reduce((a, x) => a + (x.Y || 0), 0), Lif: l.reduce((a, x) => a + (x.Lif || 0), 0)}; },
@@ -489,23 +495,70 @@
     ekle(oge) { const m = Object.fromEntries(META.filter(k => oge[k] != null).map(k => [k, oge[k]])); if (Object.keys(m).length) this.meta({...m, ...this.meta()}); const l = this.liste(); l.push({id: `t${Date.now()}${l.length}`, ...oge}); DD.durum.yaz(tKey, l); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
     cikar(id) { const l = this.liste().filter(x => x.id !== id); DD.durum.yaz(tKey, l); if (!l.length) DD.durum.sil(mKey); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l; },
     temizle() { DD.durum.sil(tKey); DD.durum.sil(mKey); this._bar(); yay(belge, 'dd-tabagim', {liste: []}); },
+    // Porsiyon çarpanı (×0,5 adım). İlk değerler 'taban'da kalır; kcal, makro, gram ve miktar tabandan yeniden hesaplanır (yuvarlama birikmez).
+    porsiyon(id, kat) {
+      const l = this.liste().map(x => {
+        if (x.id !== id) return x;
+        const t = x.taban || Object.fromEntries(PORS.filter(k => x[k] != null).map(k => [k, x[k]])), y = {...x, taban: t, kat};
+        PORS.forEach(k => { if (t[k] != null) y[k] = k === 'kcal' || k === 'gram' ? Math.round(t[k] * kat) : Math.round(t[k] * kat * 10) / 10; });
+        return y;
+      });
+      DD.durum.yaz(tKey, l); this._bar(); yay(belge, 'dd-tabagim', {liste: l}); return l;
+    },
+    // Hedef öğün: bir ekranın seçtiği ('tabagim-ogun': öğün sayfası, kamera, arama, sayfadaki segment) yoksa saate göre.
+    ogun: () => { const s = DD.durum.oku('tabagim-ogun', null); return OGUNLER().some(x => x.id === s) ? s : DD.saatOgunu(); },
+    ogunler: () => OGUNLER(),
+    // Kayıt Bugün'de olur (bugun.js 'dd-tabagim-kaydet' dinler, hedefi 'tabagim-ogun'dan okur).
+    kaydet(ogun = this.ogun()) {
+      const l = this.liste(); if (!l.length) return;
+      const t = this.toplam(), m = this.meta(), o = OGUNLER().find(x => x.id === ogun);
+      DD.durum.yaz('tabagim-ogun', ogun);
+      yay(belge, 'dd-tabagim-kaydet', {liste: l, toplam: t, meta: m, ...m});
+      this.temizle();
+      DD.toast(`${o ? o.yonelme : 'Öğüne'} eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari', eylem: 'Tabaklarım', onEylem: () => DD.git('#/tabaklarim')});
+    },
     ac(o = {}) {
-      const ciz_ = () => DD.tabagimListe(this.liste());
-      return DD.sheet({baslik: 'Tabağım', html: ciz_(), altBar: DD.btn({metin: o.eylem || 'Öğüne ekle', ikon: 'onay', tam: true, veri: {'tabagim-kaydet': 1}}), sonra: (k, h) => {
+      let ogun = this.ogun();
+      const baslik = () => { const n = this.liste().length; return n ? `Tabağım · ${n} öğe` : 'Tabağım'; };
+      const ayak = () => {
+        const l = this.liste(); if (!l.length) return '';
+        const t = this.toplam(), k = DD.gunKalan?.(), kalan = k == null ? null : Math.round(k - t.kcal);
+        const kalanHtml = kalan == null ? '' : `<div class="${kalan < 0 ? 'is-asim' : ''}"><span>${kalan < 0 ? 'Bu öğünle hedefin' : 'Bu öğünle kalan'}</span><b>${sayi(Math.abs(kalan))} kcal${kalan < 0 ? ' üstünde' : ''}</b></div>`;
+        return `<div class="dd-tabagim-ayak"><div class="dd-tabagim-toplam"><div><span>Toplam</span>${DD.tabagimKcal(t.kcal)}</div>${kalanHtml}</div>${DD.tabagimMakro(t, {genis: true})}${DD.segment({ad: 'tabagim-ogun', etiket: 'Öğün', ogeler: OGUNLER().map(x => ({ad: x.kisa, deger: x.id})), secili: ogun})}${DD.btn({metin: o.eylem || 'Öğüne ekle', ikon: 'onay', tam: true, veri: {'tabagim-kaydet': 1}})}</div>`;
+      };
+      return DD.sheet({baslik: baslik(), sinif: 'dd-tabagim-sayfa', html: DD.tabagimListe(this.liste()), altBar: ayak(), sonra: (k, h) => {
+        const tazele = (liste = true) => {
+          k.querySelector('.dd-sheet-bas h2').textContent = baslik(); k.setAttribute('aria-label', baslik());
+          if (liste) k.querySelector('.dd-sheet-govde').innerHTML = DD.tabagimListe(this.liste());
+          const html = ayak(); let a = k.querySelector('.dd-sheet-ayak');
+          if (!html) { a?.remove(); return; }
+          if (!a) { a = belge.createElement('div'); a.className = 'dd-sheet-ayak'; k.append(a); }
+          a.innerHTML = html;
+        };
+        k.addEventListener('dd-eylem', ev => { if (ev.detail?.eylem === 'tabagim-sil') { this.cikar(ev.detail.id); tazele(); } });
+        k.addEventListener('dd-degisim', ev => {
+          const ad = ev.detail?.ad || '';
+          if (ad === 'tabagim-ogun') { ogun = ev.detail.deger; DD.durum.yaz('tabagim-ogun', ogun); return; }
+          if (ad.startsWith('tabagim-kat:')) {
+            const id = ad.slice(12), x = this.porsiyon(id, +ev.detail.deger).find(y => y.id === id), satir = k.querySelector(`.dd-swipe[data-id="${CSS.escape(id)}"]`);
+            if (x && satir) { satir.querySelector('.dd-satir-metin small').textContent = DD.besinSatirAlt(x); satir.querySelector('.dd-tabagim-oge-kcal').textContent = `${sayi(x.kcal)} kcal`; }
+            tazele(false);
+          }
+        });
         k.addEventListener('click', ev => {
-          const sil = ev.target.closest('[data-tabagim-cikar]');
-          if (sil) { this.cikar(sil.dataset.tabagimCikar); k.querySelector('.dd-sheet-govde').innerHTML = ciz_(); if (!this.liste().length) h.kapat(); }
-          if (ev.target.closest('[data-tabagim-kaydet]')) { const l = this.liste(), t = this.toplam(), m = this.meta(); yay(belge, 'dd-tabagim-kaydet', {liste: l, toplam: t, meta: m, ...m}); this.temizle(); h.kapat(); DD.toast(`Öğüne eklendi: **${sayi(t.kcal)} kcal**`, {tur: 'basari', eylem: 'Tabaklarım', onEylem: () => DD.git('#/tabaklarim')}); }
+          if (ev.target.closest('[data-tabagim-kaydet]')) { this.kaydet(ogun); h.kapat(); return; }
+          if (ev.target.closest('[data-git]')) h.kapat();
         });
       }});
     },
     _bar() {
       const kat = belge.getElementById('dd-tabagim'); if (!kat) return;
       const g = ust(), t = this.toplam();
-      const goster_ = t.adet && g && (g.e.tabagim === true || g.e.tabagim === 'ust' || (g.e.tabagim !== false && g.e.tur !== 'tam'));
+      const goster_ = g && (t.adet || g.e.tabagimBos) && (g.e.tabagim === true || g.e.tabagim === 'ust' || (g.e.tabagim !== false && g.e.tur !== 'tam'));
       R.sahne.classList.toggle('has-tabagim-ust', !!goster_ && g.e.tabagim === 'ust');
-      kat.innerHTML = goster_ ? DD.tabagimBar({adet: t.adet, kcal: t.kcal, ogeler: this.liste()}) : '';
+      kat.innerHTML = goster_ ? DD.tabagimBar({liste: this.liste(), toplam: t, ogun: OGUNLER().find(x => x.id === this.ogun())}) : '';
       R.sahne.classList.toggle('has-tabagim', !!goster_);
+      R.sahne.classList.toggle('has-tabagim-bos', !!goster_ && !t.adet);
       if (g) kat.style.setProperty('--dd-tabagim-alt', `${g.el.querySelector('.dd-altbar')?.offsetHeight || 0}px`);
     }
   };
@@ -676,6 +729,7 @@
     const sw = t.closest('.dd-swipe-eylem');
     if (sw) { const k = sw.closest('.dd-swipe'); swipeKapat(k); yay(k, 'dd-eylem', {eylem: sw.dataset.eylem, id: k.dataset.id}); return; }
     if (t.closest('[data-tabagim-ac]')) { DD.tabagim.ac(); return; }
+    if (t.closest('[data-tabagim-kaydet]') && !t.closest('.dd-sheet')) { DD.tabagim.kaydet(); return; }
     const ub = t.closest('[data-uzunbas]');
     if (ub && ev.detail === 0) { // klavye ve ekran okuyucu: uzun bas yerine onay
       DD.dialog({baslik: ub.dataset.onayBaslik || ub.textContent.trim(), metin: ub.dataset.onayMetin || '', eylem: ub.dataset.onayEylem || 'Onayla'}).then(v => { if (v) yay(ub, 'dd-onay', {ad: ub.dataset.ad}); });

@@ -500,16 +500,64 @@
 .dd-belge.is-barkod{display:grid;place-content:center;justify-items:center;gap:var(--dd-s-4);padding:var(--dd-s-8)}
 .dd-kamera-yukleniyor.is-satir{position:static;display:inline-block;margin:0}
 
-/* Tabağım: alt eylem çubuğu kabuğu */
-.dd-tabagim-kat{position:absolute;left:0;right:0;bottom:calc(var(--dd-size-nav-bottom) + env(safe-area-inset-bottom,0px) + var(--dd-tabagim-alt,0px));z-index:32;padding-inline:var(--dd-size-nav-edge)}
-.dd-kok.has-dock .dd-tabagim-kat{bottom:calc(var(--dd-size-nav-bar) + var(--dd-size-nav-bottom) + var(--dd-s-12) + env(safe-area-inset-bottom,0px))}
+/* Tabağım: alt nav'ın üstünde yüzer kart. Katman (dd-tabagim-kat) içerik üstünde durur, kâğıt şerit yok.
+   Nav'ın orta düğmesi (Ne Yedim?) nav'ın 12 üstüne taşar; kart nav'dan 24 yukarıda başlar, düğmeyle arasında 12 kalır. */
+.dd-tabagim-kat{position:absolute;left:0;right:0;bottom:calc(var(--dd-size-nav-bottom) + env(safe-area-inset-bottom,0px) + var(--dd-tabagim-alt,0px));z-index:32;padding-inline:var(--dd-size-nav-edge);pointer-events:none}
+.dd-tabagim-kat>*{pointer-events:auto}
+.dd-kok.has-dock .dd-tabagim-kat{bottom:calc(var(--dd-size-nav-bar) + var(--dd-size-nav-bottom) + var(--dd-s-24) + env(safe-area-inset-bottom,0px))}
 .dd-kok.has-tabagim-ust .dd-tabagim-kat{top:calc(env(safe-area-inset-top,0px) + var(--dd-s-64));bottom:auto}
-/* Tabağım çubuğu = Gastro menü tepsisi (bul.css:39–41 .bul-tepsi-ac): tint zemin, primary-dark kenar, kart radius'u, sh-md, iç 12/16, ızgara 44 · metin · ok.
-   Gastro'daki kâğıt şerit (.bul-tepsi) sayfa içi yapışkan sarmalayıcıdır; Diet'te katman (dd-tabagim-kat) içerik üstünde yüzer, şerit yok. */
-.dd-tabagim-ac{display:grid;grid-template-columns:var(--dd-size-action-icon) minmax(0,1fr) auto;align-items:center;gap:var(--dd-s-12);width:100%;padding:var(--dd-s-12) var(--dd-s-16);border:var(--dd-size-border) solid var(--dd-primary-dark);border-radius:var(--dd-r-surface);background:var(--dd-primary-tint);color:var(--dd-ink);text-align:justify;text-align-last:start;box-shadow:var(--dd-sh-md);cursor:pointer}
-.dd-tabagim-ac .dd-eylem-ikon{background:var(--dd-paper)}
-.dd-tabagim-ac>.icon:last-child{color:var(--dd-primary-deep);font-size:var(--dd-size-icon-sm)}
-.dd-tabagim-ac:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
+/* Kart: Gastro menü tepsisi (bul.css .bul-tepsi-ac) ölçüsü — kart radius'u 24, sh-md, iç 12/16 — kâğıt zemin, primary-line kenar.
+   Sol + orta tek düğme (sayfayı açar), sağda ayrı birincil düğme (Öğüne ekle). */
+.dd-tabagim-kart{display:flex;align-items:center;gap:var(--dd-s-12);width:100%;min-height:var(--dd-size-tabagim-bar);padding:var(--dd-s-12) var(--dd-s-12) var(--dd-s-12) var(--dd-s-16);border:var(--dd-size-border) solid var(--dd-primary-line);border-radius:var(--dd-r-surface);background:var(--dd-paper);color:var(--dd-ink);box-shadow:var(--dd-sh-sm),var(--dd-sh-md)}
+.dd-tabagim-ac{display:flex;align-items:center;gap:var(--dd-s-12);flex:1;min-width:0;align-self:stretch;padding:0;border:0;border-radius:var(--dd-r-control);background:none;color:inherit;font:inherit;text-align:start;cursor:pointer}
+.dd-tabagim-ac:focus-visible,.dd-tabagim.is-bos .dd-tabagim-kart:focus-visible{outline:calc(var(--dd-size-border) * 2) solid var(--dd-primary-dark);outline-offset:calc(var(--dd-size-border) * 2)}
+.dd-tabagim-ekle{flex:none}
+/* Üst üste yuvarlak görseller: en çok 3, fazlası sağ altta sayaç rozeti. */
+.dd-tabagim-fotolar{position:relative;display:flex;flex:none;padding-block-end:var(--dd-s-2)}
+.dd-tabagim-foto{display:grid;place-items:center;flex:none;width:calc(var(--dd-size-box-sm) + var(--dd-s-4));height:calc(var(--dd-size-box-sm) + var(--dd-s-4));border:var(--dd-size-border2) solid var(--dd-paper);border-radius:50%;background:var(--dd-primary-tint) center/cover no-repeat;color:var(--dd-primary-dark);font-size:var(--dd-size-icon-sm);box-shadow:var(--dd-sh-sm)}
+.dd-tabagim-foto+.dd-tabagim-foto{margin-inline-start:calc(-1 * var(--dd-s-12))}
+.dd-tabagim-fazla{position:absolute;right:calc(-1 * var(--dd-s-4));bottom:calc(-1 * var(--dd-s-2));display:grid;place-items:center;min-width:var(--dd-size-badge-sm);height:var(--dd-size-badge-sm);padding:0 var(--dd-s-4);border:var(--dd-size-border2) solid var(--dd-paper);border-radius:var(--dd-r-switch);background:var(--dd-primary-dark);color:var(--dd-paper);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-label-size);line-height:1;font-variant-numeric:tabular-nums}
+/* Orta: toplam kcal büyük, altında makro çubuğu ve gramlar. */
+.dd-tabagim-ozet{display:grid;gap:var(--dd-s-4);flex:1;min-width:0}
+.dd-tabagim-kcal{display:flex;align-items:baseline;gap:var(--dd-s-4);color:var(--dd-ink);font-family:var(--dd-t-numeral-md-family);font-weight:var(--dd-t-numeral-md-weight);font-size:var(--dd-t-numeral-md-size);line-height:1;letter-spacing:-.025em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dd-tabagim-kcal small{color:var(--dd-slate);font-family:var(--dd-font);font-weight:var(--dd-t-meta-weight);font-size:var(--dd-t-meta-size);letter-spacing:0}
+.dd-tabagim-makro{display:grid;gap:var(--dd-s-4);min-width:0}
+.dd-tabagim-cubuk{display:flex;gap:var(--dd-s-2);height:var(--dd-size-progress);overflow:hidden;border-radius:var(--dd-r-switch);background:var(--dd-line)}
+.dd-tabagim-cubuk i{flex:var(--pay) 1 0;min-width:var(--dd-s-2);border-radius:var(--dd-r-switch)}
+.dd-tabagim-cubuk .is-protein,.dd-tabagim-gram .is-protein::before{background:var(--dd-protein)}
+.dd-tabagim-cubuk .is-karb,.dd-tabagim-gram .is-karb::before{background:var(--dd-karb)}
+.dd-tabagim-cubuk .is-yag,.dd-tabagim-gram .is-yag::before{background:var(--dd-yag)}
+.dd-tabagim-gram{display:flex;gap:var(--dd-s-8);overflow:hidden;color:var(--dd-slate);font-size:var(--dd-t-label-size);line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dd-tabagim-gram>span{display:inline-flex;align-items:baseline;gap:var(--dd-s-2)}
+.dd-tabagim-gram b{font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-tabagim-gram .is-protein b{color:var(--dd-protein-text)}
+.dd-tabagim-gram .is-karb b{color:var(--dd-karb-text)}
+.dd-tabagim-gram .is-yag b{color:var(--dd-yag-text)}
+/* Geniş hal (sayfa altı): 6'lık çubuk, renk noktalı tam adlar, iki yana yaslı. */
+.dd-tabagim-makro.is-genis{gap:var(--dd-s-8)}
+.dd-tabagim-makro.is-genis .dd-tabagim-cubuk{height:var(--dd-size-macro-bar)}
+.dd-tabagim-makro.is-genis .dd-tabagim-gram{justify-content:space-between;font-size:var(--dd-t-meta-size)}
+.dd-tabagim-makro.is-genis .dd-tabagim-gram>span{align-items:center;gap:var(--dd-s-4)}
+.dd-tabagim-makro.is-genis .dd-tabagim-gram>span::before{content:'';flex:none;width:var(--dd-s-8);height:var(--dd-s-8);border-radius:50%}
+.dd-tabagim-makro.is-genis .dd-tabagim-gram b{color:var(--dd-ink);font-family:var(--dd-font);font-weight:var(--dd-t-meta-weight)}
+.dd-tabagim-makro.is-genis .dd-tabagim-gram b+*{font-family:var(--dd-font-bold)}
+/* Boş hal: kesik çizgili tabak, tek satır metin, sağda artı kutusu. */
+.dd-tabagim.is-bos .dd-tabagim-kart{min-height:0;padding:var(--dd-s-8) var(--dd-s-8) var(--dd-s-8) var(--dd-s-12);font:inherit;text-align:start;cursor:pointer}
+.dd-tabagim-bos-ikon{display:grid;place-items:center;flex:none;width:var(--dd-size-box-md);height:var(--dd-size-box-md);border:var(--dd-size-choice-border) dashed var(--dd-primary-line);border-radius:50%;background:var(--dd-primary-tint);color:var(--dd-primary-dark);font-size:var(--dd-size-icon-md)}
+.dd-tabagim-bos-metin{display:flex;align-items:baseline;gap:var(--dd-s-8);flex:1;min-width:0;color:var(--dd-slate);font-size:var(--dd-t-body-size);line-height:1.3;white-space:nowrap}
+.dd-tabagim-bos-metin b{color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold)}
+.dd-tabagim-arti{display:grid;place-items:center;flex:none;width:var(--dd-size-box-md);height:var(--dd-size-box-md);border-radius:var(--dd-r-control);background:var(--dd-primary);color:var(--dd-paper);font-size:var(--dd-size-icon-md)}
+/* Sayfa: satırda kcal adın altında, adımlayıcı sağda; altta toplam, hedefe etki, makro, öğün segmenti, düğme. */
+.dd-tabagim-oge-kcal{display:block;margin-top:var(--dd-s-2);color:var(--dd-ink);font-family:var(--dd-font-bold);font-weight:var(--dd-weight-bold);font-size:var(--dd-t-meta-size);line-height:1.3;font-variant-numeric:tabular-nums}
+.dd-tabagim-liste .dd-satir .dd-adimlayici{flex:none}
+.dd-tabagim-ipucu{display:flex;align-items:center;justify-content:center;gap:var(--dd-s-8);margin:0;padding-top:var(--dd-s-12);color:var(--dd-muted);font-size:var(--dd-t-meta-size);line-height:1.3}
+.dd-tabagim-ayak{display:grid;gap:var(--dd-s-16)}
+.dd-tabagim-toplam{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--dd-s-12)}
+.dd-tabagim-toplam>div{display:grid;gap:var(--dd-s-4);min-width:0}
+.dd-tabagim-toplam>div>span{color:var(--dd-slate);font-size:var(--dd-t-meta-size);line-height:1.3}
+.dd-tabagim-toplam>div+div{justify-items:end;text-align:end}
+.dd-tabagim-toplam>div+div>b{color:var(--dd-primary-dark);font-family:var(--dd-t-stat-family);font-weight:var(--dd-t-stat-weight);font-size:var(--dd-t-stat-size);line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dd-tabagim-toplam>.is-asim>b{color:var(--dd-danger)}
 
 /* Metin kanonu altında ortalı ve sola yaslı küçük satırlar */
 .dd-halka-hedef,.dd-halka-orta,.dd-halka-yan,.dd-oruc-orta,.dd-skor-orta,.dd-kiyas-satir em,.dd-kiyas-bas{text-align:justify;text-align-last:center}

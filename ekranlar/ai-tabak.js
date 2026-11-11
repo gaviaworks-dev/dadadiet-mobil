@@ -11,7 +11,7 @@
   const durum = () => DD.durum.oku(K, {});
   const yaz = d => DD.durum.yaz(K, d);
   const ogunAd = id => DDV.bugun.ogunler.find(o => o.id === id)?.ad;
-  const hedefOgun = () => durum().ogun || DDV.bugun.ogunler.find(o => o.durum === 'planli')?.id || T().ogunOnerisi;
+  const hedefOgun = () => durum().ogun || DD.tabagim.ogun();
 
   // Hazır notların tahmine etkisi. Yağsız pişti: yağın %40'ı düşer, kcal 9 kcal/g ile iner (varsayım). Sos yok: bileşenlerde sos sayılmadığı için tahmin değişmez.
   const YAG_PAY = .4, YAG_KCAL = 9;
@@ -36,12 +36,8 @@
   };
   const toplam = (l, a) => l.reduce((t, x) => t + (x[a] || 0), 0);
 
-  // Bugün'ün kalanı: veri + eklenen besinler + kaydedilen planlı öğünler.
-  const gunKalan = () => {
-    if (DD.yeniHesap()) return DD.yeniKalan();
-    const d = DD.durum.oku('bugun-ogun', {}), plan = DDV.bugun.ogunler.filter(o => o.durum === 'planli' && d[o.id]?.durum === 'dolu');
-    return DDV.bugun.kalanKcal - toplam(Object.values(DD.durum.oku('bugun-ek', {})).flat(), 'kcal') - toplam(plan, 'kcal');
-  };
+  // Bugün'ün kalanı, halkadaki "Kalan" ile aynı (DD.gunKalan, bugun.js).
+  const gunKalan = () => DD.gunKalan();
   const buCekim = x => x.taslak === K && x.cekim === durum().cekim;
   const tabagimda = () => DD.tabagim.liste().some(buCekim);
   const metaYaz = l => { const d = durum(); DD.tabagim.meta({foto: T().gorsel, kaynak: d.kaynak || 'kamera', guven: Math.round(toplam(l, 'guven') / l.length), not: d.not || ''}); };
